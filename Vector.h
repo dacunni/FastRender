@@ -9,6 +9,10 @@
 #ifndef _VECTOR_H_
 #define _VECTOR_H_
 
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+
 template< typename T > inline T sq( T & t ) { return t * t; }
 
 class Vector4 
@@ -34,6 +38,7 @@ public:
 	void normalize();
 	
 	void print();
+    void fprintCSV( FILE * file );
 	
 	float data[4];
 };
@@ -44,6 +49,7 @@ void add( const Vector4 & a, const Vector4 & b, Vector4 & r );
 void subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
 void scale( const Vector4 & a, float s, Vector4 & r );
 void perspective_scale( const Vector4 & a, Vector4 & r );
+
 
 
 #endif

@@ -52,6 +52,11 @@ void Vector4::print()
 	printf( "V4( %f %f %f %f )\n", data[0], data[1], data[2], data[3] );
 }
 
+void Vector4::fprintCSV( FILE * file )
+{
+	fprintf( file, "%f,%f,%f,%f\n", data[0], data[1], data[2], data[3] );
+}
+
 // TODO - Decide whether to normalize by 1/w before doing this
 void dot( const Vector4 & a, const Vector4 & b, float & r )
 {

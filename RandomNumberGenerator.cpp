@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #include "RandomNumberGenerator.h"
 
@@ -28,3 +29,35 @@ void RandomNumberGenerator::seedCurrentTime()
 {
 	srand( time( NULL ) );
 }
+
+// Generate a random 3D point on the surface of the unit sphere by means of the rejection method
+void RandomNumberGenerator::uniformSurfaceUnitSphere( float & x, float & y, float & z )
+{
+    float len_sq;
+    
+    do {
+        x = uniformRange( -1.0, 1.0 );
+        y = uniformRange( -1.0, 1.0 );
+        z = uniformRange( -1.0, 1.0 );
+    } while( (len_sq = x*x + y*y + z*z) > 1.0 );
+    
+    float len = sqrt( len_sq );
+
+    if( len > 0.0 ) {
+        x /= len;
+        y /= len;
+        z /= len;
+    }
+}
+
+// Generate a random 3D point within the unit sphere by means of the rejection method
+void RandomNumberGenerator::uniformVolumeUnitSphere( float & x, float & y, float & z )
+{
+    do {
+        x = uniformRange( -1.0, 1.0 );
+        y = uniformRange( -1.0, 1.0 );
+        z = uniformRange( -1.0, 1.0 );
+    } while( x*x + y*y + z*z > 1.0 );
+}
+
+

@@ -18,7 +18,9 @@ public:
 	
 	float uniform01( void );
 	float uniformRange( float min, float max );
-	
+	void uniformSurfaceUnitSphere( float & x, float & y, float & z );
+    void uniformVolumeUnitSphere( float & x, float & y, float & z );
+    
 	void seedCurrentTime();
 	
 };
