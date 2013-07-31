@@ -33,6 +33,11 @@ public:
 		return data[i]; 
 	}
 	
+    float x() const { return data[0]; }
+    float y() const { return data[1]; }
+    float z() const { return data[2]; }
+    float w() const { return data[3]; }
+    
 	float magnitude_sq();
 	float magnitude();
 	void normalize();

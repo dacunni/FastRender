@@ -12,6 +12,7 @@
 #include "RandomNumberGenerator.h"
 #include "Scene.h"
 #include "FlatContainer.h"
+#include "AxisAlignedSlab.h"
 
 RandomNumberGenerator rng;
 
@@ -56,47 +57,76 @@ void testRandom() {
 
 void testManySpheres() {
     Sphere sphere( Vector4( 0.0, 0.0, 0.0 ), 5.0 );
-	Ray ray( Vector4( 0.0, 0.0, -5.0 ), Vector4( 0.0, 0.0, 1.0 ) );
+	Ray ray( Vector4( 0.0, 0.0, -5.0 ), Vector4( 0.0, 0.0, -1.0 ) );
+    float foo = -0.25; // TEMP
+    AxisAlignedSlab * aaslab = new AxisAlignedSlab( -0.15+foo, -0.15, -7.0,
+                                                     0.15+foo,  0.15, -7.3 );
 	RayIntersection intersection;
-        
+    
+    int imageWidth = 500, imageHeight = 500;
+    
+    Matrix4x4 projectionMatrix;
+    projectionMatrix.identity();
+    
+    
 	Scene scene;
 	FlatContainer * container = new FlatContainer();
 	
-	for( int si = 0; si < 20; si++ ) {
+    const int numSpheres = 20;
+    
+	for( int si = 0; si < numSpheres; si++ ) {
 		container->add( new Sphere( Vector4( rng.uniformRange( -1.5, 1.5 ),
-                                            rng.uniformRange( -1.5, 1.5 ),
-                                            rng.uniformRange( -0.5, 0.5 ) ),
-								   0.15 ) );
+                                             rng.uniformRange( -1.5, 1.5 ),
+                                             rng.uniformRange( -20.0, -10.0 ) ),
+ 								    0.15 ) );
 	}
+    container->add( aaslab );
 	
 	scene.root = container;
     
+    Magick::Image image( Magick::Geometry( imageWidth, imageHeight ), "white" );
+    image.magick( "png" ); // set the output file type
+    Magick::Image normal_image( Magick::Geometry( imageWidth, imageHeight ), "black" );
+    normal_image.magick( "png" ); // set the output file type
+
     // FIXME - better handling of output files
     FILE * intersections_file = fopen( "/Users/dacunni/Projects/FastRender/output/intersections.txt", "w" );
     // write eye location
     ray.origin.fprintCSV(intersections_file);
     // intersect with scene
-    int numSpheres = 20000;
-    printf( "Intersecting with %d spheres\n", numSpheres );
-	for( int i = 0; i < numSpheres; i++ ) {
-		ray.direction[1] = rng.uniformRange( -0.25, 0.25 );
-		ray.direction[0] = rng.uniformRange( -0.25, 0.25 );
-		ray.direction.normalize();
-		bool hit = scene.intersect( ray, intersection );
-        if( hit ) {
-            intersection.position.fprintCSV( intersections_file );
+    float xmin = -0.25;
+    float xmax = 0.25;
+    float ymin = -0.25;
+    float ymax = 0.25;
+
+    for( int row = 0; row < imageHeight; row++ ) {
+        for( int col = 0; col < imageWidth; col++ ) {
+            ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
+            ray.direction[1] = (float) row / imageHeight * (ymax - ymin) + ymin;
+            ray.direction[2] = -1.0;
+            ray.direction.normalize();
+            bool hit = scene.intersect( ray, intersection );
+            if( hit ) {
+                intersection.position.fprintCSV( intersections_file );
+                image.pixelColor(col, row, Magick::Color("black"));
+                normal_image.pixelColor(col, row,
+                                        Magick::ColorRGB(intersection.normal.x() * 0.5 + 0.5,
+                                                         intersection.normal.y() * 0.5 + 0.5,
+                                                         1.0));
+            }
         }
     }
     fclose( intersections_file );
 	
-    Magick::Image image( "500x500", "white" );
-    image.magick( "png" ); // set the output file type
-    image.pixelColor( 100, 100, Magick::Color("red") );
+    //image.pixelColor( 100, 100, Magick::Color("black") );
     image.write( "/Users/dacunni/Projects/FastRender/output/framebuffer.png" );
+    normal_image.write( "/Users/dacunni/Projects/FastRender/output/normals.png" );
 }
 
+// TODO - make tests for Transforms
+
 int main (int argc, char * const argv[]) {
-    printf("FastRender\n");
+    printf("FastRender\n"); fflush(stdout);
 
     rng.seedCurrentTime();
 
@@ -105,6 +135,7 @@ int main (int argc, char * const argv[]) {
     //testRandom();
     testManySpheres();
     
+    printf("Done\n"); fflush(stdout);
     return 0;
 }
 

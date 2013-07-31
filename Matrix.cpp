@@ -51,7 +51,7 @@ void Matrix4x4::print()
 	}
 }
 
-void mult( Matrix4x4 & A, Matrix4x4 & B, Matrix4x4 & R )
+void mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R )
 {
 	for( int r = 0; r < 4; r++ ) {
 		for( int c = 0; c < 4; c++ ) {
@@ -59,6 +59,16 @@ void mult( Matrix4x4 & A, Matrix4x4 & B, Matrix4x4 & R )
 						 + A.at( r, 1 ) * B.at( 1, c )
 						 + A.at( r, 2 ) * B.at( 2, c )
 						 + A.at( r, 3 ) * B.at( 3, c );
+		}
+	}
+}
+
+void mult( const Matrix4x4 & A, const Vector4 & v, Vector4 & result )
+{
+    for( int r = 0; r < 4; r++ ) {
+        result[r] = 0.0;
+		for( int c = 0; c < 4; c++ ) {
+			result[r] += A.at( r, c ) * v[c];
 		}
 	}
 }
