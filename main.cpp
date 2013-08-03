@@ -57,10 +57,7 @@ void testRandom() {
 
 void testManySpheres() {
     Sphere sphere( Vector4( 0.0, 0.0, 0.0 ), 5.0 );
-	Ray ray( Vector4( 0.0, 0.0, -5.0 ), Vector4( 0.0, 0.0, -1.0 ) );
-    float foo = -0.25; // TEMP
-    AxisAlignedSlab * aaslab = new AxisAlignedSlab( -0.15+foo, -0.15, -7.0,
-                                                     0.15+foo,  0.15, -7.3 );
+	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
     int imageWidth = 500, imageHeight = 500;
@@ -77,11 +74,28 @@ void testManySpheres() {
 	for( int si = 0; si < numSpheres; si++ ) {
 		container->add( new Sphere( Vector4( rng.uniformRange( -1.5, 1.5 ),
                                              rng.uniformRange( -1.5, 1.5 ),
-                                             rng.uniformRange( -20.0, -10.0 ) ),
+                                             rng.uniformRange( -10.0, -5.0 ) ),
  								    0.15 ) );
 	}
-    container->add( aaslab );
-	
+    
+    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1, -1.0,
+                                          0.1-0.45,  0.1, -5.3 ) );
+    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1, -1.0,
+                                          0.1+0.45,  0.1, -5.3 ) );
+    container->add( new AxisAlignedSlab( -0.1, -0.1+0.45, -1.0,
+                                          0.1,  0.1+0.45, -5.3 ) );
+    container->add( new AxisAlignedSlab( -0.1, -0.1-0.45, -1.0,
+                                          0.1,  0.1-0.45, -5.3 ) );
+
+    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1-0.45, -1.0,
+                                          0.1-0.45,  0.1-0.45, -5.3 ) );
+    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1+0.45, -1.0,
+                                          0.1-0.45,  0.1+0.45, -5.3 ) );
+    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1-0.45, -1.0,
+                                          0.1+0.45,  0.1-0.45, -5.3 ) );
+    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1+0.45, -1.0,
+                                          0.1+0.45,  0.1+0.45, -5.3 ) );
+
 	scene.root = container;
     
     Magick::Image image( Magick::Geometry( imageWidth, imageHeight ), "white" );
@@ -94,10 +108,10 @@ void testManySpheres() {
     // write eye location
     ray.origin.fprintCSV(intersections_file);
     // intersect with scene
-    float xmin = -0.25;
-    float xmax = 0.25;
-    float ymin = -0.25;
-    float ymax = 0.25;
+    float xmin = -0.15;
+    float xmax = 0.15;
+    float ymin = -0.15;
+    float ymax = 0.15;
 
     for( int row = 0; row < imageHeight; row++ ) {
         for( int col = 0; col < imageWidth; col++ ) {
@@ -112,7 +126,8 @@ void testManySpheres() {
                 normal_image.pixelColor(col, row,
                                         Magick::ColorRGB(intersection.normal.x() * 0.5 + 0.5,
                                                          intersection.normal.y() * 0.5 + 0.5,
-                                                         1.0));
+                                                         intersection.normal.z() * 0.5 + 0.5
+                                                         ));
             }
         }
     }

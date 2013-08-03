@@ -20,6 +20,8 @@ public:
     AxisAlignedSlab();
     virtual ~AxisAlignedSlab() {}
     
+    void correctMinMax( void );
+    
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
     float xmin, ymin, zmin;

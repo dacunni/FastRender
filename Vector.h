@@ -33,17 +33,17 @@ public:
 		return data[i]; 
 	}
 	
-    float x() const { return data[0]; }
-    float y() const { return data[1]; }
-    float z() const { return data[2]; }
-    float w() const { return data[3]; }
+    inline float x() const { return data[0]; }
+    inline float y() const { return data[1]; }
+    inline float z() const { return data[2]; }
+    inline float w() const { return data[3]; }
     
 	float magnitude_sq();
 	float magnitude();
 	void normalize();
 	
-	void print();
-    void fprintCSV( FILE * file );
+	void print() const;
+    void fprintCSV( FILE * file ) const;
 	
 	float data[4];
 };

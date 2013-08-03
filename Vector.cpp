@@ -47,12 +47,12 @@ void Vector4::normalize()
 	}
 }
 
-void Vector4::print()
+void Vector4::print() const
 {
 	printf( "V4( %f %f %f %f )\n", data[0], data[1], data[2], data[3] );
 }
 
-void Vector4::fprintCSV( FILE * file )
+void Vector4::fprintCSV( FILE * file ) const
 {
 	fprintf( file, "%f,%f,%f,%f\n", data[0], data[1], data[2], data[3] );
 }
