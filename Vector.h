@@ -18,10 +18,10 @@ template< typename T > inline T sq( T & t ) { return t * t; }
 class Vector4 
 {
 public:
-	Vector4() {}	
-	Vector4( const Vector4 & a );
-	Vector4( float x, float y, float z, float w = 1.0f );
-	~Vector4() {}
+	inline Vector4() {}
+	inline Vector4( const Vector4 & a );
+	inline Vector4( float x, float y, float z, float w = 1.0f );
+	inline ~Vector4() {}
 	
 	inline float & operator[]( int i ) 
 	{ 
@@ -48,13 +48,13 @@ public:
 	float data[4];
 };
 
-void dot( const Vector4 & a, const Vector4 & b, float & r );
-void cross( const Vector4 & a, const Vector4 & b, Vector4 & r );
-void add( const Vector4 & a, const Vector4 & b, Vector4 & r );
-void subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
-void scale( const Vector4 & a, float s, Vector4 & r );
-void perspective_scale( const Vector4 & a, Vector4 & r );
+inline void dot( const Vector4 & a, const Vector4 & b, float & r );
+inline void cross( const Vector4 & a, const Vector4 & b, Vector4 & r );
+inline void add( const Vector4 & a, const Vector4 & b, Vector4 & r );
+inline void subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
+inline void scale( const Vector4 & a, float s, Vector4 & r );
+inline void perspective_scale( const Vector4 & a, Vector4 & r );
 
-
+#include "Vector.hpp"
 
 #endif

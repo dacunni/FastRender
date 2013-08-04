@@ -9,6 +9,7 @@
 #ifndef _RAY_H_
 #define _RAY_H_
 
+#include <float.h>
 #include "Vector.h"
 
 
@@ -24,13 +25,14 @@ public:
 
 class RayIntersection {
 public:
-	RayIntersection() {}
+	RayIntersection() : best_hint(FLT_MAX) {}
 	~RayIntersection() {}
 	
 	Ray ray;
 	Vector4 position;
 	Vector4 normal;
 	float distance;
+    float best_hint;
 };
 
 

@@ -22,7 +22,11 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
 	dot( dst, dst, c );
 	c -= sq( radius );
 	d = sq( b ) - c;
-	
+
+    // Fail early if this intersection is farther than the closest hit so far
+    if( d > sq( intersection.best_hint ) )
+        return false;
+    
 	if( d > 0.0f ) {
 		intersection.ray = ray;
 		intersection.distance = -b - sqrt(d);

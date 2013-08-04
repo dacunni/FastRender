@@ -4,6 +4,7 @@
 
 // TEMP >>>
 #include <Magick++.h>
+#include <math.h>
 // TEMP <<<
 
 #include "Matrix.h"
@@ -74,9 +75,11 @@ void testManySpheres() {
 	for( int si = 0; si < numSpheres; si++ ) {
 		container->add( new Sphere( Vector4( rng.uniformRange( -1.5, 1.5 ),
                                              rng.uniformRange( -1.5, 1.5 ),
-                                             rng.uniformRange( -10.0, -5.0 ) ),
+                                             rng.uniformRange( -10.0, -3.0 ) ),
  								    0.15 ) );
 	}
+    
+    container->add( new Sphere( Vector4( 0.0, 0.0, -6.5 ), 0.3 ) );
     
     container->add( new AxisAlignedSlab( -0.1-0.45, -0.1, -1.0,
                                           0.1-0.45,  0.1, -5.3 ) );
@@ -95,13 +98,14 @@ void testManySpheres() {
                                           0.1+0.45,  0.1-0.45, -5.3 ) );
     container->add( new AxisAlignedSlab( -0.1+0.45, -0.1+0.45, -1.0,
                                           0.1+0.45,  0.1+0.45, -5.3 ) );
-
 	scene.root = container;
     
-    Magick::Image image( Magick::Geometry( imageWidth, imageHeight ), "white" );
+    Magick::Image image( Magick::Geometry( imageWidth, imageHeight ), "black" );
     image.magick( "png" ); // set the output file type
     Magick::Image normal_image( Magick::Geometry( imageWidth, imageHeight ), "black" );
     normal_image.magick( "png" ); // set the output file type
+    Magick::Image depth_image( Magick::Geometry( imageWidth, imageHeight ), Magick::ColorRGB(0.0f, 0.0f, 0.0f) );
+    depth_image.magick( "png" ); // set the output file type
 
     // FIXME - better handling of output files
     FILE * intersections_file = fopen( "/Users/dacunni/Projects/FastRender/output/intersections.txt", "w" );
@@ -122,12 +126,15 @@ void testManySpheres() {
             bool hit = scene.intersect( ray, intersection );
             if( hit ) {
                 intersection.position.fprintCSV( intersections_file );
-                image.pixelColor(col, row, Magick::Color("black"));
+                image.pixelColor(col, row, Magick::Color("white"));
                 normal_image.pixelColor(col, row,
                                         Magick::ColorRGB(intersection.normal.x() * 0.5 + 0.5,
                                                          intersection.normal.y() * 0.5 + 0.5,
-                                                         intersection.normal.z() * 0.5 + 0.5
-                                                         ));
+                                                         intersection.normal.z() * 0.5 + 0.5));
+                float output_depth = 1.0f / logf(intersection.distance + M_E);
+                output_depth = std::min( std::max( output_depth, 0.0f ), 1.0f );
+                
+                depth_image.pixelColor(col, row, Magick::ColorRGB(output_depth, output_depth, output_depth));
             }
         }
     }
@@ -136,6 +143,7 @@ void testManySpheres() {
     //image.pixelColor( 100, 100, Magick::Color("black") );
     image.write( "/Users/dacunni/Projects/FastRender/output/framebuffer.png" );
     normal_image.write( "/Users/dacunni/Projects/FastRender/output/normals.png" );
+    depth_image.write( "/Users/dacunni/Projects/FastRender/output/depth.png" );
 }
 
 // TODO - make tests for Transforms

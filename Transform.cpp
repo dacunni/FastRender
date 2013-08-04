@@ -48,7 +48,7 @@ Transform compose( const Transform & t1, const Transform & t2 )
 Transform makeRotation( float angle, const Vector4 & axis )
 {
     float cos_a = std::cos( angle );
-    float sin_a = std::sin( angle );
+    //float sin_a = std::sin( angle );
     Transform t;   
     Vector4 u = axis;
     u.normalize();
