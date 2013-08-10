@@ -10,6 +10,7 @@
 #define _RAY_H_
 
 #include <float.h>
+#include <math.h>
 #include "Vector.h"
 
 

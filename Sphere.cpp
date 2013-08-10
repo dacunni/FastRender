@@ -11,12 +11,16 @@
 
 #include "Sphere.h"
 
+unsigned long Sphere::intersection_test_count = 0;
+
 
 bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
 	Vector4 dst;
 	float b = 0, c = 0, d = 0;
 	
+    intersection_test_count++;
+    
 	subtract( ray.origin, center, dst );
 	dot( dst, ray.direction, b );
 	dot( dst, dst, c );

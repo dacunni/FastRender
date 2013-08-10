@@ -23,6 +23,9 @@ public:
 
 	Vector4 center;
 	float radius;
+    
+    static unsigned long intersection_test_count;       // Counts the number of intersection tests against
+                                                        // objects of this class    
 };
 
 

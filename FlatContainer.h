@@ -21,6 +21,8 @@ public:
 	virtual ~FlatContainer();
 	
 	virtual void add( Traceable * traceable );
+    virtual Traceable * at( int index ) { return objects[ index ]; }
+    virtual int size() { return objects.size(); }
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 	
 	std::vector<Traceable *> objects;

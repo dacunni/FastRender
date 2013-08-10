@@ -18,6 +18,8 @@ public:
 	
 	virtual void add( Traceable * traceable ) = 0;
 		
+    virtual Traceable * at( int index ) = 0;
+    virtual int size() = 0;
 };
 
 #endif

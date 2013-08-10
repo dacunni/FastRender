@@ -9,7 +9,6 @@
 #ifndef __FastRender__BoundingVolume__
 #define __FastRender__BoundingVolume__
 
-#include <iostream>
 #include "Traceable.h"
 
 class BoundingVolume : public Traceable
@@ -17,7 +16,6 @@ class BoundingVolume : public Traceable
 public:
     BoundingVolume() {}
     virtual ~BoundingVolume() {}
-    
     
 };
 

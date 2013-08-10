@@ -9,15 +9,14 @@
 #ifndef __FastRender__AxisAlignedSlab__
 #define __FastRender__AxisAlignedSlab__
 
-#include <iostream>
 #include "Traceable.h"
 
 class AxisAlignedSlab : public Traceable
 {
 public:
+    AxisAlignedSlab();
     AxisAlignedSlab( float xmin_default, float ymin_default, float zmin_default,
                      float xmax_default, float ymax_default, float zmax_default );
-    AxisAlignedSlab();
     virtual ~AxisAlignedSlab() {}
     
     void correctMinMax( void );
@@ -26,6 +25,9 @@ public:
 
     float xmin, ymin, zmin;
     float xmax, ymax, zmax;
+
+    static unsigned long intersection_test_count;       // Counts the number of intersection tests against
+                                                        // objects of this class
 };
 
 #endif /* defined(__FastRender__AxisAlignedSlab__) */

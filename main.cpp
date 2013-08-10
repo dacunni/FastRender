@@ -14,6 +14,7 @@
 #include "Scene.h"
 #include "FlatContainer.h"
 #include "AxisAlignedSlab.h"
+#include "Timer.h"
 
 RandomNumberGenerator rng;
 
@@ -66,21 +67,32 @@ void testManySpheres() {
     Matrix4x4 projectionMatrix;
     projectionMatrix.identity();
     
-    
+    printf( "Building scene\n" );
+    Timer build_scene_timer;
+    build_scene_timer.start();
 	Scene scene;
 	FlatContainer * container = new FlatContainer();
 	
     const int numSpheres = 20;
     
 	for( int si = 0; si < numSpheres; si++ ) {
+#if 0
+        float x = rng.uniformRange( -1.5, 1.5 );
+        float y = rng.uniformRange( -1.5, 1.5 );
+        float z = rng.uniformRange( -10.0, -3.0 );
+        container->add( new AxisAlignedSlab( x - 0.1, y - 0.1, z - 0.1,
+                                             x + 0.1, y + 0.1, z + 0.1 ) );
+#else
 		container->add( new Sphere( Vector4( rng.uniformRange( -1.5, 1.5 ),
                                              rng.uniformRange( -1.5, 1.5 ),
                                              rng.uniformRange( -10.0, -3.0 ) ),
  								    0.15 ) );
+#endif
 	}
     
     container->add( new Sphere( Vector4( 0.0, 0.0, -6.5 ), 0.3 ) );
-    
+
+#if 1
     container->add( new AxisAlignedSlab( -0.1-0.45, -0.1, -1.0,
                                           0.1-0.45,  0.1, -5.3 ) );
     container->add( new AxisAlignedSlab( -0.1+0.45, -0.1, -1.0,
@@ -98,7 +110,10 @@ void testManySpheres() {
                                           0.1+0.45,  0.1-0.45, -5.3 ) );
     container->add( new AxisAlignedSlab( -0.1+0.45, -0.1+0.45, -1.0,
                                           0.1+0.45,  0.1+0.45, -5.3 ) );
+#endif
 	scene.root = container;
+    build_scene_timer.stop();
+    printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
     
     Magick::Image image( Magick::Geometry( imageWidth, imageHeight ), "black" );
     image.magick( "png" ); // set the output file type
@@ -108,9 +123,9 @@ void testManySpheres() {
     depth_image.magick( "png" ); // set the output file type
 
     // FIXME - better handling of output files
-    FILE * intersections_file = fopen( "/Users/dacunni/Projects/FastRender/output/intersections.txt", "w" );
+    //FILE * intersections_file = fopen( "/Users/dacunni/Projects/FastRender/output/intersections.txt", "w" );
     // write eye location
-    ray.origin.fprintCSV(intersections_file);
+    //ray.origin.fprintCSV(intersections_file);
     // intersect with scene
     float xmin = -0.15;
     float xmax = 0.15;
@@ -123,9 +138,10 @@ void testManySpheres() {
             ray.direction[1] = (float) row / imageHeight * (ymax - ymin) + ymin;
             ray.direction[2] = -1.0;
             ray.direction.normalize();
+            intersection = RayIntersection();
             bool hit = scene.intersect( ray, intersection );
             if( hit ) {
-                intersection.position.fprintCSV( intersections_file );
+                //intersection.position.fprintCSV( intersections_file );
                 image.pixelColor(col, row, Magick::Color("white"));
                 normal_image.pixelColor(col, row,
                                         Magick::ColorRGB(intersection.normal.x() * 0.5 + 0.5,
@@ -138,18 +154,28 @@ void testManySpheres() {
             }
         }
     }
-    fclose( intersections_file );
+    //fclose( intersections_file );
 	
+    Timer image_flush_timer;
+    image_flush_timer.start();
     //image.pixelColor( 100, 100, Magick::Color("black") );
     image.write( "/Users/dacunni/Projects/FastRender/output/framebuffer.png" );
     normal_image.write( "/Users/dacunni/Projects/FastRender/output/normals.png" );
     depth_image.write( "/Users/dacunni/Projects/FastRender/output/depth.png" );
+    image_flush_timer.stop();
+    printf( "Image write: %f seconds\n", image_flush_timer.elapsed() );
+    
+    printf( "Intersection tests: AASlab: %lu Sphere: %lu\n", AxisAlignedSlab::intersection_test_count,
+           Sphere::intersection_test_count );
 }
 
 // TODO - make tests for Transforms
 
 int main (int argc, char * const argv[]) {
-    printf("FastRender\n"); fflush(stdout);
+    printf("FastRender\n");
+    fflush(stdout);
+    Timer total_run_timer;
+    total_run_timer.start();
 
     rng.seedCurrentTime();
 
@@ -158,7 +184,9 @@ int main (int argc, char * const argv[]) {
     //testRandom();
     testManySpheres();
     
-    printf("Done\n"); fflush(stdout);
+    total_run_timer.stop();
+    printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());
+    fflush(stdout);
     return 0;
 }
 

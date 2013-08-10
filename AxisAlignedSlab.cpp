@@ -12,6 +12,8 @@
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
 
+unsigned long AxisAlignedSlab::intersection_test_count = 0;
+
 AxisAlignedSlab::AxisAlignedSlab()
 :   xmin( 0.0 ),
     ymin( 0.0 ),
@@ -80,6 +82,8 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
 {
     float xn, xf, yn, yf, zn, zf;       // near and far planes for the box
     int nin, nif, nix, niy, niz;        // indices into normal table (near plane, far plane, x, y, z)
+    
+    intersection_test_count++;
     
     // Determine which sides of the box to label "near" or "far" depending on the
     // ray direction
