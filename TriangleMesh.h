@@ -18,14 +18,16 @@ class TriangleMesh : public Traceable
 public:
     class IndexTriangle {
     public:
-        unsigned indices[3];
+        unsigned vi[3];
     };
     
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;    
     
-    std::vector< Vector4 >          points;
+    std::vector< Vector4 >          vertices;
     std::vector< IndexTriangle >    triangles;
 };
 
+
+void makeTriangleMeshTetrahedron( TriangleMesh & mesh );
 
 #endif /* defined(__FastRender__TriangleMesh__) */

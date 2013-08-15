@@ -14,6 +14,7 @@
 #include "Scene.h"
 #include "FlatContainer.h"
 #include "AxisAlignedSlab.h"
+#include "TriangleMesh.h"
 #include "Timer.h"
 
 RandomNumberGenerator rng;
@@ -73,7 +74,7 @@ void testManySpheres() {
 	Scene scene;
 	FlatContainer * container = new FlatContainer();
 	
-    const int numSpheres = 20;
+    const int numSpheres = 0;
     
 	for( int si = 0; si < numSpheres; si++ ) {
 #if 0
@@ -111,6 +112,13 @@ void testManySpheres() {
     container->add( new AxisAlignedSlab( -0.1+0.45, -0.1+0.45, -1.0,
                                           0.1+0.45,  0.1+0.45, -5.3 ) );
 #endif
+    
+#if 1
+    TriangleMesh * tetra = new TriangleMesh();
+    makeTriangleMeshTetrahedron( *tetra );
+    container->add( tetra );
+#endif
+    
 	scene.root = container;
     build_scene_timer.stop();
     printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
@@ -142,6 +150,7 @@ void testManySpheres() {
             bool hit = scene.intersect( ray, intersection );
             if( hit ) {
                 //intersection.position.fprintCSV( intersections_file );
+#if 1
                 image.pixelColor(col, row, Magick::Color("white"));
                 normal_image.pixelColor(col, row,
                                         Magick::ColorRGB(intersection.normal.x() * 0.5 + 0.5,
@@ -151,6 +160,7 @@ void testManySpheres() {
                 output_depth = std::min( std::max( output_depth, 0.0f ), 1.0f );
                 
                 depth_image.pixelColor(col, row, Magick::ColorRGB(output_depth, output_depth, output_depth));
+#endif
             }
         }
     }

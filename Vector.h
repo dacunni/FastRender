@@ -40,6 +40,7 @@ public:
 	float magnitude_sq();
 	float magnitude();
 	void normalize();
+    void negate();
 	
 	void print() const;
     void fprintCSV( FILE * file ) const;
@@ -48,6 +49,7 @@ public:
 };
 
 inline void dot( const Vector4 & a, const Vector4 & b, float & r );
+inline float dot( const Vector4 & a, const Vector4 & b );
 inline void cross( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline void add( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline void subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );

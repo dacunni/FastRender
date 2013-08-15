@@ -32,6 +32,12 @@ inline void dot( const Vector4 & a, const Vector4 & b, float & r )
 }
 
 // TODO - Decide whether to normalize by 1/w before doing this
+inline float dot( const Vector4 & a, const Vector4 & b )
+{
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+
+// TODO - Decide whether to normalize by 1/w before doing this
 inline void cross( const Vector4 & a, const Vector4 & b, Vector4 & r )
 {
 	r[0] = a[1] * b[2] - a[2] * b[1];

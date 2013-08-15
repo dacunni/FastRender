@@ -31,6 +31,13 @@ void Vector4::normalize()
 	}
 }
 
+void Vector4::negate()
+{
+    data[0] = -data[0];
+    data[1] = -data[1];
+    data[2] = -data[2];
+}
+
 void Vector4::print() const
 {
 	printf( "V4( %f %f %f %f )\n", data[0], data[1], data[2], data[3] );

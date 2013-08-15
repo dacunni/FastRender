@@ -7,11 +7,110 @@
 //
 
 #include "TriangleMesh.h"
-
+#include "Ray.h"
 
 bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
-    // IMPLEMENT ME
+    Vector4 e1, e2;     // edge vectors
+    Vector4 P, Q, T;
+    float det, inv_det, u, v, t;
+    float best_t = intersection.best_hint;
+    bool hit = false;
+    const float epsilon = 0.000001;
     
-    return false;
+    //
+    // Test for intersection against all triangles
+    //
+    for( const IndexTriangle & tri : triangles ) {
+        //
+        // Test triangle for intersection with the ray
+        //
+                
+        // Compute edge vectors
+        subtract( vertices[tri.vi[1]], vertices[tri.vi[0]], e1 );
+        subtract( vertices[tri.vi[2]], vertices[tri.vi[0]], e2 );
+        
+        // Compute determinant
+        cross( ray.direction, e2, P );
+        dot( e1, P, det );
+        
+        // If determinant zero, the ray does not intersect the plane of the triangle
+        // Note, we're not culling backfaces.
+        if( det > -epsilon && det < epsilon )
+            continue;   // no intersection
+        inv_det = 1.0f / det;
+        
+        // Calculate vector from V0 to ray origin
+        subtract( ray.origin, vertices[tri.vi[0]], T );
+        
+        // Calculate u coordinate and test whether the intersection lies within the valid range of u
+        dot( T, P, u );
+        u *= inv_det;
+        if( u < 0.0f || u > 1.0f )
+            continue;   // intersection out of valid u range
+        
+        // Calculate v coordinate and test whether the intersection lies within the valid range of v
+        cross( T, e1, Q );
+        dot( ray.direction, Q, v );
+        v *= inv_det;
+        if( v < 0.0f || u + v > 1.0f )
+            continue;   // intersection out of u/v range
+        
+        dot( e2, Q, t );
+        t *= inv_det;
+        
+        if( t < best_t ) {
+            intersection.ray = ray;
+            intersection.distance = t;
+            // compute intersection position
+            scale( ray.direction, intersection.distance, intersection.position );
+            add( intersection.position, ray.origin, intersection.position );
+            // compute surface normal
+            // TODO - make sure this normal agrees with front/back sense above
+            cross( e1, e2, intersection.normal );
+            best_t = t;
+            hit = true;
+        }
+        
+    }
+    
+    // TODO - move this to the general purpose ray intersection code so it will apply to any backwards normals
+    if( hit && dot( ray.direction, intersection.normal ) > 0.0 ) {
+        intersection.normal.negate();
+    }
+    
+    intersection.normal.normalize();
+    
+    return hit;
 }
+
+
+void makeTriangleMeshTetrahedron( TriangleMesh & mesh )
+{
+    mesh.vertices.resize( 4 );
+    mesh.triangles.resize( 4 );
+    
+    float zoffset = -7.0; // TEMP
+    
+    mesh.vertices[0] = Vector4( 0.0, 0.5, 0.0 + zoffset );
+    mesh.vertices[1] = Vector4( -0.5, -0.5, 0.0 + zoffset );
+    mesh.vertices[2] = Vector4( 0.5, -0.5, 0.0 + zoffset );
+    mesh.vertices[3] = Vector4( 0.0, 0.0, 1.0 + zoffset );
+    
+    // TODO - make the winding order consistent
+    mesh.triangles[0].vi[0] = 0;
+    mesh.triangles[0].vi[1] = 1;
+    mesh.triangles[0].vi[2] = 2;
+    mesh.triangles[1].vi[0] = 1;
+    mesh.triangles[1].vi[1] = 2;
+    mesh.triangles[1].vi[2] = 3;
+    mesh.triangles[2].vi[0] = 0;
+    mesh.triangles[2].vi[1] = 1;
+    mesh.triangles[2].vi[2] = 3;
+    mesh.triangles[3].vi[0] = 0;
+    mesh.triangles[3].vi[1] = 3;
+    mesh.triangles[3].vi[2] = 2;
+    
+}
+
+
