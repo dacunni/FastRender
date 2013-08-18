@@ -16,7 +16,13 @@ class BoundingVolume : public Traceable
 public:
     BoundingVolume() {}
     virtual ~BoundingVolume() {}
+
+    virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+
+    void buildAxisAligned( Traceable * o );
     
+    Traceable * bound = nullptr;
+    Traceable * object = nullptr;
 };
 
 #endif /* defined(__FastRender__BoundingVolume__) */

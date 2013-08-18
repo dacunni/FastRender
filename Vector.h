@@ -32,6 +32,8 @@ public:
 		return data[i]; 
 	}
 	
+    inline void set( float x, float y, float z, float w = 1.0f );
+    
     inline float x() const { return data[0]; }
     inline float y() const { return data[1]; }
     inline float z() const { return data[2]; }

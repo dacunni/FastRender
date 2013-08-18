@@ -16,6 +16,8 @@
 #include "AxisAlignedSlab.h"
 #include "TriangleMesh.h"
 #include "Timer.h"
+#include "AssetLoader.h"
+#include "BoundingVolume.h"
 
 RandomNumberGenerator rng;
 
@@ -63,7 +65,8 @@ void testManySpheres() {
 	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
-    int imageWidth = 500, imageHeight = 500;
+    int imageSize = 300;
+    int imageWidth = imageSize, imageHeight = imageSize;
     
     Matrix4x4 projectionMatrix;
     projectionMatrix.identity();
@@ -91,9 +94,9 @@ void testManySpheres() {
 #endif
 	}
     
-    container->add( new Sphere( Vector4( 0.0, 0.0, -6.5 ), 0.3 ) );
+    //container->add( new Sphere( Vector4( 0.0, 0.0, -6.5 ), 0.3 ) );
 
-#if 1
+#if 0
     container->add( new AxisAlignedSlab( -0.1-0.45, -0.1, -1.0,
                                           0.1-0.45,  0.1, -5.3 ) );
     container->add( new AxisAlignedSlab( -0.1+0.45, -0.1, -1.0,
@@ -113,11 +116,26 @@ void testManySpheres() {
                                           0.1+0.45,  0.1+0.45, -5.3 ) );
 #endif
     
-#if 1
+#if 0
     TriangleMesh * tetra = new TriangleMesh();
     makeTriangleMeshTetrahedron( *tetra );
     container->add( tetra );
 #endif
+    
+    AssetLoader loader;
+    // Dragon - WAY TOO SLOW to load
+    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/xyzrgb_dragon.ply" );
+    // Low res bunnies
+    Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res4.ply" );
+    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res3.ply" );
+    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res2.ply" );
+    // Full res bunny
+    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper.ply" );
+    container->add( mesh );
+    
+    //BoundingVolume * meshBB = new BoundingVolume();
+    //meshBB->buildAxisAligned( mesh );
+    //container->add( meshBB );
     
 	scene.root = container;
     build_scene_timer.stop();
@@ -141,9 +159,10 @@ void testManySpheres() {
     float ymax = 0.15;
 
     for( int row = 0; row < imageHeight; row++ ) {
+        printf("ROW %d / %d\n", row, imageHeight); // TEMP
         for( int col = 0; col < imageWidth; col++ ) {
             ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
-            ray.direction[1] = (float) row / imageHeight * (ymax - ymin) + ymin;
+            ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * (ymax - ymin) + ymin;
             ray.direction[2] = -1.0;
             ray.direction.normalize();
             intersection = RayIntersection();
@@ -175,8 +194,11 @@ void testManySpheres() {
     image_flush_timer.stop();
     printf( "Image write: %f seconds\n", image_flush_timer.elapsed() );
     
-    printf( "Intersection tests: AASlab: %lu Sphere: %lu\n", AxisAlignedSlab::intersection_test_count,
-           Sphere::intersection_test_count );
+    printf( "Intersection tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu\n",
+           AxisAlignedSlab::intersection_test_count,
+           Sphere::intersection_test_count,
+           TriangleMesh::intersection_test_count
+           );
 }
 
 // TODO - make tests for Transforms

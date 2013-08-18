@@ -23,8 +23,13 @@ public:
     
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;    
     
+    virtual AxisAlignedSlab * getAxisAlignedBounds() const;
+
     std::vector< Vector4 >          vertices;
     std::vector< IndexTriangle >    triangles;
+
+    static unsigned long intersection_test_count;       // Counts the number of intersection tests against
+                                                        // objects of this class
 };
 
 

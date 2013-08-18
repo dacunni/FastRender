@@ -8,7 +8,15 @@
 
 #include "TriangleMesh.h"
 #include "Ray.h"
+#include "AxisAlignedSlab.h"
 
+unsigned long TriangleMesh::intersection_test_count = 0;
+
+//
+// Find the ray intersection with the triangles in the mesh
+//
+// This is an implementation of the Moller-Trumbore algorithm.
+//
 bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
     Vector4 e1, e2;     // edge vectors
@@ -18,6 +26,8 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
     bool hit = false;
     const float epsilon = 0.000001;
     
+    intersection_test_count++;
+
     //
     // Test for intersection against all triangles
     //
@@ -69,6 +79,7 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
             // TODO - make sure this normal agrees with front/back sense above
             cross( e1, e2, intersection.normal );
             best_t = t;
+            intersection.best_hint = best_t;
             hit = true;
         }
         
@@ -112,5 +123,35 @@ void makeTriangleMeshTetrahedron( TriangleMesh & mesh )
     mesh.triangles[3].vi[2] = 2;
     
 }
+
+AxisAlignedSlab * TriangleMesh::getAxisAlignedBounds() const
+{
+    if( vertices.empty() )
+        return nullptr;
+    
+    auto bb = new AxisAlignedSlab();
+    
+    bb->xmin = bb->xmax = vertices[0].x();
+    bb->ymin = bb->ymax = vertices[0].y();
+    bb->zmin = bb->zmax = vertices[0].z();
+    
+    for( auto vi : vertices ) {
+        if( vi.x() < bb->xmin )
+            bb->xmin = vi.x();
+        if( vi.x() > bb->xmax )
+            bb->xmax = vi.x();
+        if( vi.y() < bb->ymin )
+            bb->ymin = vi.y();
+        if( vi.y() > bb->ymax )
+            bb->ymax = vi.y();
+        if( vi.z() < bb->zmin )
+            bb->zmin = vi.z();
+        if( vi.z() > bb->zmax )
+            bb->zmax = vi.z();
+    }
+    
+    return bb;
+}
+
 
 

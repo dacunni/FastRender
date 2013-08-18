@@ -25,6 +25,14 @@ inline Vector4::Vector4( float x, float y, float z, float w )
 	data[3] = w;
 }
 
+inline void Vector4::set( float x, float y, float z, float w )
+{
+	data[0] = x;
+	data[1] = y;
+	data[2] = z;
+	data[3] = w;    
+}
+
 // TODO - Decide whether to normalize by 1/w before doing this
 inline void dot( const Vector4 & a, const Vector4 & b, float & r )
 {

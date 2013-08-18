@@ -12,6 +12,7 @@
 
 class Ray; 
 class RayIntersection;
+class AxisAlignedSlab;
 
 class Traceable {
 public:
@@ -19,6 +20,11 @@ public:
 	virtual ~Traceable() {}
 	
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const = 0;
+
+    // Children should implement this to create an axis-aligned bounding box
+    // Returns null if not implemented
+    virtual AxisAlignedSlab * getAxisAlignedBounds() const { return nullptr; }
+
 };
 
 
