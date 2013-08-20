@@ -54,10 +54,10 @@ void mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R );
 // r = A * v
 void mult( const Matrix4x4 & A, const Vector4 & v, Vector4 & r );
 
-void scale( Matrix4x4 & A, float s, Matrix4x4 & R );
+void scale( const Matrix4x4 & A, float s, Matrix4x4 & R );
 
 // FIXME - not really an inverse unless you make assumptions about the matrix
-void inverse( Matrix4x4 & A, Matrix4x4 & R );
+void inverse( const Matrix4x4 & A, Matrix4x4 & R );
 
 
 #endif

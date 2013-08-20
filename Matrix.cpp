@@ -73,7 +73,7 @@ void mult( const Matrix4x4 & A, const Vector4 & v, Vector4 & result )
 	}
 }
 
-void scale( Matrix4x4 & A, float s, Matrix4x4 & R )
+void scale( const Matrix4x4 & A, float s, Matrix4x4 & R )
 {
 	for( int r = 0; r < 4; r++ ) {
 		for( int c = 0; c < 4; c++ ) {
@@ -88,7 +88,7 @@ void scale( Matrix4x4 & A, float s, Matrix4x4 & R )
 // Based on the fast matrix inversion tutortial here:
 //		http://content.gpwiki.org/index.php/MathGem:Fast_Matrix_Inversion
 //
-void inverse( Matrix4x4 & A, Matrix4x4 & R )
+void inverse( const Matrix4x4 & A, Matrix4x4 & R )
 {
 	// Transpose the 3x3 rotation submatrix
 	R.at( 0, 0 ) = A.at( 0, 0 );

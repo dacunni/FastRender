@@ -54,18 +54,11 @@ Transform makeRotation( float angle, const Vector4 & axis )
     Vector4 u = axis;
     u.normalize();
     
-    // Forward
     t.fwd = Matrix4x4( ca + u.x * u.x * omca, u.x * u.y * omca - u.z * sa, u.x * u.z * omca + u.y * sa, 0.0,
                        u.y * u.x * omca + u.z * sa, ca + u.y * u.y * omca, u.y * u.z * omca - u.x * sa, 0.0,
                        u.z * u.x * omca - u.y * sa, u.z * u.y * omca + u.x * sa, ca + u.z * u.z * omca, 0.0,
                        0.0, 0.0, 0.0, 1.0);
-    
-    // IMPLEMENT ME
-
-    // Reverse
-    t.rev.identity();
-    
-    // IMPLEMENT ME
+    inverse( t.fwd, t.rev );
 
     return t;
 }
