@@ -47,17 +47,18 @@ Transform compose( const Transform & t1, const Transform & t2 )
 // Create a rotation Transform from angle and axis
 Transform makeRotation( float angle, const Vector4 & axis )
 {
-    float cos_a = std::cos( angle );
-    //float sin_a = std::sin( angle );
+    float ca = std::cos( angle );
+    float omca = 1.0f - ca;
+    float sa = std::sin( angle );
     Transform t;   
     Vector4 u = axis;
     u.normalize();
     
     // Forward
-    t.fwd = Matrix4x4(cos_a + u.x() * u.x() * (1.0f - cos_a), /*HERE*/0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0, 1.0);
+    t.fwd = Matrix4x4( ca + u.x() * u.x() * omca, u.x() * u.y() * omca - u.z() * sa, u.x() * u.z() * omca + u.y() * sa, 0.0,
+                       u.y() * u.x() * omca + u.z() * sa, ca + u.y() * u.y() * omca, u.y() * u.z() * omca - u.x() * sa, 0.0,
+                       u.z() * u.x() * omca - u.y() * sa, u.z() * u.y() * omca + u.x() * sa, ca + u.z() * u.z() * omca, 0.0,
+                       0.0, 0.0, 0.0, 1.0);
     
     // IMPLEMENT ME
 

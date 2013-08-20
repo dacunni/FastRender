@@ -34,5 +34,6 @@ public:
 
 
 void makeTriangleMeshTetrahedron( TriangleMesh & mesh );
+void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size );
 
 #endif /* defined(__FastRender__TriangleMesh__) */

@@ -122,9 +122,18 @@ void testManySpheres() {
     container->add( tetra );
 #endif
     
+#if 0
+    // DEBUG ME
+    TriangleMesh * ground = new TriangleMesh();
+    makeTriangleMeshGroundPlatform( *ground, 200.0 );
+    container->add( ground );
+#endif
+    
+    
     AssetLoader loader;
-    // Dragon - WAY TOO SLOW to load
-    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/xyzrgb_dragon.ply" );
+    // Low res dragon
+    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/dragon/dragon_vrip_res4.ply" );
+    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/dragon/dragon_vrip_res3.ply" );
     // Low res bunnies
     Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res4.ply" );
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res3.ply" );
@@ -187,7 +196,6 @@ void testManySpheres() {
 	
     Timer image_flush_timer;
     image_flush_timer.start();
-    //image.pixelColor( 100, 100, Magick::Color("black") );
     image.write( "/Users/dacunni/Projects/FastRender/output/framebuffer.png" );
     normal_image.write( "/Users/dacunni/Projects/FastRender/output/normals.png" );
     depth_image.write( "/Users/dacunni/Projects/FastRender/output/depth.png" );

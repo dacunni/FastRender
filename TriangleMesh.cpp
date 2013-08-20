@@ -95,35 +95,6 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
     return hit;
 }
 
-
-void makeTriangleMeshTetrahedron( TriangleMesh & mesh )
-{
-    mesh.vertices.resize( 4 );
-    mesh.triangles.resize( 4 );
-    
-    float zoffset = -7.0; // TEMP
-    
-    mesh.vertices[0] = Vector4( 0.0, 0.5, 0.0 + zoffset );
-    mesh.vertices[1] = Vector4( -0.5, -0.5, 0.0 + zoffset );
-    mesh.vertices[2] = Vector4( 0.5, -0.5, 0.0 + zoffset );
-    mesh.vertices[3] = Vector4( 0.0, 0.0, 1.0 + zoffset );
-    
-    // TODO - make the winding order consistent
-    mesh.triangles[0].vi[0] = 0;
-    mesh.triangles[0].vi[1] = 1;
-    mesh.triangles[0].vi[2] = 2;
-    mesh.triangles[1].vi[0] = 1;
-    mesh.triangles[1].vi[1] = 2;
-    mesh.triangles[1].vi[2] = 3;
-    mesh.triangles[2].vi[0] = 0;
-    mesh.triangles[2].vi[1] = 1;
-    mesh.triangles[2].vi[2] = 3;
-    mesh.triangles[3].vi[0] = 0;
-    mesh.triangles[3].vi[1] = 3;
-    mesh.triangles[3].vi[2] = 2;
-    
-}
-
 AxisAlignedSlab * TriangleMesh::getAxisAlignedBounds() const
 {
     if( vertices.empty() )
@@ -154,4 +125,51 @@ AxisAlignedSlab * TriangleMesh::getAxisAlignedBounds() const
 }
 
 
+void makeTriangleMeshTetrahedron( TriangleMesh & mesh )
+{
+    mesh.vertices.resize( 4 );
+    mesh.triangles.resize( 4 );
+    
+    float zoffset = -7.0; // TEMP
+    
+    mesh.vertices[0] = Vector4( 0.0, 0.5, 0.0 + zoffset );
+    mesh.vertices[1] = Vector4( -0.5, -0.5, 0.0 + zoffset );
+    mesh.vertices[2] = Vector4( 0.5, -0.5, 0.0 + zoffset );
+    mesh.vertices[3] = Vector4( 0.0, 0.0, 1.0 + zoffset );
+    
+    // TODO - make the winding order consistent
+    mesh.triangles[0].vi[0] = 0;
+    mesh.triangles[0].vi[1] = 1;
+    mesh.triangles[0].vi[2] = 2;
+    mesh.triangles[1].vi[0] = 1;
+    mesh.triangles[1].vi[1] = 2;
+    mesh.triangles[1].vi[2] = 3;
+    mesh.triangles[2].vi[0] = 0;
+    mesh.triangles[2].vi[1] = 1;
+    mesh.triangles[2].vi[2] = 3;
+    mesh.triangles[3].vi[0] = 0;
+    mesh.triangles[3].vi[1] = 3;
+    mesh.triangles[3].vi[2] = 2;
+}
+
+void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size )
+{
+    mesh.vertices.resize( 4 );
+    mesh.triangles.resize( 2 );
+    
+    float yoffset = -2.0; // TEMP
+    
+    mesh.vertices[0] = Vector4( -size / 2.0, yoffset, -size / 2.0 );
+    mesh.vertices[1] = Vector4( -size / 2.0, yoffset, size / 2.0 );
+    mesh.vertices[2] = Vector4( size / 2.0, yoffset, size / 2.0 );
+    mesh.vertices[3] = Vector4( size / 2.0, yoffset, -size / 2.0 );
+    
+    // TODO - make the winding order consistent
+    mesh.triangles[0].vi[0] = 0;
+    mesh.triangles[0].vi[1] = 1;
+    mesh.triangles[0].vi[2] = 2;
+    mesh.triangles[1].vi[0] = 1;
+    mesh.triangles[1].vi[1] = 3;
+    mesh.triangles[1].vi[2] = 2;
+}
 
