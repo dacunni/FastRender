@@ -17,20 +17,20 @@ inline Vector4::Vector4( const Vector4 & a )
 	data[3] = a.data[3];
 }
 
-inline Vector4::Vector4( float x, float y, float z, float w )
+inline Vector4::Vector4( float xn, float yn, float zn, float wn )
 {
-	data[0] = x;
-	data[1] = y;
-	data[2] = z;
-	data[3] = w;
+	data[0] = xn;
+	data[1] = yn;
+	data[2] = zn;
+	data[3] = wn;
 }
 
-inline void Vector4::set( float x, float y, float z, float w )
+inline void Vector4::set( float xn, float yn, float zn, float wn )
 {
-	data[0] = x;
-	data[1] = y;
-	data[2] = z;
-	data[3] = w;    
+	data[0] = xn;
+	data[1] = yn;
+	data[2] = zn;
+	data[3] = wn;
 }
 
 // TODO - Decide whether to normalize by 1/w before doing this

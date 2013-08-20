@@ -87,7 +87,7 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
     
     // Determine which sides of the box to label "near" or "far" depending on the
     // ray direction
-    if( ray.direction.x() >= 0.0f ) {
+    if( ray.direction.x >= 0.0f ) {
         xn = xmin;
         xf = xmax;
         nix = X_NORMAL_BASE_INDEX + LOOK_POSITIVE_NORMAL_OFFSET;
@@ -98,7 +98,7 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
         nix = X_NORMAL_BASE_INDEX + LOOK_NEGATIVE_NORMAL_OFFSET;
     }
     
-    if( ray.direction.y() >= 0.0f ) {
+    if( ray.direction.y >= 0.0f ) {
         yn = ymin;
         yf = ymax;
         niy = Y_NORMAL_BASE_INDEX + LOOK_POSITIVE_NORMAL_OFFSET;
@@ -109,7 +109,7 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
         niy = Y_NORMAL_BASE_INDEX + LOOK_NEGATIVE_NORMAL_OFFSET;
     }
 
-    if( ray.direction.z() >= 0.0f ) {
+    if( ray.direction.z >= 0.0f ) {
         zn = zmin;
         zf = zmax;
         niz = Z_NORMAL_BASE_INDEX + LOOK_POSITIVE_NORMAL_OFFSET;
@@ -122,12 +122,12 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
     
     // Find t values for intersection into each of the planes that
     // define the sides of the axis-aligned slab
-    float tnx = (xn - ray.origin.x()) / ray.direction.x();
-    float tfx = (xf - ray.origin.x()) / ray.direction.x();
-    float tny = (yn - ray.origin.y()) / ray.direction.y();
-    float tfy = (yf - ray.origin.y()) / ray.direction.y();
-    float tnz = (zn - ray.origin.z()) / ray.direction.z();
-    float tfz = (zf - ray.origin.z()) / ray.direction.z();
+    float tnx = (xn - ray.origin.x) / ray.direction.x;
+    float tfx = (xf - ray.origin.x) / ray.direction.x;
+    float tny = (yn - ray.origin.y) / ray.direction.y;
+    float tfy = (yf - ray.origin.y) / ray.direction.y;
+    float tnz = (zn - ray.origin.z) / ray.direction.z;
+    float tfz = (zf - ray.origin.z) / ray.direction.z;
     
     // Reject if farthest y is closer than closest x, or
     // if farthest x is closer than closest y

@@ -55,9 +55,9 @@ Transform makeRotation( float angle, const Vector4 & axis )
     u.normalize();
     
     // Forward
-    t.fwd = Matrix4x4( ca + u.x() * u.x() * omca, u.x() * u.y() * omca - u.z() * sa, u.x() * u.z() * omca + u.y() * sa, 0.0,
-                       u.y() * u.x() * omca + u.z() * sa, ca + u.y() * u.y() * omca, u.y() * u.z() * omca - u.x() * sa, 0.0,
-                       u.z() * u.x() * omca - u.y() * sa, u.z() * u.y() * omca + u.x() * sa, ca + u.z() * u.z() * omca, 0.0,
+    t.fwd = Matrix4x4( ca + u.x * u.x * omca, u.x * u.y * omca - u.z * sa, u.x * u.z * omca + u.y * sa, 0.0,
+                       u.y * u.x * omca + u.z * sa, ca + u.y * u.y * omca, u.y * u.z * omca - u.x * sa, 0.0,
+                       u.z * u.x * omca - u.y * sa, u.z * u.y * omca + u.x * sa, ca + u.z * u.z * omca, 0.0,
                        0.0, 0.0, 0.0, 1.0);
     
     // IMPLEMENT ME
@@ -73,13 +73,13 @@ Transform makeRotation( float angle, const Vector4 & axis )
 // Create a translation Transform
 Transform makeTranslation( const Vector4 & d )
 {
-    return Transform(Matrix4x4(1.0, 0.0, 0.0, d.x(),
-                               0.0, 1.0, 0.0, d.y(),
-                               0.0, 0.0, 1.0, d.z(),
+    return Transform(Matrix4x4(1.0, 0.0, 0.0, d.x,
+                               0.0, 1.0, 0.0, d.y,
+                               0.0, 0.0, 1.0, d.z,
                                0.0, 0.0, 0.0, 1.0),
-                     Matrix4x4(1.0, 0.0, 0.0, -d.x(),
-                               0.0, 1.0, 0.0, -d.y(),
-                               0.0, 0.0, 1.0, -d.z(),
+                     Matrix4x4(1.0, 0.0, 0.0, -d.x,
+                               0.0, 1.0, 0.0, -d.y,
+                               0.0, 0.0, 1.0, -d.z,
                                0.0, 0.0, 0.0, 1.0));
     
 }

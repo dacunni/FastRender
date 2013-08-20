@@ -34,11 +34,6 @@ public:
 	
     inline void set( float x, float y, float z, float w = 1.0f );
     
-    inline float x() const { return data[0]; }
-    inline float y() const { return data[1]; }
-    inline float z() const { return data[2]; }
-    inline float w() const { return data[3]; }
-    
 	float magnitude_sq();
 	float magnitude();
 	void normalize();
@@ -47,7 +42,12 @@ public:
 	void print() const;
     void fprintCSV( FILE * file ) const;
 	
+    union {
 	float data[4];
+        struct {
+            float x, y, z, w;
+        };
+    };
 };
 
 inline void dot( const Vector4 & a, const Vector4 & b, float & r );

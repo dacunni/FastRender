@@ -102,23 +102,23 @@ AxisAlignedSlab * TriangleMesh::getAxisAlignedBounds() const
     
     auto bb = new AxisAlignedSlab();
     
-    bb->xmin = bb->xmax = vertices[0].x();
-    bb->ymin = bb->ymax = vertices[0].y();
-    bb->zmin = bb->zmax = vertices[0].z();
+    bb->xmin = bb->xmax = vertices[0].x;
+    bb->ymin = bb->ymax = vertices[0].y;
+    bb->zmin = bb->zmax = vertices[0].z;
     
     for( auto vi : vertices ) {
-        if( vi.x() < bb->xmin )
-            bb->xmin = vi.x();
-        if( vi.x() > bb->xmax )
-            bb->xmax = vi.x();
-        if( vi.y() < bb->ymin )
-            bb->ymin = vi.y();
-        if( vi.y() > bb->ymax )
-            bb->ymax = vi.y();
-        if( vi.z() < bb->zmin )
-            bb->zmin = vi.z();
-        if( vi.z() > bb->zmax )
-            bb->zmax = vi.z();
+        if( vi.x < bb->xmin )
+            bb->xmin = vi.x;
+        if( vi.x > bb->xmax )
+            bb->xmax = vi.x;
+        if( vi.y < bb->ymin )
+            bb->ymin = vi.y;
+        if( vi.y > bb->ymax )
+            bb->ymax = vi.y;
+        if( vi.z < bb->zmin )
+            bb->zmin = vi.z;
+        if( vi.z > bb->zmax )
+            bb->zmax = vi.z;
     }
     
     return bb;

@@ -135,9 +135,9 @@ void testManySpheres() {
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/dragon/dragon_vrip_res4.ply" );
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/dragon/dragon_vrip_res3.ply" );
     // Low res bunnies
-    Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res4.ply" );
+    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res4.ply" );
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res3.ply" );
-    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res2.ply" );
+    Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res2.ply" );
     // Full res bunny
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper.ply" );
     container->add( mesh );
@@ -181,9 +181,9 @@ void testManySpheres() {
 #if 1
                 image.pixelColor(col, row, Magick::Color("white"));
                 normal_image.pixelColor(col, row,
-                                        Magick::ColorRGB(intersection.normal.x() * 0.5 + 0.5,
-                                                         intersection.normal.y() * 0.5 + 0.5,
-                                                         intersection.normal.z() * 0.5 + 0.5));
+                                        Magick::ColorRGB(intersection.normal.x * 0.5 + 0.5,
+                                                         intersection.normal.y * 0.5 + 0.5,
+                                                         intersection.normal.z * 0.5 + 0.5));
                 float output_depth = 1.0f / logf(intersection.distance + M_E);
                 output_depth = std::min( std::max( output_depth, 0.0f ), 1.0f );
                 
