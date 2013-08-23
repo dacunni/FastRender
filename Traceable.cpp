@@ -13,5 +13,6 @@
 bool Traceable::intersectsAny( const Ray & ray, float min_distance ) const
 {
     RayIntersection intersection;
+    intersection.min_distance = min_distance;
     return intersect( ray, intersection );
 }

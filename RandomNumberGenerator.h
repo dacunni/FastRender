@@ -15,7 +15,7 @@ class Vector4;
 class RandomNumberGenerator 
 {
 public:
-	RandomNumberGenerator() {}
+	RandomNumberGenerator();
 	~RandomNumberGenerator() {}
 	
 	float uniform01( void );

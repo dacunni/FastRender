@@ -27,22 +27,34 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
 	c -= sq( radius );
 	d = sq( b ) - c;
 
-    // Fail early if this intersection is farther than the closest hit so far
-    if( d > sq( intersection.best_hint ) )
-        return false;
+    float sqrtd = sqrt(d);
+    float dist1 = -b - sqrtd;
+    float dist2 = -b + sqrtd;
     
-	if( d > intersection.min_distance ) {
-		intersection.ray = ray;
-		intersection.distance = -b - sqrt(d);
-		// compute intersection position
-		scale( ray.direction, intersection.distance, intersection.position );
-		add( intersection.position, ray.origin, intersection.position );
-		// compute surface normal
-		subtract( intersection.position, center, intersection.normal );
-		intersection.normal.normalize();
-		return true;
-	}
-	else {
-		return false;
-	}
+    if( dist2 < dist1 )
+        std::swap( dist1, dist2 );  // TODO - is this necessary?
+        
+    if( dist1 < intersection.min_distance ) {
+        if( dist2 < intersection.min_distance ) {
+            return false;
+        }
+        else {
+            dist1 = dist2;
+        }
+    }
+    
+    // Fail early if this intersection is farther than the closest hit so far
+    if( dist1 > intersection.best_hint ) {
+        return false;
+    }
+
+    intersection.ray = ray;
+    intersection.distance = dist1;
+    // compute intersection position
+    scale( ray.direction, intersection.distance, intersection.position );
+    add( intersection.position, ray.origin, intersection.position );
+    // compute surface normal
+    subtract( intersection.position, center, intersection.normal );
+    intersection.normal.normalize();
+    return true;
 }

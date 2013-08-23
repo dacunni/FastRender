@@ -72,6 +72,5 @@ bool FlatContainer::intersectsAny( const Ray & ray, float min_distance ) const
 	}
 	
 	return false;
-
 }
 

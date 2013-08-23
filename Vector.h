@@ -12,7 +12,7 @@
 #include <fstream>
 #include <stdio.h>
 
-template< typename T > inline T sq( T & t ) { return t * t; }
+template< typename T > inline T sq( const T & t ) { return t * t; }
 
 class Vector4 
 {

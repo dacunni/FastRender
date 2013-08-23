@@ -14,6 +14,11 @@
 #include "RandomNumberGenerator.h"
 #include "Vector.h"
 
+RandomNumberGenerator::RandomNumberGenerator()
+{
+    seedCurrentTime();
+}
+
 float RandomNumberGenerator::uniform01( void )
 {
 	// TODO - Use a better RNG
