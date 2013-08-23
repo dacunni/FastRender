@@ -12,6 +12,7 @@
 #include <math.h>
 
 #include "RandomNumberGenerator.h"
+#include "Vector.h"
 
 float RandomNumberGenerator::uniform01( void )
 {
@@ -49,6 +50,20 @@ void RandomNumberGenerator::uniformSurfaceUnitSphere( float & x, float & y, floa
         z /= len;
     }
 }
+
+void RandomNumberGenerator::uniformSurfaceUnitSphere( Vector4 & v )
+{
+    uniformSurfaceUnitSphere( v.x, v.y, v.z );
+    v.w = 1.0;
+}
+
+void RandomNumberGenerator::uniformSurfaceUnitHalfSphere( const Vector4 & half_space, Vector4 & v )
+{
+    do {
+        uniformSurfaceUnitSphere( v );
+    } while( dot( v, half_space ) < 0.0 );
+}
+
 
 // Generate a random 3D point within the unit sphere by means of the rejection method
 void RandomNumberGenerator::uniformVolumeUnitSphere( float & x, float & y, float & z )

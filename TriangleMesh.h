@@ -22,7 +22,8 @@ public:
     };
     
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;    
-    
+    virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
+
     virtual AxisAlignedSlab * getAxisAlignedBounds() const;
 
     std::vector< Vector4 >          vertices;

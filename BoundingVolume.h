@@ -18,6 +18,7 @@ public:
     virtual ~BoundingVolume() {}
 
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+    virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
     void buildAxisAligned( Traceable * o );
     

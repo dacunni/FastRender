@@ -87,4 +87,16 @@ inline void perspective_scale( const Vector4 & a, Vector4 & r )
 	}
 }
 
+// Given vector A pointing away from surface and normal N, computes the mirror direction R as
+//
+//  R = 2 * dot(A,N) * N - A
+//
+inline void mirror( const Vector4 & a, const Vector4 & n, Vector4 & r )
+{
+    Vector4 NtwoAdotN;
+    float twoAdotN = 2.0f * dot( a, n );
+    scale( n, twoAdotN, NtwoAdotN );
+    subtract( NtwoAdotN, a, r );
+}
+
 #endif

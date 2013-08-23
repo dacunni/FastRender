@@ -8,4 +8,10 @@
  */
 
 #include "Traceable.h"
+#include "Ray.h"
 
+bool Traceable::intersectsAny( const Ray & ray, float min_distance ) const
+{
+    RayIntersection intersection;
+    return intersect( ray, intersection );
+}

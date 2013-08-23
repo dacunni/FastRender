@@ -21,51 +21,13 @@
 
 RandomNumberGenerator rng;
 
-void testMatrix() {
-	Matrix4x4 A;
-	A.identity();
-	A.print();
-	
-	A.at( 1, 2 ) = 4.5;
-	A.print();
-    
-	Matrix4x4 B( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
-	B.print();
-	
-	Matrix4x4 C;
-	
-	mult( A, B, C );
-	C.print();
-}
 
-void testSphere() {
-	Sphere sphere( Vector4( 0.0, 0.0, 0.0 ), 5.0 );
-	Ray ray( Vector4( 0.0, 0.0, -5.0 ), Vector4( 0.0, 0.0, 1.0 ) );
-	RayIntersection intersection;
-    
-	bool hit = sphere.intersect( ray, intersection );
-	
-	printf( "Sphere hit=%s\n", hit ? "HIT" : "MISS" );
-	intersection.position.print();
-	intersection.normal.print();
-}
-
-void testRandom() {
-    FILE * points_file = fopen( "/Users/dacunni/Projects/FastRender/output/rng.txt", "w" );
-    float x, y, z;
-    for( int i = 0; i < 1000; i++ ) {
-        rng.uniformSurfaceUnitSphere( x, y, z );
-        fprintf( points_file, "%f,%f,%f\n", x, y, z );
-    }
-    fclose( points_file );
-}
-
-void testManySpheres() {
+void testScene() {
     Sphere sphere( Vector4( 0.0, 0.0, 0.0 ), 5.0 );
 	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
-    int imageSize = 300;
+    int imageSize = 200;
     int imageWidth = imageSize, imageHeight = imageSize;
     
     Matrix4x4 projectionMatrix;
@@ -115,6 +77,22 @@ void testManySpheres() {
     container->add( new AxisAlignedSlab( -0.1+0.45, -0.1+0.45, -1.0,
                                           0.1+0.45,  0.1+0.45, -5.3 ) );
 #endif
+
+#if 0
+    // Offset cubes for testing AO
+    container->add( new AxisAlignedSlab( -0.1, -0.1-0.6, -1.0,
+                                          0.1,  0.1-0.6, -1.2 ) );
+    container->add( new AxisAlignedSlab( -0.1, -0.0-0.6, -1.2,
+                                          0.1,  0.3-0.6, -1.4 ) );
+#endif
+    
+#if 1
+    container->add( new AxisAlignedSlab( -5.0, 0.4-0.9, -0.5,
+                                          5.0, -0.0-0.9, -10.0 ) );
+    //container->add( new AxisAlignedSlab(  0.7,  0.75-0.9, -4.2,
+    //                                      0.9,  0.0-0.9, -4.4 ) );
+    
+#endif
     
 #if 0
     TriangleMesh * tetra = new TriangleMesh();
@@ -132,19 +110,19 @@ void testManySpheres() {
     
     AssetLoader loader;
     // Low res dragon
-    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/dragon/dragon_vrip_res4.ply" );
+    Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/dragon/dragon_vrip_res4.ply" );
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/dragon/dragon_vrip_res3.ply" );
     // Low res bunnies
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res4.ply" );
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res3.ply" );
-    Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res2.ply" );
+    //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper_res2.ply" );
     // Full res bunny
     //Traceable * mesh = loader.load( "/Users/dacunni/Projects/FastRender/models/stanford/bunny/reconstruction/bun_zipper.ply" );
-    container->add( mesh );
+    //container->add( mesh );
     
-    //BoundingVolume * meshBB = new BoundingVolume();
-    //meshBB->buildAxisAligned( mesh );
-    //container->add( meshBB );
+    BoundingVolume * meshBB = new BoundingVolume();
+    meshBB->buildAxisAligned( mesh );
+    container->add( meshBB );
     
 	scene.root = container;
     build_scene_timer.stop();
@@ -166,7 +144,7 @@ void testManySpheres() {
     float xmax = 0.15;
     float ymin = -0.15;
     float ymax = 0.15;
-
+    
     for( int row = 0; row < imageHeight; row++ ) {
         printf("ROW %d / %d\n", row, imageHeight); // TEMP
         for( int col = 0; col < imageWidth; col++ ) {
@@ -179,15 +157,57 @@ void testManySpheres() {
             if( hit ) {
                 //intersection.position.fprintCSV( intersections_file );
 #if 1
-                image.pixelColor(col, row, Magick::Color("white"));
+                
                 normal_image.pixelColor(col, row,
                                         Magick::ColorRGB(intersection.normal.x * 0.5 + 0.5,
                                                          intersection.normal.y * 0.5 + 0.5,
                                                          intersection.normal.z * 0.5 + 0.5));
-                float output_depth = 1.0f / logf(intersection.distance + M_E);
+                //float output_depth = 1.0f / logf(intersection.distance + M_E);
+                float output_depth = (1.0 - (intersection.distance - 3.0) / 10.0);
                 output_depth = std::min( std::max( output_depth, 0.0f ), 1.0f );
                 
                 depth_image.pixelColor(col, row, Magick::ColorRGB(output_depth, output_depth, output_depth));
+
+#if 1
+                // playing with ambient occlusion
+                Vector4 to_source( ray.direction );
+                to_source.negate();
+                //normal_image.pixelColor(col, row,
+                //                        Magick::ColorRGB(to_source.x * 0.5 + 0.5,
+                //                                         to_source.y * 0.5 + 0.5,
+                //                                         to_source.z * 0.5 + 0.5));
+
+                const unsigned int num_ao_rays = 10;
+                unsigned int hits = 0;
+                float value = 0;
+                Ray ao_ray;
+                RayIntersection ao_intersection;
+                //ao_ray.origin = intersection.position;
+                Vector4 offset( 0.0, 0.0, 0.0 );
+                scale( intersection.normal, 0.1, offset );
+                add( intersection.position, offset, ao_ray.origin );
+                
+                for( unsigned int aori = 0; aori < num_ao_rays; aori++ ) {
+                    rng.uniformSurfaceUnitHalfSphere( intersection.normal, ao_ray.direction );
+                    
+                    ao_intersection = RayIntersection();
+                    ao_intersection.min_distance = 0.1;
+                    //if( scene.intersect( ao_ray, ao_intersection ) ) {
+                    if( scene.intersectsAny( ao_ray, intersection.min_distance ) ) {
+                        hits++;
+                    }
+                }
+                value = 1.0f - (float) hits / num_ao_rays;
+                image.pixelColor(col, row, Magick::ColorRGB( value, value, value ));
+                //normal_image.pixelColor(col, row,
+                //                        Magick::ColorRGB(ao_ray.direction.x * 0.5 + 0.5,
+                //                                         ao_ray.direction.y * 0.5 + 0.5,
+                //                                         ao_ray.direction.z * 0.5 + 0.5));
+
+#else
+                image.pixelColor(col, row, Magick::Color("white"));
+#endif
+
 #endif
             }
         }
@@ -219,10 +239,7 @@ int main (int argc, char * const argv[]) {
 
     rng.seedCurrentTime();
 
-    //testMatrix();
-    //testSphere();
-    //testRandom();
-    testManySpheres();
+    testScene();
     
     total_run_timer.stop();
     printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());

@@ -31,7 +31,7 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
     if( d > sq( intersection.best_hint ) )
         return false;
     
-	if( d > 0.0f ) {
+	if( d > intersection.min_distance ) {
 		intersection.ray = ray;
 		intersection.distance = -b - sqrt(d);
 		// compute intersection position

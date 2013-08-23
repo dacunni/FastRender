@@ -49,13 +49,29 @@ bool FlatContainer::intersect( const Ray & ray, RayIntersection & intersection )
 			}
 			else {
 				// Simply record the first hit
-                temp_isect.best_hint = intersection.distance;
-				intersection = temp_isect;
-				found_one = true;
+				if( temp_isect.distance < intersection.best_hint ) {
+                    temp_isect.best_hint = temp_isect.distance;
+                    intersection = temp_isect;
+                    found_one = true;
+                }
 			}
 		}
 	}
 	
 	return found_one;
+}
+
+bool FlatContainer::intersectsAny( const Ray & ray, float min_distance ) const
+{
+    // Iterate over all of the traceable objects in the container, checking for the closest hit
+	for( std::vector<Traceable*>::const_iterator object = objects.begin(); object != objects.end(); ++object ) {
+		// See if we hit each object
+		if( (*object)->intersectsAny( ray, min_distance ) ) {
+            return true;
+		}
+	}
+	
+	return false;
+
 }
 

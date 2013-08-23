@@ -24,6 +24,7 @@ public:
     virtual Traceable * at( int index ) { return objects[ index ]; }
     virtual int size() { return objects.size(); }
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 	
 	std::vector<Traceable *> objects;
 };

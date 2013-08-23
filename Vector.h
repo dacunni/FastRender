@@ -57,6 +57,7 @@ inline void add( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline void subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline void scale( const Vector4 & a, float s, Vector4 & r );
 inline void perspective_scale( const Vector4 & a, Vector4 & r );
+inline void mirror( const Vector4 & a, const Vector4 & n, Vector4 & r );
 
 #include "Vector.hpp"
 

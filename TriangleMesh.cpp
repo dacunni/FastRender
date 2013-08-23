@@ -69,7 +69,7 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
         dot( e2, Q, t );
         t *= inv_det;
         
-        if( t < best_t ) {
+        if( t > intersection.min_distance && t < best_t ) {
             intersection.ray = ray;
             intersection.distance = t;
             // compute intersection position
@@ -93,6 +93,67 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
     intersection.normal.normalize();
     
     return hit;
+}
+
+// TODO - try to combine common parts of this and intersect
+bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
+{
+    Vector4 e1, e2;     // edge vectors
+    Vector4 P, Q, T;
+    float det, inv_det, u, v, t;
+    const float epsilon = 0.000001;
+    
+    intersection_test_count++;
+    
+    //
+    // Test for intersection against all triangles
+    //
+    for( const IndexTriangle & tri : triangles ) {
+        //
+        // Test triangle for intersection with the ray
+        //
+        
+        // Compute edge vectors
+        subtract( vertices[tri.vi[1]], vertices[tri.vi[0]], e1 );
+        subtract( vertices[tri.vi[2]], vertices[tri.vi[0]], e2 );
+        
+        // Compute determinant
+        cross( ray.direction, e2, P );
+        dot( e1, P, det );
+        
+        // If determinant zero, the ray does not intersect the plane of the triangle
+        // Note, we're not culling backfaces.
+        if( det > -epsilon && det < epsilon )
+            continue;   // no intersection
+        inv_det = 1.0f / det;
+        
+        // Calculate vector from V0 to ray origin
+        subtract( ray.origin, vertices[tri.vi[0]], T );
+        
+        // Calculate u coordinate and test whether the intersection lies within the valid range of u
+        dot( T, P, u );
+        u *= inv_det;
+        if( u < 0.0f || u > 1.0f )
+            continue;   // intersection out of valid u range
+        
+        // Calculate v coordinate and test whether the intersection lies within the valid range of v
+        cross( T, e1, Q );
+        dot( ray.direction, Q, v );
+        v *= inv_det;
+        if( v < 0.0f || u + v > 1.0f )
+            continue;   // intersection out of u/v range
+        
+        dot( e2, Q, t );
+        t *= inv_det;
+        
+        if( t > min_distance  ) {
+            return true;
+        }
+        
+    }
+    
+    return false;
+    
 }
 
 AxisAlignedSlab * TriangleMesh::getAxisAlignedBounds() const

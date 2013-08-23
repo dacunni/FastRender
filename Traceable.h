@@ -20,6 +20,7 @@ public:
 	virtual ~Traceable() {}
 	
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const = 0;
+	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
     // Children should implement this to create an axis-aligned bounding box
     // Returns null if not implemented

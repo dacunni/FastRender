@@ -31,3 +31,13 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 		return false;
 	}
 }
+
+bool Scene::intersectsAny( const Ray & ray, float min_distance ) const
+{
+	if( root != 0 ) {
+		return root->intersectsAny( ray, min_distance );
+	}
+	else {
+		return false;
+	}    
+}

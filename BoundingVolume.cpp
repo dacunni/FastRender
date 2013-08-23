@@ -24,6 +24,19 @@ bool BoundingVolume::intersect( const Ray & ray, RayIntersection & intersection 
     return false;
 }
 
+bool BoundingVolume::intersectsAny( const Ray & ray, float min_distance ) const
+{
+    if( bound == nullptr || object == nullptr )
+        return false;
+        
+    if( bound->intersectsAny( ray, min_distance ) ) {
+        return object->intersectsAny( ray, min_distance );
+    }
+    
+    return false;    
+}
+
+
 void BoundingVolume::buildAxisAligned( Traceable * o )
 {
     if( !o )

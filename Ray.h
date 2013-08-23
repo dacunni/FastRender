@@ -13,6 +13,7 @@
 #include <math.h>
 #include "Vector.h"
 
+class Scene;
 
 class Ray {
 public:
@@ -26,16 +27,23 @@ public:
 
 class RayIntersection {
 public:
-	RayIntersection() : best_hint(FLT_MAX) {}
+	RayIntersection() : min_distance(0.0f), best_hint(FLT_MAX) {}
 	~RayIntersection() {}
 	
 	Ray ray;
 	Vector4 position;
 	Vector4 normal;
 	float distance;
+    float min_distance;
     float best_hint;
 };
 
+class Sample {
+public:
+    float value;
+};
 
+void trace( Ray & ray, Scene & scene, RayIntersection & intersection, Sample & sample );
+void shade( Scene & scene, RayIntersection & intersection, Sample & sample );
 
 #endif

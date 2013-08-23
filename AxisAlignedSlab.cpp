@@ -171,14 +171,14 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
     printf("tn=%f tf=%f\n", tn, tf);
 #endif
         
-    if( tn > 0.0f ) {
+    if( tn > intersection.min_distance ) {
         intersection.normal = boxNormals[ nin ];
         intersection.distance = tn;
 		scale( ray.direction, intersection.distance, intersection.position );
 		add( intersection.position, ray.origin, intersection.position );
         return true;
     }
-    else if( tf > 0.0f ) {
+    else if( tf > intersection.min_distance ) {
         intersection.normal = boxNormals[ nif ];
         intersection.distance = tf;
 		scale( ray.direction, intersection.distance, intersection.position );
