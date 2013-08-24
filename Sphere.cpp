@@ -26,6 +26,9 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
 	dot( dst, dst, c );
 	c -= sq( radius );
 	d = sq( b ) - c;
+    
+    if( d < 0.0f )
+        return false;
 
     float sqrtd = sqrt(d);
     float dist1 = -b - sqrtd;
@@ -33,7 +36,7 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
     
     if( dist2 < dist1 )
         std::swap( dist1, dist2 );  // TODO - is this necessary?
-        
+    
     if( dist1 < intersection.min_distance ) {
         if( dist2 < intersection.min_distance ) {
             return false;

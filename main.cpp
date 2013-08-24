@@ -67,10 +67,10 @@ void addRandomCubes( Container * container, int numCubes )
 void addOffsetCubes( Container * container )
 {
     // Offset cubes for testing AO
-    container->add( new AxisAlignedSlab( -0.1, -0.1-0.6, -1.0,
-                                          0.1,  0.1-0.6, -1.2 ) );
-    container->add( new AxisAlignedSlab( -0.1, -0.0-0.6, -1.2,
-                                          0.1,  0.3-0.6, -1.4 ) );
+    container->add( new AxisAlignedSlab(  0.1, -0.5, -1.0,
+                                          0.3, -0.3, -1.2 ) );
+    container->add( new AxisAlignedSlab( -0.1, -0.5, -1.2,
+                                          0.1, -0.3, -1.4 ) );
 }
 
 void testScene()
@@ -79,7 +79,7 @@ void testScene()
 	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
-    int imageSize = 100;
+    int imageSize = 400;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -95,16 +95,19 @@ void testScene()
     //addRandomSpheres( container, 30 );
     //addRandomCubes( container, 30 );
     
-    //container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
-    //container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
-    //container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
+    container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
+    container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
+    container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
 
-    //addSlabGrid( container );
-    //addOffsetCubes( container );
+    //container->add( new AxisAlignedSlab( 0.5,  0.5, -10.0,
+    //                                     1.0, -0.5,  5.0 ) );
     
-#if 0
-    container->add( new AxisAlignedSlab( -5.0, 0.4-0.9, -0.5,
-                                          5.0, -0.0-0.9, -10.0 ) );
+    //addSlabGrid( container );
+    addOffsetCubes( container );
+    
+#if 1
+    container->add( new AxisAlignedSlab( -5.0, -0.5, +0.5,
+                                          5.0, -0.9, -10.0 ) );
     //container->add( new AxisAlignedSlab(  0.7,  0.75-0.9, -4.2,
     //                                      0.9,  0.0-0.9, -4.4 ) );
     
@@ -129,7 +132,7 @@ void testScene()
 
     // Low res dragon
     std::string dragonPath = modelPath + "/stanford/dragon";
-    Traceable * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
+    //Traceable * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
     //Traceable * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
     
     // Low res bunnies
@@ -139,21 +142,16 @@ void testScene()
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
-    //container->add( mesh );
-    
-    BoundingVolume * meshBB = new BoundingVolume();
-    meshBB->buildAxisAligned( mesh );
-    container->add( meshBB );
+    //BoundingVolume * meshBB = new BoundingVolume();
+    //meshBB->buildAxisAligned( mesh );
+    //container->add( meshBB );
     
 	scene.root = container;
     build_scene_timer.stop();
     printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
     
     // intersect with scene
-    float xmin = -0.15;
-    float xmax = 0.15;
-    float ymin = -0.15;
-    float ymax = 0.15;
+    float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
     
     for( int row = 0; row < imageHeight; row++ ) {
         printf("ROW %d / %d\n", row, imageHeight); // TEMP
@@ -163,6 +161,7 @@ void testScene()
             ray.direction[2] = -1.0;
             ray.direction.normalize();
             intersection = RayIntersection();
+            //printf("Calling scene intersect\n"); // TEMP
             bool hit = scene.intersect( ray, intersection );
             if( hit ) {
 #if 1
@@ -170,9 +169,9 @@ void testScene()
                 artifacts.setPixelDepth( row, col, intersection.distance );
                 //intersection.position.fprintCSV( artifacts.intersections_file );
                 
-#if 0
+#if 1
                 // playing with ambient occlusion
-                const unsigned int num_ao_rays = 10;
+                const unsigned int num_ao_rays = 128;
                 unsigned int hits = 0;
                 float value = 0;
                 Ray ao_ray;
@@ -182,13 +181,14 @@ void testScene()
                 scale( intersection.normal, 0.01, offset ); // NOTE - Seems to help 
                 add( intersection.position, offset, ao_ray.origin );
                 
+                //printf("Calling AO intersect\n"); // TEMP
                 for( unsigned int aori = 0; aori < num_ao_rays; aori++ ) {
                     rng.uniformSurfaceUnitHalfSphere( intersection.normal, ao_ray.direction );
                     
                     ao_intersection = RayIntersection();
                     ao_intersection.min_distance = 0.01;
                     //if( scene.intersect( ao_ray, ao_intersection ) ) {
-                    if( scene.intersectsAny( ao_ray, intersection.min_distance ) ) {
+                    if( scene.intersectsAny( ao_ray, ao_intersection.min_distance ) ) {
                         hits++;
                     }
                 }

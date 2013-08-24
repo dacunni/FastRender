@@ -149,11 +149,9 @@ bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
         if( t > min_distance  ) {
             return true;
         }
-        
     }
     
     return false;
-    
 }
 
 AxisAlignedSlab * TriangleMesh::getAxisAlignedBounds() const
