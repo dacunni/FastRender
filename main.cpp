@@ -79,7 +79,7 @@ void testScene()
 	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
-    int imageSize = 400;
+    int imageSize = 200;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -137,13 +137,13 @@ void testScene()
     
     // Low res bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
+    Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
-    //BoundingVolume * meshBB = new BoundingVolume();
-    //meshBB->buildAxisAligned( mesh );
+    BoundingVolume * meshBB = new BoundingVolume();
+    meshBB->buildAxisAligned( mesh );
     //container->add( meshBB );
     
 	scene.root = container;

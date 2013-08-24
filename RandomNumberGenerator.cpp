@@ -19,18 +19,6 @@ RandomNumberGenerator::RandomNumberGenerator()
     seedCurrentTime();
 }
 
-float RandomNumberGenerator::uniform01( void )
-{
-	// TODO - Use a better RNG
-	return (float) rand() / RAND_MAX;
-}
-
-float RandomNumberGenerator::uniformRange( float min, float max )
-{
-	return uniform01() * (max - min) + min;
-}
-
-
 void RandomNumberGenerator::seedCurrentTime()
 {
 	srand( time( NULL ) );
@@ -47,12 +35,12 @@ void RandomNumberGenerator::uniformSurfaceUnitSphere( float & x, float & y, floa
         z = uniformRange( -1.0, 1.0 );
     } while( (len_sq = x*x + y*y + z*z) > 1.0 );
     
-    float len = sqrt( len_sq );
-
-    if( len > 0.0 ) {
-        x /= len;
-        y /= len;
-        z /= len;
+    if( len_sq > 0.0 ) {
+        float len = sqrtf( len_sq );
+        float inv_len = 1.0f / len;
+        x *= inv_len;
+        y *= inv_len;
+        z *= inv_len;
     }
 }
 

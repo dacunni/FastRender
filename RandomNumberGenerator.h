@@ -18,8 +18,8 @@ public:
 	RandomNumberGenerator();
 	~RandomNumberGenerator() {}
 	
-	float uniform01( void );
-	float uniformRange( float min, float max );
+	inline float uniform01( void );
+	inline float uniformRange( float min, float max );
     
 	void uniformSurfaceUnitSphere( float & x, float & y, float & z );
     void uniformSurfaceUnitSphere( Vector4 & v );
@@ -31,7 +31,7 @@ public:
 	
 };
 
-
+#include "RandomNumberGenerator.hpp"
 
 #endif
 

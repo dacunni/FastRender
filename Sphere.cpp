@@ -30,7 +30,7 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
     if( d < 0.0f )
         return false;
 
-    float sqrtd = sqrt(d);
+    float sqrtd = sqrtf(d);
     float dist1 = -b - sqrtd;
     float dist2 = -b + sqrtd;
     
