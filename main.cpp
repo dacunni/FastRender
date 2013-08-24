@@ -144,7 +144,7 @@ void testScene()
 
     BoundingVolume * meshBB = new BoundingVolume();
     meshBB->buildAxisAligned( mesh );
-    //container->add( meshBB );
+    container->add( meshBB );
     
 	scene.root = container;
     build_scene_timer.stop();
@@ -171,7 +171,7 @@ void testScene()
                 
 #if 1
                 // playing with ambient occlusion
-                const unsigned int num_ao_rays = 128;
+                const unsigned int num_ao_rays = 8;
                 unsigned int hits = 0;
                 float value = 0;
                 Ray ao_ray;
