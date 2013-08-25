@@ -6,6 +6,7 @@
 //
 //
 
+#include <stdlib.h>
 #include "Timer.h"
 
 double Timer::toDouble( const struct timeval & tm ){
