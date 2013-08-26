@@ -23,6 +23,11 @@ public:
     
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;    
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
+    
+    // Helper for intersect() and related methods
+    enum IsectBehavior { CLOSEST_ISECT, FAST_ISECT_TEST };
+    bool intersectsTriangles( const Ray & ray, const std::vector< IndexTriangle > & vtri,
+                              RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
 
     virtual AxisAlignedSlab * getAxisAlignedBounds() const;
 

@@ -171,7 +171,7 @@ void testScene()
                 
 #if 1
                 // playing with ambient occlusion
-                const unsigned int num_ao_rays = 8;
+                const unsigned int num_ao_rays = 16;
                 unsigned int hits = 0;
                 float value = 0;
                 Ray ao_ray;

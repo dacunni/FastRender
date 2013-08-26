@@ -13,11 +13,28 @@
 unsigned long TriangleMesh::intersection_test_count = 0;
 
 //
-// Find the ray intersection with the triangles in the mesh
+// Find the ray intersection with the triangles in the full mesh
+//
+bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) const
+{
+    intersection_test_count++;
+    return intersectsTriangles( ray, triangles, intersection );
+}
+
+bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
+{
+    RayIntersection intersection;
+    intersection.min_distance = min_distance;
+    return intersectsTriangles( ray, triangles, intersection, FAST_ISECT_TEST );
+}
+
+//
+// Find the ray intersection with the triangles in the supplied mesh
 //
 // This is an implementation of the Moller-Trumbore algorithm.
 //
-bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) const
+bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< IndexTriangle > & vtri,
+                                        RayIntersection & intersection, IsectBehavior behavior ) const
 {
     Vector4 e1, e2;     // edge vectors
     Vector4 P, Q, T;
@@ -26,16 +43,14 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
     bool hit = false;
     const float epsilon = 0.000001;
     
-    intersection_test_count++;
-
     //
     // Test for intersection against all triangles
     //
-    for( const IndexTriangle & tri : triangles ) {
+    for( const IndexTriangle & tri : vtri ) {
         //
         // Test triangle for intersection with the ray
         //
-                
+        
         // Compute edge vectors
         subtract( vertices[tri.vi[1]], vertices[tri.vi[0]], e1 );
         subtract( vertices[tri.vi[2]], vertices[tri.vi[0]], e2 );
@@ -66,6 +81,11 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
         
         t = inv_det * dot( e2, Q );
         
+        // If this is a fast intersection test (ie: predicate, itersects or doesn't), return on first hit
+        if( t > intersection.min_distance && behavior == FAST_ISECT_TEST ) {
+            return true;
+        }
+
         if( t > intersection.min_distance && t < best_t ) {
             intersection.ray = ray;
             intersection.distance = t;
@@ -92,61 +112,6 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
     return hit;
 }
 
-// TODO - try to combine common parts of this and intersect
-bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
-{
-    Vector4 e1, e2;     // edge vectors
-    Vector4 P, Q, T;
-    float det, inv_det, u, v, t;
-    const float epsilon = 0.000001;
-    
-    intersection_test_count++;
-    
-    //
-    // Test for intersection against all triangles
-    //
-    for( const IndexTriangle & tri : triangles ) {
-        //
-        // Test triangle for intersection with the ray
-        //
-        
-        // Compute edge vectors
-        subtract( vertices[tri.vi[1]], vertices[tri.vi[0]], e1 );
-        subtract( vertices[tri.vi[2]], vertices[tri.vi[0]], e2 );
-        
-        // Compute determinant
-        cross( ray.direction, e2, P );
-        det = dot( e1, P );
-        
-        // If determinant zero, the ray does not intersect the plane of the triangle
-        // Note, we're not culling backfaces.
-        if( det > -epsilon && det < epsilon )
-            continue;   // no intersection
-        inv_det = 1.0f / det;
-        
-        // Calculate vector from V0 to ray origin
-        subtract( ray.origin, vertices[tri.vi[0]], T );
-        
-        // Calculate u coordinate and test whether the intersection lies within the valid range of u
-        u = inv_det * dot( T, P );
-        if( u < 0.0f || u > 1.0f )
-            continue;   // intersection out of valid u range
-        
-        // Calculate v coordinate and test whether the intersection lies within the valid range of v
-        cross( T, e1, Q );
-        v = inv_det * dot( ray.direction, Q );
-        if( v < 0.0f || u + v > 1.0f )
-            continue;   // intersection out of u/v range
-        
-        t = inv_det * dot( e2, Q );
-        
-        if( t > min_distance  ) {
-            return true;
-        }
-    }
-    
-    return false;
-}
 
 AxisAlignedSlab * TriangleMesh::getAxisAlignedBounds() const
 {
