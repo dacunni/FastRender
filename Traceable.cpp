@@ -7,6 +7,8 @@
  *
  */
 
+#include <typeinfo>
+
 #include "Traceable.h"
 #include "Ray.h"
 
@@ -15,4 +17,10 @@ bool Traceable::intersectsAny( const Ray & ray, float min_distance ) const
     RayIntersection intersection;
     intersection.min_distance = min_distance;
     return intersect( ray, intersection );
+}
+
+void Traceable::print( FILE * file ) const
+{
+    // FIXME - can we demangle this name?
+    fprintf( file, "Traceable (%s)\n", typeid(*this).name() );
 }

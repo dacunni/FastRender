@@ -13,6 +13,8 @@
 #include "Traceable.h"
 #include "Vector.h"
 
+class TriangleMeshAccelerator;
+
 class TriangleMesh : public Traceable
 {
 public:
@@ -20,6 +22,9 @@ public:
     public:
         unsigned vi[3];
     };
+    
+    TriangleMesh();
+    virtual ~TriangleMesh();
     
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;    
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
@@ -34,12 +39,26 @@ public:
     std::vector< Vector4 >          vertices;
     std::vector< IndexTriangle >    triangles;
 
+    TriangleMeshAccelerator       * accelerator;        // Intersetion acceleration object (null if none)
+    
     static unsigned long intersection_test_count;       // Counts the number of intersection tests against
                                                         // objects of this class
 };
 
-
 void makeTriangleMeshTetrahedron( TriangleMesh & mesh );
 void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size );
+
+class TriangleMeshAccelerator : public Traceable
+{
+public:
+    TriangleMeshAccelerator( TriangleMesh & m ) : mesh(m) {}
+    virtual ~TriangleMeshAccelerator() {}
+    
+    virtual void build() = 0;
+	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const = 0;
+    virtual bool intersectsAny( const Ray & ray, float min_distance ) const = 0;
+    
+    TriangleMesh                  & mesh;
+};
 
 #endif /* defined(__FastRender__TriangleMesh__) */

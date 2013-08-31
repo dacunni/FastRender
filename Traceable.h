@@ -10,6 +10,8 @@
 #ifndef _TRACEABLE_H_
 #define _TRACEABLE_H_
 
+#include <stdio.h>
+
 class Ray; 
 class RayIntersection;
 class AxisAlignedSlab;
@@ -26,6 +28,7 @@ public:
     // Returns null if not implemented
     virtual AxisAlignedSlab * getAxisAlignedBounds() const { return nullptr; }
 
+    virtual void print( FILE * file = stdout ) const;
 };
 
 

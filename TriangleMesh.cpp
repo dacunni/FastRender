@@ -12,17 +12,36 @@
 
 unsigned long TriangleMesh::intersection_test_count = 0;
 
+TriangleMesh::TriangleMesh()
+:   accelerator(nullptr)
+{
+    
+}
+
+TriangleMesh::~TriangleMesh()
+{
+    if( accelerator != nullptr )
+        delete accelerator;
+}
+
 //
 // Find the ray intersection with the triangles in the full mesh
 //
 bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
     intersection_test_count++;
+    
+    if( accelerator )
+        return accelerator->intersect( ray, intersection );
+    
     return intersectsTriangles( ray, triangles, intersection );
 }
 
 bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
 {
+    if( accelerator )
+        return accelerator->intersectsAny( ray, min_distance );
+    
     RayIntersection intersection;
     intersection.min_distance = min_distance;
     return intersectsTriangles( ray, triangles, intersection, FAST_ISECT_TEST );

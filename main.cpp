@@ -19,6 +19,7 @@
 #include "Timer.h"
 #include "AssetLoader.h"
 #include "BoundingVolume.h"
+#include "TMOctreeAccelerator.h"
 
 RandomNumberGenerator rng;
 
@@ -142,6 +143,15 @@ void testScene()
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
+#if 1
+    // TEMP >>> - working on octree
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh_octree->print();
+    printf("EARLY ABORT\n"); exit(0); // TEMP
+    // TEMP <<<
+#endif
+    
     BoundingVolume * meshBB = new BoundingVolume();
     meshBB->buildAxisAligned( mesh );
     container->add( meshBB );
