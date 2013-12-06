@@ -7,9 +7,10 @@
 //
 
 // Using the Open Asset Import Library ("assimp" - http://assimp.sourceforge.net/ )
-#include <assimp/assimp.hpp>
-#include <assimp/aiScene.h>
-#include <assimp/aiPostProcess.h>
+//#include <assimp/assimp.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
 
 #include "AssetLoader.h"
 #include "TriangleMesh.h"
@@ -23,7 +24,7 @@ Traceable * AssetLoader::load( const std::string & filename )
     scene = importer.ReadFile( filename, aiProcess_Triangulate );
     
     if( !scene ) {
-        printf( "Failed to load %s\n", filename.c_str() );
+        fprintf( stderr, "Failed to load %s\n", filename.c_str() );
         return nullptr;        
     }
     

@@ -11,7 +11,7 @@
 #include "Artifacts.h"
 
 Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
-: output_path( "/Users/dacunni/Projects/FastRender/output" ) // TEMP
+: output_path( "output" ) // TEMP
 {
     image = new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" );
     image->magick( "png" ); // set the output file type

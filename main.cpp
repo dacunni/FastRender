@@ -80,7 +80,7 @@ void testScene()
 	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
-    int imageSize = 200;
+    int imageSize = 50;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -129,21 +129,26 @@ void testScene()
     
     
     AssetLoader loader;
-    std::string modelPath = "/Users/dacunni/Projects/FastRender/models";
+    std::string modelPath = "models";
 
     // Low res dragon
-    std::string dragonPath = modelPath + "/stanford/dragon";
+    //std::string dragonPath = modelPath + "stanford/dragon";
     //Traceable * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
     //Traceable * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
     
     // Low res bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
+    //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
-    //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
+    Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
     //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
-#if 1
+    if( !mesh ) {
+        fprintf( stderr, "Error loading mesh\n" );
+        return;
+    }
+
+#if 0
     // TEMP >>> - working on octree
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
