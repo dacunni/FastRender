@@ -22,7 +22,7 @@ OBJ = \
 INC = -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
 #CXXFLAGS += -g
-LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc
+LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min 10.9
 
 fr: $(OBJ)
 	ld -o fr $(OBJ) $(LDXXFLAGS)

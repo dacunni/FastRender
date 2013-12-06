@@ -80,7 +80,7 @@ void testScene()
 	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
-    int imageSize = 50;
+    int imageSize = 256;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -159,7 +159,7 @@ void testScene()
     
     BoundingVolume * meshBB = new BoundingVolume();
     meshBB->buildAxisAligned( mesh );
-    container->add( meshBB );
+    //container->add( meshBB );
     
 	scene.root = container;
     build_scene_timer.stop();
@@ -168,6 +168,9 @@ void testScene()
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
     
+    Timer pixel_render_timer;
+    pixel_render_timer.start();
+    double last_pixel_elapsed = 0.0;
     for( int row = 0; row < imageHeight; row++ ) {
         printf("ROW %d / %d\n", row, imageHeight); // TEMP
         for( int col = 0; col < imageWidth; col++ ) {
@@ -186,7 +189,7 @@ void testScene()
                 
 #if 1
                 // playing with ambient occlusion
-                const unsigned int num_ao_rays = 16;
+                const unsigned int num_ao_rays = 1024;
                 unsigned int hits = 0;
                 float value = 0;
                 Ray ao_ray;
@@ -222,8 +225,12 @@ void testScene()
 
 #endif
             }
+            double pixel_elapsed = pixel_render_timer.elapsed();
+            artifacts.setPixelTime( row, col, pixel_elapsed - last_pixel_elapsed );
+            last_pixel_elapsed = pixel_elapsed;
         }
     }
+    pixel_render_timer.stop();
 	
     Timer image_flush_timer;
     image_flush_timer.start();

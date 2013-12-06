@@ -9,6 +9,7 @@
 #ifndef __FastRender__Artifacts__
 #define __FastRender__Artifacts__
 
+#include <vector>
 #include <Magick++.h>
 
 class Vector4;
@@ -21,13 +22,19 @@ public:
     void setPixelColorMono( unsigned int row, unsigned int col, float value );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );
     void setPixelDepth( unsigned int row, unsigned int col, float depth );
+    void setPixelTime( unsigned int row, unsigned int col, float value );
     void flush();
     
     std::string output_path;
     Magick::Image * image = nullptr;
     Magick::Image * normal_image = nullptr;
     Magick::Image * depth_image = nullptr;
+    Magick::Image * time_image = nullptr;
+    std::vector<double> time_unnormalized_image;
     FILE * intersections_file;
+
+    unsigned int width;
+    unsigned int height;
     
 };
 

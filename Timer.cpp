@@ -10,7 +10,7 @@
 #include "Timer.h"
 
 double Timer::toDouble( const struct timeval & tm ){
-    return (double) tm.tv_sec + (double) tm.tv_usec * 1.0e-9;
+    return (double) tm.tv_sec + (double) tm.tv_usec * 1.0e-6;
 }
 
 void Timer::start()
