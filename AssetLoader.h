@@ -12,13 +12,14 @@
 #include <string>
 
 class Traceable;
+class TriangleMesh;
 
 class AssetLoader {
 public:
     AssetLoader() {}
     ~AssetLoader() {}
     
-    Traceable * load( const std::string & filename );
+    TriangleMesh * load( const std::string & filename );
 
 };
 

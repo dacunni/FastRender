@@ -23,7 +23,13 @@ public:
     public:
         Node();
         ~Node();
+
         void print( FILE * file = stdout, unsigned int level = 0 );
+
+        // Helpers for intersection methods of TMOctreeAccelerator
+        bool intersect( const Ray & ray, RayIntersection & intersection, TriangleMesh & mesh, unsigned int level ) const;
+        bool intersectsAny( const Ray & ray, float min_distance, TriangleMesh & mesh, unsigned int level ) const;
+
         // FIXME - no need for bounds in each node. we can compute this knowing the depth in the tree and a global bounds
         AxisAlignedSlab bounds;
         // TODO - change this and the intersection code to use indices into a single triangle list in TriangleMesh

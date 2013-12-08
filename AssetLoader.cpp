@@ -16,7 +16,7 @@
 #include "TriangleMesh.h"
 
 
-Traceable * AssetLoader::load( const std::string & filename )
+TriangleMesh * AssetLoader::load( const std::string & filename )
 {
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
@@ -71,7 +71,5 @@ Traceable * AssetLoader::load( const std::string & filename )
         trimesh->triangles[ti].vi[2] = t.mIndices[2];
     }
 
-    // IMPLEMENT ME
-    
     return trimesh;
 }

@@ -8,6 +8,10 @@
 
 #include <memory>
 #include "TMOctreeAccelerator.h"
+#include "Ray.h"
+
+// Uncomment to enable debug printfs
+//#define DEBUG_BUILD_TREE
 
 TMOctreeAccelerator::TMOctreeAccelerator( TriangleMesh & m )
 :   TriangleMeshAccelerator(m)
@@ -41,21 +45,19 @@ void TMOctreeAccelerator::build()
     root.bounds = *full_bounds;
     delete full_bounds;
     
+#ifdef DEBUG_BUILD_TREE
     printf( "#### bb: %5f:%5f, %5f:%5f, %5f:%5f):\n",
             root.bounds.xmin, root.bounds.xmax,
             root.bounds.ymin, root.bounds.ymax,
             root.bounds.zmin, root.bounds.zmax
             );
-    
-    // FIXME - just doing first level for starters
+#endif
     
     for( unsigned int ti = 0; ti < mesh.triangles.size(); ++ti ) {
         root.triangles.push_back( mesh.triangles[ ti ] );
     }
     
     buildNode( &root );
-    
-    // IMPLEMENT ME
 }
 
 void TMOctreeAccelerator::buildNode( Node * node )
@@ -98,9 +100,13 @@ void TMOctreeAccelerator::buildNode( Node * node )
             zb = (ci & 0x4) ? ZHIGH : ZLOW;
             perm = xb | yb | zb;
             if( !((bins & perm) ^ perm) ) {
-                printf("ti=%u ci=%u perm=0x%X\n", ti, ci, perm); // TEMP
+#ifdef DEBUG_BUILD_TREE
+                printf("ti=%u ci=%u perm=0x%X\n", ti, ci, perm);
+#endif
                 if( !node->children[ ci ] ) {
+#ifdef DEBUG_BUILD_TREE
                     printf("N\n");
+#endif
                     node->children[ ci ] = new Node();
                     has_children = true;
                 }
@@ -108,9 +114,9 @@ void TMOctreeAccelerator::buildNode( Node * node )
             }
         }
         
-        // IMPLEMENT ME
-        
-        printf(">> ti %u : 0x%X\n", ti, (unsigned int) bins ); // TEMP
+#ifdef DEBUG_BUILD_TREE
+        printf(">> ti %u : 0x%X\n", ti, (unsigned int) bins );
+#endif
     }
 
     // TODO - make sure we aren't splitting without making progress
@@ -121,7 +127,9 @@ void TMOctreeAccelerator::buildNode( Node * node )
     
     for( unsigned int ci = 0; ci < 8; ci++ ) {
         if( node->children[ci] ) {
+#ifdef DEBUG_BUILD_TREE
             printf("children @ %u = %lu\n", ci, (unsigned long) node->children[ci]->triangles.size());
+#endif
             Node * child = node->children[ci];
             // Set the bounding box for the child node
             child->bounds = node->bounds;
@@ -147,15 +155,81 @@ void TMOctreeAccelerator::buildNode( Node * node )
 
 bool TMOctreeAccelerator::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
-    // IMPLEMENT ME
-    return false; // TEMP
+    return root.intersect( ray, intersection, mesh, 0 );
 }
 
 bool TMOctreeAccelerator::intersectsAny( const Ray & ray, float min_distance ) const
 {
-    // IMPLEMENT ME
-    return false; // TEMP
+    return root.intersectsAny( ray, min_distance, mesh, 0 );
 }
+
+bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & intersection, TriangleMesh & mesh, unsigned int level ) const
+{
+    bool isleaf = triangles.size() > 0;
+
+    // Early rejection test for bounding box intersection
+    if( !bounds.intersectsAny( ray, intersection.min_distance ) ) {
+        return false;
+    } 
+
+#if 0
+    // TEMP >>> - viz the bounding volume
+    if( (bounds.intersect( ray, intersection ) && level > 2)) {
+        return true;
+    }
+    // TEMP <<<
+#endif
+
+    if( isleaf ) {
+        // For leaf nodes, we check for intersections with the triangle list
+        return mesh.intersectsTriangles( ray, triangles, intersection );
+    }
+    else {
+        bool found_isect = false;
+        // For inner nodes, we recurse to children to determine if there is an intersection.
+        // Note, we don't check the triangles in non-leaf nodes, as they are restricted to not contain any triangles during construction
+        for( unsigned int ci = 0; ci < 8; ci++ ) {
+            if( children[ci] ) {
+                if( children[ci]->intersect( ray, intersection, mesh, level + 1 ) ) {
+                    found_isect = true;
+                }
+            }
+        }
+        return found_isect;
+    }
+}
+
+bool TMOctreeAccelerator::Node::intersectsAny( const Ray & ray, float min_distance, TriangleMesh & mesh, unsigned int level ) const
+{
+    bool isleaf = triangles.size() > 0;
+
+    // Early rejection test for bounding box intersection
+    if( !bounds.intersectsAny( ray, min_distance ) ) {
+        return false;
+    } 
+
+    if( isleaf ) {
+        // For leaf nodes, we check for intersections with the triangle list
+        RayIntersection isect;
+        isect.min_distance = min_distance;
+        return mesh.intersectsTriangles( ray, triangles, isect, TriangleMesh::FAST_ISECT_TEST );
+    }
+    else {
+        bool found_isect = false;
+        // For inner nodes, we recurse to children to determine if there is an intersection.
+        // Note, we don't check the triangles in non-leaf nodes, as they are restricted to not contain any triangles during construction
+        for( unsigned int ci = 0; ci < 8; ci++ ) {
+            if( children[ci] ) {
+                if( children[ci]->intersectsAny( ray, min_distance, mesh, level + 1 ) ) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 
 void TMOctreeAccelerator::Node::print( FILE * file, unsigned int level )
 {

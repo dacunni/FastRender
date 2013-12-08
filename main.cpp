@@ -78,7 +78,7 @@ void addOffsetCubes( Container * container )
 // especially by acceleration structures for meshes.
 float shadeAmbientOcclusion( Scene & scene, RayIntersection & intersection ) 
 {
-    const unsigned int num_ao_rays = 8;
+    const unsigned int num_ao_rays = 32;
     unsigned int hits = 0;
     float value = 0;
     Ray ao_ray;
@@ -108,7 +108,7 @@ void testScene()
 	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
-    int imageSize = 128;
+    int imageSize = 512;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -126,7 +126,7 @@ void testScene()
     
     container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
     container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
-    container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
+    //container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
 
     //container->add( new AxisAlignedSlab( 0.5,  0.5, -10.0,
     //                                     1.0, -0.5,  5.0 ) );
@@ -160,16 +160,18 @@ void testScene()
     std::string modelPath = "models";
 
     // Low res dragon
-    //std::string dragonPath = modelPath + "stanford/dragon";
-    //Traceable * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
-    //Traceable * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
+    std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
+    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
+    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
+    TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
+    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
     
     // Low res bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
-    //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
-    Traceable * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
-    //Traceable * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
+    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
+    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
+    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
+    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
@@ -177,17 +179,17 @@ void testScene()
     }
 
 #if 1
-    // TEMP >>> - working on octree
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
-    mesh_octree->print();
-    printf("EARLY ABORT\n"); exit(0); // TEMP
-    // TEMP <<<
-#endif
-    
+    //mesh_octree->print();
+    //printf("EARLY ABORT\n"); exit(0); // TEMP
+    mesh->accelerator = mesh_octree;
+    container->add( mesh );
+#else
     BoundingVolume * meshBB = new BoundingVolume();
     meshBB->buildAxisAligned( mesh );
     container->add( meshBB );
+#endif
     
 	scene.root = container;
     build_scene_timer.stop();

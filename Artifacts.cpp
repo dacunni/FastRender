@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <algorithm>
 #include "Vector.h"
 #include "Artifacts.h"
 
@@ -49,7 +50,7 @@ void Artifacts::flush()
     depth_image->write( output_path + "/depth.png" );
 
     // Find the maximum time taken to render a pixel
-    double max_value = 0.0;
+    double min_value = 0.0, max_value = 0.0;
     double average_value = 0.0;
     for( int i = 0; i < width * height; i++ ) {
         if( time_unnormalized_image[i] > max_value ) {
@@ -60,9 +61,19 @@ void Artifacts::flush()
 
     average_value /= (width * height);
 
+    // Create sorted vector of times so we can do a value stretch that is less
+    // sensitive to outliers than a simple min/max stretch
+    std::vector<double> sorted_times( time_unnormalized_image );
+    std::sort( sorted_times.begin(), sorted_times.end() );
+    double percentile = 0.01;
+    min_value = sorted_times[ percentile * width * height - 1 ];
+    max_value = sorted_times[  (1.0 - percentile) * width * height - 1 ];
+
     // Normalize the time image by the maximum time
     for( int i = 0; i < width * height; i++ ) {
-        double value = time_unnormalized_image[i] / max_value;
+        double value = (time_unnormalized_image[i] - min_value) / max_value;
+        value = std::max( value, 0.0 );
+        value = std::min( value, 1.0 );
         time_image->pixelColor( i % width, i / width, Magick::ColorRGB( value, value, value ) );
     }
 
