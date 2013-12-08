@@ -74,13 +74,41 @@ void addOffsetCubes( Container * container )
                                           0.1, -0.3, -1.4 ) );
 }
 
+// Ambient occlusion shader. Could probably use lots of improvement,
+// especially by acceleration structures for meshes.
+float shadeAmbientOcclusion( Scene & scene, RayIntersection & intersection ) 
+{
+    const unsigned int num_ao_rays = 8;
+    unsigned int hits = 0;
+    float value = 0;
+    Ray ao_ray;
+    RayIntersection ao_intersection;
+    //ao_ray.origin = intersection.position;
+    Vector4 offset( 0.0, 0.0, 0.0 );
+    scale( intersection.normal, 0.01, offset ); // NOTE - Seems to help 
+    add( intersection.position, offset, ao_ray.origin );
+
+    for( unsigned int aori = 0; aori < num_ao_rays; aori++ ) {
+        rng.uniformSurfaceUnitHalfSphere( intersection.normal, ao_ray.direction );
+
+        ao_intersection = RayIntersection();
+        ao_intersection.min_distance = 0.01;
+        if( scene.intersectsAny( ao_ray, ao_intersection.min_distance ) ) {
+            hits++;
+        }
+    }
+    value = 1.0f - (float) hits / (float) num_ao_rays;
+
+    return value;
+}
+
 void testScene()
 {
     Sphere sphere( Vector4( 0.0, 0.0, 0.0 ), 5.0 );
 	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
 	RayIntersection intersection;
     
-    int imageSize = 256;
+    int imageSize = 128;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -148,7 +176,7 @@ void testScene()
         return;
     }
 
-#if 0
+#if 1
     // TEMP >>> - working on octree
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -159,7 +187,7 @@ void testScene()
     
     BoundingVolume * meshBB = new BoundingVolume();
     meshBB->buildAxisAligned( mesh );
-    //container->add( meshBB );
+    container->add( meshBB );
     
 	scene.root = container;
     build_scene_timer.stop();
@@ -188,39 +216,10 @@ void testScene()
                 //intersection.position.fprintCSV( artifacts.intersections_file );
                 
 #if 1
-                // playing with ambient occlusion
-                const unsigned int num_ao_rays = 1024;
-                unsigned int hits = 0;
-                float value = 0;
-                Ray ao_ray;
-                RayIntersection ao_intersection;
-                //ao_ray.origin = intersection.position;
-                Vector4 offset( 0.0, 0.0, 0.0 );
-                scale( intersection.normal, 0.01, offset ); // NOTE - Seems to help 
-                add( intersection.position, offset, ao_ray.origin );
-                
-                //printf("Calling AO intersect\n"); // TEMP
-                for( unsigned int aori = 0; aori < num_ao_rays; aori++ ) {
-                    rng.uniformSurfaceUnitHalfSphere( intersection.normal, ao_ray.direction );
-                    
-                    ao_intersection = RayIntersection();
-                    ao_intersection.min_distance = 0.01;
-                    //if( scene.intersect( ao_ray, ao_intersection ) ) {
-                    if( scene.intersectsAny( ao_ray, ao_intersection.min_distance ) ) {
-                        hits++;
-                    }
-                }
-                value = 1.0f - (float) hits / (float) num_ao_rays;
-                //artifacts.image->pixelColor(col, row, Magick::ColorRGB( value, value, value ));
+                float value = shadeAmbientOcclusion( scene, intersection );
                 artifacts.setPixelColorMono( row, col, value );
-#if 0
-                // TEMP
-                artifacts.setPixelNormal( row, col, ao_ray.direction );
-#endif
-
 #else
                 artifacts.setPixelColorMono( row, col, 1.0f );
-                
 #endif
 
 #endif
