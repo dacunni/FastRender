@@ -190,5 +190,9 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
     }
 }
 
+void AxisAlignedSlab::print( FILE * file ) const
+{
+    printf( "AASlab: x: %f, %f y: %f, %f z: %f, %f\n", xmin, xmax, ymin, ymax, zmin, zmax );
+}
 
 

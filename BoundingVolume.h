@@ -21,6 +21,8 @@ public:
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
     void buildAxisAligned( Traceable * o );
+
+    virtual void print( FILE * file = stdout ) const;
     
     Traceable * bound = nullptr;
     Traceable * object = nullptr;

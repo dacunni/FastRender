@@ -46,5 +46,12 @@ void BoundingVolume::buildAxisAligned( Traceable * o )
     bound = o->getAxisAlignedBounds();
 }
 
+void BoundingVolume::print( FILE * file ) const
+{
+    if( bound ) {
+        printf("Bound:\n");
+        bound->print( file );
+    }
+}
 
 

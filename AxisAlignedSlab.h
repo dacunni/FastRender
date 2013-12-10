@@ -28,6 +28,7 @@ public:
 
     static unsigned long intersection_test_count;       // Counts the number of intersection tests against
                                                         // objects of this class
+    virtual void print( FILE * file = stdout ) const;
 };
 
 #endif /* defined(__FastRender__AxisAlignedSlab__) */

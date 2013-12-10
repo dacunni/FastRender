@@ -78,7 +78,7 @@ void addOffsetCubes( Container * container )
 // especially by acceleration structures for meshes.
 float shadeAmbientOcclusion( Scene & scene, RayIntersection & intersection ) 
 {
-    const unsigned int num_ao_rays = 32;
+    const unsigned int num_ao_rays = 16;
     unsigned int hits = 0;
     float value = 0;
     Ray ao_ray;
@@ -124,8 +124,8 @@ void testScene()
     //addRandomSpheres( container, 30 );
     //addRandomCubes( container, 30 );
     
-    container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
-    container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
+    //container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
+    //container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
     //container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
 
     //container->add( new AxisAlignedSlab( 0.5,  0.5, -10.0,
@@ -159,37 +159,43 @@ void testScene()
     AssetLoader loader;
     std::string modelPath = "models";
 
-    // Low res dragon
+    // dragon
     std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
     TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
     
-    // Low res bunnies
+    // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
+    //TriangleMesh * mesh = loader.load( modelPath + "/stanford/lucy.ply" );
+    //TriangleMesh * mesh = loader.load( modelPath + "/stanford/Armadillo.ply" );
+
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
 
-#if 1
+//#if 1
+    printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     //mesh_octree->print();
     //printf("EARLY ABORT\n"); exit(0); // TEMP
     mesh->accelerator = mesh_octree;
-    container->add( mesh );
-#else
+    //container->add( mesh );
+//#else
     BoundingVolume * meshBB = new BoundingVolume();
     meshBB->buildAxisAligned( mesh );
+    meshBB->print();
+    //printf("EARLY ABORT\n"); exit(0); // TEMP
     container->add( meshBB );
-#endif
+//#endif
     
 	scene.root = container;
     build_scene_timer.stop();
@@ -198,12 +204,12 @@ void testScene()
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
     
+    printf("Rendering scene:\n");
     Timer pixel_render_timer;
-    pixel_render_timer.start();
-    double last_pixel_elapsed = 0.0;
     for( int row = 0; row < imageHeight; row++ ) {
         printf("ROW %d / %d\n", row, imageHeight); // TEMP
         for( int col = 0; col < imageWidth; col++ ) {
+            pixel_render_timer.start();
             ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
             ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * (ymax - ymin) + ymin;
             ray.direction[2] = -1.0;
@@ -226,9 +232,8 @@ void testScene()
 
 #endif
             }
-            double pixel_elapsed = pixel_render_timer.elapsed();
-            artifacts.setPixelTime( row, col, pixel_elapsed - last_pixel_elapsed );
-            last_pixel_elapsed = pixel_elapsed;
+            pixel_render_timer.stop();
+            artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );
         }
     }
     pixel_render_timer.stop();
