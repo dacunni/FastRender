@@ -78,7 +78,7 @@ void addOffsetCubes( Container * container )
 // especially by acceleration structures for meshes.
 float shadeAmbientOcclusion( Scene & scene, RayIntersection & intersection ) 
 {
-    const unsigned int num_ao_rays = 16;
+    const unsigned int num_ao_rays = 256;
     unsigned int hits = 0;
     float value = 0;
     Ray ao_ray;
@@ -253,7 +253,8 @@ void testScene()
 
 // TODO - make tests for Transforms
 
-int main (int argc, char * const argv[]) {
+int main (int argc, char * const argv[]) 
+{
     printf("FastRender\n");
     fflush(stdout);
     Timer total_run_timer;
