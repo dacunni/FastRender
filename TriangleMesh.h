@@ -20,7 +20,7 @@ class TriangleMesh : public Traceable
 public:
     class IndexTriangle {
     public:
-        unsigned vi[3];
+        unsigned int vi[3];
     };
     
     TriangleMesh();
