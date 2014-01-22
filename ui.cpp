@@ -129,6 +129,7 @@ void repaintViewport( void )
             glDrawElements( GL_TRIANGLES, mesh->triangles.size() * 3, GL_UNSIGNED_INT, NULL );
             GL_WARN_IF_ERROR();
 
+            glDisableClientState( GL_VERTEX_ARRAY );
             glDisable( GL_DEPTH_TEST );
         }
     }
