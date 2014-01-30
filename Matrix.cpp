@@ -51,6 +51,7 @@ void Matrix4x4::print()
 	}
 }
 
+// TODO - handle R being the same as one of A or B
 void mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R )
 {
 	for( int r = 0; r < 4; r++ ) {
@@ -63,6 +64,7 @@ void mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R )
 	}
 }
 
+// TODO - handle result being the same vector as v
 void mult( const Matrix4x4 & A, const Vector4 & v, Vector4 & result )
 {
     for( int r = 0; r < 4; r++ ) {

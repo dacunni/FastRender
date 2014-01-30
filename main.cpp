@@ -9,6 +9,7 @@
 
 #include "Artifacts.h"
 #include "Matrix.h"
+#include "Transform.h"
 #include "Ray.h"
 #include "Sphere.h"
 #include "RandomNumberGenerator.h"
@@ -78,7 +79,7 @@ void addOffsetCubes( Container * container )
 // especially by acceleration structures for meshes.
 float shadeAmbientOcclusion( Scene & scene, RayIntersection & intersection ) 
 {
-    const unsigned int num_ao_rays = 16;
+    const unsigned int num_ao_rays = 128;
     unsigned int hits = 0;
     float value = 0;
     Ray ao_ray;
@@ -163,14 +164,14 @@ void testScene()
     std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
-    TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
+    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
     
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
-    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
+    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
     //TriangleMesh * mesh = loader.load( modelPath + "/stanford/lucy.ply" );
@@ -203,40 +204,53 @@ void testScene()
     
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
-    
-    printf("Rendering scene:\n");
-    Timer pixel_render_timer;
-    for( int row = 0; row < imageHeight; row++ ) {
-        printf("ROW %d / %d\n", row, imageHeight); // TEMP
-        for( int col = 0; col < imageWidth; col++ ) {
-            pixel_render_timer.start();
-            ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
-            ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * (ymax - ymin) + ymin;
-            ray.direction[2] = -1.0;
-            ray.direction.normalize();
-            intersection = RayIntersection();
-            //printf("Calling scene intersect\n"); // TEMP
-            bool hit = scene.intersect( ray, intersection );
-            if( hit ) {
+
+    int num_frames = 5;
+    for( int frame_index = 0; frame_index < num_frames; frame_index++ ) {
+        Vector4 rot_axis( 0.0, 1.0, 1.0 );
+        rot_axis.normalize();
+        Transform xform = makeRotation( ((float) frame_index / num_frames * 2.0 - 1.0) * 0.1, rot_axis );
+
+        printf("Rendering scene:\n");
+        Timer pixel_render_timer;
+        for( int row = 0; row < imageHeight; row++ ) {
+            printf("ROW %d / %d\n", row, imageHeight); // TEMP
+            for( int col = 0; col < imageWidth; col++ ) {
+                pixel_render_timer.start();
+                ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
+                ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * (ymax - ymin) + ymin;
+                ray.direction[2] = -1.0f;
+                ray.direction[3] = 0.0f;
+                ray.direction.normalize();
+                Vector4 d = ray.direction;
+                mult( xform.fwd, d, ray.direction );
+
+                intersection = RayIntersection();
+                //printf("Calling scene intersect\n"); // TEMP
+                bool hit = scene.intersect( ray, intersection );
+                if( hit ) {
 #if 1
-                artifacts.setPixelNormal( row, col, intersection.normal );
-                artifacts.setPixelDepth( row, col, intersection.distance );
-                //intersection.position.fprintCSV( artifacts.intersections_file );
-                
+                    artifacts.setPixelNormal( row, col, intersection.normal );
+                    artifacts.setPixelDepth( row, col, intersection.distance );
+                    //intersection.position.fprintCSV( artifacts.intersections_file );
+
 #if 1
-                float value = shadeAmbientOcclusion( scene, intersection );
-                artifacts.setPixelColorMono( row, col, value );
+                    float value = shadeAmbientOcclusion( scene, intersection );
+                    artifacts.setPixelColorMono( row, col, value );
 #else
-                artifacts.setPixelColorMono( row, col, 1.0f );
+                    artifacts.setPixelColorMono( row, col, 1.0f );
 #endif
 
 #endif
-            }
-            pixel_render_timer.stop();
-            artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );
-        }
-    }
-    pixel_render_timer.stop();
+                }
+                pixel_render_timer.stop();
+                artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );
+            } // col
+        } // row
+        pixel_render_timer.stop();
+        if( frame_index < num_frames - 1 )
+            artifacts.startNewFrame();
+    } // frame_index
 	
     Timer image_flush_timer;
     image_flush_timer.start();

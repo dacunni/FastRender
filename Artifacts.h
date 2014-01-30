@@ -19,6 +19,7 @@ public:
     Artifacts( unsigned int imageWidth, unsigned int imageHeight );
     virtual ~Artifacts();
     
+    void startNewFrame();
     void setPixelColorMono( unsigned int row, unsigned int col, float value );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );
     void setPixelDepth( unsigned int row, unsigned int col, float depth );
@@ -35,6 +36,7 @@ public:
 
     unsigned int width;
     unsigned int height;
+    unsigned int frame_number;
     
 };
 

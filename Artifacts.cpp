@@ -14,7 +14,8 @@
 Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
 : output_path( "output" ), // TEMP
     width( imageWidth ),
-    height( imageHeight )
+    height( imageHeight ),
+    frame_number( 1 )
 {
     image = new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" );
     image->magick( "png" ); // set the output file type
@@ -26,7 +27,6 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
     time_image->magick( "png" ); // set the output file type
     time_unnormalized_image.resize( imageWidth * imageHeight );
     intersections_file = fopen( (output_path + "/intersections.txt").c_str(), "w" );
-
 }
 
 Artifacts::~Artifacts()
@@ -43,9 +43,36 @@ Artifacts::~Artifacts()
         fclose( intersections_file );
 }
 
+// TODO - clean this up
+void Artifacts::startNewFrame() 
+{
+    flush();
+
+    if( image )
+        delete image;
+    if( depth_image )
+        delete depth_image;
+    if( normal_image )
+        delete normal_image;
+    if( time_image )
+        delete time_image;
+
+    image = new Magick::Image( Magick::Geometry( width, height ), "black" );
+    image->magick( "png" ); // set the output file type
+    normal_image = new Magick::Image( Magick::Geometry( width, height ), "black" );
+    normal_image->magick( "png" ); // set the output file type
+    depth_image = new Magick::Image( Magick::Geometry( width, height ), Magick::ColorRGB(0.0f, 0.0f, 0.0f) );
+    depth_image->magick( "png" ); // set the output file type
+    time_image = new Magick::Image( Magick::Geometry( width, height ), "black" );
+    time_image->magick( "png" ); // set the output file type
+    frame_number++;
+}
+
 void Artifacts::flush()
 {
-    image->write( output_path + "/framebuffer.png" );
+    char sindex[32];
+    sprintf( sindex, "%08u", frame_number );
+    image->write( output_path + "/framebuffer_" + sindex + ".png" );
     normal_image->write( output_path + "/normals.png" );
     depth_image->write( output_path + "/depth.png" );
 
