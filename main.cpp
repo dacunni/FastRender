@@ -210,6 +210,7 @@ void testScene()
         Vector4 rot_axis( 0.0, 1.0, 1.0 );
         rot_axis.normalize();
         Transform xform = makeRotation( ((float) frame_index / num_frames * 2.0 - 1.0) * 0.1, rot_axis );
+        //Transform xform = makeTranslation( Vector4( 0.00001, 0.0, 0.0 ) );
 
         printf("Rendering scene:\n");
         Timer pixel_render_timer;
@@ -224,6 +225,8 @@ void testScene()
                 ray.direction.normalize();
                 Vector4 d = ray.direction;
                 mult( xform.fwd, d, ray.direction );
+                //Vector4 o = ray.origin;
+                //mult( xform.fwd, o, ray.origin );
 
                 intersection = RayIntersection();
                 //printf("Calling scene intersect\n"); // TEMP
