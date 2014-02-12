@@ -26,6 +26,7 @@ fruiOBJ = $(OBJ) \
 
 INC = -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
+CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
 #CXXFLAGS += -g
 LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min 10.9

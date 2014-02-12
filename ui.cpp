@@ -1,9 +1,12 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <sstream>
 
-#include <OpenGL/gl.h>
+//#include <OpenGL/gl.h>
 #include <GLUT/glut.h>
+#include <OpenGL/gl3.h>
 
 #if 0
 #include "Artifacts.h"
@@ -24,6 +27,10 @@
 int window_width = 768;
 int window_height = 512;
 
+GLuint vertex_shader = 0;
+GLuint fragment_shader = 0;
+GLuint shader_program = 0;
+
 TriangleMesh * mesh = nullptr;
 
 #define GL_WARN_IF_ERROR() warnIfError( __FUNCTION__, __LINE__ )
@@ -42,13 +49,8 @@ void viewportReshaped( int width, int height )
     //printf("reshape: %d x %d\n", width, height);
     window_width = width;
     window_height = height;
-
     glViewport( 0, 0, window_width, window_height );
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    glFrustum( -1.0, 1.0, -1.0, 1.0, 4.0, 1000.0 );
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    GL_WARN_IF_ERROR();
 }
 
 void drawMesh( TriangleMesh & mesh ) 
@@ -66,89 +68,147 @@ void drawMesh( TriangleMesh & mesh )
 }
 
 bool data_uploaded = false;
+GLuint vao = 0;
 GLuint vbo = 0;
 GLuint ibo = 0;
 
 void repaintViewport( void ) 
 {
-    GLenum err = GL_NO_ERROR;
     //printf("repaint\n");
-    glClearColor( 0.1, 0.1, 0.1, 1.0 );
+    GL_WARN_IF_ERROR();
+    glClearColor( 0.3, 0.3, 0.5, 1.0 );
+    GL_WARN_IF_ERROR();
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    glColor4f( 0.25, 0.25, 0.25, 1.0 );
-    glBegin( GL_LINES );
-    glVertex3f( -1.0, -1.0, -0.1 );
-    glVertex3f(  1.0,  1.0, -0.1 );
-    glVertex3f( -1.0,  1.0, -0.1 );
-    glVertex3f(  1.0, -1.0, -0.1 );
-    glEnd();
+    GL_WARN_IF_ERROR();
 
     if( mesh ) {
+
+        if( shader_program != 0 ) {
+            glUseProgram( shader_program );
+            GL_WARN_IF_ERROR();
+        }
+
         if( !data_uploaded ) {
             printf("uploading vertices\n");
-
+            // Create vertex array object to hold everything
+            glGenVertexArrays( 1, &vao );
+            glBindVertexArray( vao );
             // Upload vertex positions
             glGenBuffers( 1, &vbo );
             glBindBuffer( GL_ARRAY_BUFFER, vbo );
             glBufferData( GL_ARRAY_BUFFER, mesh->vertices.size() * sizeof(float) * 4, &mesh->vertices[0].x, GL_STATIC_DRAW );
+            glVertexAttribPointer( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
+            glEnableVertexAttribArray( 0 );
             GL_WARN_IF_ERROR();
             // Upload vertex indices
             glGenBuffers( 1, &ibo );
             glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
             glBufferData( GL_ELEMENT_ARRAY_BUFFER, mesh->triangles.size() * sizeof(unsigned int) * 3, &mesh->triangles[0], GL_STATIC_DRAW );
             GL_WARN_IF_ERROR();
-            
             printf("done uploading\n");
             data_uploaded = true;
         }
 
         if( data_uploaded ) {
-            // Bind vertex data
-            glBindBuffer( GL_ARRAY_BUFFER, vbo );
-            glEnableClientState( GL_VERTEX_ARRAY );
-            glVertexPointer( 4, GL_FLOAT, 0, NULL );
-            // Bind vertex indices
-            glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
-
-            glEnable( GL_DEPTH_TEST );
-
-            // draw polygon outlines
-            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-            glColor4f( 1.0, 1.0, 1.0, 1.0 );
-            glDrawElements( GL_TRIANGLES, mesh->triangles.size() * 3, GL_UNSIGNED_INT, NULL );
+            glBindVertexArray( vao );
             GL_WARN_IF_ERROR();
-
-            // prevent z-fighting
-            glPolygonOffset( 1, 1 );
-            glEnable( GL_POLYGON_OFFSET_FILL );
-
-            // draw filled polygons
-            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-            glColor4f( 0.2, 0.2, 0.4, 1.0 );
-            glDrawElements( GL_TRIANGLES, mesh->triangles.size() * 3, GL_UNSIGNED_INT, NULL );
+            //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            glDrawArrays( GL_TRIANGLES, 0, mesh->triangles.size() * 3 );
             GL_WARN_IF_ERROR();
-
-            glDisableClientState( GL_VERTEX_ARRAY );
-            glDisable( GL_DEPTH_TEST );
         }
     }
 
     glutSwapBuffers();
 }
 
+const char * shaderTypeAsString( GLuint type )
+{
+    switch( type ) {
+        case GL_VERTEX_SHADER:
+            return "VERTEX SHADER";
+        case GL_FRAGMENT_SHADER:
+            return "FRAGMENT SHADER";
+        default:
+            return "UNKNOWN SHADER";
+    }
+}
+
+GLuint loadShader( GLuint type, const std::string & filename )
+{
+    const char * type_string = shaderTypeAsString( type );
+    int status = 0;
+
+    std::ifstream ifs( filename );
+    std::stringstream ss;
+    ss << ifs.rdbuf();
+    std::string src = ss.str();
+    // FIXME - add error handling
+
+    printf( ">>>> %s >>>>\n%s<<<< %s <<<<\n", type_string, src.c_str(), type_string );
+    GLuint shader = glCreateShader( type );    
+
+    // Make an array of pointers for GL
+    const char * srcs[] = { src.c_str() };
+    glShaderSource( shader, 1, srcs, NULL );
+
+    // Compile shader
+    glCompileShader( shader );
+    glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
+
+    printf( "Shader Compile status: %d\n", status );
+
+    if( !status ) {
+        GLint len = 0;
+        glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &len );
+        std::vector<GLchar> log( len );
+        glGetShaderInfoLog( shader, len, &len, &log[0] );
+        printf( "Compiler Error Message:\n%s", (char *) &log[0] );
+        glDeleteShader( shader );
+        return 0;
+    }
+
+    // FIXME - add error handling
+
+    return shader;
+}
+
+void createShaders( void ) 
+{
+    GLuint status = 0;
+    GLint program_status = 0;
+
+    vertex_shader = loadShader( GL_VERTEX_SHADER, "basic.vs" );
+    fragment_shader = loadShader( GL_FRAGMENT_SHADER, "basic.fs" );
+
+    shader_program = glCreateProgram();
+    if( vertex_shader != 0 )
+        glAttachShader( shader_program, vertex_shader );
+    if( fragment_shader != 0 ) 
+        glAttachShader( shader_program, fragment_shader );
+    glBindAttribLocation( shader_program, 0, "position" );
+    glLinkProgram( shader_program );
+
+    glGetProgramiv( shader_program, GL_LINK_STATUS, &program_status ); 
+    printf( "Link status: %d\n", program_status );
+}
+
 int main (int argc, char * const argv[]) 
 {
     printf("FastRender UI\n");
     glutInit( &argc, const_cast<char **>(argv) );
-    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
+    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE );
     glutInitWindowSize( window_width, window_height );
     glutInitWindowPosition( 0, 0 );
     glutCreateWindow("FastRender UI");
 
+    printf( "Renderer: %s\n", glGetString( GL_RENDERER ) );
+    printf( "GL Version: %s\n", glGetString( GL_VERSION ) );
+    printf( "GLSL Version: %s\n", glGetString( GL_SHADING_LANGUAGE_VERSION ) );
+
+    createShaders();
+
     glutReshapeFunc( viewportReshaped );
     glutDisplayFunc( repaintViewport );
-
 
     AssetLoader loader;
     std::string modelPath = "models";
@@ -165,6 +225,7 @@ int main (int argc, char * const argv[])
         return EXIT_FAILURE;
     }
 
+    GL_WARN_IF_ERROR();
     glutMainLoop();
     return EXIT_SUCCESS;
 }
