@@ -17,7 +17,7 @@ template< typename T > inline T sq( const T & t ) { return t * t; }
 class Vector4 
 {
 public:
-	inline Vector4() {}
+	inline Vector4();
 	inline Vector4( const Vector4 & a );
 	inline Vector4( float x, float y, float z, float w = 1.0f );
 	inline ~Vector4() {}
@@ -58,6 +58,7 @@ inline void subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline void scale( const Vector4 & a, float s, Vector4 & r );
 inline void perspective_scale( const Vector4 & a, Vector4 & r );
 inline void mirror( const Vector4 & a, const Vector4 & n, Vector4 & r );
+inline void interp( const Vector4 & a, const Vector4 & b, const float alpha, Vector4 & r);
 
 #include "Vector.hpp"
 

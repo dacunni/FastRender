@@ -79,7 +79,7 @@ void addOffsetCubes( Container * container )
 // especially by acceleration structures for meshes.
 float shadeAmbientOcclusion( Scene & scene, RayIntersection & intersection ) 
 {
-    const unsigned int num_ao_rays = 128;
+    const unsigned int num_ao_rays = 16;
     unsigned int hits = 0;
     float value = 0;
     Ray ao_ray;
@@ -106,10 +106,10 @@ float shadeAmbientOcclusion( Scene & scene, RayIntersection & intersection )
 void testScene()
 {
     Sphere sphere( Vector4( 0.0, 0.0, 0.0 ), 5.0 );
-	Ray ray( Vector4( 0.0, 0.0, 3.0 ), Vector4( 0.0, 0.0, -1.0 ) );
+	Ray ray;
 	RayIntersection intersection;
     
-    int imageSize = 512;
+    int imageSize = 256;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -126,7 +126,7 @@ void testScene()
     //addRandomCubes( container, 30 );
     
     //container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
-    //container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
+    container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
     //container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
 
     //container->add( new AxisAlignedSlab( 0.5,  0.5, -10.0,
@@ -205,17 +205,37 @@ void testScene()
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
 
-    int num_frames = 5;
+    Vector4 camera_origin( Vector4( 0.0, 0.0, 0.0 ) );
+
+    float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
+    int num_frames = 1;
     for( int frame_index = 0; frame_index < num_frames; frame_index++ ) {
-        Vector4 rot_axis( 0.0, 1.0, 1.0 );
+        if( num_frames > 1 )
+            anim_progress = (float) frame_index / (num_frames - 1);
+        printf("Frame %d (%.2f %%)\n", frame_index, anim_progress * 100.0);
+        Vector4 rot_axis( 0.0, 1.0, 0.0 );
+        //Vector4 rot_axis( 0.0, 0.0, 1.0 );
         rot_axis.normalize();
-        Transform xform = makeRotation( ((float) frame_index / num_frames * 2.0 - 1.0) * 0.1, rot_axis );
-        //Transform xform = makeTranslation( Vector4( 0.00001, 0.0, 0.0 ) );
+        //float angle = ((float) frame_index / num_frames * 2.0 - 1.0) * 0.1;
+        //float angle = 0.0, min_angle = 0.0, max_angle = M_PI / 2.0;
+        //float angle = 0.0, min_angle = -M_PI / 4.0, max_angle = M_PI / 4.0;
+        float angle = 0.0, min_angle = -0.0, max_angle = 0.55;
+        angle = (anim_progress * (max_angle - min_angle)) + min_angle;
+        Transform rotation = makeRotation( angle, rot_axis );
+        Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 0.0, 0.0, 5.0 );
+        //Vector4 begin_xlate( 0.0, -0.25, 0.0 ), end_xlate( 0.0, 0.25, 0.0 );
+        //Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
+        Vector4 xlate;
+        interp( begin_xlate, end_xlate, anim_progress, xlate);
+        Transform translation = makeTranslation( xlate );
+        Transform xform = compose( translation, rotation );
 
         printf("Rendering scene:\n");
         Timer pixel_render_timer;
         for( int row = 0; row < imageHeight; row++ ) {
-            printf("ROW %d / %d\n", row, imageHeight); // TEMP
+            if( row % (imageHeight / 10) == 0 )
+                printf("ROW %d / %d\n", row, imageHeight); // TEMP
+
             for( int col = 0; col < imageWidth; col++ ) {
                 pixel_render_timer.start();
                 ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
@@ -225,8 +245,11 @@ void testScene()
                 ray.direction.normalize();
                 Vector4 d = ray.direction;
                 mult( xform.fwd, d, ray.direction );
-                //Vector4 o = ray.origin;
-                //mult( xform.fwd, o, ray.origin );
+                ray.direction.normalize(); // is this necessary, or just being careful?
+                Vector4 o = camera_origin;
+                //printf("before: "); ray.origin.print();
+                mult( xform.fwd, o, ray.origin );
+                //printf("after: "); ray.origin.print();
 
                 intersection = RayIntersection();
                 //printf("Calling scene intersect\n"); // TEMP

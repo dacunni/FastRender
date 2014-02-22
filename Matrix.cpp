@@ -47,7 +47,7 @@ void Matrix4x4::identity()
 void Matrix4x4::print()
 {
 	for( int r = 0; r < 4; r++ ) {
-		printf( "M%d:( %6.2f %6.2f %6.2f %6.2f )\n", r, at(r, 0), at(r, 1), at(r, 2), at( r, 3) );
+		printf( "M%d| %6.6f %6.6f %6.6f %6.6f |\n", r, at(r, 0), at(r, 1), at(r, 2), at( r, 3) );
 	}
 }
 
