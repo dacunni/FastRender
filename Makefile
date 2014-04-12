@@ -1,5 +1,6 @@
 
 OBJ = \
+    AmbientOcclusionShader.o \
     Artifacts.o \
 	AssetLoader.o \
 	AxisAlignedSlab.o \
@@ -11,6 +12,7 @@ OBJ = \
 	Ray.o \
 	Scene.o \
 	Sphere.o \
+    TestScenes.o \
     TMOctreeAccelerator.o \
 	Timer.o \
 	Traceable.o \

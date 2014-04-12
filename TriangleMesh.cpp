@@ -194,7 +194,7 @@ void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size )
     mesh.vertices.resize( 4 );
     mesh.triangles.resize( 2 );
     
-    float yoffset = -2.0; // TEMP
+    float yoffset = -5.0; // TEMP
     
     mesh.vertices[0] = Vector4( -size / 2.0, yoffset, -size / 2.0 );
     mesh.vertices[1] = Vector4( -size / 2.0, yoffset, size / 2.0 );

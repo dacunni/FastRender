@@ -174,7 +174,7 @@ bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & in
 
 #if 0
     // TEMP >>> - viz the bounding volume
-    if( (bounds.intersect( ray, intersection ) && level > 2)) {
+    if( (bounds.intersect( ray, intersection ) && level > 4)) {
         return true;
     }
     // TEMP <<<

@@ -14,6 +14,8 @@
 #include "Sphere.h"
 #include "RandomNumberGenerator.h"
 #include "Scene.h"
+#include "Shader.h"
+#include "AmbientOcclusionShader.h"
 #include "FlatContainer.h"
 #include "AxisAlignedSlab.h"
 #include "TriangleMesh.h"
@@ -21,87 +23,9 @@
 #include "AssetLoader.h"
 #include "BoundingVolume.h"
 #include "TMOctreeAccelerator.h"
+#include "TestScenes.h"
 
 RandomNumberGenerator rng;
-
-void addSlabGrid( Container * container )
-{
-    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1, -1.0,
-                                        0.1-0.45,  0.1, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1, -1.0,
-                                        0.1+0.45,  0.1, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1, -0.1+0.45, -1.0,
-                                        0.1,  0.1+0.45, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1, -0.1-0.45, -1.0,
-                                        0.1,  0.1-0.45, -5.3 ) );
-    
-    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1-0.45, -1.0,
-                                        0.1-0.45,  0.1-0.45, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1+0.45, -1.0,
-                                        0.1-0.45,  0.1+0.45, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1-0.45, -1.0,
-                                        0.1+0.45,  0.1-0.45, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1+0.45, -1.0,
-                                        0.1+0.45,  0.1+0.45, -5.3 ) );
-}
-
-void addRandomSpheres( Container * container, int numSpheres )
-{
-	for( int si = 0; si < numSpheres; si++ ) {
-		container->add( new Sphere( Vector4( rng.uniformRange( -1.5, 1.5 ),
-                                            rng.uniformRange( -1.5, 1.5 ),
-                                            rng.uniformRange( -10.0, -3.0 ) ),
-                                   0.15 ) );
-	}
-}
-
-void addRandomCubes( Container * container, int numCubes )
-{
-	for( int si = 0; si < numCubes; si++ ) {
-        float x = rng.uniformRange( -1.5, 1.5 );
-        float y = rng.uniformRange( -1.5, 1.5 );
-        float z = rng.uniformRange( -10.0, -3.0 );
-        container->add( new AxisAlignedSlab( x - 0.1, y - 0.1, z - 0.1,
-                                             x + 0.1, y + 0.1, z + 0.1 ) );
-	}
-}
-
-void addOffsetCubes( Container * container )
-{
-    // Offset cubes for testing AO
-    container->add( new AxisAlignedSlab(  0.1, -0.5, -1.0,
-                                          0.3, -0.3, -1.2 ) );
-    container->add( new AxisAlignedSlab( -0.1, -0.5, -1.2,
-                                          0.1, -0.3, -1.4 ) );
-}
-
-// Ambient occlusion shader. Could probably use lots of improvement,
-// especially by acceleration structures for meshes.
-float shadeAmbientOcclusion( Scene & scene, RayIntersection & intersection ) 
-{
-    const unsigned int num_ao_rays = 16;
-    unsigned int hits = 0;
-    float value = 0;
-    Ray ao_ray;
-    RayIntersection ao_intersection;
-    //ao_ray.origin = intersection.position;
-    Vector4 offset( 0.0, 0.0, 0.0 );
-    scale( intersection.normal, 0.01, offset ); // NOTE - Seems to help 
-    add( intersection.position, offset, ao_ray.origin );
-
-    for( unsigned int aori = 0; aori < num_ao_rays; aori++ ) {
-        rng.uniformSurfaceUnitHalfSphere( intersection.normal, ao_ray.direction );
-
-        ao_intersection = RayIntersection();
-        ao_intersection.min_distance = 0.01;
-        if( scene.intersectsAny( ao_ray, ao_intersection.min_distance ) ) {
-            hits++;
-        }
-    }
-    value = 1.0f - (float) hits / (float) num_ao_rays;
-
-    return value;
-}
 
 void testScene()
 {
@@ -126,7 +50,7 @@ void testScene()
     //addRandomCubes( container, 30 );
     
     //container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
-    container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
+    //container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
     //container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
 
     //container->add( new AxisAlignedSlab( 0.5,  0.5, -10.0,
@@ -136,17 +60,12 @@ void testScene()
     addOffsetCubes( container );
     
 #if 1
-    container->add( new AxisAlignedSlab( -5.0, -0.5, +0.5,
+    // makeshift ground plane
+    container->add( new AxisAlignedSlab( -5.0, -0.5, +10.0,
                                           5.0, -0.9, -10.0 ) );
-    //container->add( new AxisAlignedSlab(  0.7,  0.75-0.9, -4.2,
-    //                                      0.9,  0.0-0.9, -4.4 ) );
+    //container->add( new AxisAlignedSlab( -10.0, -5.0, +10.0,
+    //                                     -1.5,  5.0, -10.0 ) );
     
-#endif
-    
-#if 0
-    TriangleMesh * tetra = new TriangleMesh();
-    makeTriangleMeshTetrahedron( *tetra );
-    container->add( tetra );
 #endif
     
 #if 0
@@ -156,14 +75,13 @@ void testScene()
     container->add( ground );
 #endif
     
-    
     AssetLoader loader;
     std::string modelPath = "models";
 
     // dragon
     std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
-    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
+    TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
     
@@ -171,7 +89,7 @@ void testScene()
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
-    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
+    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
     //TriangleMesh * mesh = loader.load( modelPath + "/stanford/lucy.ply" );
@@ -182,21 +100,13 @@ void testScene()
         return;
     }
 
-//#if 1
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
-    //mesh_octree->print();
-    //printf("EARLY ABORT\n"); exit(0); // TEMP
     mesh->accelerator = mesh_octree;
-    //container->add( mesh );
-//#else
     BoundingVolume * meshBB = new BoundingVolume();
     meshBB->buildAxisAligned( mesh );
-    meshBB->print();
-    //printf("EARLY ABORT\n"); exit(0); // TEMP
     container->add( meshBB );
-//#endif
     
 	scene.root = container;
     build_scene_timer.stop();
@@ -205,7 +115,7 @@ void testScene()
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
 
-    Vector4 camera_origin( Vector4( 0.0, 0.0, 0.0 ) );
+    Shader * shader = new AmbientOcclusionShader();
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
@@ -222,13 +132,16 @@ void testScene()
         float angle = 0.0, min_angle = -0.0, max_angle = 0.55;
         angle = (anim_progress * (max_angle - min_angle)) + min_angle;
         Transform rotation = makeRotation( angle, rot_axis );
-        Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 0.0, 0.0, 5.0 );
+        //Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 0.0, 0.0, 5.0 );
         //Vector4 begin_xlate( 0.0, -0.25, 0.0 ), end_xlate( 0.0, 0.25, 0.0 );
-        //Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
+        Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
         Vector4 xlate;
         interp( begin_xlate, end_xlate, anim_progress, xlate);
         Transform translation = makeTranslation( xlate );
-        Transform xform = compose( translation, rotation );
+        //Transform scaling = makeScaling( 0.15, 0.15, 0.15 );
+        Transform xform;
+        xform = compose( rotation, xform );
+        xform = compose( translation, xform );
 
         printf("Rendering scene:\n");
         Timer pixel_render_timer;
@@ -240,16 +153,16 @@ void testScene()
                 pixel_render_timer.start();
                 ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
                 ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * (ymax - ymin) + ymin;
+                //ray.direction[0] = (float) col / imageWidth * 2.0f - 1.0f;
+                //ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * 2.0f - 1.0f;
                 ray.direction[2] = -1.0f;
                 ray.direction[3] = 0.0f;
                 ray.direction.normalize();
                 Vector4 d = ray.direction;
                 mult( xform.fwd, d, ray.direction );
                 ray.direction.normalize(); // is this necessary, or just being careful?
-                Vector4 o = camera_origin;
-                //printf("before: "); ray.origin.print();
+                Vector4 o = Vector4( 0.0, 0.0, 0.0 );  // default camera at origin
                 mult( xform.fwd, o, ray.origin );
-                //printf("after: "); ray.origin.print();
 
                 intersection = RayIntersection();
                 //printf("Calling scene intersect\n"); // TEMP
@@ -261,7 +174,7 @@ void testScene()
                     //intersection.position.fprintCSV( artifacts.intersections_file );
 
 #if 1
-                    float value = shadeAmbientOcclusion( scene, intersection );
+                    float value = shader->shade( scene, rng, intersection );
                     artifacts.setPixelColorMono( row, col, value );
 #else
                     artifacts.setPixelColorMono( row, col, 1.0f );
