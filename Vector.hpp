@@ -9,6 +9,12 @@
 #ifndef FastRender_Vector_hpp
 #define FastRender_Vector_hpp
 
+inline Vector4::Vector4()
+    : x(0.0f), y(0.0f), z(0.0f), w(1.0f)
+{
+
+}
+
 inline Vector4::Vector4( const Vector4 & a )
 {
 	data[0] = a.data[0];
@@ -97,6 +103,17 @@ inline void mirror( const Vector4 & a, const Vector4 & n, Vector4 & r )
     float twoAdotN = 2.0f * dot( a, n );
     scale( n, twoAdotN, NtwoAdotN );
     subtract( NtwoAdotN, a, r );
+}
+
+// Linearly interpolate two vectors using parameter alpha, such that alpha=0 gives a and
+// alpha=1 gives b
+inline void interp( const Vector4 & a, const Vector4 & b, const float alpha, Vector4 & r)
+{
+    float oma = 1.0f - alpha;
+    r.x = oma * a.x + alpha * b.x;
+    r.y = oma * a.y + alpha * b.y;
+    r.z = oma * a.z + alpha * b.z;
+    r.w = oma * a.w + alpha * b.w;
 }
 
 #endif

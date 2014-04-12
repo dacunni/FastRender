@@ -37,7 +37,7 @@ public:
 Transform compose( const Transform & t1, const Transform & t2 );
 
 // Builds a rotation Transform from an axis and angle
-Transform makeRotation( float angle, const Vector4 & axis ); // IMPLEMENT ME
+Transform makeRotation( float angle, const Vector4 & axis );
 
 // Builds a translation Transform
 Transform makeTranslation( const Vector4 & direction );

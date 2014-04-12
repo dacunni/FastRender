@@ -10,6 +10,10 @@
 #define __FastRender__Artifacts__
 
 #include <vector>
+
+// ImageMagick stuff. We get compile-time warnings if we don't define these manually
+#define MAGICKCORE_QUANTUM_DEPTH 16
+#define MAGICKCORE_HDRI_ENABLE 0
 #include <Magick++.h>
 
 class Vector4;
@@ -19,6 +23,7 @@ public:
     Artifacts( unsigned int imageWidth, unsigned int imageHeight );
     virtual ~Artifacts();
     
+    void startNewFrame();
     void setPixelColorMono( unsigned int row, unsigned int col, float value );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );
     void setPixelDepth( unsigned int row, unsigned int col, float depth );
@@ -35,6 +40,7 @@ public:
 
     unsigned int width;
     unsigned int height;
+    unsigned int frame_number;
     
 };
 

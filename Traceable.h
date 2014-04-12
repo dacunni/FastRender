@@ -11,6 +11,7 @@
 #define _TRACEABLE_H_
 
 #include <stdio.h>
+#include "Transform.h"
 
 class Ray; 
 class RayIntersection;
