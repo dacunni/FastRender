@@ -1,7 +1,8 @@
 #version 410
 
 in vec4 position;
-out vec4 normal;
+in vec4 normal;
+out vec4 vNormal;
 
 void main()
 {
@@ -10,6 +11,7 @@ void main()
     gl_Position.y *= 1.0;
     gl_Position.z = -0.5;
 
-    normal = normalize(position);
+    //normal = normalize(position);
+    vNormal = normal;
 }
 

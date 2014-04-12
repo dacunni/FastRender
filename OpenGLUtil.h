@@ -18,6 +18,8 @@ GLenum warnIfError( const char * func, int line )
     if( err != GL_NO_ERROR ) {
         printf("GL Error: %s:%d %s\n", func, line, gluErrorString(err));
     }
+
+    return err;
 }
 
 

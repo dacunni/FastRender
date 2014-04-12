@@ -37,6 +37,7 @@ public:
     virtual AxisAlignedSlab * getAxisAlignedBounds() const;
 
     std::vector< Vector4 >          vertices;
+    std::vector< Vector4 >          normals;
     std::vector< IndexTriangle >    triangles;
 
     TriangleMeshAccelerator       * accelerator;        // Intersetion acceleration object (null if none)

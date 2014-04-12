@@ -46,11 +46,15 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
     TriangleMesh * trimesh = new TriangleMesh();
     
     trimesh->vertices.resize( mesh->mNumVertices );
+    trimesh->normals.resize( mesh->mNumVertices );
     trimesh->triangles.resize( mesh->mNumFaces );
  
     for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
         const auto v = mesh->mVertices[vi];
+        const auto n = mesh->mNormals[vi];
+
         trimesh->vertices[vi].set( v.x, v.y, v.z );
+        trimesh->normals[vi].set( n.x, n.y, n.z );
 
         // TEMP >>>
         const float scale = 10.0f;

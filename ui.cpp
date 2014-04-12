@@ -50,6 +50,7 @@ void repaintViewport( void )
     //printf("repaint\n");
     glClearColor( 0.2, 0.2, 0.3, 1.0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glEnable( GL_DEPTH_TEST );
 
     if( mesh ) {
         if( shader_program != 0 ) {
@@ -61,12 +62,13 @@ void repaintViewport( void )
         }
 
         if( gpu_mesh.uploaded() ) {
-            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
             gpu_mesh.bind();
             gpu_mesh.draw();
         }
     }
 
+    glDisable( GL_DEPTH_TEST );
     glutSwapBuffers();
 }
 
@@ -135,6 +137,7 @@ void createShaders( void )
     if( fragment_shader != 0 ) 
         glAttachShader( shader_program, fragment_shader );
     glBindAttribLocation( shader_program, 0, "position" );
+    glBindAttribLocation( shader_program, 1, "normal" );
     glLinkProgram( shader_program );
 
     glGetProgramiv( shader_program, GL_LINK_STATUS, &program_status ); 
@@ -175,6 +178,13 @@ int main (int argc, char * const argv[])
 
     AssetLoader loader;
     std::string modelPath = "models";
+
+    // dragon
+    std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
+    //mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
+    //mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
+    //mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
+    //mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
 
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";

@@ -28,6 +28,7 @@ class GPUMesh
 
         void upload( TriangleMesh & mesh )
         {
+            printf("GPUMesh::upload\n");
             // Create vertex array object to hold everything
             glGenVertexArrays( 1, &vao );
             glBindVertexArray( vao );
@@ -35,9 +36,19 @@ class GPUMesh
             // Upload vertex positions
             glGenBuffers( 1, &vbo );
             glBindBuffer( GL_ARRAY_BUFFER, vbo );
-            glBufferData( GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(float) * 4, &mesh.vertices[0].x, GL_STATIC_DRAW );
-            glVertexAttribPointer( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
-            glEnableVertexAttribArray( 0 );
+            GLsizeiptr vsize = mesh.vertices.size() * sizeof(float) * 4;
+            GLsizeiptr nsize = mesh.normals.size() * sizeof(float) * 4;
+            // allocate some space for all of our attributes
+            glBufferData( GL_ARRAY_BUFFER, vsize + nsize, NULL, GL_STATIC_DRAW );
+            // upload positions
+            glBufferSubData( GL_ARRAY_BUFFER, 0, vsize, &mesh.vertices[0].x );
+            GL_WARN_IF_ERROR();
+            glVertexAttribPointer( POSITION_ATTRIB_INDEX, 4, GL_FLOAT, GL_FALSE, 0, 0 );
+            glEnableVertexAttribArray( POSITION_ATTRIB_INDEX );
+            // upload normals
+            glBufferSubData( GL_ARRAY_BUFFER, vsize, nsize, &mesh.normals[0].x );
+            glVertexAttribPointer( NORMAL_ATTRIB_INDEX, 4, GL_FLOAT, GL_FALSE, 0, (void *) vsize );
+            glEnableVertexAttribArray( NORMAL_ATTRIB_INDEX );
             GL_WARN_IF_ERROR();
 
             // Upload vertex indices
@@ -69,6 +80,9 @@ class GPUMesh
                 GL_WARN_IF_ERROR();
             }
         }
+
+        const GLuint POSITION_ATTRIB_INDEX = 0;
+        const GLuint NORMAL_ATTRIB_INDEX   = 1;
 
         GLuint vao = 0;
         GLuint vbo = 0;
