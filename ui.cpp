@@ -4,45 +4,23 @@
 #include <string>
 #include <sstream>
 
-//#include <OpenGL/gl.h>
-#include <GLUT/glut.h>
-#include <OpenGL/gl3.h>
+#include <GLUT/glut.h>      // GLUT + OpenGL
+#include <OpenGL/gl3.h>     // Core OpenGL 3.x+
 
-#if 0
-#include "Artifacts.h"
-#include "Matrix.h"
-#include "Ray.h"
-#include "Sphere.h"
-#include "RandomNumberGenerator.h"
-#include "Scene.h"
-#include "FlatContainer.h"
-#include "AxisAlignedSlab.h"
-#include "Timer.h"
-#include "BoundingVolume.h"
-#include "TMOctreeAccelerator.h"
-#endif
 #include "AssetLoader.h"
 #include "TriangleMesh.h"
+#include "OpenGLUtil.h"
+#include "GPUMesh.h"
 
-int window_width = 768;
-int window_height = 512;
+int window_width = 350;
+int window_height = 350;
 
 GLuint vertex_shader = 0;
 GLuint fragment_shader = 0;
 GLuint shader_program = 0;
 
 TriangleMesh * mesh = nullptr;
-
-#define GL_WARN_IF_ERROR() warnIfError( __FUNCTION__, __LINE__ )
-
-GLenum warnIfError( const char * func, int line ) 
-{
-    GLenum err = glGetError();
-
-    if( err != GL_NO_ERROR ) {
-        printf("GL Error: %s:%d %s\n", func, line, gluErrorString(err));
-    }
-}
+GPUMesh gpu_mesh;
 
 void viewportReshaped( int width, int height ) 
 {
@@ -67,54 +45,25 @@ void drawMesh( TriangleMesh & mesh )
     }
 }
 
-bool data_uploaded = false;
-GLuint vao = 0;
-GLuint vbo = 0;
-GLuint ibo = 0;
-
 void repaintViewport( void ) 
 {
     //printf("repaint\n");
-    GL_WARN_IF_ERROR();
-    glClearColor( 0.3, 0.3, 0.5, 1.0 );
-    GL_WARN_IF_ERROR();
+    glClearColor( 0.2, 0.2, 0.3, 1.0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    GL_WARN_IF_ERROR();
 
     if( mesh ) {
-
         if( shader_program != 0 ) {
             glUseProgram( shader_program );
-            GL_WARN_IF_ERROR();
         }
 
-        if( !data_uploaded ) {
-            printf("uploading vertices\n");
-            // Create vertex array object to hold everything
-            glGenVertexArrays( 1, &vao );
-            glBindVertexArray( vao );
-            // Upload vertex positions
-            glGenBuffers( 1, &vbo );
-            glBindBuffer( GL_ARRAY_BUFFER, vbo );
-            glBufferData( GL_ARRAY_BUFFER, mesh->vertices.size() * sizeof(float) * 4, &mesh->vertices[0].x, GL_STATIC_DRAW );
-            glVertexAttribPointer( 0, 4, GL_FLOAT, GL_FALSE, 0, 0 );
-            glEnableVertexAttribArray( 0 );
-            GL_WARN_IF_ERROR();
-            // Upload vertex indices
-            glGenBuffers( 1, &ibo );
-            glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
-            glBufferData( GL_ELEMENT_ARRAY_BUFFER, mesh->triangles.size() * sizeof(unsigned int) * 3, &mesh->triangles[0], GL_STATIC_DRAW );
-            GL_WARN_IF_ERROR();
-            printf("done uploading\n");
-            data_uploaded = true;
+        if( !gpu_mesh.uploaded() ) {
+            gpu_mesh.upload( *mesh );
         }
 
-        if( data_uploaded ) {
-            glBindVertexArray( vao );
-            GL_WARN_IF_ERROR();
-            //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-            glDrawArrays( GL_TRIANGLES, 0, mesh->triangles.size() * 3 );
-            GL_WARN_IF_ERROR();
+        if( gpu_mesh.uploaded() ) {
+            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            gpu_mesh.bind();
+            gpu_mesh.draw();
         }
     }
 
@@ -190,13 +139,27 @@ void createShaders( void )
 
     glGetProgramiv( shader_program, GL_LINK_STATUS, &program_status ); 
     printf( "Link status: %d\n", program_status );
+
+    if( !program_status ) {
+        GLint len = 0;
+        glGetProgramiv( shader_program, GL_INFO_LOG_LENGTH, &len );
+        std::vector<GLchar> log( len );
+        glGetProgramInfoLog( shader_program, len, &len, &log[0] );
+        printf( "Compiler Error Message:\n%s", (char *) &log[0] );
+        glDeleteProgram( shader_program );
+        return; 
+    }
+    // FIXME - add error handling
 }
 
 int main (int argc, char * const argv[]) 
 {
     printf("FastRender UI\n");
     glutInit( &argc, const_cast<char **>(argv) );
-    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE );
+    glutInitDisplayMode( GLUT_DOUBLE              // Double buffered
+                         | GLUT_RGBA | GLUT_DEPTH
+                         | GLUT_3_2_CORE_PROFILE  // Core profile context
+                         );
     glutInitWindowSize( window_width, window_height );
     glutInitWindowPosition( 0, 0 );
     glutCreateWindow("FastRender UI");
