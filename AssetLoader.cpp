@@ -21,11 +21,11 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
     
-    scene = importer.ReadFile( filename, aiProcess_Triangulate );
+    scene = importer.ReadFile( filename, aiProcess_Triangulate | aiProcess_GenNormals );
     
     if( !scene ) {
         fprintf( stderr, "Failed to load %s\n", filename.c_str() );
-        return nullptr;        
+        return nullptr;
     }
     
     printf( "Loaded %s\n", filename.c_str() );

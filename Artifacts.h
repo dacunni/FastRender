@@ -10,6 +10,10 @@
 #define __FastRender__Artifacts__
 
 #include <vector>
+
+// ImageMagick stuff. We get compile-time warnings if we don't define these manually
+#define MAGICKCORE_QUANTUM_DEPTH 16
+#define MAGICKCORE_HDRI_ENABLE 0
 #include <Magick++.h>
 
 class Vector4;
