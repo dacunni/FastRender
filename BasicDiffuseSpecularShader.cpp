@@ -16,7 +16,7 @@
 
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
-    const unsigned int num_diffuse_rays = 100;
+    const unsigned int num_diffuse_rays = 10;
     unsigned int hits = 0;
     RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
     Ray diffuse_ray;
