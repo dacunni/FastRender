@@ -11,6 +11,7 @@
 #include "AxisAlignedSlab.h"
 #include "RandomNumberGenerator.h"
 #include "Sphere.h"
+#include "Material.h"
 
 void addSlabGrid( Container * container )
 {
@@ -57,10 +58,13 @@ void addRandomCubes( Container * container, RandomNumberGenerator & rng, int num
 void addOffsetCubes( Container * container )
 {
     // Offset cubes for testing AO
-    container->add( new AxisAlignedSlab(  0.1, -0.5, -1.0,
-                                          0.3, -0.3, -1.2 ) );
-    container->add( new AxisAlignedSlab( -0.1, -0.5, -1.2,
-                                          0.1, -0.3, -1.4 ) );
+    AxisAlignedSlab * cube1 = new AxisAlignedSlab(  0.1, -0.5, -1.0,
+                                                    0.3, -0.3, -1.2 );
+    AxisAlignedSlab * cube2 = new AxisAlignedSlab( -0.1, -0.5, -1.2,
+                                                    0.1, -0.3, -1.4 );
+    cube1->material = new DiffuseMaterial( 1.0, 0.0, 0.0 );
+    container->add( cube1 );
+    container->add( cube2 );
 }
 
 

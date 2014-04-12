@@ -16,6 +16,7 @@
 #include "Scene.h"
 #include "Shader.h"
 #include "AmbientOcclusionShader.h"
+#include "BasicDiffuseSpecularShader.h"
 #include "FlatContainer.h"
 #include "AxisAlignedSlab.h"
 #include "TriangleMesh.h"
@@ -23,6 +24,7 @@
 #include "AssetLoader.h"
 #include "BoundingVolume.h"
 #include "TMOctreeAccelerator.h"
+#include "Material.h"
 #include "TestScenes.h"
 
 RandomNumberGenerator rng;
@@ -33,7 +35,7 @@ void testScene()
 	Ray ray;
 	RayIntersection intersection;
     
-    int imageSize = 256;
+    int imageSize = 512;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -59,6 +61,19 @@ void testScene()
     //addSlabGrid( container );
     addOffsetCubes( container );
     
+    // Cube emitter for some light
+    //AxisAlignedSlab * emitter = new AxisAlignedSlab( -2.0, +0.25, +1.0,
+    //                                                 -0.9, +0.5, -4.0 );
+    //AxisAlignedSlab * emitter = new AxisAlignedSlab( +0.3, +1.0, +1.0,
+    //                                                 +2.0, +1.5, -4.0 );
+    //AxisAlignedSlab * emitter = new AxisAlignedSlab( +0.3, +10.00, +5.0,
+    //                                                 +2.0, +1.5, +6.0 );
+    Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.25 );
+    emitter->material = new Material();
+    float power = 1000.0f;
+    emitter->material->emittance.setRGB( power, power, power );
+    container->add( emitter );
+
 #if 1
     // makeshift ground plane
     container->add( new AxisAlignedSlab( -5.0, -0.5, +10.0,
@@ -81,9 +96,9 @@ void testScene()
     // dragon
     std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
-    TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
+    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
-    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
+    TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
     
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
@@ -100,6 +115,8 @@ void testScene()
         return;
     }
 
+    mesh->material = new DiffuseMaterial( 1.0f, 0.0f, 1.0f );
+
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -115,7 +132,8 @@ void testScene()
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
 
-    Shader * shader = new AmbientOcclusionShader();
+    //Shader * shader = new AmbientOcclusionShader();
+    Shader * shader = new BasicDiffuseSpecularShader();
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
@@ -168,19 +186,12 @@ void testScene()
                 //printf("Calling scene intersect\n"); // TEMP
                 bool hit = scene.intersect( ray, intersection );
                 if( hit ) {
-#if 1
                     artifacts.setPixelNormal( row, col, intersection.normal );
                     artifacts.setPixelDepth( row, col, intersection.distance );
                     //intersection.position.fprintCSV( artifacts.intersections_file );
 
-#if 1
-                    float value = shader->shade( scene, rng, intersection );
-                    artifacts.setPixelColorMono( row, col, value );
-#else
-                    artifacts.setPixelColorMono( row, col, 1.0f );
-#endif
-
-#endif
+                    shader->shade( scene, rng, intersection );
+                    artifacts.setPixelColorRGB( row, col, intersection.sample.color.r, intersection.sample.color.g, intersection.sample.color.b );
                 }
                 pixel_render_timer.stop();
                 artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );

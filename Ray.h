@@ -11,28 +11,43 @@
 
 #include <float.h>
 #include <math.h>
+
 #include "Vector.h"
+#include "Color.h"
 
 class Scene;
+class Material;
 
 class Ray {
 public:
-	Ray() {}
-	Ray( const Vector4 & o, const Vector4 & d ) : origin(o), direction(d) {}
+	Ray() : depth(1) {}
+	Ray( const Vector4 & o, const Vector4 & d ) : origin(o), direction(d), depth(1) {}
 	~Ray() {}
 	
 	Vector4 origin;
 	Vector4 direction;
+    unsigned char depth;
+};
+
+class RGBRadianceSample {
+public:
+    RGBRadianceSample() : color(0.0f, 0.0f, 0.0f), mask(0x0) {}
+    ~RGBRadianceSample() {}
+
+    RGBColor color;
+    RGBColorMask mask;     // Which wavelength(s) are we sampling {RED_BIT, GREEN_BIT, BLUE_BIT}
 };
 
 class RayIntersection {
 public:
-	RayIntersection() : min_distance(0.0f), best_hint(FLT_MAX) {}
+	RayIntersection() : min_distance(0.0f), best_hint(FLT_MAX), material(NULL) {}
 	~RayIntersection() {}
 	
 	Ray ray;
 	Vector4 position;
 	Vector4 normal;
+    RGBRadianceSample sample;
+    Material * material;
 	float distance;
     float min_distance;
     float best_hint;

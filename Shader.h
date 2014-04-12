@@ -21,7 +21,7 @@ class Shader
         virtual ~Shader() {}
 
         // Shade an intersection point
-        virtual float shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection ) = 0;
+        virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection ) = 0;
     
 };
 

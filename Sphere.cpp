@@ -59,5 +59,6 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
     // compute surface normal
     subtract( intersection.position, center, intersection.normal );
     intersection.normal.normalize();
+    intersection.material = material;
     return true;
 }
