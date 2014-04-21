@@ -35,7 +35,7 @@ void testScene()
 	Ray ray;
 	RayIntersection intersection;
     
-    int imageSize = 512;
+    int imageSize = 256;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -70,7 +70,7 @@ void testScene()
     //                                                 +2.0, +1.5, +6.0 );
     Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.25 );
     emitter->material = new Material();
-    float power = 1000.0f;
+    float power = 100.0f;
     emitter->material->emittance.setRGB( power, power, power );
     container->add( emitter );
 
@@ -137,7 +137,7 @@ void testScene()
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
-    int num_rays_per_pixel = 10;
+    int num_rays_per_pixel = 1;
     for( int frame_index = 0; frame_index < num_frames; frame_index++ ) {
         if( num_frames > 1 )
             anim_progress = (float) frame_index / (num_frames - 1);
@@ -186,7 +186,7 @@ void testScene()
                     ray.direction.normalize();
                     Vector4 d = ray.direction;
                     mult( xform.fwd, d, ray.direction );
-                    ray.direction.normalize(); // is this necessary, or just being careful?
+                    ray.direction.normalize();
                     Vector4 o = Vector4( 0.0, 0.0, 0.0 );  // default camera at origin
                     mult( xform.fwd, o, ray.origin );
 

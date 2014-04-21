@@ -57,7 +57,6 @@ void RandomNumberGenerator::uniformSurfaceUnitHalfSphere( const Vector4 & half_s
     } while( dot( v, half_space ) < 0.0 );
 }
 
-
 // Generate a random 3D point within the unit sphere by means of the rejection method
 void RandomNumberGenerator::uniformVolumeUnitSphere( float & x, float & y, float & z )
 {
@@ -66,6 +65,14 @@ void RandomNumberGenerator::uniformVolumeUnitSphere( float & x, float & y, float
         y = uniformRange( -1.0, 1.0 );
         z = uniformRange( -1.0, 1.0 );
     } while( x*x + y*y + z*z > 1.0 );
+}
+
+void RandomNumberGenerator::buildCache()
+{
+    for( int i = 0; i < CACHE_SIZE; i++ ) {
+        cache[i] = uniform01Impl();
+    }
+    cache_next = 0;
 }
 
 

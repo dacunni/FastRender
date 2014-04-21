@@ -16,7 +16,7 @@
 
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
-    const unsigned int num_diffuse_rays = 10;
+    const unsigned int num_diffuse_rays = 320;
     unsigned int hits = 0;
     RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
     Ray diffuse_ray;
@@ -42,8 +42,6 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
 
                 // HACK - TODO - recursive evaluation instead of this
                 if( diffuse_intersection.material ) {
-                    //if( diffuse_intersection.material->emittance.r > 0.01 )
-                    //    printf("%f\n", diffuse_intersection.material->emittance.r);
                     diffuse_contrib.r += diffuse_intersection.material->emittance.r * cos_r_n;
                     diffuse_contrib.g += diffuse_intersection.material->emittance.g * cos_r_n;
                     diffuse_contrib.b += diffuse_intersection.material->emittance.b * cos_r_n;
