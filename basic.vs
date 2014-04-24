@@ -10,6 +10,7 @@ void main()
     gl_Position.x *= 1.0;
     gl_Position.y *= 1.0;
     gl_Position.z = -0.5;
+    //gl_Position.z += 10.0;
 
     //normal = normalize(position);
     vNormal = normal;

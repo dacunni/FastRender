@@ -47,7 +47,7 @@ frui: $(fruiOBJ)
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
-	rm -rf $(OBJ) fr frui
+	rm -rf $(frOBJ) $(fruiOBJ) fr frui
 
 
 

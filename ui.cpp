@@ -11,16 +11,18 @@
 #include "TriangleMesh.h"
 #include "OpenGLUtil.h"
 #include "GPUMesh.h"
+#include "GPUPointCloud.h"
+#include "RandomNumberGenerator.h"
 
 int window_width = 350;
 int window_height = 350;
 
-GLuint vertex_shader = 0;
-GLuint fragment_shader = 0;
-GLuint shader_program = 0;
-
 TriangleMesh * mesh = nullptr;
 GPUMesh gpu_mesh;
+GPUPointCloud gpu_point_cloud;
+
+GLuint mesh_shader_program = 0;
+GLuint point_cloud_shader_program = 0;
 
 void viewportReshaped( int width, int height ) 
 {
@@ -45,6 +47,25 @@ void drawMesh( TriangleMesh & mesh )
     }
 }
 
+void buildPointCloud( void ) 
+{
+    // Make some random points
+    std::vector<Vector4> points;
+    RandomNumberGenerator rng;
+    rng.seedCurrentTime();
+    int num_points = 100000;
+    Vector4 p;
+    Vector4 dir( 1.0, 1.0, 0 );
+    dir.normalize();
+    for( int i = 0; i < num_points; i++ ) {
+        rng.uniformSurfaceUnitSphere( p );     
+        //rng.uniformSurfaceUnitHalfSphere( dir, p );     
+        points.push_back( p );
+    }
+    gpu_point_cloud.setPointSize( 1 );
+    gpu_point_cloud.upload( points );
+}
+
 void repaintViewport( void ) 
 {
     //printf("repaint\n");
@@ -53,8 +74,8 @@ void repaintViewport( void )
     glEnable( GL_DEPTH_TEST );
 
     if( mesh ) {
-        if( shader_program != 0 ) {
-            glUseProgram( shader_program );
+        if( mesh_shader_program != 0 ) {
+            glUseProgram( mesh_shader_program );
         }
 
         if( !gpu_mesh.uploaded() ) {
@@ -66,6 +87,20 @@ void repaintViewport( void )
             gpu_mesh.bind();
             gpu_mesh.draw();
         }
+    }
+
+    if( point_cloud_shader_program != 0 ) {
+        glUseProgram( point_cloud_shader_program );
+    }
+
+    if( !gpu_point_cloud.uploaded() ) {
+        buildPointCloud();
+    }
+
+    if( gpu_point_cloud.uploaded() ) {
+        //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
+        gpu_point_cloud.bind();
+        gpu_point_cloud.draw();
     }
 
     glDisable( GL_DEPTH_TEST );
@@ -123,13 +158,14 @@ GLuint loadShader( GLuint type, const std::string & filename )
     return shader;
 }
 
-void createShaders( void ) 
+GLuint createShaders( const char * vs, const char * fs ) 
 {
     GLuint status = 0;
     GLint program_status = 0;
+    GLuint shader_program = 0;
 
-    vertex_shader = loadShader( GL_VERTEX_SHADER, "basic.vs" );
-    fragment_shader = loadShader( GL_FRAGMENT_SHADER, "basic.fs" );
+    GLuint vertex_shader = loadShader( GL_VERTEX_SHADER, vs );
+    GLuint fragment_shader = loadShader( GL_FRAGMENT_SHADER, fs );
 
     shader_program = glCreateProgram();
     if( vertex_shader != 0 )
@@ -150,9 +186,11 @@ void createShaders( void )
         glGetProgramInfoLog( shader_program, len, &len, &log[0] );
         printf( "Compiler Error Message:\n%s", (char *) &log[0] );
         glDeleteProgram( shader_program );
-        return; 
+        return 0; 
     }
     // FIXME - add error handling
+
+    return shader_program;
 }
 
 int main (int argc, char * const argv[]) 
@@ -171,7 +209,8 @@ int main (int argc, char * const argv[])
     printf( "GL Version: %s\n", glGetString( GL_VERSION ) );
     printf( "GLSL Version: %s\n", glGetString( GL_SHADING_LANGUAGE_VERSION ) );
 
-    createShaders();
+    mesh_shader_program = createShaders( "basic.vs", "basic.fs" );
+    point_cloud_shader_program = createShaders( "points.vs", "points.fs" );
 
     glutReshapeFunc( viewportReshaped );
     glutDisplayFunc( repaintViewport );
