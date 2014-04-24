@@ -6,11 +6,9 @@ out vec4 vNormal;
 
 void main()
 {
-    gl_Position = position + vec4( 0, 0, -3.0, 0 );
-    gl_Position.x *= 1.0;
-    gl_Position.y *= 1.0;
-    gl_Position.z = -0.5;
-    //gl_Position.z += 10.0;
+    gl_Position = position;
+    //gl_Position.z += 4.5;
+    gl_Position.z += 5.0;
 
     //normal = normalize(position);
     vNormal = normal;

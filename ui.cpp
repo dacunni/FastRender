@@ -13,6 +13,7 @@
 #include "GPUMesh.h"
 #include "GPUPointCloud.h"
 #include "RandomNumberGenerator.h"
+#include "BoundingVolume.h"
 
 int window_width = 350;
 int window_height = 350;
@@ -84,6 +85,8 @@ void repaintViewport( void )
 
         if( gpu_mesh.uploaded() ) {
             //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
+            //glFrontFace( GL_CCW );
+            //glEnable(GL_CULL_FACE);
             gpu_mesh.bind();
             gpu_mesh.draw();
         }
@@ -100,7 +103,7 @@ void repaintViewport( void )
     if( gpu_point_cloud.uploaded() ) {
         //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
         gpu_point_cloud.bind();
-        gpu_point_cloud.draw();
+        //gpu_point_cloud.draw();
     }
 
     glDisable( GL_DEPTH_TEST );
@@ -227,15 +230,20 @@ int main (int argc, char * const argv[])
 
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
+    //mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
     //mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
     //mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
-    //mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
+    mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return EXIT_FAILURE;
     }
+
+    BoundingVolume * meshBB = new BoundingVolume();
+    meshBB->buildAxisAligned( mesh );
+    meshBB->print();
+    delete meshBB;
 
     GL_WARN_IF_ERROR();
     glutMainLoop();
