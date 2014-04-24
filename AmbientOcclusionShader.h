@@ -21,7 +21,7 @@ class AmbientOcclusionShader : public Shader
         virtual ~AmbientOcclusionShader() {}
 
         // Shade an intersection point
-        virtual float shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
+        virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
     
 };
 

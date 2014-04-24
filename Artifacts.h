@@ -25,6 +25,7 @@ public:
     
     void startNewFrame();
     void setPixelColorMono( unsigned int row, unsigned int col, float value );
+    void setPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );
     void setPixelDepth( unsigned int row, unsigned int col, float depth );
     void setPixelTime( unsigned int row, unsigned int col, float value );

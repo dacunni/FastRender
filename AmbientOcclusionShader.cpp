@@ -1,11 +1,12 @@
 
+#include "Material.h"
 #include "Scene.h"
 #include "Ray.h"
 #include "AmbientOcclusionShader.h"
 #include "RandomNumberGenerator.h"
 
 
-float AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
+void AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
     const unsigned int num_ao_rays = 32;
     unsigned int hits = 0;
@@ -28,7 +29,16 @@ float AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng,
     }
     value = 1.0f - (float) hits / (float) num_ao_rays;
 
-    return value;
+    if( intersection.material ) {
+        intersection.sample.color.r = value * intersection.material->diffuse.r;
+        intersection.sample.color.g = value * intersection.material->diffuse.g;
+        intersection.sample.color.b = value * intersection.material->diffuse.b;
+    }
+    else {
+        intersection.sample.color.r = value;
+        intersection.sample.color.g = value;
+        intersection.sample.color.b = value;
+    }
 }
 
 

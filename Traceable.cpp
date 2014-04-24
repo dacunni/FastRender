@@ -9,8 +9,21 @@
 
 #include <typeinfo>
 
+#include "Material.h"
 #include "Traceable.h"
 #include "Ray.h"
+
+Traceable::Traceable()
+    : material(NULL)
+{
+
+}
+
+Traceable::~Traceable()
+{
+    if( material )
+        delete material;
+}
 
 bool Traceable::intersectsAny( const Ray & ray, float min_distance ) const
 {

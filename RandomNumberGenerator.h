@@ -28,7 +28,15 @@ public:
     void uniformVolumeUnitSphere( float & x, float & y, float & z );
     
 	void seedCurrentTime();
+
+private:
+	inline float uniform01Impl( void );
+    void buildCache();
 	
+    static const unsigned int CACHE_SIZE = 1000;
+
+    unsigned int cache_next = CACHE_SIZE; // next available cache entry, or CACHE_SIZE if none left
+    float cache[CACHE_SIZE];
 };
 
 #include "RandomNumberGenerator.hpp"

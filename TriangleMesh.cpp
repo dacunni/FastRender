@@ -15,7 +15,7 @@ unsigned long TriangleMesh::intersection_test_count = 0;
 TriangleMesh::TriangleMesh()
 :   accelerator(nullptr)
 {
-    
+
 }
 
 TriangleMesh::~TriangleMesh()
@@ -127,6 +127,10 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
     }
     
     intersection.normal.normalize();
+
+    if( hit ) {
+        intersection.material = material;
+    }
     
     return hit;
 }

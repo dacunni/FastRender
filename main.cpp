@@ -16,6 +16,7 @@
 #include "Scene.h"
 #include "Shader.h"
 #include "AmbientOcclusionShader.h"
+#include "BasicDiffuseSpecularShader.h"
 #include "FlatContainer.h"
 #include "AxisAlignedSlab.h"
 #include "TriangleMesh.h"
@@ -23,6 +24,7 @@
 #include "AssetLoader.h"
 #include "BoundingVolume.h"
 #include "TMOctreeAccelerator.h"
+#include "Material.h"
 #include "TestScenes.h"
 
 RandomNumberGenerator rng;
@@ -59,6 +61,19 @@ void testScene()
     //addSlabGrid( container );
     addOffsetCubes( container );
     
+    // Cube emitter for some light
+    //AxisAlignedSlab * emitter = new AxisAlignedSlab( -2.0, +0.25, +1.0,
+    //                                                 -0.9, +0.5, -4.0 );
+    //AxisAlignedSlab * emitter = new AxisAlignedSlab( +0.3, +1.0, +1.0,
+    //                                                 +2.0, +1.5, -4.0 );
+    //AxisAlignedSlab * emitter = new AxisAlignedSlab( +0.3, +10.00, +5.0,
+    //                                                 +2.0, +1.5, +6.0 );
+    Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.25 );
+    emitter->material = new Material();
+    float power = 100.0f;
+    emitter->material->emittance.setRGB( power, power, power );
+    container->add( emitter );
+
 #if 1
     // makeshift ground plane
     container->add( new AxisAlignedSlab( -5.0, -0.5, +10.0,
@@ -81,9 +96,9 @@ void testScene()
     // dragon
     std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
-    TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
+    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
-    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
+    TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
     
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
@@ -99,6 +114,8 @@ void testScene()
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
+
+    mesh->material = new DiffuseMaterial( 1.0f, 0.0f, 1.0f );
 
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
@@ -116,9 +133,11 @@ void testScene()
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
 
     Shader * shader = new AmbientOcclusionShader();
+    //Shader * shader = new BasicDiffuseSpecularShader();
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
+    int num_rays_per_pixel = 1;
     for( int frame_index = 0; frame_index < num_frames; frame_index++ ) {
         if( num_frames > 1 )
             anim_progress = (float) frame_index / (num_frames - 1);
@@ -143,6 +162,7 @@ void testScene()
         xform = compose( rotation, xform );
         xform = compose( translation, xform );
 
+        RGBColor pixel_color( 0.0, 0.0, 0.0 );
         printf("Rendering scene:\n");
         Timer pixel_render_timer;
         for( int row = 0; row < imageHeight; row++ ) {
@@ -151,39 +171,49 @@ void testScene()
 
             for( int col = 0; col < imageWidth; col++ ) {
                 pixel_render_timer.start();
-                ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
-                ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * (ymax - ymin) + ymin;
-                //ray.direction[0] = (float) col / imageWidth * 2.0f - 1.0f;
-                //ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * 2.0f - 1.0f;
-                ray.direction[2] = -1.0f;
-                ray.direction[3] = 0.0f;
-                ray.direction.normalize();
-                Vector4 d = ray.direction;
-                mult( xform.fwd, d, ray.direction );
-                ray.direction.normalize(); // is this necessary, or just being careful?
-                Vector4 o = Vector4( 0.0, 0.0, 0.0 );  // default camera at origin
-                mult( xform.fwd, o, ray.origin );
+                pixel_color.setRGB( 0.0, 0.0, 0.0 );
+                for( int ri = 0; ri < num_rays_per_pixel; ri++ ) {
+                    float x_jitter = rng.uniformRange( -0.5 * (xmax - xmin) / (float) imageWidth,
+                                                       0.5 * (xmax - xmin) / (float) imageWidth );
+                    float y_jitter = rng.uniformRange( -0.5 * (ymax - ymin) / (float) imageHeight,
+                                                       0.5 * (ymax - ymin) / (float) imageHeight );
+                    ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
+                    ray.direction[0] += x_jitter;
+                    ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * (ymax - ymin) + ymin;
+                    ray.direction[1] += y_jitter;
+                    ray.direction[2] = -1.0f;
+                    ray.direction[3] = 0.0f;
+                    ray.direction.normalize();
+                    Vector4 d = ray.direction;
+                    mult( xform.fwd, d, ray.direction );
+                    ray.direction.normalize();
+                    Vector4 o = Vector4( 0.0, 0.0, 0.0 );  // default camera at origin
+                    mult( xform.fwd, o, ray.origin );
 
-                intersection = RayIntersection();
-                //printf("Calling scene intersect\n"); // TEMP
-                bool hit = scene.intersect( ray, intersection );
-                if( hit ) {
-#if 1
-                    artifacts.setPixelNormal( row, col, intersection.normal );
-                    artifacts.setPixelDepth( row, col, intersection.distance );
-                    //intersection.position.fprintCSV( artifacts.intersections_file );
+                    intersection = RayIntersection();
+                    bool hit = scene.intersect( ray, intersection );
 
-#if 1
-                    float value = shader->shade( scene, rng, intersection );
-                    artifacts.setPixelColorMono( row, col, value );
-#else
-                    artifacts.setPixelColorMono( row, col, 1.0f );
-#endif
+                    if( hit ) {
+                        if( ri == 0 ) { // FIXME - first hit, not this
+                            artifacts.setPixelNormal( row, col, intersection.normal );
+                            artifacts.setPixelDepth( row, col, intersection.distance );
+                            //intersection.position.fprintCSV( artifacts.intersections_file );
+                        }
 
-#endif
-                }
+                        shader->shade( scene, rng, intersection );
+                        pixel_color.r += intersection.sample.color.r;
+                        pixel_color.g += intersection.sample.color.g;
+                        pixel_color.b += intersection.sample.color.b;
+                    }
+                } // ray index
+
+                pixel_color.r /= (float) num_rays_per_pixel;
+                pixel_color.g /= (float) num_rays_per_pixel;
+                pixel_color.b /= (float) num_rays_per_pixel;
                 pixel_render_timer.stop();
                 artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );
+                artifacts.setPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
+
             } // col
         } // row
         pixel_render_timer.stop();
