@@ -29,6 +29,8 @@ class RGBColor {
     void scale( float s ) { r *= s; g *= s; b *= s; }
     void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
+    bool isZero() { return r == 0.0f || g == 0.0f || b == 0.0f; }
+
     union {
         struct {
             float r, g, b;

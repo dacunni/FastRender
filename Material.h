@@ -31,7 +31,7 @@ class DiffuseMaterial : public Material
     public:
         DiffuseMaterial( float r, float g, float b ) : Material() { 
             diffuse.setRGB( r, g, b ); 
-            //specular.setRGB( 0.0f, 0.0f, 0.0f ); 
+            specular.setRGB( 0.0f, 0.0f, 0.0f ); 
             specular.setRGB( 0.5f, 0.5f, 0.5f );  // TEMP
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
         }

@@ -35,7 +35,7 @@ void testScene()
 	Ray ray;
 	RayIntersection intersection;
     
-    int imageSize = 128;
+    int imageSize = 320;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -129,6 +129,7 @@ void testScene()
     container->add( meshBB );
     
 	scene.root = container;
+    scene.buildLightList();
     build_scene_timer.stop();
     printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
     
@@ -165,15 +166,22 @@ void testScene()
         xform = compose( translation, xform );
 
         RGBColor pixel_color( 0.0, 0.0, 0.0 );
+        Vector4 pixel_normal;
+        float pixel_distance;
+
         printf("Rendering scene:\n");
         Timer pixel_render_timer;
         for( int row = 0; row < imageHeight; row++ ) {
             if( row % (imageHeight / 10) == 0 )
-                printf("ROW %d / %d\n", row, imageHeight); // TEMP
+                printf("ROW %d / %d\n", row, imageHeight);
 
             for( int col = 0; col < imageWidth; col++ ) {
                 pixel_render_timer.start();
                 pixel_color.setRGB( 0.0, 0.0, 0.0 );
+                pixel_normal.set( 0.0, 0.0, 0.0 );
+                pixel_distance = 0.0f;
+
+                int num_hits = 0;
                 for( int ri = 0; ri < num_rays_per_pixel; ri++ ) {
                     float x_jitter = rng.uniformRange( -0.5 * (xmax - xmin) / (float) imageWidth,
                                                        0.5 * (xmax - xmin) / (float) imageWidth );
@@ -196,9 +204,11 @@ void testScene()
                     bool hit = scene.intersect( ray, intersection );
 
                     if( hit ) {
-                        if( ri == 0 ) { // FIXME - first hit, not this
-                            artifacts.setPixelNormal( row, col, intersection.normal );
-                            artifacts.setPixelDepth( row, col, intersection.distance );
+                        num_hits++;
+
+                        if( num_hits == 1 ) { // first hit
+                            pixel_normal =  intersection.normal;
+                            pixel_distance = intersection.distance;
                             //intersection.position.fprintCSV( artifacts.intersections_file );
                         }
 
@@ -211,6 +221,8 @@ void testScene()
                 pixel_render_timer.stop();
                 artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );
                 artifacts.setPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
+                artifacts.setPixelNormal( row, col, pixel_normal );
+                artifacts.setPixelDepth( row, col, pixel_distance );
 
             } // col
         } // row
