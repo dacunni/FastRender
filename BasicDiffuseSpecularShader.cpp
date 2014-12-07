@@ -16,84 +16,61 @@
 
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
-    const unsigned int num_diffuse_rays = 320;
-    unsigned int hits = 0;
+    const unsigned int num_diffuse_rays = 100;
     RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
-    Ray diffuse_ray;
+    RGBColor specular_contrib( 0.0, 0.0, 0.0 );
+    Ray diffuse_ray, specular_ray;
     RayIntersection diffuse_intersection;
-    //diffuse_ray.origin = intersection.position;
+    RayIntersection specular_intersection;
     Vector4 offset( 0.0, 0.0, 0.0 );
     scale( intersection.normal, 0.01, offset ); // NOTE - Seems to help 
     add( intersection.position, offset, diffuse_ray.origin );
+    add( intersection.position, offset, specular_ray.origin );
     diffuse_ray.depth = intersection.ray.depth + 1;
-    const unsigned char max_depth = 2;
+    specular_ray.depth = intersection.ray.depth + 1;
+    const unsigned char max_depth = 3;
 
     if( intersection.ray.depth < max_depth ) {
+        // Diffuse
         for( unsigned int diffuseri = 0; diffuseri < num_diffuse_rays; diffuseri++ ) {
             rng.uniformSurfaceUnitHalfSphere( intersection.normal, diffuse_ray.direction );
 
             diffuse_intersection = RayIntersection();
             diffuse_intersection.min_distance = 0.01;
             if( scene.intersect( diffuse_ray, diffuse_intersection ) ) {
-                hits++;
-#if 1
                 shade( scene, rng, diffuse_intersection );
                 float cos_r_n = dot( diffuse_ray.direction, intersection.normal ); 
-
-                // HACK - TODO - recursive evaluation instead of this
-                if( diffuse_intersection.material ) {
-                    diffuse_contrib.r += diffuse_intersection.material->emittance.r * cos_r_n;
-                    diffuse_contrib.g += diffuse_intersection.material->emittance.g * cos_r_n;
-                    diffuse_contrib.b += diffuse_intersection.material->emittance.b * cos_r_n;
-                }
-                else {
-                    diffuse_contrib.r += 0.0f;
-                    diffuse_contrib.g += 0.0f;
-                    diffuse_contrib.b += 0.0f;
-                }
-
-                diffuse_contrib.r += diffuse_intersection.sample.color.r * cos_r_n;
-                diffuse_contrib.g += diffuse_intersection.sample.color.g * cos_r_n;
-                diffuse_contrib.b += diffuse_intersection.sample.color.b * cos_r_n;
-                
-#else
-                // HACK - TODO - recursive evaluation instead of this
-                if( diffuse_intersection.material ) {
-                    //if( diffuse_intersection.material->emittance.r > 0.01 )
-                    //    printf("%f\n", diffuse_intersection.material->emittance.r);
-                    float cos_r_n = dot( diffuse_ray.direction, intersection.normal ); 
-                    diffuse_contrib.r += diffuse_intersection.material->emittance.r * cos_r_n;
-                    diffuse_contrib.g += diffuse_intersection.material->emittance.g * cos_r_n;
-                    diffuse_contrib.b += diffuse_intersection.material->emittance.b * cos_r_n;
-                }
-                else {
-                    diffuse_contrib.r += 0.0f;
-                    diffuse_contrib.g += 0.0f;
-                    diffuse_contrib.b += 0.0f;
-                }
-#endif
+                diffuse_intersection.sample.color.scale( cos_r_n );
+                diffuse_contrib.accum( diffuse_intersection.sample.color );
             }
+        }
+
+        if( num_diffuse_rays > 0 ) {
+            diffuse_contrib.scale( 1.0f / num_diffuse_rays );
+        }
+
+        // Specular
+        specular_intersection = RayIntersection();
+        specular_intersection.min_distance = 0.01;
+        Vector4 from_dir = intersection.ray.direction;
+        from_dir.negate();
+        mirror( from_dir, intersection.normal, specular_ray.direction );
+
+        if( scene.intersect( specular_ray, specular_intersection ) ) {
+            shade( scene, rng, specular_intersection );
+            float cos_r_n = dot( specular_ray.direction, intersection.normal ); 
+            specular_intersection.sample.color.scale( cos_r_n );
+            specular_contrib.accum( specular_intersection.sample.color );
         }
     }
 
-    if( num_diffuse_rays > 0 ) {
-        diffuse_contrib.r /= (float) num_diffuse_rays;
-        diffuse_contrib.g /= (float) num_diffuse_rays;
-        diffuse_contrib.b /= (float) num_diffuse_rays;
-    }
-
     if( intersection.material ) {
-        intersection.sample.color.r = diffuse_contrib.r * intersection.material->diffuse.r;
-        intersection.sample.color.g = diffuse_contrib.g * intersection.material->diffuse.g;
-        intersection.sample.color.b = diffuse_contrib.b * intersection.material->diffuse.b;
-        intersection.sample.color.r += intersection.material->emittance.r;
-        intersection.sample.color.g += intersection.material->emittance.g;
-        intersection.sample.color.b += intersection.material->emittance.b;
+        intersection.sample.color = mult( diffuse_contrib, intersection.material->diffuse );
+        intersection.sample.color.accum( mult( specular_contrib, intersection.material->specular ) );
+        intersection.sample.color.accum( intersection.material->emittance );
     }
     else {
-        intersection.sample.color.r = diffuse_contrib.r;
-        intersection.sample.color.g = diffuse_contrib.g;
-        intersection.sample.color.b = diffuse_contrib.b;
+        intersection.sample.color = diffuse_contrib;
     }
 }
 

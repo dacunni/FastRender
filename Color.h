@@ -26,6 +26,8 @@ class RGBColor {
     ~RGBColor() {}
 
     void setRGB( float red, float green, float blue ) { r = red; g = green; b = blue; }
+    void scale( float s ) { r *= s; g *= s; b *= s; }
+    void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
     union {
         struct {
@@ -34,5 +36,9 @@ class RGBColor {
         float rgb[3];
     };
 };
+
+inline RGBColor mult( const RGBColor & a, const RGBColor & b ) {
+    return RGBColor( a.r * b.r, a.g * b.g, a.b * b.b );
+}
 
 #endif

@@ -115,7 +115,9 @@ void Artifacts::setPixelColorMono( unsigned int row, unsigned int col, float val
 
 void Artifacts::setPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b )
 {
-    image->pixelColor( col, row, Magick::ColorRGB( r, g, b ) );
+    image->pixelColor( col, row, Magick::ColorRGB( std::min( r, 1.0f ), 
+                                                   std::min( g, 1.0f ), 
+                                                   std::min( b, 1.0f ) ) );
 }
 
 

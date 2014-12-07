@@ -35,7 +35,7 @@ void testScene()
 	Ray ray;
 	RayIntersection intersection;
     
-    int imageSize = 256;
+    int imageSize = 128;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     
@@ -48,9 +48,6 @@ void testScene()
 	Scene scene;
 	FlatContainer * container = new FlatContainer();
 	
-    //addRandomSpheres( container, 30 );
-    //addRandomCubes( container, 30 );
-    
     //container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
     //container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
     //container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
@@ -68,16 +65,21 @@ void testScene()
     //                                                 +2.0, +1.5, -4.0 );
     //AxisAlignedSlab * emitter = new AxisAlignedSlab( +0.3, +10.00, +5.0,
     //                                                 +2.0, +1.5, +6.0 );
-    Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.25 );
+    //Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.25 );
+    Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.5 );
+    //Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.75 );
     emitter->material = new Material();
-    float power = 100.0f;
+    //emitter->material = new DiffuseMaterial( 1.0f, 1.0f, 1.0f ); // not really very realistic, but allows us to see the light with the AO shader
+    float power = 20.0f;
     emitter->material->emittance.setRGB( power, power, power );
     container->add( emitter );
 
 #if 1
     // makeshift ground plane
-    container->add( new AxisAlignedSlab( -5.0, -0.5, +10.0,
-                                          5.0, -0.9, -10.0 ) );
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -5.0, -0.5, +10.0,
+                                                   5.0, -0.9, -10.0 );
+    floor->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    container->add( floor );
     //container->add( new AxisAlignedSlab( -10.0, -5.0, +10.0,
     //                                     -1.5,  5.0, -10.0 ) );
     
@@ -98,12 +100,12 @@ void testScene()
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
     //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
-    TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
+    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
     
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
-    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
+    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
     //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
 
@@ -115,7 +117,8 @@ void testScene()
         return;
     }
 
-    mesh->material = new DiffuseMaterial( 1.0f, 0.0f, 1.0f );
+    //mesh->material = new DiffuseMaterial( 1.0f, 0.0f, 1.0f );
+    mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f );
 
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
@@ -132,8 +135,8 @@ void testScene()
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
 
-    Shader * shader = new AmbientOcclusionShader();
-    //Shader * shader = new BasicDiffuseSpecularShader();
+    //Shader * shader = new AmbientOcclusionShader();
+    Shader * shader = new BasicDiffuseSpecularShader();
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
@@ -153,8 +156,7 @@ void testScene()
         Transform rotation = makeRotation( angle, rot_axis );
         //Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 0.0, 0.0, 5.0 );
         //Vector4 begin_xlate( 0.0, -0.25, 0.0 ), end_xlate( 0.0, 0.25, 0.0 );
-        Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
-        Vector4 xlate;
+        Vector4 xlate, begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
         interp( begin_xlate, end_xlate, anim_progress, xlate);
         Transform translation = makeTranslation( xlate );
         //Transform scaling = makeScaling( 0.15, 0.15, 0.15 );
@@ -201,15 +203,11 @@ void testScene()
                         }
 
                         shader->shade( scene, rng, intersection );
-                        pixel_color.r += intersection.sample.color.r;
-                        pixel_color.g += intersection.sample.color.g;
-                        pixel_color.b += intersection.sample.color.b;
+                        pixel_color.accum( intersection.sample.color );
                     }
                 } // ray index
 
-                pixel_color.r /= (float) num_rays_per_pixel;
-                pixel_color.g /= (float) num_rays_per_pixel;
-                pixel_color.b /= (float) num_rays_per_pixel;
+                pixel_color.scale( 1.0f / num_rays_per_pixel );
                 pixel_render_timer.stop();
                 artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );
                 artifacts.setPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
