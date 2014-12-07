@@ -69,9 +69,15 @@ void testScene()
     Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.5 );
     //Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.75 );
     emitter->material = new Material();
-    //emitter->material = new DiffuseMaterial( 1.0f, 1.0f, 1.0f ); // not really very realistic, but allows us to see the light with the AO shader
-    float power = 100.0f;
-    emitter->material->emittance.setRGB( power, power, power );
+    emitter->material->emittance.setRGB( 1.0, 1.0, 1.0 ); // color
+    emitter->material->emittance.scale( 20.0 ); // power
+    container->add( emitter );
+
+    // light up the cubes
+    emitter = new Sphere( Vector4( 1.0, 0.8, 0.0 ), 0.5 );
+    emitter->material = new Material();
+    emitter->material->emittance.setRGB( 0.0, 0.0, 1.0 ); // color
+    emitter->material->emittance.scale( 10.0 ); // power
     container->add( emitter );
 
 #if 1

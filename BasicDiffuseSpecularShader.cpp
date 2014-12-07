@@ -31,7 +31,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     const unsigned char max_depth = 3;
 
     if( intersection.ray.depth < max_depth ) {
-        const float diffuse_chance = 0.9; // TODO - How best should we choose between diffuse and specular?
+        // TODO - How best should we choose between diffuse and specular?
+        // TODO - should we scale the color by the inverse probability for the sampling we chose?
+        const float diffuse_chance = 0.9;
         float diff_spec_select = rng.uniform01();
 
         if( diff_spec_select < diffuse_chance ) {

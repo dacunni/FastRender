@@ -8,7 +8,7 @@
 
 void AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
-    const unsigned int num_ao_rays = 32;
+    const unsigned int num_ao_rays = 8;
     unsigned int hits = 0;
     float value = 0;
     Ray ao_ray;
