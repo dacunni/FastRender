@@ -15,6 +15,7 @@
 #include "RandomNumberGenerator.h"
 #include "Scene.h"
 #include "Shader.h"
+#include "SimpleCamera.h"
 #include "AmbientOcclusionShader.h"
 #include "BasicDiffuseSpecularShader.h"
 #include "FlatContainer.h"
@@ -141,6 +142,7 @@ void testScene()
     
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
+    SimpleCamera camera( rng, xmin, xmax, ymin, ymax, imageWidth, imageHeight );
 
     //Shader * shader = new AmbientOcclusionShader();
     Shader * shader = new BasicDiffuseSpecularShader();
@@ -189,18 +191,7 @@ void testScene()
 
                 int num_hits = 0;
                 for( int ri = 0; ri < num_rays_per_pixel; ri++ ) {
-                    float x_jitter = rng.uniformRange( -0.5 * (xmax - xmin) / (float) imageWidth,
-                                                       0.5 * (xmax - xmin) / (float) imageWidth );
-                    float y_jitter = rng.uniformRange( -0.5 * (ymax - ymin) / (float) imageHeight,
-                                                       0.5 * (ymax - ymin) / (float) imageHeight );
-                    ray.direction[0] = (float) col / imageWidth * (xmax - xmin) + xmin;
-                    ray.direction[0] += x_jitter;
-                    ray.direction[1] = (float) (imageHeight - row - 1) / imageHeight * (ymax - ymin) + ymin;
-                    ray.direction[1] += y_jitter;
-                    ray.direction[2] = -1.0f;
-                    ray.direction[3] = 0.0f;
-                    ray.direction.normalize();
-                    Vector4 d = ray.direction;
+                    Vector4 d = camera.vectorThrough( row, col );
                     mult( xform.fwd, d, ray.direction );
                     ray.direction.normalize();
                     Vector4 o = Vector4( 0.0, 0.0, 0.0 );  // default camera at origin

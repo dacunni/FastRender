@@ -1,35 +1,36 @@
 
 HDR = \
-    AmbientOcclusionShader.h \
-    Artifacts.h \
-    AssetLoader.h \
-    AxisAlignedSlab.h \
-    BasicDiffuseSpecularShader.h \
-    BoundingVolume.h \
-    Color.h \
-    Container.h \
-    FlatContainer.h \
-    Material.h \
-    Matrix.h \
-    RandomNumberGenerator.h \
-    Ray.h \
-    Scene.h \
-    Shader.h \
-    Sphere.h \
-    TMOctreeAccelerator.h \
-    TestScenes.h \
-    Timer.h \
-    Traceable.h \
-    Transform.h \
-    TriangleMesh.h \
-    Vector.h
+	AmbientOcclusionShader.h \
+	Artifacts.h \
+	AssetLoader.h \
+	AxisAlignedSlab.h \
+	BasicDiffuseSpecularShader.h \
+	BoundingVolume.h \
+	Color.h \
+	Container.h \
+	FlatContainer.h \
+	Material.h \
+	Matrix.h \
+	RandomNumberGenerator.h \
+	Ray.h \
+	Scene.h \
+	SimpleCamera.h \
+	Shader.h \
+	Sphere.h \
+	TMOctreeAccelerator.h \
+	TestScenes.h \
+	Timer.h \
+	Traceable.h \
+	Transform.h \
+	TriangleMesh.h \
+	Vector.h
 
 OBJ = \
-    AmbientOcclusionShader.o \
-    Artifacts.o \
+	AmbientOcclusionShader.o \
+	Artifacts.o \
 	AssetLoader.o \
 	AxisAlignedSlab.o \
-    BasicDiffuseSpecularShader.o \
+	BasicDiffuseSpecularShader.o \
 	BoundingVolume.o \
 	Container.o \
 	FlatContainer.o \
@@ -37,9 +38,10 @@ OBJ = \
 	RandomNumberGenerator.o \
 	Ray.o \
 	Scene.o \
+	SimpleCamera.o \
 	Sphere.o \
-    TestScenes.o \
-    TMOctreeAccelerator.o \
+	TestScenes.o \
+	TMOctreeAccelerator.o \
 	Timer.o \
 	Traceable.o \
 	Transform.o \
