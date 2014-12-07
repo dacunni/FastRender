@@ -70,7 +70,7 @@ void testScene()
     //Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.75 );
     emitter->material = new Material();
     //emitter->material = new DiffuseMaterial( 1.0f, 1.0f, 1.0f ); // not really very realistic, but allows us to see the light with the AO shader
-    float power = 20.0f;
+    float power = 100.0f;
     emitter->material->emittance.setRGB( power, power, power );
     container->add( emitter );
 
@@ -141,7 +141,7 @@ void testScene()
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
-    int num_rays_per_pixel = 1;
+    int num_rays_per_pixel = 50;
     for( int frame_index = 0; frame_index < num_frames; frame_index++ ) {
         if( num_frames > 1 )
             anim_progress = (float) frame_index / (num_frames - 1);

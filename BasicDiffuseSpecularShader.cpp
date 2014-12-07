@@ -16,7 +16,7 @@
 
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
-    const unsigned int num_diffuse_rays = 100;
+    const unsigned int num_diffuse_rays = 1;
     RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
     RGBColor specular_contrib( 0.0, 0.0, 0.0 );
     Ray diffuse_ray, specular_ray;
@@ -31,8 +31,11 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     const unsigned char max_depth = 3;
 
     if( intersection.ray.depth < max_depth ) {
-        // Diffuse
-        for( unsigned int diffuseri = 0; diffuseri < num_diffuse_rays; diffuseri++ ) {
+        const float diffuse_chance = 0.9; // TODO - How best should we choose between diffuse and specular?
+        float diff_spec_select = rng.uniform01();
+
+        if( diff_spec_select < diffuse_chance ) {
+            // Diffuse
             rng.uniformSurfaceUnitHalfSphere( intersection.normal, diffuse_ray.direction );
 
             diffuse_intersection = RayIntersection();
@@ -43,24 +46,26 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 diffuse_intersection.sample.color.scale( cos_r_n );
                 diffuse_contrib.accum( diffuse_intersection.sample.color );
             }
+
+            if( num_diffuse_rays > 0 ) {
+                diffuse_contrib.scale( 1.0f / num_diffuse_rays );
+            }
         }
+        else {
+            // Specular
+            // TODO - sample the specular lobe, not just the mirror direction
+            specular_intersection = RayIntersection();
+            specular_intersection.min_distance = 0.01;
+            Vector4 from_dir = intersection.ray.direction;
+            from_dir.negate();
+            mirror( from_dir, intersection.normal, specular_ray.direction );
 
-        if( num_diffuse_rays > 0 ) {
-            diffuse_contrib.scale( 1.0f / num_diffuse_rays );
-        }
-
-        // Specular
-        specular_intersection = RayIntersection();
-        specular_intersection.min_distance = 0.01;
-        Vector4 from_dir = intersection.ray.direction;
-        from_dir.negate();
-        mirror( from_dir, intersection.normal, specular_ray.direction );
-
-        if( scene.intersect( specular_ray, specular_intersection ) ) {
-            shade( scene, rng, specular_intersection );
-            float cos_r_n = dot( specular_ray.direction, intersection.normal ); 
-            specular_intersection.sample.color.scale( cos_r_n );
-            specular_contrib.accum( specular_intersection.sample.color );
+            if( scene.intersect( specular_ray, specular_intersection ) ) {
+                shade( scene, rng, specular_intersection );
+                float cos_r_n = dot( specular_ray.direction, intersection.normal ); 
+                specular_intersection.sample.color.scale( cos_r_n );
+                specular_contrib.accum( specular_intersection.sample.color );
+            }
         }
     }
 
