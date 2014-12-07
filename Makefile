@@ -65,15 +65,25 @@ fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 
 all: fr frui
 
-fr: $(frOBJ)
-	ld -o fr $(frOBJ) $(frLDXXFLAGS)
+# Stash object files away in a separate directory so we don't have 
+# to look at them
+OBJDIR = objs
+frOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(frOBJ))
+$(frOBJ_IN_DIR): | $(OBJDIR)
+fruiOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(fruiOBJ))
+$(fruiOBJ_IN_DIR): | $(OBJDIR)
+$(OBJDIR):
+	mkdir $(OBJDIR)
 
-frui: $(fruiOBJ)
-	ld -o frui $(fruiOBJ) $(fruiLDXXFLAGS)
+fr: $(frOBJ_IN_DIR)
+	ld -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
 
-.cpp.o: $(HDR)
+frui: $(fruiOBJ_IN_DIR)
+	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
+
+$(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
-	rm -rf $(frOBJ) $(fruiOBJ) fr frui
+	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) fr frui
 
