@@ -9,11 +9,23 @@
 #ifndef FastRender_RandomNumberGenerator_hpp
 #define FastRender_RandomNumberGenerator_hpp
 
+#include <stdio.h>
+#include <stdlib.h>
+
 inline float RandomNumberGenerator::uniform01Impl( void )
 {
-	// TODO - Use a better RNG
     const float one_over_RM = 1.0f / (float) RAND_MAX;
-	return (float) rand() * one_over_RM;
+
+    switch(method) {
+        default:
+        case UnixRand:
+            return (float) rand() * one_over_RM;
+            break;
+        case Arc4Random:
+            u_int32_t r = arc4random_uniform(RAND_MAX + 1);
+            return (float) r * one_over_RM;
+            break;
+    }
 }
 
 inline float RandomNumberGenerator::uniform01( void )

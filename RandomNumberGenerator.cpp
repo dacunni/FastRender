@@ -21,7 +21,16 @@ RandomNumberGenerator::RandomNumberGenerator()
 
 void RandomNumberGenerator::seedCurrentTime()
 {
-	srand( time( NULL ) );
+    switch(method) {
+        default:
+        case UnixRand:
+            srand( time( NULL ) );
+            break;
+        case Arc4Random:
+            srand( time( NULL ) );
+            arc4random_stir();
+            break;
+    }
 }
 
 // Generate a random 3D point on the surface of the unit sphere by means of the rejection method

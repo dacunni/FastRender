@@ -12,7 +12,12 @@
 
 class Vector4;
 
-class RandomNumberGenerator 
+enum RandomMethod {
+    UnixRand,
+    Arc4Random
+};
+
+class RandomNumberGenerator
 {
 public:
 	RandomNumberGenerator();
@@ -37,6 +42,8 @@ private:
 
     unsigned int cache_next = CACHE_SIZE; // next available cache entry, or CACHE_SIZE if none left
     float cache[CACHE_SIZE];
+
+    RandomMethod method = Arc4Random;
 };
 
 #include "RandomNumberGenerator.hpp"
