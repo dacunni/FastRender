@@ -59,12 +59,28 @@ inline void cross( const Vector4 & a, const Vector4 & b, Vector4 & r )
 	r[2] = a[0] * b[1] - a[1] * b[0];
 }
 
+// TODO - Decide whether to normalize by 1/w before doing this
+inline Vector4 cross( const Vector4 & a, const Vector4 & b )
+{
+    return Vector4( a[1] * b[2] - a[2] * b[1],
+                    a[2] * b[0] - a[0] * b[2],
+                    a[0] * b[1] - a[1] * b[0] );
+}
+
 inline void add( const Vector4 & a, const Vector4 & b, Vector4 & r )
 {
 	r[0] = a[0] + b[0];
 	r[1] = a[1] + b[1];
 	r[2] = a[2] + b[2];
 	r[3] = 1.0;
+}
+
+inline Vector4 add( const Vector4 & a, const Vector4 & b )
+{
+    return Vector4( a[0] + b[0],
+                    a[1] + b[1],
+                    a[2] + b[2],
+                    1.0 );
 }
 
 inline void subtract( const Vector4 & a, const Vector4 & b, Vector4 & r )
@@ -75,12 +91,28 @@ inline void subtract( const Vector4 & a, const Vector4 & b, Vector4 & r )
 	r[3] = 1.0;
 }
 
+inline Vector4 subtract( const Vector4 & a, const Vector4 & b )
+{
+    return Vector4( a[0] - b[0],
+                    a[1] - b[1],
+                    a[2] - b[2],
+                    1.0 );
+}
+
 inline void scale( const Vector4 & a, float s, Vector4 & r )
 {
 	r[0] = a[0] * s;
 	r[1] = a[1] * s;
 	r[2] = a[2] * s;
 	r[3] = a[3];
+}
+
+inline Vector4 scale( const Vector4 & a, float s )
+{
+    return Vector4( a[0] * s,
+	                a[1] * s,
+	                a[2] * s,
+	                a[3] );
 }
 
 inline void perspective_scale( const Vector4 & a, Vector4 & r )
@@ -91,6 +123,19 @@ inline void perspective_scale( const Vector4 & a, Vector4 & r )
 		r[2] = a[2] / a[3];
 		r[3] = 1.0;
 	}
+}
+
+inline Vector4 perspective_scale( const Vector4 & a )
+{
+	if( a[3] != 0.0 ) {
+        return Vector4( a[0] / a[3],
+                        a[1] / a[3],
+                        a[2] / a[3],
+                        1.0 );
+	}
+    else {
+        return a;
+    }
 }
 
 // Given vector A pointing away from surface and normal N, computes the mirror direction R as
@@ -105,6 +150,16 @@ inline void mirror( const Vector4 & a, const Vector4 & n, Vector4 & r )
     subtract( NtwoAdotN, a, r );
 }
 
+inline Vector4 mirror( const Vector4 & a, const Vector4 & n )
+{
+    Vector4 NtwoAdotN;
+    Vector4 r;
+    float twoAdotN = 2.0f * dot( a, n );
+    scale( n, twoAdotN, NtwoAdotN );
+    subtract( NtwoAdotN, a, r );
+    return r;
+}
+
 // Linearly interpolate two vectors using parameter alpha, such that alpha=0 gives a and
 // alpha=1 gives b
 inline void interp( const Vector4 & a, const Vector4 & b, const float alpha, Vector4 & r)
@@ -114,6 +169,15 @@ inline void interp( const Vector4 & a, const Vector4 & b, const float alpha, Vec
     r.y = oma * a.y + alpha * b.y;
     r.z = oma * a.z + alpha * b.z;
     r.w = oma * a.w + alpha * b.w;
+}
+
+inline Vector4 interp( const Vector4 & a, const Vector4 & b, const float alpha )
+{
+    float oma = 1.0f - alpha;
+    return Vector4( oma * a.x + alpha * b.x,
+                    oma * a.y + alpha * b.y,
+                    oma * a.z + alpha * b.z,
+                    oma * a.w + alpha * b.w );
 }
 
 #endif
