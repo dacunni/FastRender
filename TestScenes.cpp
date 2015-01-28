@@ -129,3 +129,42 @@ void addGroundPlane( Container * container )
 #endif
 }
 
+//////////////////////////////////////////
+// Lighting Tests
+//////////////////////////////////////////
+
+void addLightingTest1( Container * container )
+{
+    addGroundPlane( container );
+    addSphereLight( container,
+                    Vector4( 1.0, 0.8, -3.0 ), 0.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 20.0 );
+    AxisAlignedSlab * cube1 = new AxisAlignedSlab(  0.1, -0.5, -1.0,
+                                                    0.3, -0.3, -1.2 );
+    AxisAlignedSlab * cube2 = new AxisAlignedSlab( -0.1, -0.5, -1.2,
+                                                    0.1, -0.3, -1.4 );
+    container->add( cube1 );
+    container->add( cube2 );
+    AxisAlignedSlab * cube3 = new AxisAlignedSlab( -1.0, -0.5, -6.0,
+                                                    1.0 );
+    container->add( cube3 );
+}
+
+// cube pyramid
+void addLightingTest2( Container * container )
+{
+    addGroundPlane( container );
+    addSphereLight( container,
+                    Vector4( 1.0, 0.8, -0.0 ), 0.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 20.0 );
+
+    float size = 0.4;
+    Vector4 c( -0.6, -0.5, -2.0 ); // back corner
+
+    container->add( new AxisAlignedSlab( c.x,        c.y,        c.z,        size ) );
+    container->add( new AxisAlignedSlab( c.x + size, c.y,        c.z,        size ) );
+    container->add( new AxisAlignedSlab( c.x       , c.y + size, c.z,        size ) );
+    container->add( new AxisAlignedSlab( c.x       , c.y       , c.z + size, size ) );
+
+}
+

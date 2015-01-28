@@ -45,6 +45,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             if( scene.intersect( diffuse_ray, diffuse_intersection ) ) {
                 shade( scene, rng, diffuse_intersection );
                 float cos_r_n = dot( diffuse_ray.direction, intersection.normal ); 
+                //diffuse_intersection.sample.color.scale( 1.0 / sq(diffuse_intersection.distance) );
                 diffuse_intersection.sample.color.scale( cos_r_n );
                 diffuse_contrib.accum( diffuse_intersection.sample.color );
             }
@@ -65,6 +66,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             if( scene.intersect( specular_ray, specular_intersection ) ) {
                 shade( scene, rng, specular_intersection );
                 float cos_r_n = dot( specular_ray.direction, intersection.normal ); 
+                //specular_intersection.sample.color.scale( 1.0 / sq(specular_intersection.distance) );
                 specular_intersection.sample.color.scale( cos_r_n );
                 specular_contrib.accum( specular_intersection.sample.color );
             }

@@ -17,6 +17,8 @@ public:
     AxisAlignedSlab();
     AxisAlignedSlab( float xmin_default, float ymin_default, float zmin_default,
                      float xmax_default, float ymax_default, float zmax_default );
+    AxisAlignedSlab( float xmin_default, float ymin_default, float zmin_default,
+                     float cube_size );
     virtual ~AxisAlignedSlab() {}
     
     void correctMinMax( void );

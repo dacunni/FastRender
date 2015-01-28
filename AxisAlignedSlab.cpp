@@ -37,6 +37,18 @@ AxisAlignedSlab::AxisAlignedSlab( float xmin_default, float ymin_default, float 
     correctMinMax();
 }
 
+AxisAlignedSlab::AxisAlignedSlab( float xmin_default, float ymin_default, float zmin_default,
+                                  float cube_size )
+:   xmin( xmin_default ),
+    ymin( ymin_default ),
+    zmin( zmin_default ),
+    xmax( xmin_default + cube_size ),
+    ymax( ymin_default + cube_size ),
+    zmax( zmin_default + cube_size )
+{
+
+}
+
 void AxisAlignedSlab::correctMinMax( void )
 {
     if( xmin > xmax ) {

@@ -38,10 +38,11 @@ Scene * buildScene()
     build_scene_timer.start();
 	FlatContainer * container = new FlatContainer();
 	
+    addLightingTest2( container );
     //addSlabGrid( container );
-    addOffsetCubes( container );
-    addLitBunny( container );
-    addGroundPlane( container );
+    //addOffsetCubes( container );
+    //addLitBunny( container );
+    //addGroundPlane( container );
 
 	scene->root = container;
     scene->buildLightList();
