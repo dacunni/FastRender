@@ -23,9 +23,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     RayIntersection diffuse_intersection;
     RayIntersection specular_intersection;
     Vector4 offset( 0.0, 0.0, 0.0 );
-    scale( intersection.normal, 0.01, offset ); // NOTE - Seems to help 
-    add( intersection.position, offset, diffuse_ray.origin );
-    add( intersection.position, offset, specular_ray.origin );
+    offset = scale( intersection.normal, 0.01 ); // NOTE - Seems to help 
+    diffuse_ray.origin = add( intersection.position, offset );
+    specular_ray.origin = add( intersection.position, offset );
     diffuse_ray.depth = intersection.ray.depth + 1;
     specular_ray.depth = intersection.ray.depth + 1;
     const unsigned char max_depth = 3;
@@ -60,7 +60,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             specular_intersection.min_distance = 0.01;
             Vector4 from_dir = intersection.ray.direction;
             from_dir.negate();
-            mirror( from_dir, intersection.normal, specular_ray.direction );
+            specular_ray.direction = mirror( from_dir, intersection.normal );
 
             if( scene.intersect( specular_ray, specular_intersection ) ) {
                 shade( scene, rng, specular_intersection );

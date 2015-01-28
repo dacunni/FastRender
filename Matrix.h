@@ -48,16 +48,20 @@ public:
 };
 
 // Computes the matrix R = A * B
-void mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R );
+void      mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R );
+Matrix4x4 mult( const Matrix4x4 & A, const Matrix4x4 & B );
 
 // Multiplies a matrix by a vector. Assumes that matrices multiply on the left of vectors.
 // r = A * v
 void mult( const Matrix4x4 & A, const Vector4 & v, Vector4 & r );
+Vector4 mult( const Matrix4x4 & A, const Vector4 & v );
 
 void scale( const Matrix4x4 & A, float s, Matrix4x4 & R );
+Matrix4x4 scale( const Matrix4x4 & A, float s );
 
 // FIXME - not really an inverse unless you make assumptions about the matrix
 void inverse( const Matrix4x4 & A, Matrix4x4 & R );
+Matrix4x4 inverse( const Matrix4x4 & A );
 
 
 #endif

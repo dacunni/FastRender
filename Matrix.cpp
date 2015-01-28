@@ -64,6 +64,15 @@ void mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R )
 	}
 }
 
+Matrix4x4 mult( const Matrix4x4 & A, const Matrix4x4 & B )
+{
+    Matrix4x4 R;
+
+    mult( A, B, R );
+
+    return R;
+}
+
 // TODO - handle result being the same vector as v
 void mult( const Matrix4x4 & A, const Vector4 & v, Vector4 & result )
 {
@@ -75,6 +84,15 @@ void mult( const Matrix4x4 & A, const Vector4 & v, Vector4 & result )
 	}
 }
 
+Vector4 mult( const Matrix4x4 & A, const Vector4 & v )
+{
+    Vector4 result;
+
+    mult( A, v, result );
+
+    return result;
+}
+
 void scale( const Matrix4x4 & A, float s, Matrix4x4 & R )
 {
 	for( int r = 0; r < 4; r++ ) {
@@ -82,6 +100,15 @@ void scale( const Matrix4x4 & A, float s, Matrix4x4 & R )
 			R.at( r, c ) = A.at( r, c ) * s;
 		}
 	}	
+}
+
+Matrix4x4 scale( const Matrix4x4 & A, float s )
+{
+    Matrix4x4 R;
+
+    scale( A, s, R );
+
+    return R;
 }
 
 //
@@ -116,5 +143,13 @@ void inverse( const Matrix4x4 & A, Matrix4x4 & R )
 	R.at( 3, 3 ) = 1.0f;
 }
 
+Matrix4x4 inverse( const Matrix4x4 & A )
+{
+    Matrix4x4 R;
+
+    inverse( A, R );
+
+    return R;
+}
 
 

@@ -82,11 +82,11 @@ void testScene()
         printf("Frame %d (%.2f %%)\n", frame_index, anim_progress * 100.0);
         Vector4 rot_axis( 0.0, 1.0, 0.0 );
         rot_axis.normalize();
-        float angle = 0.0, min_angle = -0.0, max_angle = 0.55;
-        angle = (anim_progress * (max_angle - min_angle)) + min_angle;
+        float min_angle = -0.0, max_angle = 0.55;
+        float angle = (anim_progress * (max_angle - min_angle)) + min_angle;
         Transform rotation = makeRotation( angle, rot_axis );
-        Vector4 xlate, begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
-        interp( begin_xlate, end_xlate, anim_progress, xlate);
+        Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
+        Vector4 xlate = interp( begin_xlate,end_xlate, anim_progress);
         Transform translation = makeTranslation( xlate );
         Transform xform;
         xform = compose( rotation, xform );
@@ -111,10 +111,10 @@ void testScene()
                 int num_hits = 0;
                 for( int ri = 0; ri < num_rays_per_pixel; ri++ ) {
                     Vector4 d = camera.vectorThrough( row, col );
-                    mult( xform.fwd, d, ray.direction );
+                    ray.direction = mult( xform.fwd, d );
                     ray.direction.normalize();
                     Vector4 o = Vector4( 0.0, 0.0, 0.0 );  // default camera at origin
-                    mult( xform.fwd, o, ray.origin );
+                    ray.origin = mult( xform.fwd, o );
 
                     intersection = RayIntersection();
                     bool hit = scene->intersect( ray, intersection );
@@ -123,7 +123,7 @@ void testScene()
                         num_hits++;
 
                         if( num_hits == 1 ) { // first hit
-                            pixel_normal =  intersection.normal;
+                            pixel_normal = intersection.normal;
                             pixel_distance = intersection.distance;
                             //intersection.position.fprintCSV( artifacts.intersections_file );
                         }
