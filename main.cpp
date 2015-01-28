@@ -22,13 +22,34 @@
 #include "AxisAlignedSlab.h"
 #include "TriangleMesh.h"
 #include "Timer.h"
-#include "AssetLoader.h"
 #include "BoundingVolume.h"
 #include "TMOctreeAccelerator.h"
 #include "Material.h"
 #include "TestScenes.h"
 
 RandomNumberGenerator rng;
+
+Scene * buildScene()
+{
+    Scene * scene = new Scene();
+
+    printf( "Building scene\n" );
+    Timer build_scene_timer;
+    build_scene_timer.start();
+	FlatContainer * container = new FlatContainer();
+	
+    //addSlabGrid( container );
+    addOffsetCubes( container );
+    addLitBunny( container );
+    addGroundPlane( container );
+
+	scene->root = container;
+    scene->buildLightList();
+    build_scene_timer.stop();
+    printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
+
+    return scene;
+}
 
 void testScene()
 {
@@ -43,102 +64,7 @@ void testScene()
     Matrix4x4 projectionMatrix;
     projectionMatrix.identity();
     
-    printf( "Building scene\n" );
-    Timer build_scene_timer;
-    build_scene_timer.start();
-	Scene scene;
-	FlatContainer * container = new FlatContainer();
-	
-    //container->add( new Sphere( Vector4( 0.0, 0.0, -5.5 ), 0.5 ) );
-    //container->add( new Sphere( Vector4( 1.0, 0.0, -5.0 ), 0.5 ) );
-    //container->add( new Sphere( Vector4( -1.0, 0.0, -3.0 ), 0.5 ) );
-
-    //container->add( new AxisAlignedSlab( 0.5,  0.5, -10.0,
-    //                                     1.0, -0.5,  5.0 ) );
-    
-    //addSlabGrid( container );
-    addOffsetCubes( container );
-    
-    // Cube emitter for some light
-    //AxisAlignedSlab * emitter = new AxisAlignedSlab( -2.0, +0.25, +1.0,
-    //                                                 -0.9, +0.5, -4.0 );
-    //AxisAlignedSlab * emitter = new AxisAlignedSlab( +0.3, +1.0, +1.0,
-    //                                                 +2.0, +1.5, -4.0 );
-    //AxisAlignedSlab * emitter = new AxisAlignedSlab( +0.3, +10.00, +5.0,
-    //                                                 +2.0, +1.5, +6.0 );
-    //Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.25 );
-    Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.5 );
-    //Sphere * emitter = new Sphere( Vector4( 1.0, 0.8, -3.0 ), 0.75 );
-    emitter->material = new Material();
-    emitter->material->emittance.setRGB( 1.0, 1.0, 1.0 ); // color
-    emitter->material->emittance.scale( 20.0 ); // power
-    container->add( emitter );
-
-    // light up the cubes
-    emitter = new Sphere( Vector4( 1.0, 0.8, 0.0 ), 0.5 );
-    emitter->material = new Material();
-    emitter->material->emittance.setRGB( 0.0, 0.0, 1.0 ); // color
-    emitter->material->emittance.scale( 10.0 ); // power
-    container->add( emitter );
-
-#if 1
-    // makeshift ground plane
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -5.0, -0.5, +10.0,
-                                                   5.0, -0.9, -10.0 );
-    floor->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
-    container->add( floor );
-    //container->add( new AxisAlignedSlab( -10.0, -5.0, +10.0,
-    //                                     -1.5,  5.0, -10.0 ) );
-    
-#endif
-    
-#if 0
-    // DEBUG ME
-    TriangleMesh * ground = new TriangleMesh();
-    makeTriangleMeshGroundPlatform( *ground, 200.0 );
-    container->add( ground );
-#endif
-    
-    AssetLoader loader;
-    std::string modelPath = "models";
-
-    // dragon
-    std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
-    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
-    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
-    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
-    //TriangleMesh * mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
-    
-    // bunnies
-    std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
-    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
-    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
-    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
-
-    //TriangleMesh * mesh = loader.load( modelPath + "/stanford/lucy.ply" );
-    //TriangleMesh * mesh = loader.load( modelPath + "/stanford/Armadillo.ply" );
-
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return;
-    }
-
-    //mesh->material = new DiffuseMaterial( 1.0f, 0.0f, 1.0f );
-    mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f );
-
-    printf("Building octree\n");
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
-    BoundingVolume * meshBB = new BoundingVolume();
-    meshBB->buildAxisAligned( mesh );
-    container->add( meshBB );
-    
-	scene.root = container;
-    scene.buildLightList();
-    build_scene_timer.stop();
-    printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
+    Scene * scene = buildScene();
     
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
@@ -155,20 +81,13 @@ void testScene()
             anim_progress = (float) frame_index / (num_frames - 1);
         printf("Frame %d (%.2f %%)\n", frame_index, anim_progress * 100.0);
         Vector4 rot_axis( 0.0, 1.0, 0.0 );
-        //Vector4 rot_axis( 0.0, 0.0, 1.0 );
         rot_axis.normalize();
-        //float angle = ((float) frame_index / num_frames * 2.0 - 1.0) * 0.1;
-        //float angle = 0.0, min_angle = 0.0, max_angle = M_PI / 2.0;
-        //float angle = 0.0, min_angle = -M_PI / 4.0, max_angle = M_PI / 4.0;
         float angle = 0.0, min_angle = -0.0, max_angle = 0.55;
         angle = (anim_progress * (max_angle - min_angle)) + min_angle;
         Transform rotation = makeRotation( angle, rot_axis );
-        //Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 0.0, 0.0, 5.0 );
-        //Vector4 begin_xlate( 0.0, -0.25, 0.0 ), end_xlate( 0.0, 0.25, 0.0 );
         Vector4 xlate, begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
         interp( begin_xlate, end_xlate, anim_progress, xlate);
         Transform translation = makeTranslation( xlate );
-        //Transform scaling = makeScaling( 0.15, 0.15, 0.15 );
         Transform xform;
         xform = compose( rotation, xform );
         xform = compose( translation, xform );
@@ -198,7 +117,7 @@ void testScene()
                     mult( xform.fwd, o, ray.origin );
 
                     intersection = RayIntersection();
-                    bool hit = scene.intersect( ray, intersection );
+                    bool hit = scene->intersect( ray, intersection );
 
                     if( hit ) {
                         num_hits++;
@@ -209,7 +128,7 @@ void testScene()
                             //intersection.position.fprintCSV( artifacts.intersections_file );
                         }
 
-                        shader->shade( scene, rng, intersection );
+                        shader->shade( *scene, rng, intersection );
                         pixel_color.accum( intersection.sample.color );
                     }
                 } // ray index

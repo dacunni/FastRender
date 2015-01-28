@@ -22,6 +22,7 @@ typedef unsigned char RGBColorMask;
 class RGBColor {
     public:
     RGBColor( float red, float green, float blue ) : r(red), g(green), b(blue) {}
+    RGBColor( const RGBColor & c ) : r(c.r), g(c.g), b(c.b) {}
     RGBColor() : r(0.0f), g(0.0f), b(0.0f) {}
     ~RGBColor() {}
 

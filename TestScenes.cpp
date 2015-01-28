@@ -12,6 +12,10 @@
 #include "RandomNumberGenerator.h"
 #include "Sphere.h"
 #include "Material.h"
+#include "AssetLoader.h"
+#include "TMOctreeAccelerator.h"
+#include "BoundingVolume.h"
+#include "TestScenes.h"
 
 void addSlabGrid( Container * container )
 {
@@ -67,4 +71,61 @@ void addOffsetCubes( Container * container )
     container->add( cube2 );
 }
 
+void addLitBunny( Container * container )
+{
+    AssetLoader loader;
+    std::string modelPath = "models";
+
+    // bunnies
+    std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
+    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
+
+    if( !mesh ) {
+        fprintf( stderr, "Error loading mesh\n" );
+        return;
+    }
+
+    mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f );
+
+    printf("Building octree\n");
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    BoundingVolume * meshBB = new BoundingVolume();
+    meshBB->buildAxisAligned( mesh );
+    container->add( meshBB );
+
+    // Add a light
+    addSphereLight( container,
+                    Vector4( 1.0, 0.8, -3.0 ), 0.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 20.0 );
+}
+
+void addSphereLight( Container * container,
+                     const Vector4 & center, float r,
+                     const RGBColor & color,
+                     float power )
+{
+    Sphere * emitter = new Sphere( center, r );
+    emitter->material = new Material();
+    emitter->material->emittance = color;
+    emitter->material->emittance.scale( power );
+    container->add( emitter );
+}
+
+void addGroundPlane( Container * container )
+{
+    // makeshift ground plane
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -5.0, -0.5, +10.0,
+                                                   5.0, -0.9, -10.0 );
+    floor->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    container->add( floor );
+    
+#if 0
+    // DEBUG ME
+    TriangleMesh * ground = new TriangleMesh();
+    makeTriangleMeshGroundPlatform( *ground, 200.0 );
+    container->add( ground );
+#endif
+}
 
