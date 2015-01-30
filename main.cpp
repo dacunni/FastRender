@@ -140,7 +140,6 @@ void testScene()
                 artifacts.setPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
                 artifacts.setPixelNormal( row, col, pixel_normal );
                 artifacts.setPixelDepth( row, col, pixel_distance );
-
             } // col
         } // row
         pixel_render_timer.stop();

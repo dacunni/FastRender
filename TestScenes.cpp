@@ -168,3 +168,43 @@ void addLightingTest2( Container * container )
 
 }
 
+// cube pyramid
+void addLightingTest3( Container * container )
+{
+    addGroundPlane( container );
+    addSphereLight( container,
+                    Vector4( 1.0, 0.8, -0.0 ), 0.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 20.0 );
+
+    float size = 0.4;
+    Vector4 c( -0.6, -0.5, -2.0 ); // back corner
+
+    // Create a partial pyramid of size pyramid_size blocks in each direction
+    //    x
+    //    x x
+    //    x x x
+    int pyramid_size = 5;
+
+    for( int xs = 0; xs <= pyramid_size; xs++ ) {
+        for( int ys = 0; ys <= pyramid_size; ys++ ) {
+            for( int zs = 0; zs <= pyramid_size; zs++ ) {
+                if( xs + ys + zs == pyramid_size ) {
+                    container->add( new AxisAlignedSlab( c.x + (float) xs * size,
+                                                         c.y + (float) ys * size,
+                                                         c.z + (float) zs * size,
+                                                         size ) );
+                }
+            }
+        }
+    }
+
+    //container->add( new AxisAlignedSlab( c.x, c.y, c.z + 2.0 * size, size ) );
+
+    //container->add( new AxisAlignedSlab( c.x + size, c.y, c.z, size ) );
+    //container->add( new AxisAlignedSlab( c.x, c.y + size, c.z, size ) );
+    //container->add( new AxisAlignedSlab( c.x, c.y, c.z + size, size ) );
+
+}
+
+
+

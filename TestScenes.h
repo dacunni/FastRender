@@ -27,6 +27,7 @@ void addGroundPlane( Container * container );
 
 void addLightingTest1( Container * container );
 void addLightingTest2( Container * container );
+void addLightingTest3( Container * container );
 
 
 
