@@ -38,11 +38,12 @@ Scene * buildScene()
     build_scene_timer.start();
 	FlatContainer * container = new FlatContainer();
 	
-    addLightingTest2( container );
+    //addLightingTest2( container );
     //addSlabGrid( container );
     //addOffsetCubes( container );
     //addLitBunny( container );
     //addGroundPlane( container );
+    addTransformedCubes( container );
 
 	scene->root = container;
     scene->buildLightList();
@@ -71,8 +72,8 @@ void testScene()
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
     SimpleCamera camera( rng, xmin, xmax, ymin, ymax, imageWidth, imageHeight );
 
-    //Shader * shader = new AmbientOcclusionShader();
-    Shader * shader = new BasicDiffuseSpecularShader();
+    Shader * shader = new AmbientOcclusionShader();
+    //Shader * shader = new BasicDiffuseSpecularShader();
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
@@ -87,7 +88,7 @@ void testScene()
         float angle = (anim_progress * (max_angle - min_angle)) + min_angle;
         Transform rotation = makeRotation( angle, rot_axis );
         Vector4 begin_xlate( 0.0, 0.0, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
-        Vector4 xlate = interp( begin_xlate,end_xlate, anim_progress);
+        Vector4 xlate = interp( begin_xlate, end_xlate, anim_progress);
         Transform translation = makeTranslation( xlate );
         Transform xform;
         xform = compose( rotation, xform );

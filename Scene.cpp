@@ -27,7 +27,7 @@ Scene::~Scene()
 bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
 	if( root != 0 ) {
-		return root->intersect( ray, intersection );
+		return root->intersectTransformed( ray, intersection );
 	}
 	else {
 		return false;
@@ -37,7 +37,7 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 bool Scene::intersectsAny( const Ray & ray, float min_distance ) const
 {
 	if( root != 0 ) {
-		return root->intersectsAny( ray, min_distance );
+		return root->intersectsAnyTransformed( ray, min_distance );
 	}
 	else {
 		return false;

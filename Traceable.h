@@ -28,6 +28,9 @@ public:
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const = 0;
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
+	virtual bool intersectTransformed( const Ray & ray, RayIntersection & intersection ) const;
+	virtual bool intersectsAnyTransformed( const Ray & ray, float min_distance ) const;
+
     // Children should implement this to create an axis-aligned bounding box
     // Returns null if not implemented
     virtual AxisAlignedSlab * getAxisAlignedBounds() const { return nullptr; }
@@ -36,6 +39,9 @@ public:
 
     // FIXME - we probably don't want all traceables to get a material, or we'll just end up wasting memory
     Material * material;
+
+    // Transform to apply to the object relative to any containing objects, or the scene if at the root
+    Transform * transform;
 };
 
 

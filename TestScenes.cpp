@@ -129,6 +129,52 @@ void addGroundPlane( Container * container )
 #endif
 }
 
+void addTransformedCubes( Container * container )
+{
+    // Offset cubes for testing AO
+    float cube_size = 0.2;
+    AxisAlignedSlab * cube1 = new AxisAlignedSlab( 0.0, 0.0, 0.0,
+                                                   cube_size );
+    AxisAlignedSlab * cube2 = new AxisAlignedSlab( 0.0, 0.0, 0.0,
+                                                   cube_size );
+    AxisAlignedSlab * cube3 = new AxisAlignedSlab( 0.0, 0.0, 0.0,
+                                                   cube_size );
+
+    cube1->material = new DiffuseMaterial( 1.0, 0.0, 0.0 );
+    cube2->material = new DiffuseMaterial( 0.0, 0.0, 1.0 );
+    cube3->material = new DiffuseMaterial( 0.0, 1.0, 0.0 );
+
+    cube1->transform = new Transform();
+    *cube1->transform = makeTranslation( Vector4( 0.1, 0.5, -1.0 ) );
+
+    cube2->transform = new Transform();
+    *cube2->transform = 
+        compose(
+            makeTranslation( Vector4( 0.0, 0.15, -1.0 ) ),
+            compose( 
+                makeRotation( M_PI / 4.0, Vector4( 0.0, 1.0, 0.0 ) ),
+                makeRotation( M_PI / 4.0, Vector4( 0.0, 0.0, 1.0 ) )
+                )
+            );
+
+    cube3->transform = new Transform();
+    *cube3->transform = 
+        compose(
+            makeTranslation( Vector4( -0.3, 0.0, -1.0 ) ),
+            makeScaling( 0.2, 3.0, 2.0 )
+            );
+
+    container->add( cube1 );
+    container->add( cube2 );
+    container->add( cube3 );
+
+    addSphereLight( container,
+                    Vector4( 3.0, 3.0, -1.0 ), 0.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 200.0 );
+
+    addGroundPlane( container );
+}
+
 //////////////////////////////////////////
 // Lighting Tests
 //////////////////////////////////////////
