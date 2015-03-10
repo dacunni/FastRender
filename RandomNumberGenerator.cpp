@@ -10,8 +10,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <assert.h>
 
 #include "RandomNumberGenerator.h"
+#include "Transform.h"
 #include "Vector.h"
 
 RandomNumberGenerator::RandomNumberGenerator()
@@ -64,6 +66,25 @@ void RandomNumberGenerator::uniformSurfaceUnitHalfSphere( const Vector4 & half_s
     do {
         uniformSurfaceUnitSphere( v );
     } while( dot( v, half_space ) < 0.0 );
+}
+
+void RandomNumberGenerator::uniformConeDirection( const Vector4 & dir, float theta, Vector4 & v )
+{
+    // Find random points on the unit sphere within a code centered at the origin facing along +Z
+    float cos_theta = cosf( theta );
+    v.z = uniformRange( cos_theta, 1.0f );
+    float phi = uniformRange( 0.0f, 2.0 * M_PI );
+    float s = sqrt( 1.0f - sq(v.z) );
+    v.x = s * cosf( phi );
+    v.y = s * sinf( phi );
+
+    // Rotate the point such that the center of the randomization is along the input vector 
+    // FIXME - This certainly going to be be slow when called a lot.
+    //       - Make just the rotation we need, not the inverse
+    //       - Make a batch random number picker so we can only take the hit once
+    static const Vector4 up( 0.0f, 0.0f, 1.0f );
+    Transform xform = makeRotation( acos(dot(up, dir)), cross(up, dir) ); 
+    v = mult( xform.fwd, v );
 }
 
 // Generate a random 3D point within the unit sphere by means of the rejection method

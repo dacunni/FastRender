@@ -29,6 +29,7 @@ public:
 	void uniformSurfaceUnitSphere( float & x, float & y, float & z );
     void uniformSurfaceUnitSphere( Vector4 & v );
     void uniformSurfaceUnitHalfSphere( const Vector4 & half_space, Vector4 & v );
+    void uniformConeDirection( const Vector4 & dir, float angle, Vector4 & v );
     
     void uniformVolumeUnitSphere( float & x, float & y, float & z );
     
