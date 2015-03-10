@@ -77,6 +77,19 @@ Transform makeTranslation( const Vector4 & d )
     
 }
 
+Transform makeTranslation( float x, float y, float z )
+{
+    return Transform(Matrix4x4(1.0, 0.0, 0.0, x,
+                               0.0, 1.0, 0.0, y,
+                               0.0, 0.0, 1.0, z,
+                               0.0, 0.0, 0.0, 1.0),
+                     Matrix4x4(1.0, 0.0, 0.0, -x,
+                               0.0, 1.0, 0.0, -y,
+                               0.0, 0.0, 1.0, -z,
+                               0.0, 0.0, 0.0, 1.0));
+    
+}
+
 
 // Create a scaling Transform
 Transform makeScaling( float xScale, float yScale, float zScale )

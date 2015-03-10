@@ -10,6 +10,8 @@
 #ifndef _SIMPLECAMERA_H_
 #define _SIMPLECAMERA_H_
 
+#include "Ray.h"
+#include "Transform.h"
 #include "Vector.h"
 
 class RandomNumberGenerator;
@@ -22,7 +24,9 @@ public:
                   int image_width, int image_height );
 
     Vector4 vectorThrough( int row, int col );
+    Ray rayThrough( int row, int col );
 	
+    Transform transform;
     RandomNumberGenerator & rng;
     float xmin, xmax;
     float ymin, ymax;

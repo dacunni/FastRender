@@ -25,6 +25,17 @@ SimpleCamera::SimpleCamera( RandomNumberGenerator & rng,
 
 }
 
+Ray SimpleCamera::rayThrough( int row, int col )
+{
+    Ray ray;
+
+    ray.origin = mult( transform.fwd, Vector4( 0.0, 0.0, 0.0) );
+    ray.direction = mult( transform.fwd, vectorThrough( row, col ) );
+    ray.direction.normalize();
+
+    return ray;
+}
+
 Vector4 SimpleCamera::vectorThrough( int row, int col )
 {
     Vector4 direction;

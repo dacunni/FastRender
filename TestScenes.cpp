@@ -91,14 +91,17 @@ void addLitBunny( Container * container )
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
+
     BoundingVolume * meshBB = new BoundingVolume();
     meshBB->buildAxisAligned( mesh );
     container->add( meshBB );
+    meshBB->transform = new Transform();
+    *meshBB->transform = makeTranslation( Vector4( 0.0, 0.2, 0.0 ) );
 
     // Add a light
     addSphereLight( container,
-                    Vector4( 1.0, 0.8, -3.0 ), 0.5,
-                    RGBColor( 1.0, 1.0, 1.0 ), 20.0 );
+                    Vector4( -2.0, 0.8, -4.0 ), 0.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 15.0 );
 }
 
 void addSphereLight( Container * container,
@@ -201,7 +204,7 @@ void addLightingTest2( Container * container )
 {
     addGroundPlane( container );
     addSphereLight( container,
-                    Vector4( 1.0, 0.8, -0.0 ), 0.5,
+                    Vector4( 1.0, 4.0, -2.0 ), 1.5,
                     RGBColor( 1.0, 1.0, 1.0 ), 20.0 );
 
     float size = 0.4;
