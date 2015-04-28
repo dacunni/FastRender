@@ -17,6 +17,7 @@ class Sphere : public Traceable
 public:
 	Sphere() {}
 	Sphere( const Vector4 & c, float r ) : center(c), radius(r) {}
+	Sphere( float x, float y, float z, float r ) : center(x, y, z), radius(r) {}
 	~Sphere() {}
 	
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;

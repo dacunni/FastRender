@@ -256,4 +256,31 @@ void addLightingTest3( Container * container )
 }
 
 
+void addLightingTest4( Container * container )
+{
+    float zoff = -5.0;
+
+    container->add( new Sphere( 0.0, 0.0, zoff - 2.0, 0.2 ) );
+    container->add( new Sphere( -0.4, 0.0, zoff, 0.2 ) );
+    container->add( new Sphere( 0.4, 0.0, zoff, 0.2 ) );
+    container->add( new Sphere( 0.0, -0.4, zoff, 0.2 ) );
+    container->add( new Sphere( 0.0, 0.4, zoff, 0.2 ) );
+
+    float lightoff = zoff + 0.3;
+
+    addSphereLight( container,
+                    Vector4( -0.4, 0.4, lightoff ), 0.1,
+                    RGBColor( 0.0, 0.0, 1.0 ), 15.0 );
+    addSphereLight( container,
+                    Vector4( 0.4, 0.4, lightoff ), 0.1,
+                    RGBColor( 0.0, 1.0, 0.0 ), 15.0 );
+    addSphereLight( container,
+                    Vector4( 0.4, -0.4, lightoff ), 0.1,
+                    RGBColor( 1.0, 0.0, 0.0 ), 15.0 );
+    addSphereLight( container,
+                    Vector4( -0.4, -0.4, lightoff ), 0.1,
+                    RGBColor( 1.0, 1.0, 0.0 ), 15.0 );
+
+}
+
 

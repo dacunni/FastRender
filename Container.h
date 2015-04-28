@@ -12,11 +12,14 @@
 
 #include "Traceable.h"
 
+class Material;
+
 class Container : public Traceable 
 {
 public:
 	
 	virtual void add( Traceable * traceable ) = 0;
+	void add( Traceable * traceable, Material * material );
 		
     virtual Traceable * at( int index ) = 0;
     virtual int size() = 0;

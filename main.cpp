@@ -41,9 +41,10 @@ Scene * buildScene()
     //addLightingTest2( container );
     //addSlabGrid( container );
     //addOffsetCubes( container );
-    addLitBunny( container );
-    addGroundPlane( container );
+    //addLitBunny( container );
+    //addGroundPlane( container );
     //addTransformedCubes( container );
+    addLightingTest4( container );
 
 	scene->root = container;
     scene->buildLightList();
@@ -77,7 +78,8 @@ void testScene()
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
-    int num_rays_per_pixel = 10;
+    int num_rays_per_pixel = 1000;
+    printf("Rays per pixel: %d\n", num_rays_per_pixel);
     for( int frame_index = 0; frame_index < num_frames; frame_index++ ) {
         if( num_frames > 1 )
             anim_progress = (float) frame_index / (num_frames - 1);
@@ -98,8 +100,8 @@ void testScene()
         Vector4 xlate = interp( begin_xlate, end_xlate, anim_progress);
         Transform translation = makeTranslation( xlate );
         Transform xform;
-        xform = compose( rotation, xform );
-        xform = compose( translation, xform );
+        //xform = compose( rotation, xform );
+        //xform = compose( translation, xform );
 
         RGBColor pixel_color( 0.0, 0.0, 0.0 );
         Vector4 pixel_normal;

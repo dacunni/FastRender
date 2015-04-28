@@ -9,3 +9,10 @@
 
 #include "Container.h"
 
+
+void Container::add( Traceable * traceable, Material * material )
+{
+    traceable->material = material;
+    add( traceable );
+}
+
