@@ -11,6 +11,7 @@ HDR = \
 	FlatContainer.h \
 	Material.h \
 	Matrix.h \
+    Plot2D.h \
 	RandomNumberGenerator.h \
 	Ray.h \
 	Scene.h \
@@ -35,6 +36,7 @@ OBJ = \
 	Container.o \
 	FlatContainer.o \
 	Matrix.o \
+    Plot2D.o \
 	RandomNumberGenerator.o \
 	Ray.o \
 	Scene.o \

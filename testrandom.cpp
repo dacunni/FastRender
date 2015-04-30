@@ -16,52 +16,12 @@
 #include "Sphere.h"
 #include "RandomNumberGenerator.h"
 #include "Timer.h"
+#include "Plot2D.h"
 
 RandomNumberGenerator rng;
-
 std::string output_path = "testoutput";
 unsigned int plot_size = 500;
 const unsigned int point_per_plot = 100000;
-
-class Plot2D
-{
-    public:
-        Plot2D( const std::string & fn, unsigned int w, unsigned int h,
-                float xmin = -1.0, float xmax = 1.0, float ymin = -1.0, float ymax = 1.0 );
-        ~Plot2D();
-
-        void addPoint( float x, float y );
-
-        unsigned int width, height;
-        float xmin, xmax;
-        float ymin, ymax;
-        std::unique_ptr<Magick::Image> image;
-        Magick::ColorRGB point_color;
-        std::string filename;
-};
-
-Plot2D::Plot2D( const std::string & fn, unsigned int w, unsigned int h,
-                float xmin, float xmax, float ymin, float ymax )
-    : filename(fn), width(w), height(h),
-      xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax),
-      image( new Magick::Image( Magick::Geometry( w, h ), "white" ) ),
-      point_color( 0.0f, 0.0f, 0.0f )
-{
-    image->magick( "png" );
-}
-
-Plot2D::~Plot2D()
-{
-    image->write( filename );
-}
-
-void Plot2D::addPoint( float x, float y )
-{
-    float imgx = (float) width * (x - xmin) / (xmax - xmin);
-    float imgy = (float) height * (1.0 - (y - ymin) / (ymax - ymin));
-
-    image->pixelColor( imgx, imgy, point_color );
-}
 
 void testUniformSquare()
 {
