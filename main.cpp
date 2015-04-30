@@ -42,7 +42,7 @@ Scene * buildScene()
     //addSlabGrid( container );
     //addOffsetCubes( container );
     //addLitBunny( container );
-    //addGroundPlane( container );
+    addGroundPlane( container );
     //addTransformedCubes( container );
     addLightingTest4( container );
 
@@ -61,6 +61,7 @@ void testScene()
 	RayIntersection intersection;
     
     int imageSize = 320;
+    //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
     

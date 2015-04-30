@@ -11,10 +11,13 @@
 #include <time.h>
 #include <math.h>
 #include <assert.h>
+#include <algorithm>
 
 #include "RandomNumberGenerator.h"
 #include "Transform.h"
 #include "Vector.h"
+
+using std::max;
 
 RandomNumberGenerator::RandomNumberGenerator()
 {
@@ -38,21 +41,14 @@ void RandomNumberGenerator::seedCurrentTime()
 // Generate a random 3D point on the surface of the unit sphere by means of the rejection method
 void RandomNumberGenerator::uniformSurfaceUnitSphere( float & x, float & y, float & z )
 {
-    float len_sq;
+    float u1 = uniform01();
+    float u2 = uniform01();
     
-    do {
-        x = uniformRange( -1.0, 1.0 );
-        y = uniformRange( -1.0, 1.0 );
-        z = uniformRange( -1.0, 1.0 );
-    } while( (len_sq = x*x + y*y + z*z) > 1.0 );
-    
-    if( len_sq > 0.0 ) {
-        float len = sqrtf( len_sq );
-        float inv_len = 1.0f / len;
-        x *= inv_len;
-        y *= inv_len;
-        z *= inv_len;
-    }
+    z = 1.0f - 2.0f * u1;
+    float r = sqrtf( max( 0.0f, 1.0f - z * z) );
+    float phi = 2.0f * M_PI * u2;
+    x = r * cosf( phi );
+    y = r * sinf( phi );
 }
 
 void RandomNumberGenerator::uniformSurfaceUnitSphere( Vector4 & v )
@@ -82,6 +78,8 @@ void RandomNumberGenerator::uniformConeDirection( const Vector4 & dir, float the
     // FIXME - This certainly going to be be slow when called a lot.
     //       - Make just the rotation we need, not the inverse
     //       - Make a batch random number picker so we can only take the hit once
+    // FIXME - this doesn't seem to work
+    // FIXME - use the normalized direction vector
     static const Vector4 up( 0.0f, 0.0f, 1.0f );
     Transform xform = makeRotation( acos(dot(up, dir)), cross(up, dir) ); 
     v = mult( xform.fwd, v );

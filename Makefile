@@ -49,10 +49,13 @@ OBJ = \
 	Vector.o \
 
 frOBJ = $(OBJ) \
-	main.o \
+	main.o
 
 fruiOBJ = $(OBJ) \
 	ui.o
+
+testrandomOBJ = $(OBJ) \
+	testrandom.o
 
 INC = -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
@@ -62,16 +65,23 @@ CXXFLAGS += -g
 LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min 10.9
 frLDXXFLAGS = $(LDXXFLAGS)
 fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
+testrandomLDXXFLAGS = $(LDXXFLAGS)
 
-all: fr frui
+all: fr frui tests
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
 OBJDIR = objs
+
 frOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(frOBJ))
 $(frOBJ_IN_DIR): | $(OBJDIR)
+
 fruiOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(fruiOBJ))
 $(fruiOBJ_IN_DIR): | $(OBJDIR)
+
+testrandomOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(testrandomOBJ))
+$(testrandomOBJ_IN_DIR): | $(OBJDIR)
+
 $(OBJDIR):
 	mkdir $(OBJDIR)
 
@@ -80,6 +90,9 @@ fr: $(frOBJ_IN_DIR)
 
 frui: $(fruiOBJ_IN_DIR)
 	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
+
+tests: $(testrandomOBJ_IN_DIR)
+	ld -o testrandom $(testrandomOBJ_IN_DIR) $(frLDXXFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)

@@ -1,6 +1,11 @@
 .DS_Store
 output
+testoutput
 models
 fr
 frui
+testrandom
 *.o
+.*.swp
+*.xcodeproj
+tags
