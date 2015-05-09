@@ -56,8 +56,10 @@ frOBJ = $(OBJ) \
 fruiOBJ = $(OBJ) \
 	ui.o
 
-testrandomOBJ = $(OBJ) \
-	testrandom.o
+test_randomOBJ = $(OBJ) \
+	test_random.o
+test_renderOBJ = $(OBJ) \
+	test_render.o
 
 INC = -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
@@ -67,7 +69,8 @@ CXXFLAGS += -g
 LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min 10.9
 frLDXXFLAGS = $(LDXXFLAGS)
 fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
-testrandomLDXXFLAGS = $(LDXXFLAGS)
+test_randomLDXXFLAGS = $(LDXXFLAGS)
+test_renderLDXXFLAGS = $(LDXXFLAGS)
 
 all: fr frui tests
 
@@ -81,8 +84,11 @@ $(frOBJ_IN_DIR): | $(OBJDIR)
 fruiOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(fruiOBJ))
 $(fruiOBJ_IN_DIR): | $(OBJDIR)
 
-testrandomOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(testrandomOBJ))
-$(testrandomOBJ_IN_DIR): | $(OBJDIR)
+test_randomOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_randomOBJ))
+$(test_randomOBJ_IN_DIR): | $(OBJDIR)
+
+test_renderOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_renderOBJ))
+$(test_renderOBJ_IN_DIR): | $(OBJDIR)
 
 $(OBJDIR):
 	mkdir $(OBJDIR)
@@ -93,8 +99,9 @@ fr: $(frOBJ_IN_DIR)
 frui: $(fruiOBJ_IN_DIR)
 	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
 
-tests: $(testrandomOBJ_IN_DIR)
-	ld -o testrandom $(testrandomOBJ_IN_DIR) $(frLDXXFLAGS)
+tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR)
+	ld -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
+	ld -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
