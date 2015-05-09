@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 inline float RandomNumberGenerator::uniform01Impl( void )
 {
