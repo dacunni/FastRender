@@ -15,11 +15,24 @@ Plot2D::~Plot2D()
     image->write( filename );
 }
 
+float Plot2D::imgx( float x )
+{
+    return (float) (width - 1) * (x - xmin) / (xmax - xmin);
+}
+
+float Plot2D::imgy( float y )
+{
+    return (float) (height - 1) * (1.0 - (y - ymin) / (ymax - ymin));
+}
+
 void Plot2D::addPoint( float x, float y )
 {
-    float imgx = (float) width * (x - xmin) / (xmax - xmin);
-    float imgy = (float) height * (1.0 - (y - ymin) / (ymax - ymin));
+    image->pixelColor( imgx( x ), imgy( y ), point_color );
+}
 
-    image->pixelColor( imgx, imgy, point_color );
+void Plot2D::drawLine( float x1, float y1, float x2, float y2 )
+{
+    image->draw( Magick::DrawableLine( imgx( x1 ), imgy( y1 ),
+                                       imgx( x2 ), imgy( y2 ) ) );
 }
 

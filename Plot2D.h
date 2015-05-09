@@ -23,6 +23,11 @@ class Plot2D
         ~Plot2D();
 
         void addPoint( float x, float y );
+        void drawLine( float x1, float y1, float x2, float y2 );
+
+    private:
+        float imgx( float x );
+        float imgy( float y );
 
         unsigned int width, height;
         float xmin, xmax;

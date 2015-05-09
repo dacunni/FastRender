@@ -42,6 +42,11 @@ inline float RandomNumberGenerator::uniformRange( float min, float max )
 	return uniform01() * (max - min) + min;
 }
 
+inline float RandomNumberGenerator::cosineQuarterWave( void )
+{
+    float a = uniform01();
+    return asinf(a);
+}
 
 
 #endif

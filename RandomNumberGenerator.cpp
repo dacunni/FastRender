@@ -85,6 +85,22 @@ void RandomNumberGenerator::uniformConeDirection( const Vector4 & dir, float the
     v = mult( xform.fwd, v );
 }
 
+void RandomNumberGenerator::cosineUnitHalfSphere( float & x, float & y, float & z )
+{
+    float az = uniformRange( 0.0f, 2.0f * M_PI );
+    // cosine-weighted pdf aligned to y axis
+    float dec = cosineQuarterWave();
+    x = cosf( az ) * sinf( dec );
+    y = sinf( az ) * sinf( dec );
+    z = cosf( dec );
+}
+
+void RandomNumberGenerator::cosineUnitHalfSphere( Vector4 & v )
+{
+    cosineUnitHalfSphere( v.x, v.y, v.z );
+    v.w = 1.0;
+}
+
 // Generate a random 3D point within the unit sphere by means of the rejection method
 void RandomNumberGenerator::uniformVolumeUnitSphere( float & x, float & y, float & z )
 {
