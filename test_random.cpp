@@ -7,9 +7,9 @@
 #include <stdio.h>
 #include <math.h>
 
-#define MAGICKCORE_QUANTUM_DEPTH 16
-#define MAGICKCORE_HDRI_ENABLE 0
-#include <Magick++.h>
+//#define MAGICKCORE_QUANTUM_DEPTH 16
+//#define MAGICKCORE_HDRI_ENABLE 0
+//#include <Magick++.h>
 
 #include "Matrix.h"
 #include "Transform.h"
@@ -103,7 +103,12 @@ void testCosineDistribution()
     int *max_it = std::max_element( hist, hist + bins );
     int hist_max = *max_it;
 
+    plot_radial_hist.drawAxes();
+    plot_angle_hist.drawAxes();
+
     // Draw histogram bins
+    plot_radial_hist.strokeColor( 1.0, 0.0, 0.0 );
+    plot_angle_hist.strokeColor( 1.0, 0.0, 0.0 );
     for( auto i = 0; i < bins; i++ ) {
         float angle = (float) i / (bins - 1) * angle_range;
         float r = hist[i] / (float) hist_max;
@@ -122,6 +127,7 @@ void testCosineDistribution()
     }
 
     // Reference
+    plot_angle_hist.strokeColor( 1.0, 0.0, 0.0 );
     for( auto i = 0; i < 100; i++ ) {
         float angle1 = (float) i / (bins - 1) * angle_range;
         float angle2 = (float) (i + 1) / (bins - 1) * angle_range;

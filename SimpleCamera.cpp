@@ -20,7 +20,8 @@ SimpleCamera::SimpleCamera( RandomNumberGenerator & rng,
       ymin(ymin),
       ymax(ymax),
       image_width(image_width),
-      image_height(image_height)
+      image_height(image_height),
+      jitter_rays(true)
 {
 
 }
@@ -46,9 +47,11 @@ Vector4 SimpleCamera::vectorThrough( int row, int col )
                                        0.5 * (ymax - ymin) / (float) image_height );
 
     direction[0] = (float) col / image_width * (xmax - xmin) + xmin;
-    direction[0] += x_jitter;
     direction[1] = (float) (image_height - row - 1) / image_height * (ymax - ymin) + ymin;
-    direction[1] += y_jitter;
+    if( jitter_rays ) {
+        direction[0] += x_jitter;
+        direction[1] += y_jitter;
+    }
     direction[2] = -1.0f; // assume film is sitting at z = -1
     direction[3] = 0.0f;
     direction.normalize();

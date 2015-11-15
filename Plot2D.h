@@ -22,8 +22,21 @@ class Plot2D
                 float xmin = -1.0, float xmax = 1.0, float ymin = -1.0, float ymax = 1.0 );
         ~Plot2D();
 
+        void pointColor( float r, float g, float b );
+        void strokeColor( float r, float g, float b );
+        void fillColor( float r, float g, float b );
+
         void addPoint( float x, float y );
         void drawLine( float x1, float y1, float x2, float y2 );
+        void drawCircle( float x, float y, float radius );
+        void drawAxes();
+
+        template<typename VecType>
+        void addPoint( const VecType & v );
+        template<typename VecType>
+        void drawLine( const VecType & u, const VecType & v );
+        template<typename VecType>
+        void drawCircle( const VecType & v, float radius );
 
     private:
         float imgx( float x );
@@ -36,5 +49,7 @@ class Plot2D
         Magick::ColorRGB point_color;
         std::string filename;
 };
+
+#include "Plot2D.hpp"
 
 #endif /* defined(__FastRender__Plot2D__) */

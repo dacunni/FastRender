@@ -31,6 +31,7 @@ public:
     float xmin, xmax;
     float ymin, ymax;
     int image_width, image_height;
+    bool jitter_rays;
 };
 
 #endif

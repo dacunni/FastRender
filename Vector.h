@@ -38,6 +38,9 @@ public:
 	float magnitude();
 	void normalize();
     void negate();
+
+	Vector4 normalized();
+	Vector4 negated();
 	
 	void print() const;
     void fprintCSV( FILE * file ) const;
