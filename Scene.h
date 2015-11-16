@@ -15,6 +15,7 @@
 class Traceable;
 class Ray;
 class RayIntersection;
+class EnvironmentMap;
 
 class Scene 
 {
@@ -30,6 +31,7 @@ public:
     void addLightsForTraceable( Traceable * obj );
 
 	Traceable * root;
+    EnvironmentMap * env_map;
 
     // Lights are just traceables that have a non-zero emittance. They are part
     // of the scene, but we keep pointers to them in a light list so we can easily

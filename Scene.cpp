@@ -12,6 +12,7 @@
 #include "Traceable.h"
 #include "Container.h"
 #include "Material.h"
+#include "EnvironmentMap.h"
 
 Scene::Scene()
 : root(0)
@@ -26,22 +27,31 @@ Scene::~Scene()
 
 bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
-	if( root != 0 ) {
-		return root->intersectTransformed( ray, intersection );
+	if( root != 0 && root->intersectTransformed( ray, intersection ) ) {
+        return true;
 	}
-	else {
-		return false;
-	}
+
+	if( env_map ) {
+        intersection.sample = env_map->sample( ray );
+        intersection.ray = ray;
+        intersection.distance = FLT_MAX;
+        return true;
+    }
+
+    return false;
 }
 
 bool Scene::intersectsAny( const Ray & ray, float min_distance ) const
 {
-	if( root != 0 ) {
-		return root->intersectsAnyTransformed( ray, min_distance );
+	if( root != 0 && root->intersectsAnyTransformed( ray, min_distance ) ) {
+        return true;
 	}
-	else {
-		return false;
-	}    
+
+	if( env_map ) {
+        return true;
+    }
+
+    return false;
 }
 
 void Scene::buildLightList()

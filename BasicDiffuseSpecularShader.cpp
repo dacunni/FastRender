@@ -4,6 +4,7 @@
 #include "Ray.h"
 #include "BasicDiffuseSpecularShader.h"
 #include "RandomNumberGenerator.h"
+#include "AxisAlignedSlab.h"
 
 
 // TODO 
@@ -18,18 +19,18 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
 {
     RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
     RGBColor specular_contrib( 0.0, 0.0, 0.0 );
+    RGBColor direct_contrib( 0.0, 0.0, 0.0 );
     Ray new_ray;
     RayIntersection new_intersection;
     Vector4 offset( 0.0, 0.0, 0.0 );
-#if 1
-    new_ray.origin = intersection.position;
-#else
     offset = scale( intersection.normal, 0.01 ); // NOTE - Seems to help 
-    diffuse_ray.origin = add( intersection.position, offset );
-    specular_ray.origin = add( intersection.position, offset );
-#endif
+    new_ray.origin = add( intersection.position, offset );
     new_ray.depth = intersection.ray.depth + 1;
     const unsigned char max_depth = 3;
+
+    //for( Traceable * traceable : scene.lights ) {
+    //    // TODO - sample lights
+    //}
 
     if( intersection.ray.depth < max_depth ) {
         // TODO - How best should we choose between diffuse and specular?
@@ -44,7 +45,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_intersection = RayIntersection();
             new_intersection.min_distance = 0.01;
             if( scene.intersect( new_ray, new_intersection ) ) {
-                shade( scene, rng, new_intersection );
+                if( new_intersection.distance != FLT_MAX )
+                    shade( scene, rng, new_intersection );
                 float cos_r_n = dot( new_ray.direction, intersection.normal ); 
                 new_intersection.sample.color.scale( cos_r_n );
                 diffuse_contrib.accum( new_intersection.sample.color );
@@ -60,7 +62,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_ray.direction = mirror( from_dir, intersection.normal );
 
             if( scene.intersect( new_ray, new_intersection ) ) {
-                shade( scene, rng, new_intersection );
+                if( new_intersection.distance != FLT_MAX )
+                    shade( scene, rng, new_intersection );
                 float cos_r_n = dot( new_ray.direction, intersection.normal ); 
                 new_intersection.sample.color.scale( cos_r_n );
                 specular_contrib.accum( new_intersection.sample.color );
@@ -72,6 +75,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         intersection.sample.color = mult( diffuse_contrib, intersection.material->diffuse );
         intersection.sample.color.accum( mult( specular_contrib, intersection.material->specular ) );
         intersection.sample.color.accum( intersection.material->emittance );
+        intersection.sample.color.accum( direct_contrib );
     }
     else {
         intersection.sample.color = diffuse_contrib;

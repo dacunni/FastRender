@@ -5,9 +5,11 @@ HDR = \
 	AssetLoader.h \
 	AxisAlignedSlab.h \
 	BasicDiffuseSpecularShader.h \
+    Boolean.h \
 	BoundingVolume.h \
 	Color.h \
 	Container.h \
+    EnvironmentMap.h \
 	FlatContainer.h \
 	Material.h \
 	Matrix.h \
@@ -32,8 +34,10 @@ OBJ = \
 	AssetLoader.o \
 	AxisAlignedSlab.o \
 	BasicDiffuseSpecularShader.o \
+    Boolean.o \
 	BoundingVolume.o \
 	Container.o \
+    EnvironmentMap.o \
 	FlatContainer.o \
 	Matrix.o \
     Plot2D.o \

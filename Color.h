@@ -14,6 +14,7 @@
 #define RED_BIT   0x1
 #define GREEN_BIT 0x2
 #define BLUE_BIT  0x4
+#define RGB_BITS (RED_BIT | GREEN_BIT | BLUE_BIT)
 
 // Mask indicating which wavelength(s) are we sampling {RED_BIT, GREEN_BIT, BLUE_BIT}
 // Used by radiance sampling

@@ -21,7 +21,11 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
     
-    scene = importer.ReadFile( filename, aiProcess_Triangulate | aiProcess_GenNormals );
+    scene = importer.ReadFile( filename,
+                               aiProcess_Triangulate
+                               //| aiProcess_GenSmoothNormals
+                               | aiProcess_GenNormals
+                               );
     
     if( !scene ) {
         fprintf( stderr, "Failed to load %s\n", filename.c_str() );
@@ -63,7 +67,7 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
         trimesh->vertices[vi][2] *= scale;
         trimesh->vertices[vi][0] += 0.0;
         trimesh->vertices[vi][1] += -1.0;
-        trimesh->vertices[vi][2] += -5.0;
+        trimesh->vertices[vi][2] += -3.0;
         //printf("V %f %f %f\n", v.x, v.y, v.z); // TEMP
         // TEMP <<<
     }

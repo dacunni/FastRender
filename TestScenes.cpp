@@ -71,21 +71,21 @@ void addOffsetCubes( Container * container )
     container->add( cube2 );
 }
 
-void addLitBunny( Container * container )
+void addBunny( Container * container )
 {
     AssetLoader loader;
     std::string modelPath = "models";
 
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
+    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
 
-    mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f );
+    //mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f ); // emerald green
 
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
@@ -97,10 +97,12 @@ void addLitBunny( Container * container )
     container->add( meshBB );
     meshBB->transform = new Transform();
     *meshBB->transform = makeTranslation( Vector4( 0.0, 0.2, 0.0 ) );
+}
 
-    // Add a light
+void addLitBunny( Container * container ) {
+    addBunny( container );
     addSphereLight( container,
-                    Vector4( -2.0, 0.8, -4.0 ), 0.5,
+                    Vector4( 2.0, 3.8, -4.0 ), 0.5,
                     RGBColor( 1.0, 1.0, 1.0 ), 15.0 );
 }
 
