@@ -9,6 +9,7 @@ HDR = \
 	BoundingVolume.h \
 	Color.h \
 	Container.h \
+    DistributionSamplers.h \
     EnvironmentMap.h \
 	FlatContainer.h \
 	Material.h \
@@ -37,6 +38,7 @@ OBJ = \
     Boolean.o \
 	BoundingVolume.o \
 	Container.o \
+    DistributionSamplers.o \
     EnvironmentMap.o \
 	FlatContainer.o \
 	Matrix.o \
@@ -64,6 +66,8 @@ test_randomOBJ = $(OBJ) \
 	test_random.o
 test_renderOBJ = $(OBJ) \
 	test_render.o
+test_samplersOBJ = $(OBJ) \
+	test_samplers.o
 
 INC = -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
@@ -74,6 +78,7 @@ LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min
 frLDXXFLAGS = $(LDXXFLAGS)
 fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 test_randomLDXXFLAGS = $(LDXXFLAGS)
+test_samplersLDXXFLAGS = $(LDXXFLAGS)
 test_renderLDXXFLAGS = $(LDXXFLAGS)
 
 all: fr frui tests
@@ -94,6 +99,9 @@ $(test_randomOBJ_IN_DIR): | $(OBJDIR)
 test_renderOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_renderOBJ))
 $(test_renderOBJ_IN_DIR): | $(OBJDIR)
 
+test_samplersOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_samplersOBJ))
+$(test_samplersOBJ_IN_DIR): | $(OBJDIR)
+
 $(OBJDIR):
 	mkdir $(OBJDIR)
 
@@ -103,9 +111,10 @@ fr: $(frOBJ_IN_DIR)
 frui: $(fruiOBJ_IN_DIR)
 	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
 
-tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR)
+tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_samplersOBJ_IN_DIR)
 	ld -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
 	ld -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
+	ld -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)

@@ -50,6 +50,13 @@ void Plot2D::drawLine( float x1, float y1, float x2, float y2 )
     image->draw( Magick::DrawableLine( imgx( x1 ), imgy( y1 ),
                                        imgx( x2 ), imgy( y2 ) ) );
 }
+
+void Plot2D::drawRect( float x1, float y1, float x2, float y2 )
+{
+    image->draw( Magick::DrawableRectangle( imgx( x1 ), imgy( y1 ),
+                                            imgx( x2 ), imgy( y2 ) ) );
+}
+
 void Plot2D::drawCircle( float x, float y, float radius )
 {
     image->draw( Magick::DrawableCircle( imgx( x ), imgy( y ),

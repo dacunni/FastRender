@@ -28,6 +28,7 @@ class Plot2D
 
         void addPoint( float x, float y );
         void drawLine( float x1, float y1, float x2, float y2 );
+        void drawRect( float x1, float y1, float x2, float y2 );
         void drawCircle( float x, float y, float radius );
         void drawAxes();
 
