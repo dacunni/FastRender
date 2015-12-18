@@ -102,6 +102,11 @@ $(test_renderOBJ_IN_DIR): | $(OBJDIR)
 test_samplersOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_samplersOBJ))
 $(test_samplersOBJ_IN_DIR): | $(OBJDIR)
 
+testOBJ_IN_DIR = \
+    $(test_randomOBJ_IN_DIR) \
+    $(test_renderOBJ_IN_DIR) \
+    $(test_samplersOBJ_IN_DIR)
+
 $(OBJDIR):
 	mkdir $(OBJDIR)
 
@@ -120,5 +125,5 @@ $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
-	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) fr frui
+	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui
 
