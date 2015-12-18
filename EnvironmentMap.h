@@ -41,10 +41,20 @@ public:
 
 class ArcLightEnvironmentMap : public EnvironmentMap {
 public:
-	ArcLightEnvironmentMap() {}
+	ArcLightEnvironmentMap()
+        : light_dir( 0.0, 1.0, 0.0 ), angular_radius( 0.2 ) {}
+	ArcLightEnvironmentMap( const Vector4 & d, float r )
+        : light_dir( d.normalized() ), angular_radius( r ) {}
     virtual ~ArcLightEnvironmentMap() {}
 	
 	virtual RGBRadianceSample sample( const Ray & ray ) const;
+
+    void setLightDirection( const Vector4 & d ) { light_dir = d.normalized(); }
+    void setAngularRadius( float r ) { angular_radius = r; }
+
+protected:
+    Vector4 light_dir;
+    float angular_radius;
 };
 
 

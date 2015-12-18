@@ -39,8 +39,8 @@ public:
 	void normalize();
     void negate();
 
-	Vector4 normalized();
-	Vector4 negated();
+	Vector4 normalized() const;
+	Vector4 negated() const;
 	
 	void print() const;
     void fprintCSV( FILE * file ) const;

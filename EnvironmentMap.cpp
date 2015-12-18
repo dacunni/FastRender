@@ -40,11 +40,9 @@ RGBRadianceSample ArcLightEnvironmentMap::sample( const Ray & ray ) const
     RGBRadianceSample s;
     s.mask = RGB_BITS;
 
-    // TODO - move to members. make a power parameter
-    Vector4 light_dir = Vector4( 1.0, 1.0, 0.0 ).normalized();
-    float angular_size = 0.2;
-
-    if( acos( dot( ray.direction, light_dir ) ) / (M_PI / 2.0f) < angular_size ) {
+    //if( acos( dot( ray.direction, light_dir ) ) / (M_PI / 2.0f) < angular_radius ) {
+    if( acos( dot( ray.direction, light_dir ) ) < angular_radius ) {
+        // TODO: Make a power parameter and adjust for size of lit region
         s.color.r = s.color.g = s.color.b = 30.0f;
     }
     else {

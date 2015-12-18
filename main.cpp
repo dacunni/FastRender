@@ -53,7 +53,8 @@ Scene * buildScene()
 
 	scene->root = container;
     //scene->env_map = new TestPatternEnvironmentMap();
-    scene->env_map = new ArcLightEnvironmentMap();
+    //scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, -1.0 ), 0.2 );
     scene->buildLightList();
     build_scene_timer.stop();
     printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
