@@ -38,7 +38,24 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         const float diffuse_chance = 0.9;
         float diff_spec_select = rng.uniform01();
 
-        if( diff_spec_select < diffuse_chance ) {
+        if( intersection.material && intersection.material->perfect_reflector ) {
+            new_intersection = RayIntersection();
+            new_intersection.min_distance = 0.01;
+            Vector4 from_dir = intersection.ray.direction;
+            from_dir.negate();
+            new_ray.direction = mirror( from_dir, intersection.normal );
+
+            if( scene.intersect( new_ray, new_intersection ) ) {
+                if( new_intersection.distance != FLT_MAX ) {
+                    shade( scene, rng, new_intersection );
+                }
+                // FIXME: Should I scale by the cosine for a perfect reflector?
+                //float cos_r_n = dot( new_ray.direction, intersection.normal ); 
+                //new_intersection.sample.color.scale( cos_r_n );
+                specular_contrib.accum( new_intersection.sample.color );
+            }
+        }
+        else if( diff_spec_select < diffuse_chance ) {
             // Diffuse
             rng.uniformSurfaceUnitHalfSphere( intersection.normal, new_ray.direction );
 
@@ -73,6 +90,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
 
     if( intersection.material ) {
         intersection.sample.color = mult( diffuse_contrib, intersection.material->diffuse );
+        //if( intersection.material->perfect_reflector ) printf("****\n"); // TEMP
+        //specular_contrib.print(); // TEMP
+        //intersection.material->specular.print(); // TEMP
         intersection.sample.color.accum( mult( specular_contrib, intersection.material->specular ) );
         intersection.sample.color.accum( intersection.material->emittance );
         intersection.sample.color.accum( direct_contrib );

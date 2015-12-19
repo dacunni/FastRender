@@ -86,6 +86,8 @@ void addBunny( Container * container )
     }
 
     //mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f ); // emerald green
+    //mesh->material = new MirrorMaterial( 0.0f, 0.66, 0.42f ); // emerald green
+    mesh->material = new MirrorMaterial();
 
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );

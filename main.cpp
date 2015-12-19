@@ -42,14 +42,17 @@ Scene * buildScene()
     //addLightingTest2( container );
     //addSlabGrid( container );
     //addOffsetCubes( container );
-    //addLitBunny( container );
+    addLitBunny( container );
     //addBunny( container );
     //addRandomSpheres( container, rng, 20 );
     addGroundPlane( container );
     //addTransformedCubes( container );
     //addLightingTest4( container );
 
-    Sphere * sphere = new Sphere( Vector4( 0.0, 1.0, -3.0 ), 1.0 );
+    //Sphere * sphere = new Sphere( Vector4( 0.0, 1.0, -3.0 ), 1.0 );
+    //Sphere * sphere = new Sphere( Vector4( 0.0, 2.0, -5.0 ), 1.0 );
+    Sphere * sphere = new Sphere( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
+    sphere->material = new MirrorMaterial();
     container->add( sphere );
 
 	scene->root = container;
@@ -166,8 +169,8 @@ void testScene()
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
     SimpleCamera camera( rng, xmin, xmax, ymin, ymax, imageWidth, imageHeight );
 
-    Shader * shader = new AmbientOcclusionShader();
-    //Shader * shader = new BasicDiffuseSpecularShader();
+    //Shader * shader = new AmbientOcclusionShader();
+    Shader * shader = new BasicDiffuseSpecularShader();
 
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
