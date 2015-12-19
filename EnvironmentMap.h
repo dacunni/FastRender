@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <memory>
+#include <math.h>
 
 #include "Transform.h"
 #include "Ray.h"
@@ -41,20 +42,30 @@ public:
 
 class ArcLightEnvironmentMap : public EnvironmentMap {
 public:
-	ArcLightEnvironmentMap()
-        : light_dir( 0.0, 1.0, 0.0 ), angular_radius( 0.2 ) {}
-	ArcLightEnvironmentMap( const Vector4 & d, float r )
-        : light_dir( d.normalized() ), angular_radius( r ) {}
+	ArcLightEnvironmentMap();
+	ArcLightEnvironmentMap( const Vector4 & d, float r );
     virtual ~ArcLightEnvironmentMap() {}
 	
 	virtual RGBRadianceSample sample( const Ray & ray ) const;
 
     void setLightDirection( const Vector4 & d ) { light_dir = d.normalized(); }
-    void setAngularRadius( float r ) { angular_radius = r; }
+    void setAngularRadius( float r ) { angular_radius = r; recalculateRadiance(); }
+    void setPower( float p ) { power = p; recalculateRadiance(); }
 
 protected:
-    Vector4 light_dir;
-    float angular_radius;
+    void recalculateRadiance();
+
+    // Direction of center axis of spherical cap light
+    Vector4 light_dir = Vector4( 0.0, 1.0, 0.0 );
+    // Angle between center axis and outer edge of cap
+    float angular_radius = M_PI / 4.0f;
+    // Power in Watts across a unit spherical cap
+    float power = 20.0f;
+
+    // Cache of radiance per sample. Should be cached when parameters change
+    // by calling recalculateRadiance()
+    // TODO[DAC]: Colored light!
+    float radiance_per_sample = 0.0f;
 };
 
 

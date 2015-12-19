@@ -12,6 +12,7 @@ HDR = \
     DistributionSamplers.h \
     EnvironmentMap.h \
 	FlatContainer.h \
+    GeometryUtils.h \
 	Material.h \
 	Matrix.h \
     Plot2D.h \
@@ -41,6 +42,7 @@ OBJ = \
     DistributionSamplers.o \
     EnvironmentMap.o \
 	FlatContainer.o \
+    GeometryUtils.o \
 	Matrix.o \
     Plot2D.o \
 	RandomNumberGenerator.o \

@@ -8,6 +8,7 @@
  */
 
 #include "EnvironmentMap.h"
+#include "GeometryUtils.h"
 
 RGBRadianceSample TestPatternEnvironmentMap::sample( const Ray & ray ) const
 {
@@ -35,15 +36,36 @@ RGBRadianceSample TestPatternEnvironmentMap::sample( const Ray & ray ) const
 }
 
 
+ArcLightEnvironmentMap::ArcLightEnvironmentMap()
+{
+    recalculateRadiance();
+}
+
+ArcLightEnvironmentMap::ArcLightEnvironmentMap( const Vector4 & d, float r )
+    : light_dir( d.normalized() ), angular_radius( r )
+{
+    recalculateRadiance();
+}
+
+void ArcLightEnvironmentMap::recalculateRadiance()
+{
+    float cap_area = sphericalCapSurfaceArea( angular_radius );
+
+    // TODO[DAC]: Check this for correctness
+    radiance_per_sample = power / cap_area / M_PI;
+
+    // printf( "power               = %f\n", power );
+    // printf( "radiance_per_sample = %f\n", radiance_per_sample );
+}
+
 RGBRadianceSample ArcLightEnvironmentMap::sample( const Ray & ray ) const
 {
     RGBRadianceSample s;
     s.mask = RGB_BITS;
 
-    //if( acos( dot( ray.direction, light_dir ) ) / (M_PI / 2.0f) < angular_radius ) {
     if( acos( dot( ray.direction, light_dir ) ) < angular_radius ) {
         // TODO: Make a power parameter and adjust for size of lit region
-        s.color.r = s.color.g = s.color.b = 30.0f;
+        s.color.r = s.color.g = s.color.b = radiance_per_sample;
     }
     else {
         s.color.r = s.color.g = s.color.b = 0.0f;

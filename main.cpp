@@ -41,20 +41,21 @@ Scene * buildScene()
 	
     //addLightingTest2( container );
     //addSlabGrid( container );
-    addOffsetCubes( container );
+    //addOffsetCubes( container );
     //addLitBunny( container );
-    addBunny( container );
+    //addBunny( container );
+    //addRandomSpheres( container, rng, 20 );
     addGroundPlane( container );
     //addTransformedCubes( container );
     //addLightingTest4( container );
 
-    //Sphere * sphere = new Sphere( Vector4( 0.0, 0.0, 0.0 ), 0.1 );
-    //container->add( sphere );
+    Sphere * sphere = new Sphere( Vector4( 0.0, 1.0, -3.0 ), 1.0 );
+    container->add( sphere );
 
 	scene->root = container;
     //scene->env_map = new TestPatternEnvironmentMap();
-    //scene->env_map = new ArcLightEnvironmentMap();
-    scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, -1.0 ), 0.2 );
+    scene->env_map = new ArcLightEnvironmentMap();
+    //scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, 1.0 ), M_PI / 4.0 );
     scene->buildLightList();
     build_scene_timer.stop();
     printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
