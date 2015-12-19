@@ -27,6 +27,8 @@ public:
         
     // Inverts this Transform
     void invert() { Matrix4x4 r = rev; rev = fwd; fwd = r; }
+
+    void print();
     
     // Members
     Matrix4x4 fwd;      // Forward transformation

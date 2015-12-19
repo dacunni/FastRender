@@ -33,6 +33,17 @@ Transform::~Transform()
     
 }
 
+// Printing
+
+void Transform::print()
+{
+    printf("Transform:\n");
+    printf("fwd:\n");
+    fwd.print();
+    printf("rev:\n");
+    rev.print();
+}
+
 //
 // Helpers
 //

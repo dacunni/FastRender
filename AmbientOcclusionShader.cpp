@@ -23,7 +23,12 @@ void AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng, 
 
         ao_intersection = RayIntersection();
         ao_intersection.min_distance = 0.01;
-        if( scene.intersectsAny( ao_ray, ao_intersection.min_distance ) ) {
+
+        // FIXME???: Can't use intersectsAny() because it will return true for
+        // infinite light sources like environment maps.
+        //if( scene.intersectsAny( ao_ray, ao_intersection.min_distance ) ) {
+        if( scene.intersect( ao_ray, ao_intersection ) &&
+            ao_intersection.distance != FLT_MAX ) {
             hits++;
         }
     }
