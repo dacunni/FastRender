@@ -13,6 +13,8 @@
 #ifndef _TEST_SCENES_H_
 #define _TEST_SCENES_H_
 
+class Container;
+
 void addSlabGrid( Container * container );
 void addRandomSpheres( Container * container, RandomNumberGenerator & rng, int numSpheres );
 void addRandomCubes( Container * container, RandomNumberGenerator & rng, int numCubes );
