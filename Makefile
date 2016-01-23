@@ -71,12 +71,17 @@ test_renderOBJ = $(OBJ) \
 test_samplersOBJ = $(OBJ) \
 	test_samplers.o
 
-INC = -I/usr/local/include/ImageMagick-6
+INC = -I/usr/local/include
+INC += -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
 CXXFLAGS += -g
-LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min 10.9
+CXXFLAGS += -mmacosx-version-min=10.10
+#CXXFLAGS += -v
+LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min 10.10
+#LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc
+#LDXXFLAGS += -v
 frLDXXFLAGS = $(LDXXFLAGS)
 fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 test_randomLDXXFLAGS = $(LDXXFLAGS)
