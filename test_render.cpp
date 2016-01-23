@@ -27,6 +27,7 @@
 #include "TriangleMesh.h"
 #include "TMOctreeAccelerator.h"
 #include "BoundingVolume.h"
+#include "EnvironmentMap.h"
 
 RandomNumberGenerator rng;
 std::string output_path = "testoutput";
@@ -616,7 +617,114 @@ void testSphereLight4()
     tracer.render();
 }
 
+// ------------------------------------------------------------ 
+// Reflection
+// ------------------------------------------------------------ 
+void testReflection1()
+{
+    int imageSize = 320;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
 
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    Sphere * sphere = nullptr;
+
+    sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
+    sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    container->add( sphere );
+
+    sphere = new Sphere( 0, 0.50, 1.5, 0.50 );
+    sphere->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    container->add( sphere );
+
+    sphere = new Sphere( -1, 0.75, 0, 0.75  );
+    sphere->material = new MirrorMaterial();
+    container->add( sphere );
+
+    sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( sphere );
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap();
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_reflect1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+void testReflection2()
+{
+    int imageSize = 320;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    Sphere * sphere = nullptr;
+
+    sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
+    sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    container->add( sphere );
+
+    sphere = new Sphere( +1, 0.50, 4.0, 0.50 );
+    sphere->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    container->add( sphere );
+
+    sphere = new Sphere( -1, 0.75, 0, 0.75  );
+    sphere->material = new MirrorMaterial( 0.75, 0.75, 0.15 );
+    container->add( sphere );
+
+    sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( sphere );
+
+    sphere = new Sphere( 0, 0.5, 2.0, 0.5  );
+    sphere->material = new MirrorMaterial();
+    container->add( sphere );
+
+    sphere = new Sphere( -0.75, 0.25, 3.5, 0.25  );
+    sphere->material = new MirrorMaterial( 1.0, 0.0, 1.0 );
+    container->add( sphere );
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap();
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_reflect2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
 
 
 // ------------------------------------------------------------ 
@@ -651,6 +759,8 @@ int main (int argc, char * const argv[])
     testSphereLight2();
     testSphereLight3();
     testSphereLight4();
+    testReflection1();
+    testReflection2();
 #else
 #endif
     
