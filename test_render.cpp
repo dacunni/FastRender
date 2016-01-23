@@ -23,6 +23,10 @@
 #include "AmbientOcclusionShader.h"
 #include "BasicDiffuseSpecularShader.h"
 #include "Material.h"
+#include "AssetLoader.h"
+#include "TriangleMesh.h"
+#include "TMOctreeAccelerator.h"
+#include "BoundingVolume.h"
 
 RandomNumberGenerator rng;
 std::string output_path = "testoutput";
@@ -279,6 +283,113 @@ void testAO4()
     tracer.render();
 }
 
+// Triangle mesh - Stanford bunny
+void testAO5()
+{
+    int imageSize = 320;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AxisAlignedSlab * cube = nullptr;
+
+    AssetLoader loader;
+    std::string modelBasePath = "models";
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+    if( !mesh ) {
+        fprintf( stderr, "Error loading mesh\n" );
+        return;
+    }
+
+    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    mesh->transform = new Transform();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
+    container->add( mesh );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new AmbientOcclusionShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_ao5_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.render();
+}
+
+// Triangle mesh - Stanford Happy Buddha
+void testAO7()
+{
+    int imageSize = 320;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AxisAlignedSlab * cube = nullptr;
+
+    AssetLoader loader;
+    std::string modelBasePath = "models";
+    std::string modelPath = modelBasePath + "/stanford/happy/reconstruction";
+    TriangleMesh * mesh = loader.load( modelPath + "/happy_vrip_res2.ply" );
+    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+    if( !mesh ) {
+        fprintf( stderr, "Error loading mesh\n" );
+        return;
+    }
+
+    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    mesh->transform = new Transform();
+    *mesh->transform = compose( makeScaling( 4, 4, 4 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.5 ) ) );
+    container->add( mesh );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new AmbientOcclusionShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_ao7_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 4, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.render();
+}
+
+
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -296,6 +407,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
+#if 1
     testRayIntersect();
     testSimpleCameraNoJitter();
     testSimpleCamera();
@@ -303,6 +415,11 @@ int main (int argc, char * const argv[])
     testAO2();
     testAO3();
     testAO4();
+    testAO5();
+    testAO6();
+    testAO7();
+#else
+#endif
     
     total_run_timer.stop();
     printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());
