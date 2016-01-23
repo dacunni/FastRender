@@ -104,7 +104,7 @@ void Artifacts::flush()
         time_image->pixelColor( i % width, i / width, Magick::ColorRGB( value, value, value ) );
     }
 
-    time_image->write( output_path + "/time.png" );
+    time_image->write( output_path + "/" + file_prefix + "time.png" );
     printf( "Average pixel render time: %f sec max: %f sec\n", average_value, max_value );
 }
 
