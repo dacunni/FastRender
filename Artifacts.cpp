@@ -26,7 +26,7 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
     time_image = new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" );
     time_image->magick( "png" ); // set the output file type
     time_unnormalized_image.resize( imageWidth * imageHeight );
-    intersections_file = fopen( (output_path + "/intersections.txt").c_str(), "w" );
+    intersections_file = fopen( (output_path + file_prefix + "/intersections.txt").c_str(), "w" );
 }
 
 Artifacts::~Artifacts()
@@ -72,9 +72,9 @@ void Artifacts::flush()
 {
     char sindex[32];
     sprintf( sindex, "%08u", frame_number );
-    image->write( output_path + "/framebuffer_" + sindex + ".png" );
-    normal_image->write( output_path + "/normals.png" );
-    depth_image->write( output_path + "/depth.png" );
+    image->write( output_path + "/" + file_prefix + "framebuffer_" + sindex + ".png" );
+    normal_image->write( output_path + "/" + file_prefix + "normals.png" );
+    depth_image->write( output_path + "/" + file_prefix + "depth.png" );
 
     // Find the maximum time taken to render a pixel
     double min_value = 0.0, max_value = 0.0;

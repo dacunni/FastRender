@@ -42,6 +42,8 @@ public:
     unsigned int width;
     unsigned int height;
     unsigned int frame_number;
+
+    std::string file_prefix = "";
     
 };
 

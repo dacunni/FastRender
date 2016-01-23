@@ -100,6 +100,8 @@ void testScene()
     //tracer.shader = new AmbientOcclusionShader();
     tracer.shader = new BasicDiffuseSpecularShader();
 
+    //tracer.artifacts.file_prefix = "test_";
+
 #if 0
     tracer.setCameraTransform( makeTranslation( 0.0, 0.0, 5.0 ) );
 #elif 1
