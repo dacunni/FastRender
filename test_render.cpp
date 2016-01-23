@@ -336,6 +336,59 @@ void testAO5()
     tracer.render();
 }
 
+// Triangle mesh - Stanford dragon
+void testAO6()
+{
+    int imageSize = 320;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AxisAlignedSlab * cube = nullptr;
+
+    AssetLoader loader;
+    std::string modelBasePath = "models";
+    std::string modelPath = modelBasePath + "/stanford/dragon/reconstruction";
+    TriangleMesh * mesh = loader.load( modelPath + "/dragon_vrip_res2.ply" );
+    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+    if( !mesh ) {
+        fprintf( stderr, "Error loading mesh\n" );
+        return;
+    }
+
+    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    mesh->transform = new Transform();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
+    container->add( mesh );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new AmbientOcclusionShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_ao6_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.render();
+}
+
 // Triangle mesh - Stanford Happy Buddha
 void testAO7()
 {
@@ -389,6 +442,181 @@ void testAO7()
     tracer.render();
 }
 
+// ------------------------------------------------------------ 
+// Lighting
+// ------------------------------------------------------------ 
+// White spheres
+void testSphereLight1()
+{
+    int imageSize = 512;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
+    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
+    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+
+    addSphereLight( container,
+                    Vector4( 5.0, 5.0, 5.0 ), 2.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 15.0 );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_sphere_light1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+// Colored light
+void testSphereLight2()
+{
+    int imageSize = 512;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
+    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
+    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+
+    addSphereLight( container,
+                    Vector4( 5.0, 5.0, 5.0 ), 2.5,
+                    RGBColor( 0.5, 0.5, 1.0 ), 15.0 );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_sphere_light2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+// Colored objects
+void testSphereLight3()
+{
+    int imageSize = 512;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    Sphere * sphere = nullptr;
+
+    sphere = new Sphere( -2, 0.25, 0, 0.25 );
+    sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    container->add( sphere );
+
+    sphere = new Sphere( -1, 0.50, 0, 0.50 );
+    sphere->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    container->add( sphere );
+
+    sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( sphere );
+
+    addSphereLight( container,
+                    Vector4( 5.0, 5.0, 5.0 ), 2.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 15.0 );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_sphere_light3_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+// Multiple colored lights
+void testSphereLight4()
+{
+    int imageSize = 512;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
+    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
+    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+
+    float light_size = 1.5;
+    float light_power = 25.0;
+    addSphereLight( container,
+                    Vector4( 5.0, 5.0, 5.0 ), light_size,
+                    RGBColor( 0.5, 0.5, 1.0 ), light_power );
+    addSphereLight( container,
+                    Vector4( -5.0, 5.0, 5.0 ), light_size,
+                    RGBColor( 1.0, 0.5, 0.5 ), light_power );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_sphere_light4_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+
 
 
 // ------------------------------------------------------------ 
@@ -411,6 +639,7 @@ int main (int argc, char * const argv[])
     testRayIntersect();
     testSimpleCameraNoJitter();
     testSimpleCamera();
+    // Ambient occlusion
     testAO1();
     testAO2();
     testAO3();
@@ -418,6 +647,10 @@ int main (int argc, char * const argv[])
     testAO5();
     testAO6();
     testAO7();
+    testSphereLight1();
+    testSphereLight2();
+    testSphereLight3();
+    testSphereLight4();
 #else
 #endif
     
