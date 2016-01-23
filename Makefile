@@ -13,6 +13,7 @@ HDR = \
     EnvironmentMap.h \
 	FlatContainer.h \
     GeometryUtils.h \
+    ImageTracer.h \
 	Material.h \
 	Matrix.h \
     Plot2D.h \
@@ -43,6 +44,7 @@ OBJ = \
     EnvironmentMap.o \
 	FlatContainer.o \
     GeometryUtils.o \
+    ImageTracer.o \
 	Matrix.o \
     Plot2D.o \
 	RandomNumberGenerator.o \

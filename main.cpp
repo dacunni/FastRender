@@ -27,6 +27,7 @@
 #include "Material.h"
 #include "TestScenes.h"
 #include "EnvironmentMap.h"
+#include "ImageTracer.h"
 
 RandomNumberGenerator rng;
 
@@ -86,140 +87,29 @@ Scene * buildScene()
     return scene;
 }
 
-class ImageTracer
-{
-    ImageTracer( unsigned int w, unsigned int h );
-    virtual ~ImageTracer();
-
-    virtual void render();
-    virtual void beginFrame( unsigned int frame_index );
-    virtual void endFrame( unsigned int frame_index );
-    virtual void beginRenderPixel( unsigned int row, unsigned int col );
-    virtual void endRenderPixel( unsigned int row, unsigned int col );
-    virtual void tracePixelRay( unsigned int row, unsigned int col,
-                                unsigned int ray_index );
-
-    RandomNumberGenerator rng;
-    SimpleCamera camera;
-    Artifacts artifacts;
-    Scene * scene;
-    unsigned int image_width;
-    unsigned int image_height;
-    unsigned int num_frames;
-    unsigned int rays_per_pixel;
-};
-
-ImageTracer::ImageTracer( unsigned int w, unsigned int h )
-    : rng(),
-      camera( rng, -0.15, 0.15, -0.15, 0.15, w, h ),
-      artifacts( w, h ),
-      rays_per_pixel( 100 ),
-      num_frames( 1 )
-{
-
-}
-
-ImageTracer::~ImageTracer()
-{
-
-}
-
-void ImageTracer::render()
-{
-    for( unsigned int frame = 0; frame < num_frames; ++frame ) {
-        beginFrame( frame );
-        for( unsigned int row = 0; row < image_height; ++row ) {
-            for( unsigned int col = 0; col < image_height; ++col ) {
-                beginRenderPixel( row, col );
-                for( unsigned int ray_index = 0; ray_index < rays_per_pixel; ++rays_per_pixel ) {
-                    tracePixelRay( row, col, ray_index );
-                }
-                endRenderPixel( row, col );
-            }
-        }
-        endFrame( frame );
-    }
-}
-
-void ImageTracer::beginFrame( unsigned int frame_index )
-{
-
-}
-
-void ImageTracer::endFrame( unsigned int frame_index )
-{
-
-}
-
-void ImageTracer::beginRenderPixel( unsigned int row, unsigned int col )
-{
-
-}
-
-void ImageTracer::endRenderPixel( unsigned int row, unsigned int col )
-{
-
-}
-
-void ImageTracer::tracePixelRay( unsigned int row, unsigned int col,
-                                 unsigned int ray_index )
-{
-
-}
-
 void testScene()
 {
-    Sphere sphere( Vector4( 0.0, 0.0, 0.0 ), 5.0 );
-	Ray ray;
-	RayIntersection intersection;
-    
     //int imageSize = 50;
-    //int imageSize = 320;
-    int imageSize = 512;
+    int imageSize = 320;
+    //int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
-    Artifacts artifacts( imageWidth, imageHeight );
-    
-    Matrix4x4 projectionMatrix;
-    projectionMatrix.identity();
-    
-    Scene * scene = buildScene();
-    
-    // intersect with scene
-    float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
-    //float xmin = -0.1, xmax = 0.1, ymin = -0.1, ymax = 0.1;
-    //float xmin = -0.25, xmax = 0.25, ymin = -0.25, ymax = 0.25;
-    SimpleCamera camera( rng, xmin, xmax, ymin, ymax, imageWidth, imageHeight );
+    ImageTracer tracer( imageWidth, imageHeight );
+    tracer.scene = buildScene();
 
-    //Shader * shader = new AmbientOcclusionShader();
-    Shader * shader = new BasicDiffuseSpecularShader();
+    //tracer.shader = new AmbientOcclusionShader();
+    tracer.shader = new BasicDiffuseSpecularShader();
 
-    float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
-    int num_frames = 1;
-    //int num_frames = 20;
-    int num_rays_per_pixel = 30;
-    printf("Rays per pixel: %d\n", num_rays_per_pixel);
-    for( int frame_index = 0; frame_index < num_frames; frame_index++ ) {
-        if( num_frames > 1 )
-            anim_progress = (float) frame_index / (num_frames - 1);
-        printf("Frame %d (%.2f %%)\n", frame_index, anim_progress * 100.0);
-        Transform xform;
 #if 0
-        Transform rotation;
-        Transform translation = makeTranslation( 0.0, 0.0, 5.0 );
+    tracer.setCameraTransform( makeTranslation( 0.0, 0.0, 5.0 ) );
 #elif 1
-        //Vector4 rot_axis( -1.0, 1.0, 0.0 );
-        //rot_axis.normalize();
-        //float angle = 0.7;
-        //Transform rotation = makeRotation( angle, rot_axis );
-        //Transform rotation = compose( makeRotation( -0.2, Vector4(1, 0, 0) ),
-        //                              makeRotation( -M_PI / 4, Vector4(0, 1, 0) ) );
-        Transform rotation = compose( makeRotation( M_PI / 4, Vector4(0, 1, 0) ),
-                                      makeRotation( -0.2, Vector4(1, 0, 0) ) );
-        Transform translation = makeTranslation( 2.0, 2.0, 25.0 );
+    Transform rotation = compose( makeRotation( M_PI / 4, Vector4(0, 1, 0) ),
+                                  makeRotation( -0.2, Vector4(1, 0, 0) ) );
+    Transform translation = makeTranslation( 2.0, 2.0, 25.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
 #else
-        Vector4 rot_axis( 0.0, 1.0, 0.0 );
-        rot_axis.normalize();
+    auto xform_lambda = [](float anim_progress) {
+        Vector4 rot_axis( 0.0, 1.0, 0.0 ); rot_axis.normalize();
         float min_angle = -0.0, max_angle = 0.65;
         float angle = (anim_progress * (max_angle - min_angle)) + min_angle;
         Transform rotation = makeRotation( angle, rot_axis );
@@ -227,73 +117,13 @@ void testScene()
         //Vector4 begin_xlate( 1.5, 0.25, 15.0 ), end_xlate( 2.0, 0.25, 7.0 );
         Vector4 xlate = interp( begin_xlate, end_xlate, anim_progress);
         Transform translation = makeTranslation( xlate );
+        return compose( rotation, translation );
+    };
+    tracer.setCameraTransform( xform_lambda );
+    tracer.num_frames = 20;
 #endif
-        xform = compose( translation, xform );
-        xform = compose( rotation, xform );
 
-        RGBColor pixel_color( 0.0, 0.0, 0.0 );
-        Vector4 pixel_normal;
-        float pixel_distance;
-
-        printf("Rendering scene:\n");
-        Timer pixel_render_timer;
-        for( int row = 0; row < imageHeight; row++ ) {
-            if( row % (imageHeight / 10) == 0 )
-                printf("ROW %d / %d\n", row, imageHeight);
-
-            for( int col = 0; col < imageWidth; col++ ) {
-                pixel_render_timer.start();
-                pixel_color.setRGB( 0.0, 0.0, 0.0 );
-                pixel_normal.set( 0.0, 0.0, 0.0 );
-                pixel_distance = 0.0f;
-
-                int num_hits = 0;
-                for( int ri = 0; ri < num_rays_per_pixel; ri++ ) {
-                    camera.transform = xform;
-                    ray = camera.rayThrough( row, col );
-                    intersection = RayIntersection();
-                    bool hit = scene->intersect( ray, intersection );
-
-                    if( hit ) {
-                        num_hits++;
-
-                        if( num_hits == 1 ) { // first hit
-                            pixel_normal = intersection.normal;
-                            pixel_distance = intersection.distance;
-                            //intersection.position.fprintCSV( artifacts.intersections_file );
-                        }
-
-                        if( intersection.distance != FLT_MAX ) {
-                            shader->shade( *scene, rng, intersection );
-                        }
-                        pixel_color.accum( intersection.sample.color );
-                    }
-                } // ray index
-
-                pixel_color.scale( 1.0f / num_rays_per_pixel );
-                pixel_render_timer.stop();
-                artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );
-                artifacts.setPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
-                artifacts.setPixelNormal( row, col, pixel_normal );
-                artifacts.setPixelDepth( row, col, pixel_distance );
-            } // col
-        } // row
-        pixel_render_timer.stop();
-        if( frame_index < num_frames - 1 )
-            artifacts.startNewFrame();
-    } // frame_index
-	
-    Timer image_flush_timer;
-    image_flush_timer.start();
-    artifacts.flush();
-    image_flush_timer.stop();
-    printf( "Image write: %f seconds\n", image_flush_timer.elapsed() );
-    
-    printf( "Intersection tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu\n",
-           AxisAlignedSlab::intersection_test_count,
-           Sphere::intersection_test_count,
-           TriangleMesh::intersection_test_count
-           );
+    tracer.render();
 }
 
 // TODO - make tests for Transforms
