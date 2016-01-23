@@ -15,7 +15,8 @@
 #include "EnvironmentMap.h"
 
 Scene::Scene()
-: root(0)
+: root(nullptr),
+  env_map(nullptr)
 {
 
 }
