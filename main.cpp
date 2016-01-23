@@ -41,9 +41,9 @@ Scene * buildScene()
 	
     //addLightingTest2( container );
     //addSlabGrid( container );
-    //addOffsetCubes( container );
-    addLitBunny( container );
-    //addBunny( container );
+    addOffsetCubes( container );
+    //addLitBunny( container );
+    addBunny( container );
     //addRandomSpheres( container, rng, 20 );
     addGroundPlane( container );
     //addTransformedCubes( container );
@@ -51,14 +51,34 @@ Scene * buildScene()
 
     //Sphere * sphere = new Sphere( Vector4( 0.0, 1.0, -3.0 ), 1.0 );
     //Sphere * sphere = new Sphere( Vector4( 0.0, 2.0, -5.0 ), 1.0 );
-    Sphere * sphere = new Sphere( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
-    sphere->material = new MirrorMaterial();
-    container->add( sphere );
+    //Sphere * sphere = new Sphere( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
+    //sphere->material = new MirrorMaterial();
+    //container->add( sphere );
+
+    // Tetrahedron for quick testing of mesh reflection bug
+    //TriangleMesh * mesh = new TriangleMesh();
+    //makeTriangleMeshTetrahedron( *mesh );
+    //mesh->transform = new Transform();
+    //*mesh->transform = makeTranslation( Vector4( 0.0, 0.3, 0.0 ) );
+    //container->add( mesh );
+
+    // Cubes for reference
+    AxisAlignedSlab * cube1 = new AxisAlignedSlab( 1.0, -0.5, -3.0, 0.5 );
+    cube1->material = new DiffuseMaterial( 0.0, 0.0, 1.0 );
+    cube1->transform = new Transform();
+    *cube1->transform = makeTranslation( Vector4( 0.1, 0.5, -0.5 ) );
+    container->add( cube1 );
+    AxisAlignedSlab * cube2 = new AxisAlignedSlab( 1.0, -0.5+1.0, -3.0, 0.5 );
+    cube2->material = new DiffuseMaterial( 0.0, 1.0, 0.0 );
+    container->add( cube2 );
+
+    addMirrors( container );
 
 	scene->root = container;
-    //scene->env_map = new TestPatternEnvironmentMap();
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = new TestPatternEnvironmentMap();
+    //scene->env_map = new ArcLightEnvironmentMap();
     //scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, 1.0 ), M_PI / 4.0 );
+    //scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, 1.0 ), M_PI / 8.0 );
     scene->buildLightList();
     build_scene_timer.stop();
     printf( "Build scene: %f seconds\n", build_scene_timer.elapsed() );
@@ -154,8 +174,8 @@ void testScene()
 	RayIntersection intersection;
     
     //int imageSize = 50;
-    int imageSize = 320;
-    //int imageSize = 512;
+    //int imageSize = 320;
+    int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
     Artifacts artifacts( imageWidth, imageHeight );
@@ -167,6 +187,8 @@ void testScene()
     
     // intersect with scene
     float xmin = -0.15, xmax = 0.15, ymin = -0.15, ymax = 0.15;
+    //float xmin = -0.1, xmax = 0.1, ymin = -0.1, ymax = 0.1;
+    //float xmin = -0.25, xmax = 0.25, ymin = -0.25, ymax = 0.25;
     SimpleCamera camera( rng, xmin, xmax, ymin, ymax, imageWidth, imageHeight );
 
     //Shader * shader = new AmbientOcclusionShader();
@@ -175,7 +197,7 @@ void testScene()
     float anim_progress = 0.0f; // blend factor from 0.0 to 1.0 throughout animation
     int num_frames = 1;
     //int num_frames = 20;
-    int num_rays_per_pixel = 100;
+    int num_rays_per_pixel = 30;
     printf("Rays per pixel: %d\n", num_rays_per_pixel);
     for( int frame_index = 0; frame_index < num_frames; frame_index++ ) {
         if( num_frames > 1 )
@@ -186,18 +208,23 @@ void testScene()
         Transform rotation;
         Transform translation = makeTranslation( 0.0, 0.0, 5.0 );
 #elif 1
-        Vector4 rot_axis( -1.0, 1.0, 0.0 );
-        rot_axis.normalize();
-        float angle = 0.5;
-        Transform rotation = makeRotation( angle, rot_axis );
-        Transform translation = makeTranslation( 1.0, 2.0, 15.0 );
+        //Vector4 rot_axis( -1.0, 1.0, 0.0 );
+        //rot_axis.normalize();
+        //float angle = 0.7;
+        //Transform rotation = makeRotation( angle, rot_axis );
+        //Transform rotation = compose( makeRotation( -0.2, Vector4(1, 0, 0) ),
+        //                              makeRotation( -M_PI / 4, Vector4(0, 1, 0) ) );
+        Transform rotation = compose( makeRotation( M_PI / 4, Vector4(0, 1, 0) ),
+                                      makeRotation( -0.2, Vector4(1, 0, 0) ) );
+        Transform translation = makeTranslation( 2.0, 2.0, 25.0 );
 #else
         Vector4 rot_axis( 0.0, 1.0, 0.0 );
         rot_axis.normalize();
-        float min_angle = -0.0, max_angle = 0.55;
+        float min_angle = -0.0, max_angle = 0.65;
         float angle = (anim_progress * (max_angle - min_angle)) + min_angle;
         Transform rotation = makeRotation( angle, rot_axis );
-        Vector4 begin_xlate( 1.5, 1.5, 5.0 ), end_xlate( 2.0, 0.25, -2.0 );
+        Vector4 begin_xlate( 1.5, 1.5, 15.0 ), end_xlate( 2.0, 0.25, 7.0 );
+        //Vector4 begin_xlate( 1.5, 0.25, 15.0 ), end_xlate( 2.0, 0.25, 7.0 );
         Vector4 xlate = interp( begin_xlate, end_xlate, anim_progress);
         Transform translation = makeTranslation( xlate );
 #endif

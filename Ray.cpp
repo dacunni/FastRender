@@ -7,6 +7,8 @@
  *
  */
 
+#include <typeinfo>
+
 #include "Ray.h"
 #include "Scene.h"
 
@@ -23,4 +25,17 @@ void trace( Ray & ray, Scene & scene, RayIntersection & intersection, Sample & s
 void shade( Scene & scene, RayIntersection & intersection, Sample & sample )
 {
     sample.value = intersection.normal.x;
+}
+
+void RayIntersection::print()
+{
+    printf("Ray Intersection :\n");
+    printf("pos          : "); position.print();
+    printf("normal       : "); normal.print();
+    printf("material     : %s\n", (material ? typeid(material).name() : "null"));
+    printf("sample       : "); sample.color.print();
+    printf("distance     : %f\n", distance);
+    printf("min_distance : %f\n", min_distance);
+    printf("best_hint    : %f\n", best_hint);
+
 }

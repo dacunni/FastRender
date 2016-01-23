@@ -33,6 +33,8 @@ void addLightingTest2( Container * container );
 void addLightingTest3( Container * container );
 void addLightingTest4( Container * container );
 
+void addMirrors( Container * container );
+
 
 
 

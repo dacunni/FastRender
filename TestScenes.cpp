@@ -78,27 +78,24 @@ void addBunny( Container * container )
 
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
+    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
+    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
 
-    //mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f ); // emerald green
-    //mesh->material = new MirrorMaterial( 0.0f, 0.66, 0.42f ); // emerald green
-    mesh->material = new MirrorMaterial();
+    mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f ); // emerald green
+    //mesh->material = new MirrorMaterial();
 
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-
-    BoundingVolume * meshBB = new BoundingVolume();
-    meshBB->buildAxisAligned( mesh );
-    container->add( meshBB );
-    meshBB->transform = new Transform();
-    *meshBB->transform = makeTranslation( Vector4( 0.0, 0.2, 0.0 ) );
+    mesh->transform = new Transform();
+    *mesh->transform = makeTranslation( Vector4( 0.0, 0.2, -0.5 ) );
+    container->add( mesh );
 }
 
 void addLitBunny( Container * container ) {
@@ -285,6 +282,21 @@ void addLightingTest4( Container * container )
                     Vector4( -0.4, -0.4, lightoff ), 0.1,
                     RGBColor( 1.0, 1.0, 0.0 ), 15.0 );
 
+}
+
+//////////////////////////////////////////
+//     Mirror Test
+//////////////////////////////////////////
+void addMirrors( Container * container )
+{
+    AxisAlignedSlab * cube1 = new AxisAlignedSlab( -5.0, -5.0, -5.0,
+                                                   5.0, 5.0, -5.2 );
+    cube1->material = new MirrorMaterial();
+    container->add( cube1 );
+    AxisAlignedSlab * cube2 = new AxisAlignedSlab( -2.5, -5.0, -5.0,
+                                                   -2.7, 5.0, 5.0 );
+    cube2->material = new MirrorMaterial();
+    container->add( cube2 );
 }
 
 

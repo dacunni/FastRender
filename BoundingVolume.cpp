@@ -18,7 +18,7 @@ bool BoundingVolume::intersect( const Ray & ray, RayIntersection & intersection 
     RayIntersection temp_isec = intersection;
     
     if( bound->intersect( ray, temp_isec ) ) {
-        return object->intersect( ray, intersection );
+        return object->intersectTransformed( ray, intersection );
     }
     
     return false;
@@ -30,7 +30,7 @@ bool BoundingVolume::intersectsAny( const Ray & ray, float min_distance ) const
         return false;
         
     if( bound->intersectsAny( ray, min_distance ) ) {
-        return object->intersectsAny( ray, min_distance );
+        return object->intersectsAnyTransformed( ray, min_distance );
     }
     
     return false;    

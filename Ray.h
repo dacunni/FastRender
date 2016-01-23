@@ -42,6 +42,8 @@ class RayIntersection {
 public:
 	RayIntersection() : min_distance(0.0f), best_hint(FLT_MAX), material(NULL) {}
 	~RayIntersection() {}
+
+    void print();
 	
 	Ray ray;
 	Vector4 position;

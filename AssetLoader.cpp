@@ -14,6 +14,7 @@
 
 #include "AssetLoader.h"
 #include "TriangleMesh.h"
+#include "AxisAlignedSlab.h"
 
 
 TriangleMesh * AssetLoader::load( const std::string & filename )
@@ -59,17 +60,6 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
 
         trimesh->vertices[vi].set( v.x, v.y, v.z );
         trimesh->normals[vi].set( n.x, n.y, n.z );
-
-        // TEMP >>>
-        const float scale = 10.0f;
-        trimesh->vertices[vi][0] *= scale;
-        trimesh->vertices[vi][1] *= scale;
-        trimesh->vertices[vi][2] *= scale;
-        trimesh->vertices[vi][0] += 0.0;
-        trimesh->vertices[vi][1] += -1.0;
-        trimesh->vertices[vi][2] += -3.0;
-        //printf("V %f %f %f\n", v.x, v.y, v.z); // TEMP
-        // TEMP <<<
     }
 
     for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {
@@ -78,6 +68,14 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
         trimesh->triangles[ti].vi[1] = t.mIndices[1];
         trimesh->triangles[ti].vi[2] = t.mIndices[2];
     }
+
+    // Shift to the canonical position and size
+    // TODO[DAC]: Make this configurable
+    trimesh->makeCanonical();
+
+    //printf("TriMesh bounds: ");
+    //std::unique_ptr<AxisAlignedSlab> bounds( trimesh->getAxisAlignedBounds() );
+    //bounds->print();
 
     return trimesh;
 }

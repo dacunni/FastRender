@@ -40,11 +40,16 @@ bool Traceable::intersectTransformed( const Ray & ray, RayIntersection & interse
     if( transform ) {
         Ray tray = ray;
         tray.origin = mult( transform->rev, ray.origin );
-        tray.direction = mult( transform->rev, ray.direction );
+        // Fix direction W in case other code is sloppy
+        Vector4 dir = ray.direction;
+        dir.w = 0.0;
+        tray.direction = mult( transform->rev, dir );
         tray.direction.normalize();
         bool hit = intersect( tray, intersection );
         if( hit ) {
             intersection.position = mult( transform->fwd, intersection.position );
+            // Set normal W to be 0, since vector math elsewhere may be sloppy about this
+            intersection.normal.w = 0;
             intersection.normal = mult( transform->fwd, intersection.normal );
             // TODO - add strategic asserts to make sure normals have proper w=0
         }

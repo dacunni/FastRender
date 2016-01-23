@@ -24,6 +24,47 @@ TriangleMesh::~TriangleMesh()
         delete accelerator;
 }
 
+void TriangleMesh::makeCanonical()
+{
+    std::unique_ptr<AxisAlignedSlab> bounds( getAxisAlignedBounds() );
+    //printf("makeCanonical: Initial bounds: "); bounds->print();
+
+    float maxdim = bounds->maxdim();
+    float xdim = bounds->xdim();
+    float ydim = bounds->ydim();
+    float zdim = bounds->zdim();
+
+    //printf("dim xd=%f yd=%f zd=%f max=%f\n",
+    //       xdim, ydim, zdim, maxdim);
+
+    // Shift to center around the origin
+    float xshift = -bounds->xmin - xdim * 0.5;
+    float yshift = -bounds->ymin - ydim * 0.5;
+    float zshift = -bounds->zmin - zdim * 0.5;
+
+    //printf("shift xs=%f ys=%f zs=%f\n",
+    //       xshift, yshift, zshift);
+
+    // Scale to unit size along dimension with largest extent
+    float scale = 1.0 / maxdim;
+    float xscale = scale * xdim / maxdim;
+    float yscale = scale * ydim / maxdim;
+    float zscale = scale * zdim / maxdim;
+
+    //printf("scale=%f xs=%f ys=%f zs=%f\n",
+    //       scale, xscale, yscale, zscale);
+
+    const unsigned int num_verts = vertices.size();
+    for( unsigned int vi = 0; vi < num_verts; ++vi ) {
+        vertices[vi][0] = (vertices[vi][0] + xshift) * xscale;
+        vertices[vi][1] = (vertices[vi][1] + yshift) * yscale;
+        vertices[vi][2] = (vertices[vi][2] + zshift) * zscale;
+    }
+
+    //bounds.reset( getAxisAlignedBounds() );
+    //printf("makeCanonical: Final bounds: "); bounds->print();
+}
+
 //
 // Find the ray intersection with the triangles in the full mesh
 //
@@ -113,7 +154,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
             add( intersection.position, ray.origin, intersection.position );
             // compute surface normal
             // TODO - make sure this normal agrees with front/back sense above
-            cross( e1, e2, intersection.normal );
+            intersection.normal = cross( e1, e2 );
             best_t = t;
             intersection.best_hint = best_t;
             hit = true;
@@ -171,7 +212,9 @@ void makeTriangleMeshTetrahedron( TriangleMesh & mesh )
     mesh.vertices.resize( 4 );
     mesh.triangles.resize( 4 );
     
-    float zoffset = -7.0; // TEMP
+    //float zoffset = -7.0; // TEMP
+    float zoffset = -3.0; // TEMP
+    //float zoffset = 0.0; // TEMP
     
     mesh.vertices[0] = Vector4( 0.0, 0.5, 0.0 + zoffset );
     mesh.vertices[1] = Vector4( -0.5, -0.5, 0.0 + zoffset );

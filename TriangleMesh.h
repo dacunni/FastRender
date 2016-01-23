@@ -26,6 +26,9 @@ public:
     TriangleMesh();
     virtual ~TriangleMesh();
     
+    // Fit in unit cube centered at origin
+    void makeCanonical();
+
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;    
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
     

@@ -62,6 +62,12 @@ void AxisAlignedSlab::correctMinMax( void )
     }
 }
 
+float AxisAlignedSlab::maxdim() const
+{
+    float xd = xdim(), yd = ydim(), zd = zdim();
+    return std::max(std::max(xd, yd), zd);
+}
+
 static const Vector4 boxNormals[6] = {
     Vector4( -1.0, 0.0, 0.0 ),
     Vector4( 1.0, 0.0, 0.0 ),

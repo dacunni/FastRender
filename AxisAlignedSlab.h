@@ -22,6 +22,11 @@ public:
     virtual ~AxisAlignedSlab() {}
     
     void correctMinMax( void );
+
+    float xdim() const { return xmax - xmin; }
+    float ydim() const { return ymax - ymin; }
+    float zdim() const { return zmax - zmin; }
+    float maxdim() const;
     
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 

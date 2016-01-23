@@ -26,7 +26,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     offset = scale( intersection.normal, 0.01 ); // NOTE - Seems to help 
     new_ray.origin = add( intersection.position, offset );
     new_ray.depth = intersection.ray.depth + 1;
-    const unsigned char max_depth = 3;
+    const unsigned char max_depth = 4;
 
     //for( Traceable * traceable : scene.lights ) {
     //    // TODO - sample lights
