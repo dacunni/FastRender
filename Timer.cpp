@@ -15,14 +15,22 @@ double Timer::toDouble( const struct timeval & tm ){
 
 void Timer::start()
 {
+#if USE_PROCESS_TIMER
+    start_time = clock();
+#else
     gettimeofday( &start_time, NULL );
+#endif
     running = true;
     valid = true;
 }
 
 void Timer::stop()
 {
+#if USE_PROCESS_TIMER
+    end_time = clock();
+#else
     gettimeofday( &end_time, NULL );
+#endif
     running = false;
 }
 
@@ -33,8 +41,16 @@ double Timer::elapsed()
     }
     
     if( running ) {
+#if USE_PROCESS_TIMER
+        end_time = clock();
+#else
         gettimeofday( &end_time, NULL );
+#endif
     }
     
+#if USE_PROCESS_TIMER
+    return (double) (end_time - start_time) / CLOCKS_PER_SEC;
+#else
     return toDouble( end_time ) - toDouble( start_time );
+#endif
 }

@@ -10,6 +10,9 @@
 #define __FastRender__Timer__
 
 #include <sys/time.h>
+#include <time.h>
+
+#define USE_PROCESS_TIMER 1
 
 class Timer {
 public:
@@ -24,8 +27,13 @@ public:
     
 protected:
     
+#if USE_PROCESS_TIMER
+    clock_t start_time;
+    clock_t end_time;
+#else
     struct timeval start_time;
     struct timeval end_time;
+#endif
     bool running;
     bool valid;
     
