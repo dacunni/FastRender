@@ -102,7 +102,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
     float best_t = intersection.best_hint;
     bool hit = false;
     const float epsilon = 0.000001;
-    
+
     //
     // Test for intersection against all triangles
     //
@@ -154,7 +154,11 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
             add( intersection.position, ray.origin, intersection.position );
             // compute surface normal
             // TODO - make sure this normal agrees with front/back sense above
-            intersection.normal = cross( e1, e2 );
+            intersection.normal = cross( e1, e2 ).normalized();
+            // Make sure the normal is pointing toward the direction of the incoming ray
+            if( dot( intersection.normal, ray.direction ) > 0.0f ) {
+                intersection.normal.negate();
+            }
             best_t = t;
             intersection.best_hint = best_t;
             hit = true;
@@ -212,14 +216,10 @@ void makeTriangleMeshTetrahedron( TriangleMesh & mesh )
     mesh.vertices.resize( 4 );
     mesh.triangles.resize( 4 );
     
-    //float zoffset = -7.0; // TEMP
-    float zoffset = -3.0; // TEMP
-    //float zoffset = 0.0; // TEMP
-    
-    mesh.vertices[0] = Vector4( 0.0, 0.5, 0.0 + zoffset );
-    mesh.vertices[1] = Vector4( -0.5, -0.5, 0.0 + zoffset );
-    mesh.vertices[2] = Vector4( 0.5, -0.5, 0.0 + zoffset );
-    mesh.vertices[3] = Vector4( 0.0, 0.0, 1.0 + zoffset );
+    mesh.vertices[0] = Vector4( 0.0, 0.5, 0.0 );
+    mesh.vertices[1] = Vector4( -0.5, -0.5, 0.0 );
+    mesh.vertices[2] = Vector4( 0.5, -0.5, 0.0 );
+    mesh.vertices[3] = Vector4( 0.0, 0.0, 1.0 );
     
     // TODO - make the winding order consistent
     mesh.triangles[0].vi[0] = 0;

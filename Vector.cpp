@@ -12,12 +12,12 @@
 
 #include "Vector.h"
 
-float Vector4::magnitude_sq()
+float Vector4::magnitude_sq() const
 {
 	return sq(data[0]) + sq(data[1]) + sq(data[2]);
 }
 
-float Vector4::magnitude()
+float Vector4::magnitude() const
 {
 	return sqrt( sq(data[0]) + sq(data[1]) + sq(data[2]) );
 }

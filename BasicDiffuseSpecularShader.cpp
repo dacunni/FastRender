@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include "Material.h"
 #include "Scene.h"
 #include "Ray.h"
@@ -27,6 +28,11 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     new_ray.origin = add( intersection.position, offset );
     new_ray.depth = intersection.ray.depth + 1;
     const unsigned char max_depth = 4;
+    //const unsigned char max_depth = 1;
+
+    // Asserts
+    float ray_dir_mag = intersection.ray.direction.magnitude();  
+    assert( ray_dir_mag > 0.99 && ray_dir_mag < 1.01 );
 
     //for( Traceable * traceable : scene.lights ) {
     //    // TODO - sample lights
@@ -44,6 +50,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             Vector4 from_dir = intersection.ray.direction;
             from_dir.negate();
             new_ray.direction = mirror( from_dir, intersection.normal );
+            new_ray.direction.makeDirection();
 
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX ) {
@@ -58,6 +65,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         else if( diff_spec_select < diffuse_chance ) {
             // Diffuse
             rng.uniformSurfaceUnitHalfSphere( intersection.normal, new_ray.direction );
+            new_ray.direction.makeDirection();
 
             new_intersection = RayIntersection();
             new_intersection.min_distance = 0.01;
@@ -77,6 +85,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             Vector4 from_dir = intersection.ray.direction;
             from_dir.negate();
             new_ray.direction = mirror( from_dir, intersection.normal );
+            new_ray.direction.makeDirection();
 
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX )
@@ -90,9 +99,6 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
 
     if( intersection.material ) {
         intersection.sample.color = mult( diffuse_contrib, intersection.material->diffuse );
-        //if( intersection.material->perfect_reflector ) printf("****\n"); // TEMP
-        //specular_contrib.print(); // TEMP
-        //intersection.material->specular.print(); // TEMP
         intersection.sample.color.accum( mult( specular_contrib, intersection.material->specular ) );
         intersection.sample.color.accum( intersection.material->emittance );
         intersection.sample.color.accum( direct_contrib );

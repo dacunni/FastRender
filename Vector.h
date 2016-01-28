@@ -10,6 +10,7 @@
 #define _VECTOR_H_
 
 #include <fstream>
+#include <cassert>
 #include <stdio.h>
 
 template< typename T > inline T sq( const T & t ) { return t * t; }
@@ -34,16 +35,21 @@ public:
 	
     inline void set( float x, float y, float z, float w = 1.0f );
     
-	float magnitude_sq();
-	float magnitude();
+	float magnitude_sq() const;
+	float magnitude() const;
 	void normalize();
     void negate();
+    void makeDirection() { w = 0.0f; }
 
 	Vector4 normalized() const;
 	Vector4 negated() const;
 	
 	void print() const;
     void fprintCSV( FILE * file ) const;
+
+    // Assert methods
+    void assertIsUnity() const { float m = magnitude(); assert( m > 0.99 && m < 1.01 ); }
+    void assertIsDirection() const { assert( w == 0.0f ); }
 	
     union {
 	float data[4];

@@ -28,7 +28,20 @@ Scene::~Scene()
 
 bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
+    // Asserts
+    ray.direction.assertIsUnity();
+    ray.direction.assertIsDirection();
+
 	if( root != 0 && root->intersectTransformed( ray, intersection ) ) {
+        // Asserts
+        intersection.ray.direction.assertIsUnity();
+        intersection.ray.direction.assertIsDirection();
+        assert( intersection.distance > 0.0f );
+        assert( intersection.distance < FLT_MAX );
+
+        // Fix normals
+        intersection.normal.normalize();
+        intersection.normal.makeDirection();
         return true;
 	}
 

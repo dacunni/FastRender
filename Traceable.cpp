@@ -48,6 +48,7 @@ bool Traceable::intersectTransformed( const Ray & ray, RayIntersection & interse
         bool hit = intersect( tray, intersection );
         if( hit ) {
             intersection.position = mult( transform->fwd, intersection.position );
+            intersection.distance = subtract( intersection.position, ray.origin ).magnitude();
             // Set normal W to be 0, since vector math elsewhere may be sloppy about this
             intersection.normal.w = 0;
             intersection.normal = mult( transform->fwd, intersection.normal );

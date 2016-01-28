@@ -20,6 +20,7 @@ void AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng, 
 
     for( unsigned int aori = 0; aori < num_ao_rays; aori++ ) {
         rng.uniformSurfaceUnitHalfSphere( intersection.normal, ao_ray.direction );
+        ao_ray.direction.makeDirection();
 
         ao_intersection = RayIntersection();
         ao_intersection.min_distance = 0.01;
