@@ -35,3 +35,30 @@ float sphericalCapSurfaceArea( float half_angle, float radius )
     return cap_area;
 }
 
+// Calculate the area of a triangle given its vertices
+float triangleArea( const Vector4 & A, const Vector4 & B, const Vector4 & C )
+{
+    // Area of the parallelogram with AB and AC as sides
+    auto AB = subtract( B, A );
+    auto AC = subtract( C, A );
+    auto ABxAC = cross( AB, AC );
+    float paraArea = ABxAC.magnitude();
+    // The triangle is half of this parallegram
+    return paraArea * 0.5;
+}
+
+// Finds the barycentric coordinate of a point in a triangle. Assumes the point
+// is inside the triangle (in the same plane).
+BarycentricCoordinate barycentricForPointInTriangle( const Vector4 & P,
+                                                     const Vector4 & tA, const Vector4 & tB, const Vector4 & tC )
+{
+    float tArea = triangleArea( tA, tB, tC );
+
+    if( tArea <= 0.0f ) { // degenerate triangle
+        return BarycentricCoordinate( 0.0, 0.0 );
+    }
+
+    return BarycentricCoordinate( triangleArea( tB, tC, P ) / tArea,
+                                  triangleArea( tC, tA, P ) / tArea );
+}
+
