@@ -78,16 +78,16 @@ void addBunny( Container * container )
 
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
-    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
+    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
+    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
 
-    mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f ); // emerald green
-    //mesh->material = new MirrorMaterial();
+    //mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f ); // emerald green
+    mesh->material = new MirrorMaterial();
 
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );

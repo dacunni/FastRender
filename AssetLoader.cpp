@@ -24,8 +24,10 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
     
     scene = importer.ReadFile( filename,
                                aiProcess_Triangulate
-                               //| aiProcess_GenSmoothNormals
-                               | aiProcess_GenNormals
+                               | aiProcess_FindInvalidData
+                               | aiProcess_GenSmoothNormals
+                               //| aiProcess_GenNormals
+                               | aiProcess_FixInfacingNormals
                                );
     
     if( !scene ) {
@@ -56,7 +58,14 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
  
     for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
         const auto v = mesh->mVertices[vi];
-        const auto n = mesh->mNormals[vi];
+        auto n = mesh->mNormals[vi];
+
+        // TEMP
+        // FIXME[DAC]: This is a hacky fix, especially since normal vectors
+        //             should never be zero length. The bug is probably in assimp.
+        if( isnan(n.x) ) {
+            n.x = n.y = n.z = 0.0f;
+        }
 
         trimesh->vertices[vi].set( v.x, v.y, v.z );
         trimesh->normals[vi].set( n.x, n.y, n.z );

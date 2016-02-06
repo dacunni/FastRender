@@ -52,9 +52,13 @@ Scene * buildScene()
 
     //Sphere * sphere = new Sphere( Vector4( 0.0, 1.0, -3.0 ), 1.0 );
     //Sphere * sphere = new Sphere( Vector4( 0.0, 2.0, -5.0 ), 1.0 );
-    //Sphere * sphere = new Sphere( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
-    //sphere->material = new MirrorMaterial();
-    //container->add( sphere );
+    Sphere * sphere = new Sphere( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
+    sphere->material = new MirrorMaterial();
+    container->add( sphere );
+
+    Sphere * sphere2 = new Sphere( Vector4( -1.0, 0.1, -0.0 ), 0.25 );
+    sphere2->material = new DiffuseMaterial( 1.0, 0.0, 1.0 );
+    container->add( sphere2 );
 
     // Tetrahedron for quick testing of mesh reflection bug
     //TriangleMesh * mesh = new TriangleMesh();
@@ -73,11 +77,11 @@ Scene * buildScene()
     cube2->material = new DiffuseMaterial( 0.0, 1.0, 0.0 );
     container->add( cube2 );
 
-    addMirrors( container );
+    //addMirrors( container );
 
 	scene->root = container;
-    scene->env_map = new TestPatternEnvironmentMap();
-    //scene->env_map = new ArcLightEnvironmentMap();
+    //scene->env_map = new TestPatternEnvironmentMap();
+    scene->env_map = new ArcLightEnvironmentMap();
     //scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, 1.0 ), M_PI / 4.0 );
     //scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, 1.0 ), M_PI / 8.0 );
     scene->buildLightList();
@@ -112,11 +116,12 @@ void testScene()
 #else
     auto xform_lambda = [](float anim_progress) {
         Vector4 rot_axis( 0.0, 1.0, 0.0 ); rot_axis.normalize();
-        float min_angle = -0.0, max_angle = 0.65;
+        float min_angle = -0.0, max_angle = M_PI / 8;
         float angle = (anim_progress * (max_angle - min_angle)) + min_angle;
         Transform rotation = makeRotation( angle, rot_axis );
-        Vector4 begin_xlate( 1.5, 1.5, 15.0 ), end_xlate( 2.0, 0.25, 7.0 );
+        Vector4 begin_xlate( 0.0, 0.5, 10.0 ), end_xlate( 0.0, 0.5, 15.0 );
         //Vector4 begin_xlate( 1.5, 0.25, 15.0 ), end_xlate( 2.0, 0.25, 7.0 );
+        //Vector4 begin_xlate( 1.5, 1.5, 5.0 ), end_xlate( 2.0, 0.25, 5.0 );
         Vector4 xlate = interp( begin_xlate, end_xlate, anim_progress);
         Transform translation = makeTranslation( xlate );
         return compose( rotation, translation );

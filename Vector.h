@@ -43,14 +43,16 @@ public:
 
 	Vector4 normalized() const;
 	Vector4 negated() const;
+    bool isUnity() const { float m = magnitude(); return m > 0.99 && m < 1.01; }
+    bool isDirection() const { return w == 0.0f; }
 	
 	void print() const;
     void fprintCSV( FILE * file ) const;
 
     // Assert methods
-    void assertIsUnity() const { float m = magnitude(); assert( m > 0.99 && m < 1.01 ); }
-    void assertIsDirection() const { assert( w == 0.0f ); }
-	
+    void assertIsUnity() const { float m = magnitude(); assert( isUnity() ); }
+    void assertIsDirection() const { assert( isDirection() ); }
+
     union {
 	float data[4];
         struct {

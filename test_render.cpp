@@ -384,7 +384,7 @@ void testAO6()
 
     // Camera back and rotated a bit around x so we're looking slightly down
     Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
-    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    Transform translation = makeTranslation( 0.0, 0.0, 10.0 );
     tracer.setCameraTransform( compose( rotation, translation ) );
 
     tracer.render();
@@ -729,8 +729,10 @@ void testReflection2()
 void testReflection3()
 {
     int imageSize = 320;
+    //int imageSize = 512;
+    //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
-    ImageTracer tracer( imageWidth, imageHeight, 1, 30 );
+    ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
     Scene * scene = new Scene();
 	FlatContainer * container = new FlatContainer();
 
@@ -776,9 +778,15 @@ void testReflection3()
     sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
-    sphere = new Sphere( -0.75, 0.50, 3.0, 0.50 );
-    sphere->material = new MirrorMaterial( 1.0, 0.0, 1.0 );
+    sphere = new Sphere( -0.75, 0.50, 4.0, 0.50 );
+    sphere->material = new MirrorMaterial( 1.0, 0.2, 1.0 );
     container->add( sphere );
+
+    AxisAlignedSlab * cube = nullptr;
+
+    cube = new AxisAlignedSlab( +0.50, 0, 5.0, 1.0 );
+    cube->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    container->add( cube );
 
 	scene->root = container;
     scene->env_map = new ArcLightEnvironmentMap();

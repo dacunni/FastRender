@@ -9,6 +9,7 @@
 #include "TriangleMesh.h"
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
+#include "GeometryUtils.h"
 
 unsigned long TriangleMesh::intersection_test_count = 0;
 
@@ -152,13 +153,38 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
             // compute intersection position
             scale( ray.direction, intersection.distance, intersection.position );
             add( intersection.position, ray.origin, intersection.position );
+            // compute barycentric coordinate
+            BarycentricCoordinate bary = barycentricForPointInTriangle( intersection.position, 
+                                                                        vertices[tri.vi[0]],
+                                                                        vertices[tri.vi[1]],
+                                                                        vertices[tri.vi[2]] );
+#if 1
+            // Interpolate vertex normals
+            intersection.normal = add( add( scale( normals[tri.vi[0]], bary.u ),
+                                            scale( normals[tri.vi[1]], bary.v ) ),
+                                       scale( normals[tri.vi[2]], bary.w ) ).normalized();
+#else
             // compute surface normal
             // TODO - make sure this normal agrees with front/back sense above
             intersection.normal = cross( e1, e2 ).normalized();
+#endif
+
+            if( !intersection.normal.isUnity() ) {
+                // FIXME[DAC]: We shouldn't need to do this, but sometimes we get back bad normals
+                //             from AssetLoader (due to another bug). For now, if we get a non-unity
+                //             vector, we will simply fall back to calculating the normal as the
+                //             perpendicular vector to the triangle.
+                // TODO - make sure this normal agrees with front/back sense above
+                intersection.normal = cross( e1, e2 ).normalized();
+            }
+
             // Make sure the normal is pointing toward the direction of the incoming ray
             if( dot( intersection.normal, ray.direction ) > 0.0f ) {
                 intersection.normal.negate();
             }
+
+            intersection.normal.assertIsUnity();
+
             best_t = t;
             intersection.best_hint = best_t;
             hit = true;
