@@ -25,7 +25,10 @@ class Material
         RGBColor specular;
         RGBColor emittance;
 
+        float index_of_refraction = 1.0f;
+
         bool perfect_reflector = false;
+        bool perfect_refractor = false;
 };
 
 class DiffuseMaterial : public Material 
@@ -65,5 +68,32 @@ class MirrorMaterial : public Material
 
         ~MirrorMaterial() {}
 };
+
+class RefractiveMaterial : public Material 
+{
+    public:
+        RefractiveMaterial()
+            : Material()
+        { 
+            init( 1.0f, 1.0f, 1.0f ); 
+        }
+
+        RefractiveMaterial( float r, float g, float b )
+            : Material()
+        { 
+            init( r, g, b );
+        }
+
+        void init( float r, float g, float b )
+        {
+            diffuse.setRGB( 0.0f, 0.0f, 0.0f ); 
+            specular.setRGB( r, g, b ); 
+            emittance.setRGB( 0.0f, 0.0f, 0.0f );
+            perfect_refractor = true;
+        }
+
+        ~RefractiveMaterial() {}
+};
+
 
 #endif
