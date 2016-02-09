@@ -41,7 +41,7 @@ void ImageTracer::render()
         for( unsigned int row = 0; row < image_height; ++row ) {
             if( row % (image_height / 10) == 0 )
                 printf("ROW %d / %d\n", row, image_height);
-            for( unsigned int col = 0; col < image_height; ++col ) {
+            for( unsigned int col = 0; col < image_width; ++col ) {
                 beginRenderPixel( row, col );
                 for( unsigned int ray_index = 0; ray_index < rays_per_pixel; ++ray_index ) {
                     tracePixelRay( row, col, ray_index );
