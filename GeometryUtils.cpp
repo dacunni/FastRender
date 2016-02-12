@@ -62,3 +62,37 @@ BarycentricCoordinate barycentricForPointInTriangle( const Vector4 & P,
                                   triangleArea( tC, tA, P ) / tArea );
 }
 
+// -----------------------------------------------------------------------------
+// Fresnel Equations
+//
+
+// Fresnel formula for reflectance of a dialectric (non-conductive) material
+// (eg: glass)
+float fresnelDialectric( float cos_i, float cos_t, float n_i, float n_t )
+{
+    // sqrt of parallel term
+    float R_pa = (n_t * cos_i - n_i * cos_t) /
+                 (n_t * cos_i + n_i * cos_t);
+    // sqrt of perpendicular term
+    float R_pe = (n_t * cos_i - n_i * cos_t) /
+                 (n_t * cos_i + n_i * cos_t);
+    // for unpolarized light, we use the average of parallel and perpendicular terms
+    return (sq(R_pa) + sq(R_pe)) * 0.5f;
+}
+
+// Fresnel formula for reflectance of a conductive material (eg: metals)
+// (approximate)
+float fresnelConductor( float cos_i, float n, float k )
+{
+    const float nspks = sq(n) + sq(k);
+    const float cs = sq(cos_i);
+    const float nspkscs = nspks * cs;
+    float twonc = 2.0f * n * cos_i;
+    float R_pa2 = (nspkscs - twonc + 1.0f) /
+                  (nspkscs + twonc + 1.0f);
+    float R_pe2 = (nspks - twonc + cs) /
+                  (nspks + twonc + cs);
+    return (R_pa2 + R_pe2) * 0.5f;
+}
+
+

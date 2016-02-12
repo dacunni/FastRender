@@ -31,6 +31,13 @@ struct BarycentricCoordinate
 BarycentricCoordinate barycentricForPointInTriangle( const Vector4 & P,
                                                      const Vector4 & tA, const Vector4 & tB, const Vector4 & tC );
 
+// -----------------------------------------------------------------------------
+// Fresnel Equations
+//
+
+float fresnelDialectric( float cos_i, float cos_t, float n_i, float n_t );
+float fresnelConductor( float cos_i, float cos_t, float n_i, float n_t );
+
 
 
 #endif
