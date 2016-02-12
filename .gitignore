@@ -4,7 +4,9 @@ testoutput
 models
 fr
 frui
-testrandom
+test_random
+test_samplers
+test_render
 *.o
 .*.swp
 *.xcodeproj
