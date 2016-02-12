@@ -806,6 +806,137 @@ void testReflection3()
     tracer.render();
 }
 
+void testMesh1()
+{
+    int imageSize = 256;
+    //int imageSize = 320;
+    //int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize * 2, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 25 );
+    tracer.camera.xmin = -0.3;
+    tracer.camera.xmax = 0.3;
+    tracer.camera.ymin = -0.15;
+    tracer.camera.ymax = 0.15;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AssetLoader loader;
+    TriangleMesh * mesh = nullptr;
+
+    {
+        mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper.ply" );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        //mesh->material = new DiffuseMaterial( 0.75, 1.0, 0.8 );
+        //mesh->material = new MirrorMaterial();
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+    {
+        mesh = loader.load( "models/stanford/dragon/reconstruction/dragon_vrip.ply" );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( 3.0, 0.0, 0.0 ),
+                                    compose( makeScaling( 4, 4, 4 ),
+                                             makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) ) );;
+        container->add( mesh );
+    }
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap();
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_mesh1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 1.0, 15.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+void testHairball()
+{
+    //int imageSize = 32;
+    //int imageSize = 320;
+    int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AssetLoader loader;
+    TriangleMesh * mesh = nullptr;
+
+    {
+        mesh = loader.load( "models/hairball.obj" );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        //mesh->material = new DiffuseMaterial( 0.75, 1.0, 0.8 );
+        //mesh->material = new MirrorMaterial();
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+	scene->root = container;
+    //scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = new ArcLightEnvironmentMap(Vector4(1,1,0), M_PI / 4.0f);
+    tracer.scene = scene;
+
+    tracer.shader = new AmbientOcclusionShader();
+    //tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_hairball_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 1.0, 10.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -823,7 +954,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 1
+#if 0
     testRayIntersect();
     testSimpleCameraNoJitter();
     testSimpleCamera();
@@ -842,7 +973,10 @@ int main (int argc, char * const argv[])
     testReflection1();
     testReflection2();
     testReflection3();
+    testMesh1();
+    //testHairball(); // slow
 #else
+    testReflection3();
 #endif
     
     total_run_timer.stop();

@@ -7,6 +7,7 @@
 //
 
 #include <memory>
+#include <algorithm>
 #include "TMOctreeAccelerator.h"
 #include "Ray.h"
 
@@ -66,6 +67,9 @@ void TMOctreeAccelerator::buildNode( Node * node )
     
     // Don't subdivide beyond a preset limit
     const unsigned int max_triangles_per_node = 32;
+    // Require that we're making at least this much progress per child node
+    const float min_reduction_factor = 0.25;
+
     if( node->triangles.size() <= max_triangles_per_node )
         return;
     
@@ -100,13 +104,12 @@ void TMOctreeAccelerator::buildNode( Node * node )
             zb = (ci & 0x4) ? ZHIGH : ZLOW;
             perm = xb | yb | zb;
             if( !((bins & perm) ^ perm) ) {
+#if 0
 #ifdef DEBUG_BUILD_TREE
                 printf("ti=%u ci=%u perm=0x%X\n", ti, ci, perm);
 #endif
-                if( !node->children[ ci ] ) {
-#ifdef DEBUG_BUILD_TREE
-                    printf("N\n");
 #endif
+                if( !node->children[ ci ] ) {
                     node->children[ ci ] = new Node();
                     has_children = true;
                 }
@@ -114,14 +117,51 @@ void TMOctreeAccelerator::buildNode( Node * node )
             }
         }
         
+#if 0
 #ifdef DEBUG_BUILD_TREE
-        printf(">> ti %u : 0x%X\n", ti, (unsigned int) bins );
+        printf(">> ti %u : 0x%X (%u%u%u%u%u%u)\n",
+               ti, (unsigned int) bins,
+               !!(bins & XLOW), !!(bins & XHIGH),
+               !!(bins & YLOW), !!(bins & YHIGH),
+               !!(bins & ZLOW), !!(bins & ZHIGH));
+#endif
 #endif
     }
 
-    // TODO - make sure we aren't splitting without making progress
+#ifdef DEBUG_BUILD_TREE
+    printf("node triangles = %lu\n", node->triangles.size());
+#endif
     
     if( has_children ) {
+        // Make sure we aren't splitting without making progress by determining the
+        // worst reduction we see amongst the child nodes.
+
+        float worst_reduction = 1.0f;
+        for( unsigned int ci = 0; ci < 8; ci++ ) {
+            if( node->children[ci] ) {
+                unsigned long child_size = (unsigned long) node->children[ci]->triangles.size();
+                float reduction = 1.0f - (float) child_size / node->triangles.size();
+#ifdef DEBUG_BUILD_TREE
+                printf("children @ %u = %lu (%f)\n", ci, child_size, reduction);
+#endif
+                worst_reduction = std::min(reduction, worst_reduction);
+            }
+        }
+
+        if( worst_reduction < min_reduction_factor )
+        {
+#ifdef DEBUG_BUILD_TREE
+            printf("Aborting split due to insufficient reduction\n");
+#endif
+            for( unsigned int ci = 0; ci < 8; ci++ ) {
+                if( node->children[ci] ) {
+                    delete node->children[ci];
+                    node->children[ci] = nullptr;
+                }
+            }
+            return;
+        }
+
         node->triangles.clear(); // Inner nodes do not hold triangles
     }
     
