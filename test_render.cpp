@@ -1106,19 +1106,18 @@ void testMesh1()
 // Multipart mesh
 void testMesh2()
 {
-    //int imageSize = 256;
-    int imageSize = 320;
+    int imageSize = 256;
+    //int imageSize = 320;
     //int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
-    ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
+    ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
     Scene * scene = new Scene();
 	FlatContainer * container = new FlatContainer();
 
     // Ground plane at y=0
     AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
-    //floor->material = new DiffuseMaterial(1.0, 0.8, 1.0);
     container->add( floor );
 
     AssetLoader loader;
@@ -1129,8 +1128,13 @@ void testMesh2()
     container->add( meshes );
 
 	scene->root = container;
-    scene->env_map = new ArcLightEnvironmentMap();
+    //scene->env_map = new ArcLightEnvironmentMap();
     tracer.scene = scene;
+
+    scene->addPointLight( PointLight( Vector4( 12.0, 5.0, 5.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(40.0) ) );
+    scene->addPointLight( PointLight( Vector4( -15.0, 5.0, 2.0 ),
+        RGBColor( 1.0, 0.8, 1.0 ).scaled(40.0) ) );
 
     tracer.shader = new BasicDiffuseSpecularShader();
 
