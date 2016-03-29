@@ -1103,6 +1103,49 @@ void testMesh1()
     tracer.render();
 }
 
+// Multipart mesh
+void testMesh2()
+{
+    //int imageSize = 256;
+    int imageSize = 320;
+    //int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    //floor->material = new DiffuseMaterial(1.0, 0.8, 1.0);
+    container->add( floor );
+
+    AssetLoader loader;
+    auto meshes = loader.loadMultiPart( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    if( !meshes ) { fprintf( stderr, "Error loading meshes\n" ); return; }
+    meshes->transform = new Transform();
+    *meshes->transform = makeRotation( -0.5 * M_PI, Vector4( 1.0, 0.0, 0.0 ) );
+    container->add( meshes );
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap();
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_mesh2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.1 * M_PI, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 2.0, 25.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 void testHairball()
 {
     //int imageSize = 32;
@@ -1177,7 +1220,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 1
+#if 0
     testRayIntersect();
     testSimpleCameraNoJitter();
     testSimpleCamera();
@@ -1203,6 +1246,7 @@ int main (int argc, char * const argv[])
     testPointLight3();
     testPointLight4();
 #else
+    testMesh2();
 #endif
     
     total_run_timer.stop();

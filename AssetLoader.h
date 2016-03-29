@@ -11,6 +11,7 @@
 
 #include <string>
 
+class Container;
 class Traceable;
 class TriangleMesh;
 
@@ -20,6 +21,7 @@ public:
     ~AssetLoader() {}
     
     TriangleMesh * load( const std::string & filename );
+    Container * loadMultiPart( const std::string & filename );
 
 };
 
