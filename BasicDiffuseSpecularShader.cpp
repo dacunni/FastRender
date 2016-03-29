@@ -28,15 +28,42 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     new_ray.origin = add( intersection.position, offset );
     new_ray.depth = intersection.ray.depth + 1;
     const unsigned char max_depth = 4;
-    //const unsigned char max_depth = 1;
+    //const unsigned char max_depth = 2; // TEMP
+    //const unsigned char max_depth = 1; // TEMP
 
     // Asserts
-    float ray_dir_mag = intersection.ray.direction.magnitude();  
-    assert( ray_dir_mag > 0.99 && ray_dir_mag < 1.01 );
+    intersection.ray.direction.assertIsDirection();
+    intersection.ray.direction.assertIsUnity();
 
+    // Direct lighting
+    //
+    // Area lights
     //for( Traceable * traceable : scene.lights ) {
     //    // TODO - sample lights
     //}
+    // Point lights
+    for( const PointLight & light : scene.point_lights ) {
+        Vector4 to_light = subtract( light.position, intersection.position );
+        Vector4 direction = to_light.normalized();
+        direction.makeDirection();
+
+        // Shoot a ray toward the light to see if we are in shadow
+        Ray shadow_ray( intersection.position, direction );
+        if( scene.intersectsAny( shadow_ray, 0.01 ) ) {
+            continue;
+        }
+
+        // Not in shadow
+        float cos_r_n = fabs( dot( direction, intersection.normal ) ); 
+        RGBColor color = light.band_power;
+        color.scale(cos_r_n);
+        color.scale(1.0f / to_light.magnitude_sq()); // distance falloff
+        // TODO: use actual material parameters properly so we can get specular here, too
+        if( intersection.material )
+            direct_contrib.accum( mult( color, intersection.material->diffuse ) );
+        else
+            direct_contrib.accum( color );
+    }
 
     if( intersection.ray.depth < max_depth ) {
         // TODO - How best should we choose between diffuse and specular?
@@ -48,9 +75,17 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_intersection = RayIntersection();
             new_intersection.min_distance = 0.01;
             Vector4 from_dir = intersection.ray.direction;
+            //printf("*** from_dir     ="); from_dir.print(); // TEMP
+            intersection.normal.assertIsUnity(); // TEMP
+            intersection.normal.assertIsDirection(); // TEMP
+            //printf("*** normal       ="); intersection.normal.print(); // TEMP
             from_dir.negate();
+            from_dir.assertIsUnity(); // TEMP
+            from_dir.assertIsDirection(); // TEMP
             new_ray.direction = mirror( from_dir, intersection.normal );
-            new_ray.direction.makeDirection();
+            //printf("new_ray depth=%d d=", new_ray.depth); new_ray.direction.print(); // TEMP
+            new_ray.direction.assertIsUnity(); // TEMP
+            new_ray.direction.assertIsDirection(); // TEMP
 
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX ) {
@@ -66,6 +101,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             // Diffuse
             rng.uniformSurfaceUnitHalfSphere( intersection.normal, new_ray.direction );
             new_ray.direction.makeDirection();
+
+            new_ray.direction.assertIsDirection();
+            new_ray.direction.assertIsUnity();
 
             new_intersection = RayIntersection();
             new_intersection.min_distance = 0.01;
@@ -105,6 +143,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     }
     else {
         intersection.sample.color = diffuse_contrib;
+        intersection.sample.color.accum( direct_contrib );
     }
 }
 

@@ -57,6 +57,10 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 
 bool Scene::intersectsAny( const Ray & ray, float min_distance ) const
 {
+    // Asserts
+    ray.direction.assertIsUnity();
+    ray.direction.assertIsDirection();
+
 	if( root != 0 && root->intersectsAnyTransformed( ray, min_distance ) ) {
         return true;
 	}
@@ -73,7 +77,9 @@ void Scene::buildLightList()
     printf("Finding lights in the scene\n");
     lights.clear();
     addLightsForTraceable( root );    
-    printf("Found %u lights\n", (unsigned int ) lights.size());
+    printf("Found %u area lights\n", (unsigned int) lights.size());
+    // TODO[DAC]: Handle point lights buried within the scene hierarchy
+    printf("Found %u point lights\n", (unsigned int) point_lights.size());
 }
 
 void Scene::addLightsForTraceable( Traceable * obj )
