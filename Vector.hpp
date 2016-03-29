@@ -9,6 +9,8 @@
 #ifndef FastRender_Vector_hpp
 #define FastRender_Vector_hpp
 
+#include <cmath>
+
 inline Vector4::Vector4()
     : x(0.0f), y(0.0f), z(0.0f), w(1.0f)
 {
@@ -144,19 +146,16 @@ inline Vector4 perspective_scale( const Vector4 & a )
 //
 inline void mirror( const Vector4 & a, const Vector4 & n, Vector4 & r )
 {
-    Vector4 NtwoAdotN;
     float twoAdotN = 2.0f * dot( a, n );
-    scale( n, twoAdotN, NtwoAdotN );
-    subtract( NtwoAdotN, a, r );
+    Vector4 NtwoAdotN = scale( n, twoAdotN );
+    r = subtract( NtwoAdotN, a );
+    r.makeDirection();
 }
 
 inline Vector4 mirror( const Vector4 & a, const Vector4 & n )
 {
-    Vector4 NtwoAdotN;
     Vector4 r;
-    float twoAdotN = 2.0f * dot( a, n );
-    scale( n, twoAdotN, NtwoAdotN );
-    subtract( NtwoAdotN, a, r );
+    mirror( a, n, r );
     return r;
 }
 
