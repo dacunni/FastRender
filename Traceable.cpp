@@ -42,17 +42,27 @@ bool Traceable::intersectTransformed( const Ray & ray, RayIntersection & interse
         tray.origin = mult( transform->rev, ray.origin );
         // Fix direction W in case other code is sloppy
         Vector4 dir = ray.direction;
-        dir.w = 0.0;
+        dir.normalize();
+        dir.makeDirection();
         tray.direction = mult( transform->rev, dir );
         tray.direction.normalize();
+        tray.direction.makeDirection();
         bool hit = intersect( tray, intersection );
         if( hit ) {
             intersection.position = mult( transform->fwd, intersection.position );
             intersection.distance = subtract( intersection.position, ray.origin ).magnitude();
+
             // Set normal W to be 0, since vector math elsewhere may be sloppy about this
             intersection.normal.w = 0;
+            intersection.normal.assertIsDirection();
+            intersection.normal.assertIsUnity();
+
             intersection.normal = mult( transform->fwd, intersection.normal );
-            // TODO - add strategic asserts to make sure normals have proper w=0
+            intersection.normal.normalize();
+            intersection.normal.assertIsDirection();
+
+            // Record the untransformed ray in the intersection
+            intersection.ray = ray;
         }
         return hit;
     }
@@ -69,6 +79,7 @@ bool Traceable::intersectsAnyTransformed( const Ray & ray, float min_distance ) 
         tray.origin = mult( transform->rev, ray.origin );
         tray.direction = mult( transform->rev, ray.direction );
         tray.direction.normalize();
+        tray.direction.makeDirection();
         return intersectsAny( tray, min_distance );
     }
     else {
