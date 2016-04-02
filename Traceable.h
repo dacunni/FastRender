@@ -24,6 +24,8 @@ class Traceable {
 public:
 	Traceable();
     virtual ~Traceable();
+
+    virtual void updateAnim( float t );
 	
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const = 0;
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;

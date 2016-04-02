@@ -26,6 +26,11 @@ Scene::~Scene()
 
 }
 
+void Scene::updateAnim( float t )
+{
+    root->updateAnim(t);
+}
+
 bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
     // Asserts

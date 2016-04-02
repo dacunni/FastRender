@@ -1291,6 +1291,156 @@ void testHairball()
 
 
 // ------------------------------------------------------------ 
+// Animation
+// ------------------------------------------------------------ 
+void testAnimTransforms1()
+{
+    int imageSize = 512;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 10;
+    int num_frames = 15;
+    ImageTracer tracer( imageWidth, imageHeight, num_frames, rays_per_pixel );
+    tracer.loopable_animations = true;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AssetLoader loader;
+    std::string modelBasePath = "models";
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+
+    if( !mesh ) {
+        fprintf( stderr, "Error loading mesh\n" );
+        return;
+    }
+
+    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+    mesh->material = new MirrorMaterial();
+
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    float ymin = bounds->ymin;
+    mesh->transform = new TimeVaryingTransform(
+        [ymin](float anim_progress) {
+            return compose( makeScaling( 2, 2, 2 ),
+                            makeRotation( anim_progress * 2.0 * M_PI, Vector4(0, 1, 0) ),
+                            makeTranslation( Vector4( 0.0, -ymin, 0.0 ) ) );
+        });
+    container->add( mesh );
+
+    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
+
+    // colored balls to see if we are gettingn proper reflections
+    auto s = new Sphere( -1.25, 0.25, 0.75, 0.25 );
+    s->material = new DiffuseMaterial(1, 1, 0);
+    container->add( s );
+    s = new Sphere( 1.25, 0.25, 0.75, 0.25 );
+    s->material = new DiffuseMaterial(0, 1, 0);
+    container->add( s );
+    s = new Sphere( 0.0, 0.25, 3.0, 0.25 );
+    s->material = new DiffuseMaterial(0, 1, 1);
+    container->add( s );
+
+    auto cube = new AxisAlignedSlab( 0.8, 0, 2.0, 0.5 );
+    cube->material = new DiffuseMaterial( 1.0, 0.2, 0.2 );
+    container->add( cube );
+
+    scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );
+    scene->addPointLight( PointLight( Vector4( 13.0, 15.0, 20.0 ),
+        RGBColor( 1.0, 0.4, 0.4 ).scaled(150.0) ) );
+    scene->addPointLight( PointLight( Vector4( 0.0, 20.0, 15.0 ),
+        RGBColor( 0.4, 0.4, 1.0 ).scaled(150.0) ) );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_anim_xforms1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+void testAnimTransforms2()
+{
+    //int imageSize = 512;
+    int imageSize = 256;
+    //int imageSize = 128;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 30;
+    int num_frames = 30;
+    //int num_frames = 1;
+    ImageTracer tracer( imageWidth, imageHeight, num_frames, rays_per_pixel );
+    tracer.loopable_animations = true;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, -2.0, +10.0,
+                                                   +10.0, -3.0, -10.0 );
+    container->add( floor );
+
+    auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( -2.0, 0.0, 0.0 ) ),
+                            makeRotation( (anim_progress - 0.4) * 2.0 * M_PI, Vector4(1, 0, 0) ) );
+        });
+    container->add( cube );
+    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( 0.0, 0.0, 0.0 ) ),
+                            makeRotation( (anim_progress - 0.4) * 2.0 * M_PI, Vector4(0, 1, 0) ) );
+        });
+    container->add( cube );
+    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( +2.0, 0.0, 0.0 ) ),
+                            makeRotation( (anim_progress - 0.4) * 2.0 * M_PI, Vector4(0, 0, 1) ) );
+        });
+    container->add( cube );
+
+    scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(100.0) ) );
+    scene->addPointLight( PointLight( Vector4( 5.0, 10.0, 5.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(100.0) ) );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_anim_xforms2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+
+// ------------------------------------------------------------ 
 // Test runner
 // ------------------------------------------------------------ 
 int main (int argc, char * const argv[]) 
@@ -1333,8 +1483,9 @@ int main (int argc, char * const argv[])
     testPointLight2();
     testPointLight3();
     testPointLight4();
+    testAnimTransforms1();
 #else
-    testPointLight4();
+    testAnimTransforms2();
 #endif
     
     total_run_timer.stop();

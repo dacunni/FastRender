@@ -23,6 +23,8 @@ public:
 		
     virtual Traceable * at( int index ) = 0;
     virtual int size() = 0;
+
+    virtual void updateAnim( float t );
 };
 
 #endif

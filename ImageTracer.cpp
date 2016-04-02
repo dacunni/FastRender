@@ -40,6 +40,7 @@ void ImageTracer::render()
     image_flush_timer.start();
     float min_flush_period = 5.0; // seconds
     for( unsigned int frame = 0; frame < num_frames; ++frame ) {
+        printf("FRAME %4d / %4d\n", frame + 1, num_frames);
         beginFrame( frame );
         for( unsigned int row = 0; row < image_height; ++row ) {
             if( row % (image_height / 10) == 0
@@ -71,15 +72,25 @@ void ImageTracer::render()
 
 void ImageTracer::beginFrame( unsigned int frame_index )
 {
-    if( num_frames > 1 )
-        anim_progress = (float) frame_index / (num_frames - 1);
-    else
+    if( num_frames > 1 ) {
+        // For non-loopable animation, anim_progress = 1.0 on the last frame
+        if( loopable_animations ) {
+            anim_progress = (float) frame_index / num_frames;
+        }
+        else {
+            anim_progress = (float) frame_index / (num_frames - 1);
+        }
+    }
+    else {
         anim_progress = 0.0f;
+    }
 
     if( camera_transform_cb ) {
         camera.transform = camera_transform_cb( anim_progress );
     }
     //camera.transform.print();
+
+    scene->updateAnim( anim_progress );
 }
 
 void ImageTracer::endFrame( unsigned int frame_index )

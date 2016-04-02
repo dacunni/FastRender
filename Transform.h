@@ -21,6 +21,8 @@ public:
 
     // Destructors
     virtual ~Transform();
+
+    virtual void updateAnim( float t ) {}
     
     // Returns a new Transform that is the inverse of this Transform
     Transform inverse() const { return Transform( rev, fwd ); }
@@ -33,6 +35,17 @@ public:
     // Members
     Matrix4x4 fwd;      // Forward transformation
     Matrix4x4 rev;      // Reverse transformation
+};
+
+class TimeVaryingTransform : public Transform
+{
+public:
+    TimeVaryingTransform( const std::function<Transform(float)> & cb )
+        { update_cb = cb; }
+    virtual ~TimeVaryingTransform() {}
+
+    virtual void updateAnim( float t ) { Transform xform = update_cb(t); fwd = xform.fwd; rev = xform.rev; };
+    std::function<Transform(float)> update_cb;
 };
 
 // Composes two Transforms into one. Assumes t2 is applied before t1.

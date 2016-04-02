@@ -45,6 +45,9 @@ class ImageTracer
         unsigned int num_frames;
         unsigned int rays_per_pixel;
 
+        // If true, will adjust animation interpolant to make animation loops seemless
+        bool loopable_animations = false;
+
     protected:
         // Frame rendering
         // Blend factor from 0.0 to 1.0 throughout animation

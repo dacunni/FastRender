@@ -39,6 +39,8 @@ public:
 	Scene();
 	~Scene();
 
+    void updateAnim( float t );
+
 	bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 	bool intersectsAny( const Ray & ray, float min_distance ) const;
 

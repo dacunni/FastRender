@@ -28,6 +28,13 @@ Traceable::~Traceable()
         delete transform;
 }
 
+void Traceable::updateAnim( float t )
+{
+    if( transform ) {
+        transform->updateAnim(t);
+    }
+}
+
 bool Traceable::intersectsAny( const Ray & ray, float min_distance ) const
 {
     RayIntersection intersection;

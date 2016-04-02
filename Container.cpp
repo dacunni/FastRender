@@ -16,3 +16,10 @@ void Container::add( Traceable * traceable, Material * material )
     add( traceable );
 }
 
+void Container::updateAnim( float t )
+{
+    auto size = this->size();
+    for( int i = 0; i < size; i++ ) {
+        at(i)->updateAnim(t);
+    }
+}
