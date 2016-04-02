@@ -36,12 +36,18 @@ ImageTracer::~ImageTracer()
 
 void ImageTracer::render()
 {
+    Timer image_flush_timer;
+    image_flush_timer.start();
+    float min_flush_period = 5.0; // seconds
     for( unsigned int frame = 0; frame < num_frames; ++frame ) {
         beginFrame( frame );
         for( unsigned int row = 0; row < image_height; ++row ) {
-            if( row % (image_height / 10) == 0 ) {
+            if( row % (image_height / 10) == 0
+                || image_flush_timer.elapsed() > min_flush_period )
+            {
                 printf("ROW %d / %d\n", row, image_height);
                 artifacts.flush();
+                image_flush_timer.start(); // reset timer
             }
             for( unsigned int col = 0; col < image_width; ++col ) {
                 beginRenderPixel( row, col );
@@ -54,11 +60,7 @@ void ImageTracer::render()
         endFrame( frame );
     }
 
-    Timer image_flush_timer;
-    image_flush_timer.start();
     artifacts.flush();
-    image_flush_timer.stop();
-    printf( "Image write: %f seconds\n", image_flush_timer.elapsed() );
     
     printf( "Intersection tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu\n",
            AxisAlignedSlab::intersection_test_count,
