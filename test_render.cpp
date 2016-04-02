@@ -1106,6 +1106,7 @@ void testMesh1()
 // Multipart mesh
 void testMesh2()
 {
+    //int imageSize = 100;
     int imageSize = 256;
     //int imageSize = 320;
     //int imageSize = 512;
@@ -1121,7 +1122,8 @@ void testMesh2()
     container->add( floor );
 
     AssetLoader loader;
-    auto meshes = loader.loadMultiPart( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    //auto meshes = loader.loadMultiPart( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    auto meshes = loader.loadMultiPartMerged( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
     if( !meshes ) { fprintf( stderr, "Error loading meshes\n" ); return; }
     meshes->transform = new Transform();
     *meshes->transform = makeRotation( -0.5 * M_PI, Vector4( 1.0, 0.0, 0.0 ) );
@@ -1132,7 +1134,7 @@ void testMesh2()
     tracer.scene = scene;
 
     scene->addPointLight( PointLight( Vector4( 12.0, 5.0, 5.0 ),
-        RGBColor( 1.0, 1.0, 1.0 ).scaled(40.0) ) );
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(60.0) ) );
     scene->addPointLight( PointLight( Vector4( -15.0, 5.0, 2.0 ),
         RGBColor( 1.0, 0.8, 1.0 ).scaled(40.0) ) );
 
@@ -1149,6 +1151,86 @@ void testMesh2()
     tracer.scene->buildLightList();
     tracer.render();
 }
+
+// Big multipart mesh
+void testMesh3()
+{
+    //int imageSize = 50;
+    //int imageSize = 100;
+    int imageSize = 256;
+    //int imageSize = 320;
+    //int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    //ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
+    ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    //AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    //                                               +10.0, -1.0, -10.0 );
+    //container->add( floor );
+
+    AssetLoader loader;
+    auto mesh = loader.loadMultiPart( "models/san-miguel/san-miguel.obj" );
+    //auto mesh = loader.loadMultiPartMerged( "models/san-miguel/san-miguel.obj" );
+    if( !mesh ) { fprintf( stderr, "Error loading meshes\n" ); return; }
+    //AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    mesh->transform = new Transform();
+    //float scale = 35.0;
+    float scale = 1.0;
+    *mesh->transform = compose( makeScaling( scale, scale, scale ),
+                                makeRotation( M_PI / 2, Vector4( 0.0, 1.0, 0.0 ) )//,
+                              );
+                               // makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    container->add( mesh );
+
+    auto s = new Sphere( -1.25, 0.25, 0.75, 0.25 );
+    s->material = new DiffuseMaterial(1, 1, 0);
+    container->add( s );
+    s = new Sphere( 1.25, 0.25, 0.75, 0.25 );
+    s->material = new DiffuseMaterial(0, 1, 0);
+    container->add( s );
+    s = new Sphere( 0.0, 0.25, 3.0, 0.25 );
+    s->material = new DiffuseMaterial(0, 1, 1);
+    container->add( s );
+
+    scene->addPointLight( PointLight( Vector4( 20.0, 20.0, -15.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );
+    scene->addPointLight( PointLight( Vector4( 20.0, 20.0, 10.0 ),
+        RGBColor( 1.0, 0.4, 0.4 ).scaled(1500.0) ) );
+    scene->addPointLight( PointLight( Vector4( 0.0, 20.0, 15.0 ),
+        RGBColor( 0.4, 0.4, 1.0 ).scaled(150.0) ) );
+
+	scene->root = container;
+    //scene->env_map = new ArcLightEnvironmentMap();
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_mesh3_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+#if 0 // TEMP
+    Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 100.0 );
+    tracer.setCameraTransform( compose( makeTranslation( 1.8, 0.0, -40.0 ),
+                                        rotation,
+                                        translation ) );
+#else
+    Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 30.0 );
+    tracer.setCameraTransform( compose( makeTranslation( 1.8, 0.0, -40.0 ),
+                                        rotation,
+                                        translation ) );
+#endif
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 
 void testHairball()
 {
@@ -1244,13 +1326,15 @@ int main (int argc, char * const argv[])
     testReflection2();
     testReflection3();
     testMesh1();
-    //testHairball(); // slow
+    testMesh2();
+    //testMesh3();      // TODO: slow - san miguel scene
+    //testHairball();   // TODO: slow
     testPointLight1();
     testPointLight2();
     testPointLight3();
     testPointLight4();
 #else
-    testMesh2();
+    testPointLight4();
 #endif
     
     total_run_timer.stop();
