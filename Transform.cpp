@@ -60,6 +60,11 @@ Transform compose( const Transform & t1, const Transform & t2, const Transform &
     return compose( t1, compose( t2, t3 ) );
 }
 
+Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4 )
+{
+    return compose( compose( t1, t2 ), compose( t3, t4 ) );
+}
+
 // Create a rotation Transform from angle and axis
 Transform makeRotation( float angle, const Vector4 & axis )
 {
