@@ -1439,6 +1439,72 @@ void testAnimTransforms2()
     tracer.render();
 }
 
+void testAnimTransforms3()
+{
+    //int imageSize = 512;
+    //int imageSize = 256;
+    int imageSize = 128;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 10;
+    int num_frames = 10;
+    //int num_frames = 1;
+    ImageTracer tracer( imageWidth, imageHeight, num_frames, rays_per_pixel );
+    tracer.loopable_animations = true;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, -2.0, +10.0,
+                                                   +10.0, -3.0, -10.0 );
+    container->add( floor );
+
+    auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube->material = new MirrorMaterial();
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( -2.0, 0.0, 0.0 ) ),
+                            makeRotation( (anim_progress - 0.4) * 0.5 * M_PI, Vector4(1, 0, 0) ) );
+        });
+    container->add( cube );
+    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube->material = new MirrorMaterial();
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( 0.0, 0.0, 0.0 ) ),
+                            makeRotation( (anim_progress - 0.4) * 0.5 * M_PI, Vector4(0, 1, 0) ) );
+        });
+    container->add( cube );
+    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube->material = new MirrorMaterial();
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( +2.0, 0.0, 0.0 ) ),
+                            makeRotation( (anim_progress - 0.4) * 0.5 * M_PI, Vector4(0, 0, 1) ) );
+        });
+    container->add( cube );
+
+    scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(100.0) ) );
+    scene->addPointLight( PointLight( Vector4( 5.0, 10.0, 5.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(100.0) ) );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_anim_xforms3_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 // ------------------------------------------------------------ 
 // Area Lights
 // ------------------------------------------------------------ 
@@ -1622,8 +1688,9 @@ int main (int argc, char * const argv[])
     testAnimTransforms1();
     testAnimTransforms2();
     testAreaLight1();
-#else
     testAreaLight2();
+#else
+    testAnimTransforms3();
 #endif
     
     total_run_timer.stop();
