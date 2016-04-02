@@ -21,7 +21,8 @@ public:
     ~AssetLoader() {}
     
     TriangleMesh * load( const std::string & filename );
-    Container * loadMultiPart( const std::string & filename );
+    Container *    loadMultiPart( const std::string & filename );
+    TriangleMesh * loadMultiPartMerged( const std::string & filename );
 
 };
 
