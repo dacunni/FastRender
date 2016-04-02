@@ -1439,6 +1439,142 @@ void testAnimTransforms2()
     tracer.render();
 }
 
+// ------------------------------------------------------------ 
+// Area Lights
+// ------------------------------------------------------------ 
+void testAreaLight1()
+{
+    //int imageSize = 512;
+    int imageSize = 256;
+    //int imageSize = 128;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 100;
+    ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, 0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    //cube->material = new MirrorMaterial();
+    cube->transform = new Transform();
+    *cube->transform = compose( makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ),
+                                makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
+    container->add( cube );
+
+    // Light
+    cube = new AxisAlignedSlab( 2.0, 2.5, -2.25,
+                                3.0, 3.5,  2.25 );
+    cube->material = new Material();
+    cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
+    cube->material->emittance.scale( 5.0 );
+    container->add( cube );
+
+    ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0, 1, 0), M_PI / 2.0 );
+    env_map->setPower( 10.0f );
+    scene->env_map = env_map;
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_area_light1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+// Caustics
+void testAreaLight2()
+{
+    //int imageSize = 512;
+    int imageSize = 256;
+    //int imageSize = 128;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 1000;
+    ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, 0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AxisAlignedSlab * cube = nullptr;
+
+#if 0
+    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    //cube->material = new MirrorMaterial();
+    cube->transform = new Transform();
+    *cube->transform = compose( makeTranslation( Vector4( -0.8, 0.5, 0.0 ) ),
+                                makeRotation( -0.1 * M_PI, Vector4(0, 1, 0) ) );
+    container->add( cube );
+#endif
+
+    int num_cubes = 20;
+    float min_angle = -M_PI / 2.0;
+    float max_angle = M_PI / 2.0;
+    for( int i = 0; i < num_cubes; i++ ) {
+        float angle = (float) i / (num_cubes-1) * (max_angle - min_angle) + min_angle;
+        cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+        cube->material = new MirrorMaterial();
+        cube->transform = new Transform();
+        *cube->transform = compose( makeRotation( angle, Vector4(0, 1, 0) ),
+                                    makeTranslation( Vector4( -2.0, 0.5, 0.0 ) ),
+                                    makeScaling( 0.1, 1.0, 0.4 ) );
+        container->add( cube );
+    }
+
+#if 0
+    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube->transform = new Transform();
+    *cube->transform = compose( makeTranslation( Vector4( 0.8, 0.5, 0.0 ) ),
+                                makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
+    container->add( cube );
+#endif
+
+
+    // Light
+    cube = new AxisAlignedSlab( 2.0, 2.5, -2.25,
+                                3.0, 3.5,  2.25 );
+    cube->material = new Material();
+    cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
+    cube->material->emittance.scale( 5.0 );
+    container->add( cube );
+
+    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0, 1, 0), M_PI / 2.0 );
+    //env_map->setPower( 10.0f );
+    //scene->env_map = env_map;
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+    //tracer.shader = new AmbientOcclusionShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_area_light2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 4, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -1484,8 +1620,10 @@ int main (int argc, char * const argv[])
     testPointLight3();
     testPointLight4();
     testAnimTransforms1();
-#else
     testAnimTransforms2();
+    testAreaLight1();
+#else
+    testAreaLight2();
 #endif
     
     total_run_timer.stop();
