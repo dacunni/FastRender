@@ -14,6 +14,16 @@
 // Uncomment to enable debug printfs
 //#define DEBUG_BUILD_TREE
 
+#ifdef DEBUG_BUILD_TREE
+// TODO[DAC]: Put these in the instance so we can get stats for every octree separately
+static int debug_depth = 0;
+static int debug_max_depth = 0;
+static int debug_num_inner_nodes = 0;
+static int debug_num_leaves = 0;
+static int debug_num_nodes = 0;
+static float debug_average_depth = 0;
+#endif
+
 TMOctreeAccelerator::TMOctreeAccelerator( TriangleMesh & m )
 :   TriangleMeshAccelerator(m)
 {
@@ -42,6 +52,13 @@ TMOctreeAccelerator::Node::~Node()
 
 void TMOctreeAccelerator::build()
 {
+#ifdef DEBUG_BUILD_TREE
+    debug_max_depth = 0;
+    debug_num_leaves = 0;
+    debug_num_inner_nodes = 0;
+    debug_num_nodes = 0;
+    debug_average_depth = 0;
+#endif
     AxisAlignedSlab * full_bounds = mesh.getAxisAlignedBounds();
     root.bounds = *full_bounds;
     delete full_bounds;
@@ -59,10 +76,28 @@ void TMOctreeAccelerator::build()
     }
     
     buildNode( &root );
+#ifdef DEBUG_BUILD_TREE
+    debug_num_leaves = debug_num_nodes - debug_num_inner_nodes;
+    debug_average_depth /= (float) debug_num_nodes;
+    printf("TMOctreeAccelerator::build() summary:\n");
+    printf("    max depth = %d\n", debug_max_depth);
+    printf("    num leaves = %d\n", debug_num_leaves);
+    printf("    num inner = %d\n", debug_num_inner_nodes);
+    printf("    num nodes = %d\n", debug_num_nodes);
+    printf("    avg depth = %f\n", debug_average_depth);
+#endif
 }
 
 void TMOctreeAccelerator::buildNode( Node * node )
 {
+#ifdef DEBUG_BUILD_TREE
+    debug_num_nodes++;
+    debug_depth++;
+    debug_average_depth += 1.0f;
+    if( debug_depth > debug_max_depth ) {
+        debug_max_depth = debug_depth;
+    }
+#endif
     bool has_children = false;
     
     // Don't subdivide beyond a preset limit
@@ -70,8 +105,12 @@ void TMOctreeAccelerator::buildNode( Node * node )
     // Require that we're making at least this much progress per child node
     const float min_reduction_factor = 0.25;
 
-    if( node->triangles.size() <= max_triangles_per_node )
+    if( node->triangles.size() <= max_triangles_per_node ) {
+#ifdef DEBUG_BUILD_TREE
+        debug_depth--;
+#endif
         return;
+    }
     
     // Determine splitting planes
     float xsplit = (node->bounds.xmin + node->bounds.xmax) * 0.5f;
@@ -159,10 +198,17 @@ void TMOctreeAccelerator::buildNode( Node * node )
                     node->children[ci] = nullptr;
                 }
             }
+#ifdef DEBUG_BUILD_TREE
+            debug_depth--;
+#endif
             return;
         }
 
         node->triangles.clear(); // Inner nodes do not hold triangles
+#ifdef DEBUG_BUILD_TREE
+        debug_num_nodes++;
+        debug_num_inner_nodes++;
+#endif
     }
     
     for( unsigned int ci = 0; ci < 8; ci++ ) {
@@ -190,6 +236,9 @@ void TMOctreeAccelerator::buildNode( Node * node )
             buildNode( child );
         }
     }
+#ifdef DEBUG_BUILD_TREE
+    debug_depth--;
+#endif
 }
 
 
@@ -276,19 +325,19 @@ void TMOctreeAccelerator::Node::print( FILE * file, unsigned int level )
     bool isleaf = triangles.size() > 0;
     std::string prefix( level, '\t' );
     fprintf( file, "%sNode - level: %2u, type: %s, tri: %4lu, bb: %+5f:%+5f, %+5f:%+5f, %+5f:%+5f\n",
-            prefix.c_str(), level, isleaf ? "LEAF" : "INNER",
-            (unsigned long) triangles.size(),
-            bounds.xmin, bounds.xmax,
-            bounds.ymin, bounds.ymax,
-            bounds.zmin, bounds.zmax
-            );
+             prefix.c_str(), level, isleaf ? "LEAF" : "INNER",
+             (unsigned long) triangles.size(),
+             bounds.xmin, bounds.xmax,
+             bounds.ymin, bounds.ymax,
+             bounds.zmin, bounds.zmax
+           );
     if( !isleaf ) {
         for( unsigned int ci = 0; ci < 8; ci++ ) {
             if( children[ci] ) {
                 fprintf( file, "%s children[ %u ] (%s, %s, %s):\n", prefix.c_str(), ci,
-                        ((ci & 0x1) ? "XH" : "XL"),
-                        ((ci & 0x2) ? "YH" : "YL"),
-                        ((ci & 0x4) ? "ZH" : "ZL") );
+                         ((ci & 0x1) ? "XH" : "XL"),
+                         ((ci & 0x2) ? "YH" : "YL"),
+                         ((ci & 0x4) ? "ZH" : "ZL") );
                 children[ci]->print( file, level + 1 );
             }
         }
