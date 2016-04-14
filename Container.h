@@ -21,8 +21,10 @@ public:
 	virtual void add( Traceable * traceable ) = 0;
 	void add( Traceable * traceable, Material * material );
 		
-    virtual Traceable * at( int index ) = 0;
-    virtual int size() = 0;
+    virtual Traceable * at( int index ) const = 0;
+    virtual int size() const = 0;
+
+    virtual AxisAlignedSlab * getAxisAlignedBounds() const;
 
     virtual void updateAnim( float t );
 };

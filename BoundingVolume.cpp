@@ -6,9 +6,16 @@
 //
 //
 
+#include <iostream>
+
 #include "BoundingVolume.h"
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
+
+BoundingVolume::BoundingVolume( Traceable * o )
+{
+    buildAxisAligned(o);
+}
 
 bool BoundingVolume::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
@@ -39,11 +46,17 @@ bool BoundingVolume::intersectsAny( const Ray & ray, float min_distance ) const
 
 void BoundingVolume::buildAxisAligned( Traceable * o )
 {
-    if( !o )
+    if( !o ) {
         return;
+    }
     
     object = o;    
     bound = o->getAxisAlignedBounds();
+}
+
+AxisAlignedSlab * BoundingVolume::getAxisAlignedBounds() const
+{
+    return new AxisAlignedSlab(*static_cast<AxisAlignedSlab*>(bound)); 
 }
 
 void BoundingVolume::print( FILE * file ) const

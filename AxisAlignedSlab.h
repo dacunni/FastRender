@@ -27,6 +27,8 @@ public:
     float ydim() const { return ymax - ymin; }
     float zdim() const { return zmax - zmin; }
     float maxdim() const;
+
+    float volume() const { return xdim() * ydim() * zdim(); }
     
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
@@ -37,5 +39,7 @@ public:
                                                         // objects of this class
     virtual void print( FILE * file = stdout ) const;
 };
+
+AxisAlignedSlab merge( const AxisAlignedSlab & a, const AxisAlignedSlab & b );
 
 #endif /* defined(__FastRender__AxisAlignedSlab__) */

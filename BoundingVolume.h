@@ -15,12 +15,15 @@ class BoundingVolume : public Traceable
 {
 public:
     BoundingVolume() {}
+    BoundingVolume( Traceable * o );
     virtual ~BoundingVolume() {}
 
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
     void buildAxisAligned( Traceable * o );
+
+    virtual AxisAlignedSlab * getAxisAlignedBounds() const;
 
     virtual void print( FILE * file = stdout ) const;
     

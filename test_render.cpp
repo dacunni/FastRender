@@ -1122,8 +1122,8 @@ void testMesh2()
     container->add( floor );
 
     AssetLoader loader;
-    //auto meshes = loader.loadMultiPart( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
-    auto meshes = loader.loadMultiPartMerged( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    auto meshes = loader.loadMultiPart( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    //auto meshes = loader.loadMultiPartMerged( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
     if( !meshes ) { fprintf( stderr, "Error loading meshes\n" ); return; }
     meshes->transform = new Transform();
     *meshes->transform = makeRotation( -0.5 * M_PI, Vector4( 1.0, 0.0, 0.0 ) );
@@ -1157,13 +1157,13 @@ void testMesh3()
 {
     //int imageSize = 50;
     //int imageSize = 100;
-    int imageSize = 256;
+    //int imageSize = 256;
     //int imageSize = 320;
-    //int imageSize = 512;
+    int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
-    //ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
-    ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
+    ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
+    //ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
     Scene * scene = new Scene();
 	FlatContainer * container = new FlatContainer();
 
@@ -1199,9 +1199,9 @@ void testMesh3()
     scene->addPointLight( PointLight( Vector4( 20.0, 20.0, -15.0 ),
         RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );
     scene->addPointLight( PointLight( Vector4( 20.0, 20.0, 10.0 ),
-        RGBColor( 1.0, 0.4, 0.4 ).scaled(1500.0) ) );
-    scene->addPointLight( PointLight( Vector4( 0.0, 20.0, 15.0 ),
-        RGBColor( 0.4, 0.4, 1.0 ).scaled(150.0) ) );
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(1300.0) ) );
+    scene->addPointLight( PointLight( Vector4( 0.0, 20.0, 5.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(500.0) ) );
 
 	scene->root = container;
     //scene->env_map = new ArcLightEnvironmentMap();
@@ -1222,7 +1222,7 @@ void testMesh3()
 #else
     Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
     Transform translation = makeTranslation( 0.0, 0.0, 30.0 );
-    tracer.setCameraTransform( compose( makeTranslation( 1.8, 0.0, -40.0 ),
+    tracer.setCameraTransform( compose( makeTranslation( 1.8, -2.0, -40.0 ),
                                         rotation,
                                         translation ) );
 #endif
@@ -1691,7 +1691,8 @@ int main (int argc, char * const argv[])
     testAreaLight1();
     testAreaLight2();
 #else
-    testAnimTransforms3();
+    //testMesh2();
+    testMesh3();      // TODO: slow - san miguel scene
 #endif
     
     total_run_timer.stop();

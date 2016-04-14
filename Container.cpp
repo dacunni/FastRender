@@ -8,6 +8,7 @@
  */
 
 #include "Container.h"
+#include "AxisAlignedSlab.h"
 
 
 void Container::add( Traceable * traceable, Material * material )
@@ -22,4 +23,15 @@ void Container::updateAnim( float t )
     for( int i = 0; i < size; i++ ) {
         at(i)->updateAnim(t);
     }
+}
+
+AxisAlignedSlab * Container::getAxisAlignedBounds() const
+{
+    AxisAlignedSlab * bounds = new AxisAlignedSlab( *at(0)->getAxisAlignedBounds() );
+    auto size = this->size();
+    for( int i = 1; i < size; i++ ) {
+        *bounds = merge( *bounds, *at(i)->getAxisAlignedBounds() );
+    }
+
+    return bounds;
 }

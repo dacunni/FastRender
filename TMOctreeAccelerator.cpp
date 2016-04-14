@@ -254,8 +254,6 @@ bool TMOctreeAccelerator::intersectsAny( const Ray & ray, float min_distance ) c
 
 bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & intersection, TriangleMesh & mesh, unsigned int level ) const
 {
-    bool isleaf = triangles.size() > 0;
-
     // Early rejection test for bounding box intersection
     if( !bounds.intersectsAny( ray, intersection.min_distance ) ) {
         return false;
@@ -268,6 +266,8 @@ bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & in
     }
     // TEMP <<<
 #endif
+
+    bool isleaf = triangles.size() > 0;
 
     if( isleaf ) {
         // For leaf nodes, we check for intersections with the triangle list

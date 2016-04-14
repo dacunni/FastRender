@@ -7,6 +7,7 @@ HDR = \
 	BasicDiffuseSpecularShader.h \
     Boolean.h \
 	BoundingVolume.h \
+	BoundingVolumeHierarchy.h \
 	Color.h \
 	Container.h \
     DistributionSamplers.h \
@@ -39,6 +40,7 @@ OBJ = \
 	BasicDiffuseSpecularShader.o \
     Boolean.o \
 	BoundingVolume.o \
+	BoundingVolumeHierarchy.o \
 	Container.o \
     DistributionSamplers.o \
     EnvironmentMap.o \
@@ -73,6 +75,11 @@ test_renderOBJ = $(OBJ) \
 test_samplersOBJ = $(OBJ) \
 	test_samplers.o
 
+UNAME_S := $(shell uname -s)
+
+#
+# Compiler flags
+#
 INC = -I/usr/local/include
 INC += -I/usr/include/ImageMagick
 INC += -I/usr/local/include/ImageMagick-6
@@ -80,20 +87,33 @@ CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
 CXXFLAGS += -g
-# TODO: check for MacOS
-#CXXFLAGS += -mmacosx-version-min=10.10
+# Uncomment to disable asserts
+#CXXFLAGS += -DNDEBUG
+ifeq ($(UNAME_S),Darwin)
+    CXXFLAGS += -mmacosx-version-min=10.10
+endif
 #CXXFLAGS += -v
-#LDXXFLAGS = -e _main -lassimp -lm -lc
-LDXXFLAGS += -L/usr/lib/gcc/x86_64-amazon-linux/4.8.3/
+
+#
+# Linker flags
+#
+LDXXFLAGS += -L/usr/local/lib
+#LDXXFLAGS += -e _main -lassimp -lm -lc
+ifeq ($(UNAME_S),Linux)
+    # FIXME: HACKHACK
+    LDXXFLAGS += -L/usr/lib/gcc/x86_64-amazon-linux/4.8.3/
+endif
 LDXXFLAGS += -lassimp -lm -lc
-# TODO: check for MacOS
-#LDXXFLAGS += -lc++
-#LDXXFLAGS += -mmacosx-version-min=10.10
-#LDXXFLAGS += -lMagick++-6.Q16
+ifeq ($(UNAME_S),Darwin)
+    #LDXXFLAGS += -lc++
+    #LDXXFLAGS += -mmacosx-version-min=10.10
+    LDXXFLAGS += -lMagick++-6.Q16
+else
+    LDXXFLAGS += -lMagick++
+endif
 # Linux
-LDXXFLAGS += -lMagick++
-LDXXFLAGS += -lstdc++
-LDXXFLAGS += -lgcc_s
+#LDXXFLAGS += -lstdc++
+#LDXXFLAGS += -lgcc_s
 #LDXXFLAGS += -v
 frLDXXFLAGS = $(LDXXFLAGS)
 fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
@@ -150,5 +170,5 @@ $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
-	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui
+	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui test_random test_render test_samplers
 
