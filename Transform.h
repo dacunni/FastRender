@@ -9,6 +9,8 @@
 #ifndef __FastRender__Transform__
 #define __FastRender__Transform__
 
+#include <functional>
+
 #include "Vector.h"
 #include "Matrix.h"
 

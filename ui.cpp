@@ -4,8 +4,13 @@
 #include <string>
 #include <sstream>
 
+#ifdef __APPLE__
 #include <GLUT/glut.h>      // GLUT + OpenGL
 #include <OpenGL/gl3.h>     // Core OpenGL 3.x+
+#else
+#include <GL/glut.h>
+#include <GL/gl.h>
+#endif
 
 #include "AssetLoader.h"
 #include "TriangleMesh.h"

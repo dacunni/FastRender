@@ -13,8 +13,10 @@
 class Vector4;
 
 enum RandomMethod {
-    UnixRand,
-    Arc4Random
+    UnixRand
+#ifdef __APPLE__
+, Arc4Random
+#endif
 };
 
 class RandomNumberGenerator
@@ -47,7 +49,12 @@ private:
     unsigned int cache_next = CACHE_SIZE; // next available cache entry, or CACHE_SIZE if none left
     float cache[CACHE_SIZE];
 
-    RandomMethod method = Arc4Random;
+    RandomMethod method = 
+#ifdef __APPLE__
+       Arc4Random;
+#else
+       UnixRand;
+#endif
 };
 
 #include "RandomNumberGenerator.hpp"

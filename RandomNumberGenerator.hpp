@@ -22,10 +22,12 @@ inline float RandomNumberGenerator::uniform01Impl( void )
         case UnixRand:
             return (float) rand() * one_over_RM;
             break;
+#ifdef __APPLE__
         case Arc4Random:
             u_int32_t r = arc4random_uniform(RAND_MAX + 1);
             return (float) r * one_over_RM;
             break;
+#endif
     }
 }
 

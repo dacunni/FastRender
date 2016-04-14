@@ -74,15 +74,26 @@ test_samplersOBJ = $(OBJ) \
 	test_samplers.o
 
 INC = -I/usr/local/include
+INC += -I/usr/include/ImageMagick
 INC += -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
 CXXFLAGS += -g
-CXXFLAGS += -mmacosx-version-min=10.10
+# TODO: check for MacOS
+#CXXFLAGS += -mmacosx-version-min=10.10
 #CXXFLAGS += -v
-LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min 10.10
-#LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc
+#LDXXFLAGS = -e _main -lassimp -lm -lc
+LDXXFLAGS += -L/usr/lib/gcc/x86_64-amazon-linux/4.8.3/
+LDXXFLAGS += -lassimp -lm -lc
+# TODO: check for MacOS
+#LDXXFLAGS += -lc++
+#LDXXFLAGS += -mmacosx-version-min=10.10
+#LDXXFLAGS += -lMagick++-6.Q16
+# Linux
+LDXXFLAGS += -lMagick++
+LDXXFLAGS += -lstdc++
+LDXXFLAGS += -lgcc_s
 #LDXXFLAGS += -v
 frLDXXFLAGS = $(LDXXFLAGS)
 fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
@@ -90,7 +101,8 @@ test_randomLDXXFLAGS = $(LDXXFLAGS)
 test_samplersLDXXFLAGS = $(LDXXFLAGS)
 test_renderLDXXFLAGS = $(LDXXFLAGS)
 
-all: fr frui tests
+#all: fr frui tests
+all: fr tests
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
@@ -120,15 +132,19 @@ $(OBJDIR):
 	mkdir $(OBJDIR)
 
 fr: $(frOBJ_IN_DIR)
-	ld -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
+	g++ -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
+#ld -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
 
-frui: $(fruiOBJ_IN_DIR)
-	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
+#frui: $(fruiOBJ_IN_DIR)
+#	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
 
 tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_samplersOBJ_IN_DIR)
-	ld -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
-	ld -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
-	ld -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
+	g++ -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
+	g++ -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
+	g++ -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
+#	ld -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
+#	ld -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
+#	ld -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)

@@ -10,6 +10,7 @@
 #ifndef _COLOR_H_
 #define _COLOR_H_
 
+#include <stdio.h>
 
 #define RED_BIT   0x1
 #define GREEN_BIT 0x2

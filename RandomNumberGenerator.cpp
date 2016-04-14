@@ -31,10 +31,12 @@ void RandomNumberGenerator::seedCurrentTime()
         case UnixRand:
             srand( time( NULL ) );
             break;
+#ifdef __APPLE__
         case Arc4Random:
             srand( time( NULL ) );
             arc4random_stir();
             break;
+#endif
     }
 }
 
