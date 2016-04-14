@@ -7,6 +7,7 @@ HDR = \
 	BasicDiffuseSpecularShader.h \
     Boolean.h \
 	BoundingVolume.h \
+	BoundingVolumeHierarchy.h \
 	Color.h \
 	Container.h \
     DistributionSamplers.h \
@@ -39,6 +40,7 @@ OBJ = \
 	BasicDiffuseSpecularShader.o \
     Boolean.o \
 	BoundingVolume.o \
+	BoundingVolumeHierarchy.o \
 	Container.o \
     DistributionSamplers.o \
     EnvironmentMap.o \
@@ -80,6 +82,8 @@ CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
 CXXFLAGS += -g
 CXXFLAGS += -mmacosx-version-min=10.10
+# Uncomment to disable asserts
+CXXFLAGS += -DNDEBUG
 #CXXFLAGS += -v
 LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc -macosx_version_min 10.10
 #LDXXFLAGS = -e _main -lassimp -lMagick++-6.Q16 -lm -lc++ -lc

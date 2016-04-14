@@ -19,6 +19,7 @@
 #include "TMOctreeAccelerator.h"
 #include "AxisAlignedSlab.h"
 #include "FlatContainer.h"
+#include "BoundingVolumeHierarchy.h"
 
 TriangleMesh * AssetLoader::load( const std::string & filename )
 {
@@ -172,6 +173,20 @@ Container * AssetLoader::loadMultiPart( const std::string & filename )
 #endif
     }
 
+#if 1
+    // Build a bounding volume hierarchy. This may speed up rendering of models
+    // with many parts
+    // TODO[DAC]: Test how well this helps with various models to determine if there
+    //            are cases where we might want to just return a flat container or
+    //            merge parts into a single mesh like with loadMultiPartMerged()
+    auto bvh = new BoundingVolumeHierarchy();
+
+    bvh->build( container );
+
+    container = new FlatContainer();
+    container->add( bvh );
+#endif
+
     // TODO[DAC]: Do a makeCanonical() resizing on the collection of meshes
     // TODO[DAC]: Put them in a smarter container, like a BV hierarchy
 
@@ -237,7 +252,7 @@ TriangleMesh * AssetLoader::loadMultiPartMerged( const std::string & filename )
     // Shift to the canonical position and size
     // TODO: Should we have this here or make it the caller's responsibility?
     // TODO: Make this configurable
-    ubermesh->makeCanonical();
+    //ubermesh->makeCanonical();
 
     printf("Ubermesh bounds: ");
     std::unique_ptr<AxisAlignedSlab> bounds( ubermesh->getAxisAlignedBounds() );

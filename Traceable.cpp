@@ -8,6 +8,7 @@
  */
 
 #include <typeinfo>
+#include <cfloat>
 
 #include "Material.h"
 #include "Traceable.h"
@@ -58,6 +59,10 @@ bool Traceable::intersectTransformed( const Ray & ray, RayIntersection & interse
         if( hit ) {
             intersection.position = mult( transform->fwd, intersection.position );
             intersection.distance = subtract( intersection.position, ray.origin ).magnitude();
+
+            assert( intersection.distance > 0.0f );
+            assert( intersection.distance > intersection.min_distance );
+            assert( intersection.distance < FLT_MAX );
 
             // Set normal W to be 0, since vector math elsewhere may be sloppy about this
             intersection.normal.w = 0;

@@ -218,3 +218,19 @@ void AxisAlignedSlab::print( FILE * file ) const
 }
 
 
+////////////////////////////////////////////////////////////////////////
+// Non-class functions
+////////////////////////////////////////////////////////////////////////
+
+AxisAlignedSlab merge( const AxisAlignedSlab & a, const AxisAlignedSlab & b )
+{
+    return AxisAlignedSlab( std::min( a.xmin, b.xmin ),
+                            std::min( a.ymin, b.ymin ),
+                            std::min( a.zmin, b.zmin ),
+                            std::max( a.xmax, b.xmax ),
+                            std::max( a.ymax, b.ymax ),
+                            std::max( a.zmax, b.zmax ) );
+}
+
+
+
