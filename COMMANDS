@@ -1,0 +1,5 @@
+
+# Make common header
+ls *.h | grep -v FastRender.h | perl -pe 's/^(.*)$/#include "\1"/g' > FastRender.h
+
+

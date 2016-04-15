@@ -7,17 +7,7 @@
 #include <stdio.h>
 #include <math.h>
 
-//#define MAGICKCORE_QUANTUM_DEPTH 16
-//#define MAGICKCORE_HDRI_ENABLE 0
-//#include <Magick++.h>
-
-#include "Matrix.h"
-#include "Transform.h"
-#include "Ray.h"
-#include "Sphere.h"
-#include "RandomNumberGenerator.h"
-#include "Timer.h"
-#include "Plot2D.h"
+#include "FastRender.h"
 
 RandomNumberGenerator rng;
 std::string output_path = "testoutput";
