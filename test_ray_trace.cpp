@@ -14,6 +14,48 @@ std::string output_path = "testoutput";
 unsigned int plot_size = 500;
 
 // ------------------------------------------------------------ 
+// Fresnel
+// ------------------------------------------------------------ 
+void testFresnelDialectric1()
+{
+    Plot2D plot( output_path + "/fresnel_dialectric_1.png", plot_size, plot_size,
+                 -M_PI/2.0, M_PI/2.0, -M_PI/2.0, M_PI/2.0 );
+
+    float n1 = 1.0, n2 = 1.4;
+
+    float da = 0.05;
+    for( float angle1 = -M_PI / 2.0; angle1 <= M_PI / 2.0; angle1 += da ) {
+        for( float angle2 = -M_PI / 2.0; angle2 <= M_PI / 2.0; angle2 += da ) {
+            float f = fresnelDialectric( cos(angle1+da/2.0), cos(angle2+da/2.0), n1, n2 );
+            plot.strokeColor( f, f, f );
+            plot.fillColor( f, f, f );
+            plot.addPoint( angle1, angle2 );
+            plot.drawRect( angle1, angle2, angle1 + da , angle2 + da );
+        }
+    }
+}
+
+void testFresnelDialectric2()
+{
+    Plot2D plot( output_path + "/fresnel_dialectric_2.png", plot_size, plot_size,
+                 0, 1, 0, 1 );
+
+    float n1 = 1.0, n2 = 1.4;
+
+    float dc = 0.01;
+    for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
+        for( float cos2 = 0.0; cos2 <= 1.0; cos2 += dc ) {
+            float f = fresnelDialectric( cos1+dc/2.0, cos2+dc/2.0, n1, n2 );
+            plot.strokeColor( f, f, f );
+            plot.fillColor( f, f, f );
+            plot.addPoint( cos1, cos2 );
+            plot.drawRect( cos1, cos2, cos1 + dc, cos2 + dc );
+        }
+    }
+}
+
+
+// ------------------------------------------------------------ 
 // Simple ray intersection
 // ------------------------------------------------------------ 
 void testRayIntersect()
@@ -31,7 +73,6 @@ void testRayIntersect()
     auto ray = Ray( o, d );
     RayIntersection ri;
 
-
     plot.drawCircle( o.x, o.y, 0.01 );
     plot.drawLine( o, tip );
 
@@ -42,8 +83,49 @@ void testRayIntersect()
         plot.drawLine( p, add( p, ri.normal) );
         plot.drawLine( p, add( p, mirror( d.negated(), ri.normal ) ) );
     }
-
 }
+
+void testReflectAnglesHelper( const Vector4 & o, Traceable & obj, Plot2D & plot )
+{
+    auto at = Vector4( 0.0, 0.0, 0.0 );
+    auto d = subtract( at, o ).normalized();
+    auto tip = add( o, d );
+    auto ray = Ray( o, d );
+    RayIntersection ri;
+
+    plot.drawCircle( o.x, o.y, 0.01 );
+    plot.drawLine( o, tip );
+
+    if( obj.intersect( ray, ri ) ) {
+        auto &p = ri.position;
+        //plot.addPoint<Vector4>( p );
+        plot.drawCircle( p.x, p.y, 0.01 );
+        plot.drawLine( p, add( p, ri.normal) );
+        plot.drawLine( p, add( p, mirror( d.negated(), ri.normal ) ) );
+    }
+}
+
+void testReflectAngles()
+{
+    Plot2D plot( output_path + "/reflect_angles.png", plot_size, plot_size,
+                 -2.0, 2.0, -2.0, 2.0 );
+    
+    // Slab with top on z=0 plane
+    AxisAlignedSlab slab( -2.0, -2.0, -2.0, 2.0, 0.0, 2.0 );
+    plot.drawLine( slab.xmin, slab.ymax, slab.xmax, slab.ymax );
+
+    auto o = Vector4( -0.95, 0.95, 0.0 );
+
+    float radius = 2.0;
+    int nsteps = 30;
+    for( int i = 1; i <= nsteps; i++ ) {
+        float alpha = (float) i / (nsteps + 1);
+        float angle = (1.0 - alpha) * M_PI + alpha * M_PI / 2.0;
+        plot.strokeColor( alpha, 1.0, 1.0 - alpha );
+        testReflectAnglesHelper( Vector4( radius*cos(angle), radius*sin(angle), 0.0 ), slab, plot );
+    }
+}
+
 
 // ------------------------------------------------------------ 
 // Camera ray generation
@@ -128,6 +210,9 @@ int main (int argc, char * const argv[])
     // Tests
 #if 1
     testRayIntersect();
+    testReflectAngles();
+    testFresnelDialectric1();
+    testFresnelDialectric2();
     testSimpleCameraNoJitter();
     testSimpleCamera();
 #else
