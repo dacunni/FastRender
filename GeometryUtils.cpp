@@ -95,4 +95,23 @@ float fresnelConductor( float cos_i, float n, float k )
     return (R_pa2 + R_pe2) * 0.5f;
 }
 
+// -----------------------------------------------------------------------------
+// Snell's Law
+//
+//   n1 * sin(a1) = n2 * sin(a2)
+//
+// Angle formulation
+float snellsLawAngle( float n_i, float angle_i, float n_o )
+{
+    return asinf( n_i / n_o * sinf(angle_i) );
+}
+
+// Sine formulation
+float snellsLawSine( float n_i, float sin_i, float n_o )
+{
+    return n_i / n_o * sin_i;
+}
+
+
+
 

@@ -54,6 +54,34 @@ void testFresnelDialectric2()
     }
 }
 
+// ------------------------------------------------------------ 
+// Snell's Law
+// ------------------------------------------------------------ 
+void testSnellAnglesHelper( float n1, float n2, Plot2D & plot )
+{
+    float da = 0.05;
+    float last_angle1 = -M_PI / 2.0;
+    float last_angle2 = snellsLawAngle( n1, last_angle1, n2 );
+    for( float angle1 = -M_PI / 2.0; angle1 <= M_PI / 2.0; angle1 += da ) {
+        float angle2 = snellsLawAngle( n1, angle1, n2 );
+        plot.strokeColor( 0, 0, 0 );
+        plot.fillColor( 0, 0, 0 );
+        plot.drawLine( last_angle1, last_angle2, angle1, angle2 );
+        last_angle1 = angle1;
+        last_angle2 = angle2;
+    }
+}
+
+void testSnellAngles()
+{
+    Plot2D plot( output_path + "/snell_angles.png", plot_size, plot_size,
+                 -M_PI/2.0, M_PI/2.0, -M_PI/2.0, M_PI/2.0 );
+    plot.drawAxes();
+    for( float n2 = 1.0; n2 < 3.0; n2 += 0.1) {
+        testSnellAnglesHelper( 1.0, n2, plot );
+    }
+}
+
 
 // ------------------------------------------------------------ 
 // Simple ray intersection
@@ -211,6 +239,7 @@ int main (int argc, char * const argv[])
 #if 1
     testRayIntersect();
     testReflectAngles();
+    testSnellAngles();
     testFresnelDialectric1();
     testFresnelDialectric2();
     testSimpleCameraNoJitter();
