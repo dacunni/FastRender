@@ -113,6 +113,8 @@ void testRayIntersect()
     }
 }
 
+// ----- Reflection -----
+
 void testReflectAnglesHelper( const Vector4 & o, Traceable & obj, Plot2D & plot )
 {
     auto at = Vector4( 0.0, 0.0, 0.0 );
@@ -154,6 +156,80 @@ void testReflectAngles()
     }
 }
 
+// ----- Refraction -----
+
+void testRefractAnglesHelper( const Vector4 & o, Traceable & obj, Plot2D & plot,
+                              float n1, float n2 )
+{
+    auto at = Vector4( 0.0, 0.0, 0.0 );
+    auto d = subtract( at, o ).normalized();
+    auto tip = add( o, d );
+    auto ray = Ray( o, d );
+    RayIntersection ri;
+
+    plot.drawCircle( o.x, o.y, 0.01 );
+    plot.drawLine( o, tip );
+
+    if( obj.intersect( ray, ri ) ) {
+        auto &p = ri.position;
+        //plot.addPoint<Vector4>( p );
+        //plot.drawCircle( p.x, p.y, 0.01 );
+        //plot.drawLine( p, add( p, ri.normal) );
+
+        Vector4 r = refract( d.negated(), ri.normal, n1, n2 );
+
+        // Mark rays that saw total internal reflection
+        if( !r.isUnity() ) {
+            plot.drawCircle( o.x, o.y, 0.03 );
+        }
+
+        plot.drawLine( p, add( p, r ) );
+    }
+}
+
+void testRefractForIndices( Plot2D & plot, float n1, float n2 )
+{
+    // Slab with top on z=0 plane
+    AxisAlignedSlab slab( -2.0, -2.0, -2.0, 2.0, 0.0, 2.0 );
+    plot.drawLine( slab.xmin, slab.ymax, slab.xmax, slab.ymax );
+
+    float radius = 2.0;
+    int nsteps = 30;
+
+    for( int i = 1; i <= nsteps; i++ ) {
+        float alpha = (float) i / (nsteps + 2);
+        float angle = (1.0 - alpha) * M_PI + alpha * M_PI / 2.0;
+        if( i == nsteps / 2 )
+            plot.strokeColor( 0.0, 1.0, 0.0 );
+        else
+            plot.strokeColor( alpha, 0.0, 1.0 - alpha );
+        testRefractAnglesHelper( Vector4( radius*cos(angle), radius*sin(angle), 0.0 ), slab, plot, n1, n2 );
+    }
+}
+
+// Test refraction going from lower to higher index of refraction
+void testRefractAnglesLowHigh()
+{
+    Plot2D plot( output_path + "/refract_angles_low_high.png", plot_size, plot_size,
+                 -2.0, 2.0, -2.0, 2.0 );
+    testRefractForIndices( plot, 1.1, 1.4 );
+}
+
+// Test refraction going from higher to lower index of refraction
+// Should see effects of total internal reflection
+void testRefractAnglesHighLow()
+{
+    Plot2D plot( output_path + "/refract_angles_high_low.png", plot_size, plot_size,
+                 -2.0, 2.0, -2.0, 2.0 );
+    testRefractForIndices( plot, 1.4, 1.1 );
+}
+
+void testRefractAnglesEqualIndex()
+{
+    Plot2D plot( output_path + "/refract_angles_equal_index.png", plot_size, plot_size,
+                 -2.0, 2.0, -2.0, 2.0 );
+    testRefractForIndices( plot, 1.2, 1.2 );
+}
 
 // ------------------------------------------------------------ 
 // Camera ray generation
@@ -236,15 +312,21 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 1
+#if 0
     testRayIntersect();
     testReflectAngles();
     testSnellAngles();
+    testRefractAnglesLowHigh();
+    testRefractAnglesHighLow();
+    testRefractAnglesEqualIndex();
     testFresnelDialectric1();
     testFresnelDialectric2();
     testSimpleCameraNoJitter();
     testSimpleCamera();
 #else
+    testRefractAnglesLowHigh();
+    testRefractAnglesHighLow();
+    testRefractAnglesEqualIndex();
 #endif
     
     total_run_timer.stop();
