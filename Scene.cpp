@@ -37,6 +37,15 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
     ray.direction.assertIsUnity();
     ray.direction.assertIsDirection();
 
+    // Logging
+#if 0
+    for( int i = 0; i < ray.depth; i++ )
+        printf(" ");
+    printf("o %f %f %f %f  d %f %f %f %f (%f)\n",
+           ray.origin.x, ray.origin.y, ray.origin.z, ray.origin.w,
+           ray.direction.x, ray.direction.y, ray.direction.z, ray.direction.w, ray.direction.magnitude());
+#endif
+
 	if( root != 0 && root->intersectTransformed( ray, intersection ) ) {
         // Asserts
         intersection.ray.direction.assertIsUnity();

@@ -112,61 +112,55 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             from_dir.assertIsUnity(); // TEMP
             from_dir.assertIsDirection(); // TEMP
 
-            new_ray.direction = refract( from_dir, intersection.normal,
-                                         intersection.ray.index_of_refraction,
-                                         intersection.material->index_of_refraction );
-            float fresnel = 1.0f; // default to total internal reflection if refract() returns
-                                  // a zero length vector
-            //if( !new_ray.direction.isUnity() ) {
-            //    new_ray.direction.assertIsUnity();
-            //    new_ray.direction.assertIsDirection();
-            //    fresnel = fresnelDialectric( dot( from_dir, intersection.normal ),
-            //                                 dot( refract, intersection.normal.negated() ),
-            //                                 intersection.ray.index_of_refraction,
-            //                                 intersection.material->index_of_refraction );
-            //}
+            float index_in = intersection.ray.index_of_refraction;
+            float index_out = intersection.material->index_of_refraction;
 
-            // Trace refraction
-            if( fresnel < 1.0f ) {
-                // TODO
-            }
-
-            // Trace reflection
-            if( fresnel > 0.0f ) {
-                // TODO
-            } 
-            
             // FIXME: HACK - This assumes that if we hit the surface of an object with the same
             //        index of refraction as the material we're in, then we are moving back into
             //        free space. This might not be true if there are numerical errors tracing
             //        abutting objects of the same material type, or for objects that are intersecting.
             if( !intersection.material ||
                 intersection.material->index_of_refraction == intersection.ray.index_of_refraction ) {
-                new_ray.index_of_refraction = 1.0f;
-            }
-            else {
-                new_ray.index_of_refraction = intersection.material->index_of_refraction;
-            }
-            // TEMP >>>
-#if 0
-            printf("refract new_depth=%d\n", new_ray.depth);
-            from_dir.print(); 
-            intersection.normal.print(); 
-            printf("A dot N = %f\n", dot(from_dir, intersection.normal));
-            new_ray.direction.print();
-            printf("A dot R = %f\n", dot(from_dir, new_ray.direction));
-#endif
-            // TEMP <<<
-            new_ray.direction.assertIsUnity(); // TEMP
-            new_ray.direction.assertIsDirection(); // TEMP
-            if( scene.intersect( new_ray, new_intersection ) ) {
-                //printf("depth=%d dist = %f\n", new_ray.depth, new_intersection.distance); // TEMP
-                if( new_intersection.distance != FLT_MAX ) {
-                    shade( scene, rng, new_intersection );
-                }
-                specular_contrib.accum( new_intersection.sample.color );
+                index_out = 1.0f;
             }
 
+            Vector4 refracted = refract( from_dir, intersection.normal,
+                                         index_in,
+                                         index_out );
+            float fresnel = 1.0f; // default to total internal reflection if refract() returns
+                                  // a zero length vector
+            //if( refracted.isUnity() ) {
+            if( refracted.magnitude() > 0.0001 ) {
+                fresnel = fresnelDialectric( dot( from_dir, intersection.normal ),
+                                             dot( refracted, intersection.normal.negated() ),
+                                             index_in,
+                                             index_out );
+            }
+
+            // Trace refraction
+            if( fresnel < 1.0f ) {
+                new_ray.direction = refracted;
+                new_ray.index_of_refraction = index_out;
+
+                if( scene.intersect( new_ray, new_intersection ) ) {
+                    if( new_intersection.distance != FLT_MAX ) {
+                        shade( scene, rng, new_intersection );
+                    }
+                    specular_contrib.accum( new_intersection.sample.color.scaled( 1.0 - fresnel ) );
+                }
+            }
+
+            // Trace reflection
+            if( fresnel > 0.0f ) {
+                new_ray.direction = mirror( from_dir, intersection.normal );
+
+                if( scene.intersect( new_ray, new_intersection ) ) {
+                    if( new_intersection.distance != FLT_MAX ) {
+                        shade( scene, rng, new_intersection );
+                    }
+                    specular_contrib.accum( new_intersection.sample.color.scaled( fresnel ) );
+                }
+            } 
         }
         else if( diff_spec_select < diffuse_chance ) {
             // Diffuse

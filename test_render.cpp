@@ -917,10 +917,17 @@ void testReflection3()
 // ------------------------------------------------------------ 
 void testRefraction1()
 {
+    //int imageSize = 32;
+    //int imageSize = 100;
     int imageSize = 320;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
-    ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
+    int anim_frames = 10;
+    //int anim_frames = 1;
+    //int samples_per_pixel = 100;
+    int samples_per_pixel = 20;
+    ImageTracer tracer( imageWidth, imageHeight, anim_frames, samples_per_pixel );
+    tracer.loopable_animations = true;
     Scene * scene = new Scene();
 	FlatContainer * container = new FlatContainer();
 
@@ -948,9 +955,28 @@ void testRefraction1()
     //sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
     //container->add( sphere );
 
-    auto cube = new AxisAlignedSlab( 1.0, 0.0, 2.0, 1.5 );
+    auto cube = new AxisAlignedSlab( -0.75, -0.75, -0.75, 1.5 );
     cube->material = new RefractiveMaterial(1.2);
     container->add( cube );
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( 1.75, 1.2, 2.75 ) ),
+                            //makeRotation( anim_progress * 0.5 * M_PI + 0.6, Vector4(0, 1, 0) ) );
+                            makeRotation( anim_progress * 0.5 * M_PI, Vector4(0, 1, 0) ) );
+                            
+        });
+
+#if 1
+    cube = new AxisAlignedSlab( -0.50, -0.50, -0.50, 1.0 );
+    cube->material = new RefractiveMaterial(1.2);
+    container->add( cube );
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( -1.50, 1.00, 6.50 ) ),
+                            makeRotation( anim_progress * 0.5 * M_PI, Vector4(1, 0, 0) ) );
+                            
+        });
+#endif
 
     // Colored strips to show refraction from background objects
     cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
@@ -963,7 +989,13 @@ void testRefraction1()
     cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
     container->add( cube );
 
+    cube = new AxisAlignedSlab( -10.0, 0.0, 2.0,
+                                +10.0, 0.15, 2.15 );
+    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    container->add( cube );
 	scene->root = container;
+
+
     scene->env_map = new ArcLightEnvironmentMap();
     tracer.scene = scene;
 
