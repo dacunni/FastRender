@@ -31,7 +31,7 @@ void FlatContainer::add( Traceable * traceable )
 
 bool FlatContainer::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
-    RayIntersection temp_isect;
+    RayIntersection temp_isect = intersection;
     bool found_one = false;
 	
     temp_isect.best_hint = intersection.best_hint;

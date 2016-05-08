@@ -176,14 +176,36 @@ void testRefractAnglesHelper( const Vector4 & o, Traceable & obj, Plot2D & plot,
         //plot.drawCircle( p.x, p.y, 0.01 );
         //plot.drawLine( p, add( p, ri.normal) );
 
-        Vector4 r = refract( d.negated(), ri.normal, n1, n2 );
+        Vector4 in = d.negated();
+
+        Vector4 refracted = refract( in, ri.normal, n1, n2 );
+
+        //r = scale(r, fresnelDialectric( dot( in, ri.normal ),
+        //                                dot( r, ri.normal.negated() ),
+        //                                n1, n2 ) );
+        float cos_in = dot( in, ri.normal );
+        float cos_out = dot( refracted, ri.normal.negated() );
+        float f = fresnelDialectric( cos_in, cos_out, n1, n2 );
+//        Vector4 rf = scale(r, f);
+//        printf("%f - cin %f cout %f n1 %.2f n2 %.2f | V %.2f %.2f %.2f %.2f | VR %.2f %.2f %.2f %.2f\n",
+//               f, cos_in, cos_out, n1, n2,
+//               r.x, r.y, r.z, r.w,
+//               rf.x, rf.y, rf.z, rf.w);
+        refracted = scale(refracted, 1.0 - f);
 
         // Mark rays that saw total internal reflection
-        if( !r.isUnity() ) {
+        if( refracted.magnitude() < 0.001 ) {
             plot.drawCircle( o.x, o.y, 0.03 );
         }
 
-        plot.drawLine( p, add( p, r ) );
+        plot.drawLine( p, add( p, refracted ) );
+
+        // Draw reflected ray
+        if( refracted.magnitude() < 1.0 ) {
+            Vector4 reflected = mirror( in, ri.normal );
+            reflected = scale( reflected, f );
+            plot.drawLine( p, add( p, reflected ) );
+        }
     }
 }
 
@@ -193,8 +215,9 @@ void testRefractForIndices( Plot2D & plot, float n1, float n2 )
     AxisAlignedSlab slab( -2.0, -2.0, -2.0, 2.0, 0.0, 2.0 );
     plot.drawLine( slab.xmin, slab.ymax, slab.xmax, slab.ymax );
 
-    float radius = 2.0;
-    int nsteps = 30;
+    //float radius = 2.0;
+    float radius = 1.5;
+    int nsteps = 40;
 
     for( int i = 1; i <= nsteps; i++ ) {
         float alpha = (float) i / (nsteps + 2);
@@ -211,7 +234,7 @@ void testRefractForIndices( Plot2D & plot, float n1, float n2 )
 void testRefractAnglesLowHigh()
 {
     Plot2D plot( output_path + "/refract_angles_low_high.png", plot_size, plot_size,
-                 -2.0, 2.0, -2.0, 2.0 );
+                 -1.6, 1.6, -1.6, 1.6 );
     testRefractForIndices( plot, 1.1, 1.4 );
 }
 
@@ -220,14 +243,14 @@ void testRefractAnglesLowHigh()
 void testRefractAnglesHighLow()
 {
     Plot2D plot( output_path + "/refract_angles_high_low.png", plot_size, plot_size,
-                 -2.0, 2.0, -2.0, 2.0 );
+                 -1.6, 1.6, -1.6, 1.6 );
     testRefractForIndices( plot, 1.4, 1.1 );
 }
 
 void testRefractAnglesEqualIndex()
 {
     Plot2D plot( output_path + "/refract_angles_equal_index.png", plot_size, plot_size,
-                 -2.0, 2.0, -2.0, 2.0 );
+                 -1.6, 1.6, -1.6, 1.6 );
     testRefractForIndices( plot, 1.2, 1.2 );
 }
 

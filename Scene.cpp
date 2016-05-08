@@ -45,6 +45,9 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
         assert( intersection.distance < FLT_MAX );
 
         // Fix normals
+        if( dot( ray.direction, intersection.normal ) > 0.0f ) {
+            intersection.normal.negate(); // normals always face the incoming ray
+        }
         intersection.normal.normalize();
         intersection.normal.makeDirection();
         return true;

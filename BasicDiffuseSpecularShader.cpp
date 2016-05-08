@@ -22,12 +22,15 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     RGBColor specular_contrib( 0.0, 0.0, 0.0 );
     RGBColor direct_contrib( 0.0, 0.0, 0.0 );
     Ray new_ray;
-    RayIntersection new_intersection;
+    //RayIntersection new_intersection;
+    RayIntersection new_intersection = RayIntersection();
+    new_intersection.min_distance = 0.01;
     Vector4 offset( 0.0, 0.0, 0.0 );
-    offset = scale( intersection.normal, 0.01 ); // NOTE - Seems to help 
+    //offset = scale( intersection.normal, 0.01 ); // NOTE - Seems to help 
     new_ray.origin = add( intersection.position, offset );
     new_ray.depth = intersection.ray.depth + 1;
-    const unsigned char max_depth = 4;
+    const unsigned char max_depth = 5;
+    //const unsigned char max_depth = 4;
     //const unsigned char max_depth = 2; // TEMP
     //const unsigned char max_depth = 1; // TEMP
 
@@ -72,8 +75,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         float diff_spec_select = rng.uniform01();
 
         if( intersection.material && intersection.material->perfect_reflector ) {
-            new_intersection = RayIntersection();
-            new_intersection.min_distance = 0.01;
+            //new_intersection = RayIntersection();
+            //new_intersection.min_distance = 0.01;
             Vector4 from_dir = intersection.ray.direction;
             //printf("*** from_dir     ="); from_dir.print(); // TEMP
             intersection.normal.assertIsUnity(); // TEMP
@@ -87,7 +90,10 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_ray.direction.assertIsUnity(); // TEMP
             new_ray.direction.assertIsDirection(); // TEMP
 
+            //printf("M> min: %f\n", new_intersection.min_distance); // TEMP
             if( scene.intersect( new_ray, new_intersection ) ) {
+                //printf("  s> dist: %f min: %f\n", new_intersection.distance,
+                //                                  new_intersection.min_distance); // TEMP
                 if( new_intersection.distance != FLT_MAX ) {
                     shade( scene, rng, new_intersection );
                 }
@@ -96,6 +102,71 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 //new_intersection.sample.color.scale( cos_r_n );
                 specular_contrib.accum( new_intersection.sample.color );
             }
+            //printf("M<\n"); // TEMP
+        }
+        else if( intersection.material && intersection.material->perfect_refractor ) {
+            //new_intersection = RayIntersection();
+            //new_intersection.min_distance = 0.01;
+            Vector4 from_dir = intersection.ray.direction;
+            from_dir.negate();
+            from_dir.assertIsUnity(); // TEMP
+            from_dir.assertIsDirection(); // TEMP
+
+            new_ray.direction = refract( from_dir, intersection.normal,
+                                         intersection.ray.index_of_refraction,
+                                         intersection.material->index_of_refraction );
+            float fresnel = 1.0f; // default to total internal reflection if refract() returns
+                                  // a zero length vector
+            //if( !new_ray.direction.isUnity() ) {
+            //    new_ray.direction.assertIsUnity();
+            //    new_ray.direction.assertIsDirection();
+            //    fresnel = fresnelDialectric( dot( from_dir, intersection.normal ),
+            //                                 dot( refract, intersection.normal.negated() ),
+            //                                 intersection.ray.index_of_refraction,
+            //                                 intersection.material->index_of_refraction );
+            //}
+
+            // Trace refraction
+            if( fresnel < 1.0f ) {
+                // TODO
+            }
+
+            // Trace reflection
+            if( fresnel > 0.0f ) {
+                // TODO
+            } 
+            
+            // FIXME: HACK - This assumes that if we hit the surface of an object with the same
+            //        index of refraction as the material we're in, then we are moving back into
+            //        free space. This might not be true if there are numerical errors tracing
+            //        abutting objects of the same material type, or for objects that are intersecting.
+            if( !intersection.material ||
+                intersection.material->index_of_refraction == intersection.ray.index_of_refraction ) {
+                new_ray.index_of_refraction = 1.0f;
+            }
+            else {
+                new_ray.index_of_refraction = intersection.material->index_of_refraction;
+            }
+            // TEMP >>>
+#if 0
+            printf("refract new_depth=%d\n", new_ray.depth);
+            from_dir.print(); 
+            intersection.normal.print(); 
+            printf("A dot N = %f\n", dot(from_dir, intersection.normal));
+            new_ray.direction.print();
+            printf("A dot R = %f\n", dot(from_dir, new_ray.direction));
+#endif
+            // TEMP <<<
+            new_ray.direction.assertIsUnity(); // TEMP
+            new_ray.direction.assertIsDirection(); // TEMP
+            if( scene.intersect( new_ray, new_intersection ) ) {
+                //printf("depth=%d dist = %f\n", new_ray.depth, new_intersection.distance); // TEMP
+                if( new_intersection.distance != FLT_MAX ) {
+                    shade( scene, rng, new_intersection );
+                }
+                specular_contrib.accum( new_intersection.sample.color );
+            }
+
         }
         else if( diff_spec_select < diffuse_chance ) {
             // Diffuse
@@ -105,8 +176,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_ray.direction.assertIsDirection();
             new_ray.direction.assertIsUnity();
 
-            new_intersection = RayIntersection();
-            new_intersection.min_distance = 0.01;
+            //new_intersection = RayIntersection();
+            //new_intersection.min_distance = 0.01;
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX )
                     shade( scene, rng, new_intersection );
@@ -118,8 +189,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         else {
             // Specular
             // TODO - sample the specular lobe, not just the mirror direction
-            new_intersection = RayIntersection();
-            new_intersection.min_distance = 0.01;
+            //new_intersection = RayIntersection();
+            //new_intersection.min_distance = 0.01;
             Vector4 from_dir = intersection.ray.direction;
             from_dir.negate();
             new_ray.direction = mirror( from_dir, intersection.normal );

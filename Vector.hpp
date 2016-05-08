@@ -187,6 +187,7 @@ inline void refract( const Vector4 & a, const Vector4 & n, float n1, float n2,
     }
 
     r = blend( a.negated(), eta, n, eta * c1 - sqrt(c2sq) );
+    r.normalize();
     r.makeDirection();
 }
 

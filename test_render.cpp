@@ -912,6 +912,75 @@ void testReflection3()
     tracer.render();
 }
 
+// ------------------------------------------------------------ 
+// Refraction
+// ------------------------------------------------------------ 
+void testRefraction1()
+{
+    int imageSize = 320;
+    //int imageSize = 1024;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    Sphere * sphere = nullptr;
+
+    //sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
+    //sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    //container->add( sphere );
+
+    sphere = new Sphere( 0, 0.50, 1.5, 0.50 );
+    //sphere->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    sphere->material = new RefractiveMaterial(1.2);
+    container->add( sphere );
+
+    sphere = new Sphere( -1, 0.75, 0, 0.75  );
+    sphere->material = new MirrorMaterial();
+    container->add( sphere );
+
+    //sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    //sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    //container->add( sphere );
+
+    auto cube = new AxisAlignedSlab( 1.0, 0.0, 2.0, 1.5 );
+    cube->material = new RefractiveMaterial(1.2);
+    container->add( cube );
+
+    // Colored strips to show refraction from background objects
+    cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+                                +10.0, 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 0.0, -0.0,
+                                +10.0, 0.15, -0.15 );
+    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    container->add( cube );
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap();
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_refract1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 void testMesh1()
 {
     int imageSize = 256;
@@ -1541,7 +1610,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 1
+#if 0
     // Ambient occlusion
     testAO1();
     testAO2();
@@ -1571,8 +1640,7 @@ int main (int argc, char * const argv[])
     testAreaLight1();
     testAreaLight2();
 #else
-    //testMesh2();
-    testMesh3();      // TODO: slow - san miguel scene
+    testRefraction1();
 #endif
     
     total_run_timer.stop();

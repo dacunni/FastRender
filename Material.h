@@ -78,6 +78,13 @@ class RefractiveMaterial : public Material
             init( 1.0f, 1.0f, 1.0f ); 
         }
 
+        RefractiveMaterial( float index )
+            : Material()
+        { 
+            init( 1.0f, 1.0f, 1.0f ); 
+            index_of_refraction = index;
+        }
+
         RefractiveMaterial( float r, float g, float b )
             : Material()
         { 
