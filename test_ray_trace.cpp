@@ -54,6 +54,89 @@ void testFresnelDialectric2()
     }
 }
 
+// Low index to high index
+void testFresnelDialectric3()
+{
+    Plot2D plot( output_path + "/fresnel_dialectric_3.png", plot_size, plot_size,
+                 0, 1, 0, 1 );
+
+    float n1 = 1.0, n2 = 1.4;
+
+    float dc = 0.01;
+
+    float last_cos1 = 0.0;
+    float last_f = fresnelDialectricSnell( 0.0, n1, n2 );
+    for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
+        float f = fresnelDialectricSnell( cos1, n1, n2 );
+        printf("cos1 = %f f = %f\n", cos1, f); 
+        plot.strokeColor( 0, 0, 0 );
+        plot.drawLine( last_cos1, last_f, cos1, f );
+        last_cos1 = cos1;
+        last_f = f;
+    }
+    last_cos1 = 0.0;
+    last_f = fresnelDialectricParallelSnell( 0.0, n1, n2 );
+    for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
+        float f = fresnelDialectricParallelSnell( cos1, n1, n2 );
+        printf("cos1 = %f f = %f\n", cos1, f); 
+        plot.strokeColor( 0, 0, 1 );
+        plot.drawLine( last_cos1, last_f, cos1, f );
+        last_cos1 = cos1;
+        last_f = f;
+    }
+    last_cos1 = 0.0;
+    last_f = fresnelDialectricPerpendicularSnell( 0.0, n1, n2 );
+    for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
+        float f = fresnelDialectricPerpendicularSnell( cos1, n1, n2 );
+        printf("cos1 = %f f = %f\n", cos1, f); 
+        plot.strokeColor( 1, 0, 0 );
+        plot.drawLine( last_cos1, last_f, cos1, f );
+        last_cos1 = cos1;
+        last_f = f;
+    }
+}
+
+// High index to low index
+void testFresnelDialectric4()
+{
+    Plot2D plot( output_path + "/fresnel_dialectric_4.png", plot_size, plot_size,
+                 0, 1, 0, 1 );
+
+    float n1 = 1.4, n2 = 1.0;
+
+    float dc = 0.01;
+
+    float last_cos1 = 0.0;
+    float last_f = fresnelDialectricSnell( 0.0, n1, n2 );
+    for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
+        float f = fresnelDialectricSnell( cos1, n1, n2 );
+        printf("cos1 = %f f = %f\n", cos1, f); 
+        plot.strokeColor( 0, 0, 0 );
+        plot.drawLine( last_cos1, last_f, cos1, f );
+        last_cos1 = cos1;
+        last_f = f;
+    }
+    last_cos1 = 0.0;
+    last_f = fresnelDialectricParallelSnell( 0.0, n1, n2 );
+    for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
+        float f = fresnelDialectricParallelSnell( cos1, n1, n2 );
+        printf("cos1 = %f f = %f\n", cos1, f); 
+        plot.strokeColor( 0, 0, 1 );
+        plot.drawLine( last_cos1, last_f, cos1, f );
+        last_cos1 = cos1;
+        last_f = f;
+    }
+    last_cos1 = 0.0;
+    last_f = fresnelDialectricPerpendicularSnell( 0.0, n1, n2 );
+    for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
+        float f = fresnelDialectricPerpendicularSnell( cos1, n1, n2 );
+        printf("cos1 = %f f = %f\n", cos1, f); 
+        plot.strokeColor( 1, 0, 0 );
+        plot.drawLine( last_cos1, last_f, cos1, f );
+        last_cos1 = cos1;
+        last_f = f;
+    }
+}
 // ------------------------------------------------------------ 
 // Snell's Law
 // ------------------------------------------------------------ 
@@ -330,7 +413,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 0
+#if 1
     testRayIntersect();
     testReflectAngles();
     testSnellAngles();
@@ -339,12 +422,14 @@ int main (int argc, char * const argv[])
     testRefractAnglesEqualIndex();
     testFresnelDialectric1();
     testFresnelDialectric2();
+    testFresnelDialectric3();
+    testFresnelDialectric4();
     testSimpleCameraNoJitter();
     testSimpleCamera();
-#else
     testRefractAnglesLowHigh();
     testRefractAnglesHighLow();
     testRefractAnglesEqualIndex();
+#else
 #endif
     
     total_run_timer.stop();

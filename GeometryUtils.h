@@ -53,6 +53,12 @@ BarycentricCoordinate barycentricForPointInTriangle( const Vector4 & P,
 // Fresnel Equations
 //
 float fresnelDialectric( float cos_i, float cos_t, float n_i, float n_t );
+float fresnelDialectricParallel( float cos_i, float cos_t, float n_i, float n_t );
+float fresnelDialectricPerpendicular( float cos_i, float cos_t, float n_i, float n_t );
+float fresnelDialectricSnell( float cos_i, float n_i, float n_t );
+float fresnelDialectricParallelSnell( float cos_i, float n_i, float n_t );
+float fresnelDialectricPerpendicularSnell( float cos_i, float n_i, float n_t );
+
 float fresnelConductor( float cos_i, float cos_t, float n_i, float n_t );
 
 // -----------------------------------------------------------------------------

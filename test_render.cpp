@@ -922,10 +922,10 @@ void testRefraction1()
     int imageSize = 320;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
-    int anim_frames = 10;
-    //int anim_frames = 1;
-    //int samples_per_pixel = 100;
-    int samples_per_pixel = 20;
+    //int anim_frames = 10;
+    int anim_frames = 1;
+    int samples_per_pixel = 100;
+    //int samples_per_pixel = 20;
     ImageTracer tracer( imageWidth, imageHeight, anim_frames, samples_per_pixel );
     tracer.loopable_animations = true;
     Scene * scene = new Scene();
@@ -943,8 +943,13 @@ void testRefraction1()
     //container->add( sphere );
 
     sphere = new Sphere( 0, 0.50, 1.5, 0.50 );
-    //sphere->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
     sphere->material = new RefractiveMaterial(1.2);
+    //sphere->material = new RefractiveMaterial(1.5);
+    container->add( sphere );
+
+    sphere = new Sphere( -1, 1.50, 10.0, 0.50 );
+    //sphere->material = new RefractiveMaterial(1.2);
+    sphere->material = new RefractiveMaterial(1.5);
     container->add( sphere );
 
     sphere = new Sphere( -1, 0.75, 0, 0.75  );
@@ -966,7 +971,7 @@ void testRefraction1()
                             
         });
 
-#if 1
+#if 0
     cube = new AxisAlignedSlab( -0.50, -0.50, -0.50, 1.0 );
     cube->material = new RefractiveMaterial(1.2);
     container->add( cube );
@@ -996,7 +1001,7 @@ void testRefraction1()
 	scene->root = container;
 
 
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = new ArcLightEnvironmentMap(Vector4(0, 1, 0), 0.25 * M_PI);
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -1015,9 +1020,10 @@ void testRefraction1()
 
 void testRefraction2()
 {
-    //int imageSize = 256;
+    //int imageSize = 64;
+    int imageSize = 256;
     //int imageSize = 320;
-    int imageSize = 512;
+    //int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize * 2, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
@@ -1062,7 +1068,8 @@ void testRefraction2()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        mesh->material = new RefractiveMaterial(1.1);
+        //mesh->material = new RefractiveMaterial(1.1);
+        mesh->material = new RefractiveMaterial(1.3);
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1081,7 +1088,8 @@ void testRefraction2()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        mesh->material = new RefractiveMaterial(1.3);
+        //mesh->material = new RefractiveMaterial(1.3);
+        mesh->material = new RefractiveMaterial(2.5);
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1119,6 +1127,85 @@ void testRefraction2()
 
     tracer.artifacts.output_path = output_path;
     tracer.artifacts.file_prefix = "test_refract2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 1.0, 15.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+void testRefraction3()
+{
+    //int imageSize = 64;
+    int imageSize = 256;
+    //int imageSize = 320;
+    //int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize * 4, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
+    tracer.camera.xmin = -0.45;
+    tracer.camera.xmax = 0.45;
+    tracer.camera.ymin = -0.15;
+    tracer.camera.ymax = 0.15;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    Sphere * sphere = nullptr;
+    float y = 1.5, z = 2.0, radius = 1.0;
+
+    sphere = new Sphere( -4, y, z, radius );
+    sphere->material = new RefractiveMaterial(1.3);
+    container->add( sphere );
+
+    sphere = new Sphere( -2, y, z, radius );
+    sphere->material = new RefractiveMaterial(1.49);
+    container->add( sphere );
+
+    sphere = new Sphere( 0, y, z, radius );
+    sphere->material = new RefractiveMaterial(1.6);
+    container->add( sphere );
+
+    sphere = new Sphere( +2, y, z, radius );
+    sphere->material = new RefractiveMaterial(2.1);
+    container->add( sphere );
+
+    sphere = new Sphere( +4, y, z, radius );
+    sphere->material = new RefractiveMaterial(2.5);
+    container->add( sphere );
+
+    // Colored strips to show refraction from background objects
+    auto cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+                                     +10.0, 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -2.0,
+                                +10.0, 0.5 + 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -2.0,
+                                +10.0, 1.0 + 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    container->add( cube );
+	scene->root = container;
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap(Vector4(0, 1, 0), M_PI * 0.25);
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_refract3_";
 
     // Camera back and rotated a bit around x so we're looking slightly down
     Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
@@ -1788,9 +1875,13 @@ int main (int argc, char * const argv[])
     testAnimTransforms3();
     testAreaLight1();
     testAreaLight2();
+    testRefraction1();
+    testRefraction2();
+    testRefraction3();
 #else
     //testRefraction1();
     testRefraction2();
+    //testRefraction3();
 #endif
     
     total_run_timer.stop();
