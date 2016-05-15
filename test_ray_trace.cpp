@@ -186,11 +186,6 @@ void testRefractAnglesHelper( const Vector4 & o, Traceable & obj, Plot2D & plot,
         float cos_in = dot( in, ri.normal );
         float cos_out = dot( refracted, ri.normal.negated() );
         float f = fresnelDialectric( cos_in, cos_out, n1, n2 );
-//        Vector4 rf = scale(r, f);
-//        printf("%f - cin %f cout %f n1 %.2f n2 %.2f | V %.2f %.2f %.2f %.2f | VR %.2f %.2f %.2f %.2f\n",
-//               f, cos_in, cos_out, n1, n2,
-//               r.x, r.y, r.z, r.w,
-//               rf.x, rf.y, rf.z, rf.w);
         refracted = scale(refracted, 1.0 - f);
 
         // Mark rays that saw total internal reflection

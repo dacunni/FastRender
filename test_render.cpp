@@ -1013,6 +1013,123 @@ void testRefraction1()
     tracer.render();
 }
 
+void testRefraction2()
+{
+    //int imageSize = 256;
+    //int imageSize = 320;
+    int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize * 2, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
+    tracer.camera.xmin = -0.3;
+    tracer.camera.xmax = 0.3;
+    tracer.camera.ymin = -0.15;
+    tracer.camera.ymax = 0.15;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AssetLoader loader;
+    TriangleMesh * mesh = nullptr;
+
+    {
+        mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper.ply" );
+        //mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper_res4.ply" );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        mesh->material = new RefractiveMaterial(1.04);
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( Vector4( -3.0, 0.1, 2.0 ) ),
+                                    makeScaling( 3, 3, 3 ),
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+    {
+        mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper.ply" );
+        //mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper_res4.ply" );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        mesh->material = new RefractiveMaterial(1.1);
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( Vector4( 0.0, 0.1, 2.0 ) ),
+                                    makeScaling( 3, 3, 3 ),
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+    {
+        mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper.ply" );
+        //mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper_res4.ply" );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        mesh->material = new RefractiveMaterial(1.3);
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( Vector4( 3.0, 0.1, 2.0 ) ),
+                                    makeScaling( 3, 3, 3 ),
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+
+    // Colored strips to show refraction from background objects
+    auto cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+                                     +10.0, 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -2.0,
+                                +10.0, 0.5 + 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -2.0,
+                                +10.0, 1.0 + 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    container->add( cube );
+	scene->root = container;
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap();
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_refract2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 1.0, 15.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+
 void testMesh1()
 {
     int imageSize = 256;
@@ -1672,7 +1789,8 @@ int main (int argc, char * const argv[])
     testAreaLight1();
     testAreaLight2();
 #else
-    testRefraction1();
+    //testRefraction1();
+    testRefraction2();
 #endif
     
     total_run_timer.stop();
