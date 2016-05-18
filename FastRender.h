@@ -12,6 +12,7 @@
 #include "EnvironmentMap.h"
 #include "FlatContainer.h"
 #include "GeometryUtils.h"
+#include "GoochShader.h"
 #include "ImageTracer.h"
 #include "Material.h"
 #include "Matrix.h"

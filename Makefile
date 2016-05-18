@@ -14,6 +14,7 @@ HDR = \
     EnvironmentMap.h \
 	FlatContainer.h \
     GeometryUtils.h \
+    GoochShader.h \
     ImageTracer.h \
 	Material.h \
 	Matrix.h \
@@ -46,6 +47,7 @@ OBJ = \
     EnvironmentMap.o \
 	FlatContainer.o \
     GeometryUtils.o \
+    GoochShader.o \
     ImageTracer.o \
 	Matrix.o \
     Plot2D.o \

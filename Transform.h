@@ -64,5 +64,6 @@ Transform makeTranslation( float x, float y, float z );
 
 // Builds a scaling Transform
 Transform makeScaling( float xScale, float yScale, float zScale );
+Transform makeScaling( float scale );
 
 #endif /* defined(__FastRender__Transform__) */

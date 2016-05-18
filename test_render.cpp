@@ -1397,7 +1397,7 @@ void testMesh2()
 }
 
 // Big multipart mesh
-void testMesh3()
+void testMeshSanMiguel()
 {
     //int imageSize = 50;
     //int imageSize = 100;
@@ -1902,7 +1902,37 @@ BUILD_SCENE(
     tracer->shader = new BasicDiffuseSpecularShader();
 );
 END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_SCENE(Gooch)
+SETUP_SCENE( TestScene::setup(); );
+BUILD_SCENE(
+    float size = 1.0;
+    float half_size = size / 2.0;
+    auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
+                                     half_size, size, half_size );
+    cube->transform = new Transform();
+    *cube->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
+    container->add( cube );
 
+    auto sphere = new Sphere( 1.0, half_size, 0.0, half_size );
+    container->add( sphere );
+
+    std::string modelBasePath = "models";
+    TriangleMesh * mesh = loader.load( modelBasePath + "/stanford/happy/reconstruction/happy_vrip_res4.ply" );
+    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    mesh->transform = new Transform();
+    //*mesh->transform = makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) );
+    *mesh->transform = makeScaling( 3.0 );
+    container->add( mesh );
+
+    tracer->shader = new GoochShader();
+);
+END_SCENE()
 // ------------------------------------------------------------ 
 
 // ------------------------------------------------------------ 
@@ -1939,7 +1969,7 @@ int main (int argc, char * const argv[])
     testReflection3();
     testMesh1();
     testMesh2();
-    //testMesh3();      // TODO: slow - san miguel scene
+    //testMeshSanMiguel();      // TODO: slow - san miguel scene
     //testHairball();   // TODO: slow
     testPointLight1();
     testPointLight2();
@@ -1953,11 +1983,10 @@ int main (int argc, char * const argv[])
     testRefraction1();
     testRefraction2();
     testRefraction3();
-#else
-    //testRefraction1();
-    //testRefraction2();
-    //testRefraction3();
     SimpleCube::run();
+    Gooch::run();
+#else
+    Gooch::run();
 #endif
     
     total_run_timer.stop();
