@@ -1406,8 +1406,8 @@ void testMeshSanMiguel()
     int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
-    ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
-    //ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
+    //ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
+    ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
     Scene * scene = new Scene();
 	FlatContainer * container = new FlatContainer();
 
@@ -1451,21 +1451,30 @@ void testMeshSanMiguel()
     //scene->env_map = new ArcLightEnvironmentMap();
     tracer.scene = scene;
 
-    tracer.shader = new BasicDiffuseSpecularShader();
+    //tracer.shader = new BasicDiffuseSpecularShader();
+    tracer.shader = new GoochShader();
 
     tracer.artifacts.output_path = output_path;
-    tracer.artifacts.file_prefix = "test_mesh3_";
+    tracer.artifacts.file_prefix = "test_mesh_san_miguel_";
 
-    // Camera back and rotated a bit around x so we're looking slightly down
 #if 0 // TEMP
     Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
     Transform translation = makeTranslation( 0.0, 0.0, 100.0 );
     tracer.setCameraTransform( compose( makeTranslation( 1.8, 0.0, -40.0 ),
                                         rotation,
                                         translation ) );
-#else
+#elif 0
+    // FIXME - Something is wrong with the geometry from this angle
     Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
-    Transform translation = makeTranslation( 0.0, 0.0, 30.0 );
+    Transform translation = makeTranslation( 0.0, 0.0, 80.0 );
+    tracer.setCameraTransform( compose( makeTranslation( 1.8, -2.0, -40.0 ),
+                                        makeRotation( 0.35, Vector4(0, 1, 0) ), // turn about Y
+                                        rotation,
+                                        translation ) );
+#else
+    // Over archway 
+    Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 40.0 );
     tracer.setCameraTransform( compose( makeTranslation( 1.8, -2.0, -40.0 ),
                                         rotation,
                                         translation ) );
@@ -1986,7 +1995,6 @@ int main (int argc, char * const argv[])
     SimpleCube::run();
     Gooch::run();
 #else
-    Gooch::run();
 #endif
     
     total_run_timer.stop();
