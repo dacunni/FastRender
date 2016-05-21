@@ -1983,6 +1983,19 @@ BUILD_SCENE(
 );
 END_SCENE()
 // ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestAmbientOcclusion, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+    tracer->shader = new AmbientOcclusionShader();
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+// ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestPointLight, MaterialTestBase)
 SETUP_SCENE(
     MaterialTestBase::setup();
@@ -1991,6 +2004,8 @@ SETUP_SCENE(
 BUILD_SCENE(
     MaterialTestBase::buildScene();
     scene->addPointLight( PointLight( Vector4( -5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 1.0, 1.0 ).scaled(30.0) ) );
+    scene->addPointLight( PointLight( Vector4( 5.0, 5.0, 5.0 ),
                           RGBColor( 1.0, 1.0, 1.0 ).scaled(30.0) ) );
 );
 END_SCENE()
@@ -2016,9 +2031,30 @@ SETUP_SCENE(
 BUILD_SCENE(
     MaterialTestPointLight::buildScene();
     mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
-    //mesh->material = new MirrorMaterial();
-    //mesh->material = new RefractiveMaterial(N_WATER);
-    //mesh->material = new RefractiveMaterial(N_DIAMOND);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestMirrorPointLight, MaterialTestPointLight)
+SETUP_SCENE(
+    MaterialTestPointLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestPointLight::buildScene();
+    mesh->material = new MirrorMaterial();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractPointLight, MaterialTestPointLight)
+SETUP_SCENE(
+    MaterialTestPointLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestPointLight::buildScene();
+    mesh->material = new RefractiveMaterial(N_WATER);
 );
 END_SCENE()
 
@@ -2122,18 +2158,18 @@ int main (int argc, char * const argv[])
     SimpleCube::run();
     Gooch::run();
     //MaterialTestBase::run();
+    MaterialTestAmbientOcclusion::run();
     MaterialTestDiffuseWhitePointLight::run();
+    MaterialTestMirrorPointLight::run();
+    MaterialTestRefractPointLight::run();
     MaterialTestDiffuseWhiteArcLight::run();
     MaterialTestMirrorArcLight::run();
     MaterialTestRefractWaterArcLight::run();
     MaterialTestRefractDiamondArcLight::run();
 #else
-    //MaterialTestBase::run();
     MaterialTestDiffuseWhitePointLight::run();
-    MaterialTestDiffuseWhiteArcLight::run();
-    MaterialTestMirrorArcLight::run();
-    MaterialTestRefractWaterArcLight::run();
-    MaterialTestRefractDiamondArcLight::run();
+    MaterialTestMirrorPointLight::run();
+    MaterialTestRefractPointLight::run();
 #endif
     
     total_run_timer.stop();
