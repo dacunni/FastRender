@@ -1913,7 +1913,11 @@ BUILD_SCENE(
 END_SCENE()
 // ------------------------------------------------------------ 
 BEGIN_SCENE(Gooch)
-SETUP_SCENE( TestScene::setup(); );
+SETUP_SCENE(
+    TestScene::setup();
+    tracer->rays_per_pixel = 4;
+    tracer->shader = new GoochShader();
+);
 BUILD_SCENE(
     float size = 1.0;
     float half_size = size / 2.0;
@@ -1938,11 +1942,134 @@ BUILD_SCENE(
     //*mesh->transform = makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) );
     *mesh->transform = makeScaling( 3.0 );
     container->add( mesh );
-
-    tracer->shader = new GoochShader();
 );
 END_SCENE()
 // ------------------------------------------------------------ 
+
+BEGIN_SCENE(MaterialTestBase)
+SETUP_SCENE(
+    TestScene::setup();
+    tracer->rays_per_pixel = 1;
+    tracer->shader = new GoochShader();
+    tracer->setCameraTransform( compose(
+        // move up a bit
+        makeTranslation( 0.0, 0.5, 0.0 ),
+        // rotate so we are looking down
+        makeRotation( -0.2, Vector4(1, 0, 0) ),
+        // back away from the origin
+        makeTranslation( 0.0, 0.0, 5.0 )
+        ) );
+);
+TriangleMesh * mesh = nullptr;
+BUILD_SCENE(
+    float size = 1.0;
+    auto floor = new AxisAlignedSlab( -10, -1, -10,
+                                     10, 0, 10 );
+    floor->transform = new Transform();
+    *floor->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
+    container->add( floor );
+
+    mesh = loadMaterialTestModel( loader );
+    if( !mesh ) { return; }
+    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    mesh->transform = new Transform();
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    container->add( mesh );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestPointLight, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 10;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    scene->addPointLight( PointLight( Vector4( -5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 1.0, 1.0 ).scaled(30.0) ) );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestArcLight, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    scene->env_map = new ArcLightEnvironmentMap();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhitePointLight, MaterialTestPointLight)
+SETUP_SCENE(
+    MaterialTestPointLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestPointLight::buildScene();
+    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    //mesh->material = new MirrorMaterial();
+    //mesh->material = new RefractiveMaterial(N_WATER);
+    //mesh->material = new RefractiveMaterial(N_DIAMOND);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteArcLight, MaterialTestArcLight)
+SETUP_SCENE(
+    MaterialTestArcLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestArcLight::buildScene();
+    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestMirrorArcLight, MaterialTestArcLight)
+SETUP_SCENE(
+    MaterialTestArcLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestArcLight::buildScene();
+    mesh->material = new MirrorMaterial();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractWaterArcLight, MaterialTestArcLight)
+SETUP_SCENE(
+    MaterialTestArcLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestArcLight::buildScene();
+    mesh->material = new RefractiveMaterial(N_WATER);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractDiamondArcLight, MaterialTestArcLight)
+SETUP_SCENE(
+    MaterialTestArcLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestArcLight::buildScene();
+    mesh->material = new RefractiveMaterial(N_DIAMOND);
+);
+END_SCENE()
+
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -1994,7 +2121,19 @@ int main (int argc, char * const argv[])
     testRefraction3();
     SimpleCube::run();
     Gooch::run();
+    //MaterialTestBase::run();
+    MaterialTestDiffuseWhitePointLight::run();
+    MaterialTestDiffuseWhiteArcLight::run();
+    MaterialTestMirrorArcLight::run();
+    MaterialTestRefractWaterArcLight::run();
+    MaterialTestRefractDiamondArcLight::run();
 #else
+    //MaterialTestBase::run();
+    MaterialTestDiffuseWhitePointLight::run();
+    MaterialTestDiffuseWhiteArcLight::run();
+    MaterialTestMirrorArcLight::run();
+    MaterialTestRefractWaterArcLight::run();
+    MaterialTestRefractDiamondArcLight::run();
 #endif
     
     total_run_timer.stop();
