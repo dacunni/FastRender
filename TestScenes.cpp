@@ -377,3 +377,15 @@ void addMirrors( Container * container )
 }
 
 
+//////////////////////////////////////////
+//     Standard Material Test Models
+//////////////////////////////////////////
+TriangleMesh * loadMaterialTestModel( AssetLoader & loader )
+{
+    std::string modelBasePath = "models";
+    //TriangleMesh * mesh = loader.load( modelBasePath + "/dacunni/material_test1.obj" );
+    //TriangleMesh * mesh = loader.load( modelBasePath + "/dacunni/material_test1.stl" );
+    TriangleMesh * mesh = loader.load( modelBasePath + "/tf3dm.com/soccerball/untitled.ply" );
+    return mesh;
+}
+

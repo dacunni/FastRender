@@ -41,6 +41,8 @@ void addLightingTest4( Container * container );
 
 void addMirrors( Container * container );
 
+TriangleMesh * loadMaterialTestModel( AssetLoader & loader );
+
 //
 // Base class for a test scene. Use the macros below to define
 // a subclass and call the static run() method to run it.
@@ -66,11 +68,27 @@ public:
     ImageTracer * tracer;
 };
 
+#define BEGIN_DERIVED_SCENE(TEST_NAME, PARENT) \
+    class TEST_NAME : public PARENT \
+    { \
+    public: \
+        TEST_NAME( const std::string & output_path ) : PARENT( output_path, #TEST_NAME ) {} \
+        TEST_NAME( const std::string & output_path, const std::string & test_name ) : PARENT( output_path, test_name ) {} \
+        virtual ~TEST_NAME() {} \
+        \
+        static void run() { \
+            TEST_NAME test( output_path ); \
+            test.setup(); \
+            test.buildScene(); \
+            test.render(); \
+        }
+
 #define BEGIN_SCENE(TEST_NAME) \
     class TEST_NAME : public TestScene \
     { \
     public: \
         TEST_NAME( const std::string & output_path ) : TestScene( output_path, #TEST_NAME ) {} \
+        TEST_NAME( const std::string & output_path, const std::string & test_name ) : TestScene( output_path, test_name ) {} \
         virtual ~TEST_NAME() {} \
         \
         static void run() { \

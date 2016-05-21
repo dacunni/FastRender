@@ -35,7 +35,7 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
                                );
     
     if( !scene ) {
-        fprintf( stderr, "Failed to load %s\n", filename.c_str() );
+        fprintf( stderr, "Failed to load %s : %s\n", filename.c_str(), importer.GetErrorString() );
         return nullptr;
     }
     
