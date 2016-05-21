@@ -1,0 +1,4 @@
+
+aws s3 cp --dryrun --recursive testoutput s3://dacunni-renders/testoutput
+
+
