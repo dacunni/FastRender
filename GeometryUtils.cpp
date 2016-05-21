@@ -66,18 +66,64 @@ BarycentricCoordinate barycentricForPointInTriangle( const Vector4 & P,
 // Fresnel Equations
 //
 
+static float fresnelDialectricSqrtParallel( float cos_i, float cos_t, float n_i, float n_t )
+{
+    float denom_pa = (n_i * cos_i + n_t * cos_t);
+    if( denom_pa == 0.0f ) {
+        denom_pa = 1.0f; // FIXME?
+    }
+    return (n_i * cos_i - n_t * cos_t) / denom_pa;
+}
+
+float fresnelDialectricParallel( float cos_i, float cos_t, float n_i, float n_t )
+{
+    return sq(fresnelDialectricSqrtParallel(cos_i, cos_t, n_i, n_t));
+}
+
+static float fresnelDialectricSqrtPerpendicular( float cos_i, float cos_t, float n_i, float n_t )
+{
+    float denom_pe = (n_i * cos_t + n_t * cos_i);
+    if( denom_pe == 0.0f ) {
+        denom_pe = 1.0f; // FIXME?
+    }
+    return (n_i * cos_t - n_t * cos_i) / denom_pe;
+}
+
+float fresnelDialectricPerpendicular( float cos_i, float cos_t, float n_i, float n_t )
+{
+    return sq(fresnelDialectricSqrtPerpendicular(cos_i, cos_t, n_i, n_t));
+}
+
 // Fresnel formula for reflectance of a dialectric (non-conductive) material
 // (eg: glass)
 float fresnelDialectric( float cos_i, float cos_t, float n_i, float n_t )
 {
-    // sqrt of parallel term
-    float R_pa = (n_t * cos_i - n_i * cos_t) /
-                 (n_t * cos_i + n_i * cos_t);
-    // sqrt of perpendicular term
-    float R_pe = (n_t * cos_i - n_i * cos_t) /
-                 (n_t * cos_i + n_i * cos_t);
     // for unpolarized light, we use the average of parallel and perpendicular terms
-    return (sq(R_pa) + sq(R_pe)) * 0.5f;
+    return 0.5 * (fresnelDialectricParallel(cos_i, cos_t, n_i, n_t) +
+                  fresnelDialectricPerpendicular(cos_i, cos_t, n_i, n_t));
+}
+
+// Fresnel formula for reflectance of a dialectric (non-conductive) material
+// taking Snell's law into account to derive cos_t
+float fresnelDialectricSnell( float cos_i, float n_i, float n_t )
+{
+    float angle_i = acos(cos_i);
+    float angle_t = snellsLawAngle(n_i, angle_i, n_t);
+    return fresnelDialectric(cos_i, cos(angle_t), n_i, n_t);
+}
+
+float fresnelDialectricParallelSnell( float cos_i, float n_i, float n_t )
+{
+    float angle_i = acos(cos_i);
+    float angle_t = snellsLawAngle(n_i, angle_i, n_t);
+    return fresnelDialectricParallel(cos_i, cos(angle_t), n_i, n_t);
+}
+
+float fresnelDialectricPerpendicularSnell( float cos_i, float n_i, float n_t )
+{
+    float angle_i = acos(cos_i);
+    float angle_t = snellsLawAngle(n_i, angle_i, n_t);
+    return fresnelDialectricPerpendicular(cos_i, cos(angle_t), n_i, n_t);
 }
 
 // Fresnel formula for reflectance of a conductive material (eg: metals)
@@ -94,5 +140,24 @@ float fresnelConductor( float cos_i, float n, float k )
                   (nspks + twonc + cs);
     return (R_pa2 + R_pe2) * 0.5f;
 }
+
+// -----------------------------------------------------------------------------
+// Snell's Law
+//
+//   n1 * sin(a1) = n2 * sin(a2)
+//
+// Angle formulation
+float snellsLawAngle( float n_i, float angle_i, float n_o )
+{
+    return asinf( n_i / n_o * sinf(angle_i) );
+}
+
+// Sine formulation
+float snellsLawSine( float n_i, float sin_i, float n_o )
+{
+    return n_i / n_o * sin_i;
+}
+
+
 
 

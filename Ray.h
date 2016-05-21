@@ -27,6 +27,7 @@ public:
 	Vector4 origin;
 	Vector4 direction;
     unsigned char depth;
+    float index_of_refraction = 1.0f;  // index of the material we're in
 };
 
 class RGBRadianceSample {

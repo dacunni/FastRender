@@ -125,4 +125,8 @@ Transform makeScaling( float xScale, float yScale, float zScale )
                                0.0,          0.0,          0.0,          1.0));
 }
 
+Transform makeScaling( float scale )
+{
+    return makeScaling( scale, scale, scale );
+}
 

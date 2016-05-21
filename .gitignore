@@ -2,11 +2,13 @@
 output
 testoutput
 models
+gallery
 fr
 frui
 test_random
 test_samplers
 test_render
+test_ray_trace
 *.o
 .*.swp
 *.xcodeproj

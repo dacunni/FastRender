@@ -7,14 +7,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "Matrix.h"
-#include "Transform.h"
-#include "Ray.h"
-#include "Sphere.h"
-#include "RandomNumberGenerator.h"
-#include "DistributionSamplers.h"
-#include "Timer.h"
-#include "Plot2D.h"
+#include "FastRender.h"
 
 RandomNumberGenerator rng;
 std::string output_path = "testoutput";

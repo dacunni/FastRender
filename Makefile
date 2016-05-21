@@ -14,6 +14,7 @@ HDR = \
     EnvironmentMap.h \
 	FlatContainer.h \
     GeometryUtils.h \
+    GoochShader.h \
     ImageTracer.h \
 	Material.h \
 	Matrix.h \
@@ -46,6 +47,7 @@ OBJ = \
     EnvironmentMap.o \
 	FlatContainer.o \
     GeometryUtils.o \
+    GoochShader.o \
     ImageTracer.o \
 	Matrix.o \
     Plot2D.o \
@@ -72,6 +74,8 @@ test_randomOBJ = $(OBJ) \
 	test_random.o
 test_renderOBJ = $(OBJ) \
 	test_render.o
+test_ray_traceOBJ = $(OBJ) \
+	test_ray_trace.o
 test_samplersOBJ = $(OBJ) \
 	test_samplers.o
 
@@ -86,7 +90,7 @@ INC += -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
-CXXFLAGS += -g
+#CXXFLAGS += -g
 # Uncomment to disable asserts
 #CXXFLAGS += -DNDEBUG
 ifeq ($(UNAME_S),Darwin)
@@ -120,6 +124,7 @@ fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 test_randomLDXXFLAGS = $(LDXXFLAGS)
 test_samplersLDXXFLAGS = $(LDXXFLAGS)
 test_renderLDXXFLAGS = $(LDXXFLAGS)
+test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr frui tests
 all: fr tests
@@ -140,12 +145,16 @@ $(test_randomOBJ_IN_DIR): | $(OBJDIR)
 test_renderOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_renderOBJ))
 $(test_renderOBJ_IN_DIR): | $(OBJDIR)
 
+test_ray_traceOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_ray_traceOBJ))
+$(test_ray_traceOBJ_IN_DIR): | $(OBJDIR)
+
 test_samplersOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_samplersOBJ))
 $(test_samplersOBJ_IN_DIR): | $(OBJDIR)
 
 testOBJ_IN_DIR = \
     $(test_randomOBJ_IN_DIR) \
     $(test_renderOBJ_IN_DIR) \
+    $(test_ray_traceOBJ_IN_DIR) \
     $(test_samplersOBJ_IN_DIR)
 
 $(OBJDIR):
@@ -158,17 +167,15 @@ fr: $(frOBJ_IN_DIR)
 #frui: $(fruiOBJ_IN_DIR)
 #	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
 
-tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_samplersOBJ_IN_DIR)
+tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_ray_traceOBJ_IN_DIR) $(test_samplersOBJ_IN_DIR)
 	g++ -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
 	g++ -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
+	g++ -o test_ray_trace $(test_ray_traceOBJ_IN_DIR) $(test_ray_traceLDXXFLAGS)
 	g++ -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
-#	ld -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
-#	ld -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
-#	ld -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
-	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui test_random test_render test_samplers
+	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui test_random test_render test_ray_trace test_samplers
 

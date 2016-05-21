@@ -7,128 +7,11 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "AxisAlignedSlab.h"
-#include "Matrix.h"
-#include "Transform.h"
-#include "Ray.h"
-#include "Sphere.h"
-#include "RandomNumberGenerator.h"
-#include "Timer.h"
-#include "Plot2D.h"
-#include "SimpleCamera.h"
-#include "ImageTracer.h"
-#include "TestScenes.h"
-#include "Container.h"
-#include "FlatContainer.h"
-#include "AmbientOcclusionShader.h"
-#include "BasicDiffuseSpecularShader.h"
-#include "Material.h"
-#include "AssetLoader.h"
-#include "TriangleMesh.h"
-#include "TMOctreeAccelerator.h"
-#include "BoundingVolume.h"
-#include "EnvironmentMap.h"
+#include "FastRender.h"
 
 RandomNumberGenerator rng;
 std::string output_path = "testoutput";
 unsigned int plot_size = 500;
-
-// ------------------------------------------------------------ 
-// Simple ray intersection
-// ------------------------------------------------------------ 
-void testRayIntersect()
-{
-    Plot2D plot( output_path + "/ray_intersect.png", plot_size, plot_size,
-                 -1.0, 1.0, -1.0, 1.0 );
-    
-    // Slab with top on z=0 plane
-    AxisAlignedSlab slab( -1.0, -1.0, -1.0, 1.0, 0.0, 1.0 );
-    plot.drawLine( slab.xmin, slab.ymax, slab.xmax, slab.ymax );
-
-    auto o = Vector4( -0.95, 0.95, 0.0 );
-    auto d = Vector4( 1.0, -1.0, 0.0 ).normalized();
-    auto tip = add( o, d );
-    auto ray = Ray( o, d );
-    RayIntersection ri;
-
-
-    plot.drawCircle( o.x, o.y, 0.01 );
-    plot.drawLine( o, tip );
-
-    if( slab.intersect( ray, ri ) ) {
-        auto &p = ri.position;
-        //plot.addPoint<Vector4>( p );
-        plot.drawCircle( p.x, p.y, 0.01 );
-        plot.drawLine( p, add( p, ri.normal) );
-        plot.drawLine( p, add( p, mirror( d.negated(), ri.normal ) ) );
-    }
-
-}
-
-// ------------------------------------------------------------ 
-// Camera ray generation
-// ------------------------------------------------------------ 
-void drawCameraPoints( Plot2D & plot, int w, int h, Vector4 *points )
-{
-    // vectors
-    for( int ri = 0; ri < h; ri++ ) {
-        for( int ci = 0; ci < w; ci++ ) {
-            Vector4 v = points[ri * w + ci];
-            plot.strokeColor( 0, 0, 0 );
-            plot.drawLine( Vector4( 0, 0, 0 ), v );
-        }
-    }
-
-    // endpoints
-    for( int ri = 0; ri < h; ri++ ) {
-        for( int ci = 0; ci < w; ci++ ) {
-            Vector4 v = points[ri * w + ci];
-            plot.fillColor( (float) ri / h, (float) ci / w, 1.0 );
-            plot.strokeColor( 0, 0, 0 );
-            plot.drawCircle( v.x, v.y, 0.01 );
-        }
-    }
-}
-
-void testSimpleCameraNoJitter()
-{
-    const int w = 20, h = 20;
-    Plot2D plot( output_path + "/simple_camera_no_jitter.png", plot_size, plot_size,
-                 -1.0, 1.0, -1.0, 1.0 );
-    SimpleCamera camera( rng,
-                         -1.0, 1.0, -1.0, 1.0,
-                         w, h );
-    camera.jitter_rays = false;
-
-    Vector4 points[h*w];
-    for( int ri = 0; ri < h; ri++ ) {
-        for( int ci = 0; ci < w; ci++ ) {
-            points[ri * w + ci] = camera.vectorThrough( ri, ci );
-        }
-    }
-
-    drawCameraPoints( plot, w, h, points );
-}
-
-void testSimpleCamera()
-{
-    const int w = 20, h = 20;
-    Plot2D plot( output_path + "/simple_camera.png", plot_size, plot_size,
-                 -1.0, 1.0, -1.0, 1.0 );
-    SimpleCamera camera( rng,
-                         -1.0, 1.0, -1.0, 1.0,
-                         w, h );
-    camera.jitter_rays = true;
-
-    Vector4 points[h*w];
-    for( int ri = 0; ri < h; ri++ ) {
-        for( int ci = 0; ci < w; ci++ ) {
-            points[ri * w + ci] = camera.vectorThrough( ri, ci );
-        }
-    }
-
-    drawCameraPoints( plot, w, h, points );
-}
 
 // ------------------------------------------------------------ 
 // Ambient occlusion
@@ -1029,6 +912,367 @@ void testReflection3()
     tracer.render();
 }
 
+// ------------------------------------------------------------ 
+// Refraction
+// ------------------------------------------------------------ 
+void testRefraction1()
+{
+    //int imageSize = 32;
+    //int imageSize = 100;
+    int imageSize = 320;
+    //int imageSize = 1024;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    //int anim_frames = 10;
+    int anim_frames = 1;
+    int samples_per_pixel = 100;
+    //int samples_per_pixel = 20;
+    ImageTracer tracer( imageWidth, imageHeight, anim_frames, samples_per_pixel );
+    tracer.loopable_animations = true;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    Sphere * sphere = nullptr;
+
+    //sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
+    //sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    //container->add( sphere );
+
+    sphere = new Sphere( 0, 0.50, 1.5, 0.50 );
+    sphere->material = new RefractiveMaterial(1.2);
+    //sphere->material = new RefractiveMaterial(1.5);
+    container->add( sphere );
+
+    sphere = new Sphere( -1, 1.50, 10.0, 0.50 );
+    //sphere->material = new RefractiveMaterial(1.2);
+    sphere->material = new RefractiveMaterial(1.5);
+    container->add( sphere );
+
+    sphere = new Sphere( -1, 0.75, 0, 0.75  );
+    sphere->material = new MirrorMaterial();
+    container->add( sphere );
+
+    //sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    //sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    //container->add( sphere );
+
+    auto cube = new AxisAlignedSlab( -0.75, -0.75, -0.75, 1.5 );
+    cube->material = new RefractiveMaterial(1.2);
+    container->add( cube );
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( 1.75, 1.2, 2.75 ) ),
+                            //makeRotation( anim_progress * 0.5 * M_PI + 0.6, Vector4(0, 1, 0) ) );
+                            makeRotation( anim_progress * 0.5 * M_PI, Vector4(0, 1, 0) ) );
+                            
+        });
+
+#if 0
+    cube = new AxisAlignedSlab( -0.50, -0.50, -0.50, 1.0 );
+    cube->material = new RefractiveMaterial(1.2);
+    container->add( cube );
+    cube->transform = new TimeVaryingTransform(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( -1.50, 1.00, 6.50 ) ),
+                            makeRotation( anim_progress * 0.5 * M_PI, Vector4(1, 0, 0) ) );
+                            
+        });
+#endif
+
+    // Colored strips to show refraction from background objects
+    cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+                                +10.0, 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 0.0, -0.0,
+                                +10.0, 0.15, -0.15 );
+    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 0.0, 2.0,
+                                +10.0, 0.15, 2.15 );
+    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    container->add( cube );
+	scene->root = container;
+
+    scene->env_map = new ArcLightEnvironmentMap(Vector4(0, 1, 0), 0.25 * M_PI);
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_refract1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+void testRefraction2()
+{
+    int imageSize = 64;
+    //int imageSize = 256;
+    //int imageSize = 320;
+    //int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize * 4, imageHeight = imageSize;
+    //int rays_per_pixel = 10;
+    int rays_per_pixel = 30;
+    //int rays_per_pixel = 100;
+    ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
+    tracer.camera.xmin = -0.45;
+    tracer.camera.xmax = 0.45;
+    tracer.camera.ymin = -0.15;
+    tracer.camera.ymax = 0.15;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AssetLoader loader;
+    TriangleMesh * mesh = nullptr;
+
+    Transform rotation = makeRotation( M_PI / 4.0, Vector4(0, 1, 0) );
+    float spacing = 2.0;
+
+    // high res
+    std::string model = "models/stanford/bunny/reconstruction/bun_zipper.ply";
+    // low res
+    //std::string model = "models/stanford/bunny/reconstruction/bun_zipper_res4.ply";
+
+    {
+        mesh = loader.load( model );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        mesh->material = new RefractiveMaterial(N_AIR);
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( Vector4( -2.0 * spacing, 0.1, 2.0 ) ),
+                                    makeScaling( 3, 3, 3 ),
+                                    rotation,
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+    {
+        mesh = loader.load( model );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        mesh->material = new RefractiveMaterial(N_WATER);
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( Vector4( -1.0 * spacing, 0.1, 2.0 ) ),
+                                    makeScaling( 3, 3, 3 ),
+                                    rotation,
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+    {
+        mesh = loader.load( model );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        mesh->material = new RefractiveMaterial(N_PLEXIGLAS);
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( Vector4( 0.0, 0.1, 2.0 ) ),
+                                    makeScaling( 3, 3, 3 ),
+                                    rotation,
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+    {
+        mesh = loader.load( model );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        mesh->material = new RefractiveMaterial(N_FLINT_GLASS);
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( Vector4( 1.0 * spacing, 0.1, 2.0 ) ),
+                                    makeScaling( 3, 3, 3 ),
+                                    rotation,
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+    {
+        mesh = loader.load( model );
+        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+
+        mesh->material = new RefractiveMaterial(N_DIAMOND);
+
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        mesh_octree->build();
+        mesh->accelerator = mesh_octree;
+        mesh->transform = new Transform();
+        *mesh->transform = compose( makeTranslation( Vector4( 2.0 * spacing, 0.1, 2.0 ) ),
+                                    makeScaling( 3, 3, 3 ),
+                                    rotation,
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+        container->add( mesh );
+    }
+
+    // Walls
+#if 1
+    auto wall = new AxisAlignedSlab( -10.0, 0.0, -10.0,
+                                     +10.0, 10.0, -10.0 );
+    wall->material = new DiffuseMaterial( 0.8, 0.8, 1.0 );
+    container->add( wall );
+#endif
+
+    // Colored strips to show refraction from background objects
+    auto cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+                                     +10.0, 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -2.0,
+                                +10.0, 0.5 + 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -2.0,
+                                +10.0, 1.0 + 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    container->add( cube );
+	scene->root = container;
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap();
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+    //tracer.shader = new AmbientOcclusionShader(); // TEMP
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_refract2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    {
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 1.0, 15.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+    }
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+void testRefraction3()
+{
+    //int imageSize = 64;
+    int imageSize = 256;
+    //int imageSize = 320;
+    //int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize * 4, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
+    tracer.camera.xmin = -0.45;
+    tracer.camera.xmax = 0.45;
+    tracer.camera.ymin = -0.15;
+    tracer.camera.ymax = 0.15;
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    Sphere * sphere = nullptr;
+    float y = 1.5, z = 2.0, radius = 1.0;
+
+    sphere = new Sphere( -4, y, z, radius );
+    sphere->material = new RefractiveMaterial(1.3);
+    container->add( sphere );
+
+    sphere = new Sphere( -2, y, z, radius );
+    sphere->material = new RefractiveMaterial(1.49);
+    container->add( sphere );
+
+    sphere = new Sphere( 0, y, z, radius );
+    sphere->material = new RefractiveMaterial(1.6);
+    container->add( sphere );
+
+    sphere = new Sphere( +2, y, z, radius );
+    sphere->material = new RefractiveMaterial(2.1);
+    container->add( sphere );
+
+    sphere = new Sphere( +4, y, z, radius );
+    sphere->material = new RefractiveMaterial(2.5);
+    container->add( sphere );
+
+    // Colored strips to show refraction from background objects
+    auto cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+                                     +10.0, 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -2.0,
+                                +10.0, 0.5 + 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    container->add( cube );
+
+    cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -2.0,
+                                +10.0, 1.0 + 0.15, -2.15 );
+    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    container->add( cube );
+	scene->root = container;
+
+	scene->root = container;
+    scene->env_map = new ArcLightEnvironmentMap(Vector4(0, 1, 0), M_PI * 0.25);
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_refract3_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 1.0, 15.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+
 void testMesh1()
 {
     int imageSize = 256;
@@ -1153,7 +1397,7 @@ void testMesh2()
 }
 
 // Big multipart mesh
-void testMesh3()
+void testMeshSanMiguel()
 {
     //int imageSize = 50;
     //int imageSize = 100;
@@ -1162,8 +1406,8 @@ void testMesh3()
     int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
-    ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
-    //ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
+    //ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
+    ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
     Scene * scene = new Scene();
 	FlatContainer * container = new FlatContainer();
 
@@ -1207,21 +1451,30 @@ void testMesh3()
     //scene->env_map = new ArcLightEnvironmentMap();
     tracer.scene = scene;
 
-    tracer.shader = new BasicDiffuseSpecularShader();
+    //tracer.shader = new BasicDiffuseSpecularShader();
+    tracer.shader = new GoochShader();
 
     tracer.artifacts.output_path = output_path;
-    tracer.artifacts.file_prefix = "test_mesh3_";
+    tracer.artifacts.file_prefix = "test_mesh_san_miguel_";
 
-    // Camera back and rotated a bit around x so we're looking slightly down
 #if 0 // TEMP
     Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
     Transform translation = makeTranslation( 0.0, 0.0, 100.0 );
     tracer.setCameraTransform( compose( makeTranslation( 1.8, 0.0, -40.0 ),
                                         rotation,
                                         translation ) );
-#else
+#elif 0
+    // FIXME - Something is wrong with the geometry from this angle
     Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
-    Transform translation = makeTranslation( 0.0, 0.0, 30.0 );
+    Transform translation = makeTranslation( 0.0, 0.0, 80.0 );
+    tracer.setCameraTransform( compose( makeTranslation( 1.8, -2.0, -40.0 ),
+                                        makeRotation( 0.35, Vector4(0, 1, 0) ), // turn about Y
+                                        rotation,
+                                        translation ) );
+#else
+    // Over archway 
+    Transform rotation = makeRotation( -0.13 * M_PI, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 40.0 );
     tracer.setCameraTransform( compose( makeTranslation( 1.8, -2.0, -40.0 ),
                                         rotation,
                                         translation ) );
@@ -1641,6 +1894,55 @@ void testAreaLight2()
     tracer.render();
 }
 
+// ------------------------------------------------------------ 
+BEGIN_SCENE(SimpleCube)
+SETUP_SCENE( TestScene::setup(); );
+BUILD_SCENE(
+    float size = 1.0;
+    float half_size = size / 2.0;
+    auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
+                                     half_size, size, half_size );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    scene->addPointLight( PointLight( Vector4( -3.0, 3.0, 3.0 ),
+                                      RGBColor( 1.0, 1.0, 1.0 ).scaled(20.0) ) );
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_SCENE(Gooch)
+SETUP_SCENE( TestScene::setup(); );
+BUILD_SCENE(
+    float size = 1.0;
+    float half_size = size / 2.0;
+    auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
+                                     half_size, size, half_size );
+    cube->transform = new Transform();
+    *cube->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
+    container->add( cube );
+
+    auto sphere = new Sphere( 1.0, half_size, 0.0, half_size );
+    container->add( sphere );
+
+    std::string modelBasePath = "models";
+    TriangleMesh * mesh = loader.load( modelBasePath + "/stanford/happy/reconstruction/happy_vrip_res4.ply" );
+    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
+
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    mesh->transform = new Transform();
+    //*mesh->transform = makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) );
+    *mesh->transform = makeScaling( 3.0 );
+    container->add( mesh );
+
+    tracer->shader = new GoochShader();
+);
+END_SCENE()
+// ------------------------------------------------------------ 
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -1658,10 +1960,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 1
-    testRayIntersect();
-    testSimpleCameraNoJitter();
-    testSimpleCamera();
+#if 0
     // Ambient occlusion
     testAO1();
     testAO2();
@@ -1679,7 +1978,7 @@ int main (int argc, char * const argv[])
     testReflection3();
     testMesh1();
     testMesh2();
-    //testMesh3();      // TODO: slow - san miguel scene
+    //testMeshSanMiguel();      // TODO: slow - san miguel scene
     //testHairball();   // TODO: slow
     testPointLight1();
     testPointLight2();
@@ -1690,9 +1989,12 @@ int main (int argc, char * const argv[])
     testAnimTransforms3();
     testAreaLight1();
     testAreaLight2();
+    testRefraction1();
+    testRefraction2();
+    testRefraction3();
+    SimpleCube::run();
+    Gooch::run();
 #else
-    //testMesh2();
-    testMesh3();      // TODO: slow - san miguel scene
 #endif
     
     total_run_timer.stop();

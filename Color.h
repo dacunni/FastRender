@@ -30,7 +30,9 @@ class RGBColor {
 
     void setRGB( float red, float green, float blue ) { r = red; g = green; b = blue; }
     void scale( float s ) { r *= s; g *= s; b *= s; }
-    RGBColor scaled( float s ) { auto c(*this); c.scale(s); return c; }
+    void scale( float rs, float gs, float bs ) { r *= rs; g *= gs; b *= bs; }
+    RGBColor scaled( float s ) const { auto c(*this); c.scale(s); return c; }
+    RGBColor scaled( float rs, float gs, float bs ) const { auto c(*this); c.scale(rs, gs, bs); return c; }
     void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
     void print() { printf("RGBColor( %0.3f %0.3f %0.3f )\n", r, g, b ); }

@@ -15,7 +15,84 @@
 #include "AssetLoader.h"
 #include "TMOctreeAccelerator.h"
 #include "BoundingVolume.h"
+#include "EnvironmentMap.h"
+#include "FlatContainer.h"
+#include "BasicDiffuseSpecularShader.h"
 #include "TestScenes.h"
+
+////////////////////////////////////////////////////////////////////////////
+//
+// TestScene Class
+//
+TestScene::TestScene( const std::string & output_path, const std::string & test_name )
+  : scene(new Scene()),
+    container(new FlatContainer()),
+    name(test_name),
+    rays_per_pixel(10),
+    image_width(256),
+    image_height(256),
+    anim_frames(1)
+{
+    tracer = new ImageTracer( image_width, image_height,
+                              anim_frames, rays_per_pixel );
+
+    tracer->artifacts.output_path = output_path;
+    tracer->artifacts.file_prefix = test_name + "_";
+}
+
+TestScene::~TestScene()
+{
+
+}
+
+void TestScene::setup()
+{
+    tracer->shader = new BasicDiffuseSpecularShader();
+
+    tracer->setCameraTransform( compose(
+        // move up a bit
+        makeTranslation( 0.0, 0.5, 0.0 ),
+        // rotate so we are looking down
+        makeRotation( -0.2, Vector4(1, 0, 0) ),
+        // back away from the origin
+        makeTranslation( 0.0, 0.0, 10.0 )
+        ) );
+}
+
+void TestScene::buildScene()
+{
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+#if 0
+    float size = 1.0;
+    float half_size = size / 2.0;
+    auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
+                                       half_size, size, half_size );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+#else
+    auto sphere = new Sphere( 0.0, 1.0, 0, 1.0 );
+    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( sphere );
+#endif
+
+    scene->env_map = new ArcLightEnvironmentMap();
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+}
+
+void TestScene::render()
+{
+	scene->root = container;
+    tracer->scene = scene;
+    tracer->scene->buildLightList();
+    tracer->render();
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 void addSlabGrid( Container * container )
 {
