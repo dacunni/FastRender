@@ -1995,7 +1995,6 @@ BUILD_SCENE(
 END_SCENE()
 
 // ------------------------------------------------------------ 
-// ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestPointLight, MaterialTestBase)
 SETUP_SCENE(
     MaterialTestBase::setup();
@@ -2020,6 +2019,31 @@ BUILD_SCENE(
     MaterialTestBase::buildScene();
     scene->env_map = new ArcLightEnvironmentMap();
 );
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHDREnvironmentMap, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+    //tracer->camera.xmin = -0.25;// TEMP
+    //tracer->camera.xmax = +0.25;// TEMP
+    //tracer->camera.ymin = -0.25;// TEMP
+    //tracer->camera.ymax = +0.25;// TEMP
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    scene->env_map = new HDRImageEnvironmentMap(env_map_filename, env_map_width, env_map_height);
+);
+#if 1
+std::string env_map_filename = "light_probes/debevec/stpeters_probe.float";
+unsigned int env_map_width = 1500;
+unsigned int env_map_height = 1500;
+#else
+std::string env_map_filename = "light_probes/debevec/grace_probe.float";
+unsigned int env_map_width = 1000;
+unsigned int env_map_height = 1000;
+#endif
 END_SCENE()
 
 // ------------------------------------------------------------ 
@@ -2106,6 +2130,30 @@ BUILD_SCENE(
 );
 END_SCENE()
 
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteHDREnvironmentMap, MaterialTestHDREnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHDREnvironmentMap::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestHDREnvironmentMap::buildScene();
+    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestMirrorHDREnvironmentMap, MaterialTestHDREnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHDREnvironmentMap::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestHDREnvironmentMap::buildScene();
+    mesh->material = new MirrorMaterial();
+);
+END_SCENE()
+
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -2167,9 +2215,8 @@ int main (int argc, char * const argv[])
     MaterialTestRefractWaterArcLight::run();
     MaterialTestRefractDiamondArcLight::run();
 #else
-    MaterialTestDiffuseWhitePointLight::run();
-    MaterialTestMirrorPointLight::run();
-    MaterialTestRefractPointLight::run();
+    MaterialTestDiffuseWhiteHDREnvironmentMap::run();
+    MaterialTestMirrorHDREnvironmentMap::run();
 #endif
     
     total_run_timer.stop();

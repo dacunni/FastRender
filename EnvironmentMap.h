@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <memory>
+#include <vector>
 #include <math.h>
 
 #include "Transform.h"
@@ -67,6 +68,25 @@ protected:
     // TODO[DAC]: Colored light!
     float radiance_per_sample = 0.0f;
 };
+
+class HDRImageEnvironmentMap : public EnvironmentMap {
+public:
+	HDRImageEnvironmentMap( const std::string & filename,
+                            unsigned int w, unsigned int h);
+    virtual ~HDRImageEnvironmentMap() {}
+	
+	virtual RGBRadianceSample sample( const Ray & ray ) const;
+
+protected:
+    void loadDataFromFile( const std::string & filename,
+                           unsigned int w, unsigned int h);
+
+    std::vector<float> data;
+    unsigned int width;
+    unsigned int height;
+
+};
+
 
 
 

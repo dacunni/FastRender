@@ -7,6 +7,10 @@
  *
  */
 
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+
 #include "EnvironmentMap.h"
 #include "GeometryUtils.h"
 
@@ -74,4 +78,72 @@ RGBRadianceSample ArcLightEnvironmentMap::sample( const Ray & ray ) const
     return s;
 }
 
+
+HDRImageEnvironmentMap::HDRImageEnvironmentMap( const std::string & filename,
+                                                unsigned int w, unsigned int h)
+    : width(0),
+      height(0)
+{
+    loadDataFromFile(filename, w, h);
+}
+
+RGBRadianceSample HDRImageEnvironmentMap::sample( const Ray & ray ) const
+{
+    // FIXME[DAC]: Why do we have to negate this? Does this work properly from all angles?
+    const Vector4 & d = ray.direction;
+    //const Vector4 d = ray.direction.negated();
+    RGBRadianceSample s;
+    s.mask = RGB_BITS;
+
+    if( width == 0 || height == 0 ) {
+        return s;
+    }
+
+    // u, v in [-1, 1]
+    float r = (1.0f / M_PI) * acos(d.z) / sqrt( sq(d.x) + sq(d.y) );
+    float u = d.x * r;
+    float v = d.y * r;
+
+    float row = (v + 1.0f) * 0.5f * height;
+    float col = (u + 1.0f) * 0.5f * height;
+
+    unsigned int ri = std::min( (unsigned int) row, height );
+    unsigned int ci = std::min( (unsigned int) col, width );
+
+    unsigned int offset = (ri * width + ci) * 3;
+
+    //printf("ri = %u ci = %u\n", ri, ci); // TEMP
+    
+    // TODO[DAC]: Make the radiometry correct
+    float scale_factor = 1.0;
+
+    // TODO[DAC]: Interpolation
+    s.color.r = data[ offset + 0 ] * scale_factor;
+    s.color.g = data[ offset + 1 ] * scale_factor;
+    s.color.b = data[ offset + 2 ] * scale_factor;
+
+    return s;
+}
+
+void HDRImageEnvironmentMap::loadDataFromFile( const std::string & filename,
+                                               unsigned int w, unsigned int h)
+{
+    std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
+    if( file.is_open() )
+    {
+        std::streampos size = file.tellg();
+        assert( size == w * h * 3 * sizeof(float) );
+        data.resize( size );
+        file.seekg( 0, std::ios::beg );
+        file.read( reinterpret_cast<char*>(&data[0]), size );
+        file.close();
+        width = w;
+        height = h;
+    }
+    else {
+        printf("Error reading data from %s\n", filename.c_str());
+        width = 0;
+        height = 0;
+    }
+}
 

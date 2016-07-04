@@ -29,6 +29,7 @@ TestScene::TestScene( const std::string & output_path, const std::string & test_
     container(new FlatContainer()),
     name(test_name),
     rays_per_pixel(10),
+    // TODO[DAC]: Figure out an easy way for tests to override these settings
     image_width(256),
     image_height(256),
     anim_frames(1)
