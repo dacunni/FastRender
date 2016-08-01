@@ -1019,8 +1019,8 @@ void testRefraction1()
 
 void testRefraction2()
 {
-    int imageSize = 64;
-    //int imageSize = 256;
+    //int imageSize = 64;
+    int imageSize = 256;
     //int imageSize = 320;
     //int imageSize = 512;
     //int imageSize = 1024;
@@ -1266,6 +1266,59 @@ void testRefraction3()
     // Camera back and rotated a bit around x so we're looking slightly down
     Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
     Transform translation = makeTranslation( 0.0, 1.0, 15.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
+void testRefraction4()
+{
+    //int imageSize = 512;
+    int imageSize = 256;
+    //int imageSize = 128;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 100;
+    ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, 0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    auto sphere = new Sphere( 0.0, 1.25, 0.0, 1.0 );
+    sphere->material = new RefractiveMaterial(1.4);
+    container->add( sphere );
+
+    auto foo = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    foo->material = new RefractiveMaterial(1.1);
+    foo->transform = new Transform();
+    *foo->transform = compose( makeTranslation( Vector4( 1.5, 0.75, 0.0 ) ),
+                                //makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
+                                makeRotation( 0.0, Vector4(0, 1, 0) ) );
+    container->add( foo );
+
+    // Light
+    auto cube = new AxisAlignedSlab( 2.0, 2.5, -1.0,
+                                     4.0, 4.5,  1.0 );
+    cube->material = new Material();
+    cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
+    cube->material->emittance.scale( 5.0 );
+    container->add( cube );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_refract4_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
     tracer.setCameraTransform( compose( rotation, translation ) );
 
     tracer.scene->buildLightList();
@@ -2200,9 +2253,10 @@ int main (int argc, char * const argv[])
     testAnimTransforms3();
     testAreaLight1();
     testAreaLight2();
-    testRefraction1();
-    testRefraction2();
-    testRefraction3();
+    testRefraction1();  // Mixed scene with some refractive elements
+    testRefraction2();  // Mesh bunnies with varying IoR
+    testRefraction3();  // Spheres of varying IoR
+    testRefraction4();  // Refractive sphere with caustics
     SimpleCube::run();
     Gooch::run();
     //MaterialTestBase::run();
@@ -2214,9 +2268,10 @@ int main (int argc, char * const argv[])
     MaterialTestMirrorArcLight::run();
     MaterialTestRefractWaterArcLight::run();
     MaterialTestRefractDiamondArcLight::run();
+    MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
+    MaterialTestMirrorHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
 #else
-    MaterialTestDiffuseWhiteHDREnvironmentMap::run();
-    MaterialTestMirrorHDREnvironmentMap::run();
+    testRefraction4();  // Refractive sphere with caustics
 #endif
     
     total_run_timer.stop();
