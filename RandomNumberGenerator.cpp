@@ -16,6 +16,7 @@
 #include "RandomNumberGenerator.h"
 #include "Transform.h"
 #include "Vector.h"
+#include "GeometryUtils.h"
 
 using std::max;
 
@@ -111,6 +112,44 @@ void RandomNumberGenerator::uniformVolumeUnitSphere( float & x, float & y, float
         y = uniformRange( -1.0, 1.0 );
         z = uniformRange( -1.0, 1.0 );
     } while( x*x + y*y + z*z > 1.0 );
+}
+
+void RandomNumberGenerator::uniformUnitTriangle2D( float & x, float & y )
+{
+    // Let the area below y(x) = x, x in [0, 1] be the triangle we wish to sample
+    // Make a pdf for x by normalizing y(x) to give p(x) = 2x
+    // Pick a random x using the inverse of the cdf c(x) = x^2
+    // inv cdf c'(u) = sqrt(u), u in [0, 1]
+    x = sqrt( uniformRange( 0.0, 1.0 ) );
+    y = uniformRange( 0.0, x );
+}
+
+void RandomNumberGenerator::uniformTriangle3D( BarycentricCoordinate & bary )
+{
+    // Pick a random point in a 2D triangle, and map it to barycentric
+    // coordinates in a 3D triangle
+    float x, y;
+    uniformUnitTriangle2D( x, y );
+
+    bary.u = 0.5 * (1.0 - x);
+    bary.v = 0.5 * (1.0 - y);
+    bary.w = 1.0 - bary.u - bary.v;
+}
+
+void RandomNumberGenerator::uniformTriangle3D( const Vector4 & v1,
+                                               const Vector4 & v2,
+                                               const Vector4 & v3,
+                                               Vector4 & r )
+{
+    // Pick a random point in a 2D triangle, and map it to barycentric
+    // coordinates in a 3D triangle
+    BarycentricCoordinate bary;
+    uniformTriangle3D( bary );
+
+    // Find the triangle coordinate for our random barycentric coordinate
+    r = add( add( scale( v1, bary.u ),
+                  scale( v2, bary.v ) ),
+             scale( v3, bary.w ) );
 }
 
 void RandomNumberGenerator::buildCache()

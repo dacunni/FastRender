@@ -148,21 +148,35 @@ void testCosineHalfSphere()
 // TEMP - trying to see if i can uniformly generate a random number on a triangle
 //        This works.
 // TODO - try to generalize this to any triangle
-void testBasicTriangle()
+void testBasicTriangle2D()
 {
-    Plot2D plot( output_path + "/test_basic_triangle.png", plot_size, plot_size,
+    Plot2D plot( output_path + "/test_basic_triangle_2d.png", plot_size, plot_size,
                  -0.1, 1.1, -0.1, 1.1 );
 
-    // Let the area below y(x) = x, x in [0, 1] be the triangle we wish to sample
-    // Make a pdf for x by normalizing y(x) to give p(x) = 2x
-    // Pick a random x using the inverse of the cdf c(x) = 2x^2
-    // inv cdf c'(u) = sqrt(u/2), u in [0, 2]
+    float x, y;
     for( auto i = 0; i < points_per_plot; i++ ) {
-        float u = rng.uniformRange( 0.0, 2.0 );
-        float x = sqrt( 0.5 * u );
-        float y = rng.uniformRange( 0.0, x );
+        rng.uniformUnitTriangle2D( x, y );
 
         plot.addPoint( x, y );
+    }
+}
+
+void testBasicTriangle3D()
+{
+    Plot2D plot( output_path + "/test_basic_triangle_3d.png", plot_size, plot_size,
+                 -0.1, 1.1, -0.1, 1.1 );
+
+    Vector4 v[3] = {
+        Vector4( -0.9, 0.0, 0.0 ),
+        Vector4( 1.0, 0.0, 0.9 ),
+        Vector4( 0.8, 1.0, 0.0 )
+    };
+
+    Vector4 r;
+    for( auto i = 0; i < points_per_plot; i++ ) {
+        rng.uniformTriangle3D( v[0], v[1], v[2], r );
+
+        plot.addPoint( r.x, r.y );
     }
 }
 
@@ -178,6 +192,7 @@ int main (int argc, char * const argv[])
 
     rng.seedCurrentTime();
 
+#if 1
     testUniformSquare();
     testUniformSurfaceUnitSphere();
     testUniformSurfaceUnitHalfSphere();
@@ -186,7 +201,11 @@ int main (int argc, char * const argv[])
     testCosineDistribution();
     testCosineHalfSphere();
 
-    testBasicTriangle();
+    testBasicTriangle2D();
+    testBasicTriangle3D();
+#else
+    testBasicTriangle3D();
+#endif
     
     total_run_timer.stop();
     printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());

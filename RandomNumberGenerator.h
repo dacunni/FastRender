@@ -11,6 +11,7 @@
 #define _RANDOM_NUMBER_GENERATOR_H_
 
 class Vector4;
+class BarycentricCoordinate;
 
 enum RandomMethod {
     UnixRand
@@ -37,6 +38,13 @@ public:
     void cosineUnitHalfSphere( Vector4 & v );
     
     void uniformVolumeUnitSphere( float & x, float & y, float & z );
+
+    void uniformUnitTriangle2D( float & x, float & y );
+    void uniformTriangle3D( BarycentricCoordinate & bary );
+    void uniformTriangle3D( const Vector4 & v1,
+                            const Vector4 & v2,
+                            const Vector4 & v3,
+                            Vector4 & r );
     
 	void seedCurrentTime();
 

@@ -20,6 +20,7 @@ float triangleArea( const Vector4 & A, const Vector4 & B, const Vector4 & C );
 // Barycentric coordinates using the convension that u + v + w = 1
 struct BarycentricCoordinate
 {
+    BarycentricCoordinate() : u(0.0f), v(0.0f), w(1.0f) {}
     BarycentricCoordinate( float _u, float _v ) : u(_u), v(_v), w(1.0f - _u - _v) {}
     BarycentricCoordinate( float _u, float _v, float _w ) : u(_u), v(_v), w(_w) {}
     ~BarycentricCoordinate() {}
