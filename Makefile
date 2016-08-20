@@ -74,6 +74,8 @@ test_randomOBJ = $(OBJ) \
 	test_random.o
 test_renderOBJ = $(OBJ) \
 	test_render.o
+test_materialsOBJ = $(OBJ) \
+	test_materials.o
 test_ray_traceOBJ = $(OBJ) \
 	test_ray_trace.o
 test_samplersOBJ = $(OBJ) \
@@ -124,6 +126,7 @@ fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 test_randomLDXXFLAGS = $(LDXXFLAGS)
 test_samplersLDXXFLAGS = $(LDXXFLAGS)
 test_renderLDXXFLAGS = $(LDXXFLAGS)
+test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr frui tests
@@ -145,6 +148,9 @@ $(test_randomOBJ_IN_DIR): | $(OBJDIR)
 test_renderOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_renderOBJ))
 $(test_renderOBJ_IN_DIR): | $(OBJDIR)
 
+test_materialsOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_materialsOBJ))
+$(test_materialsOBJ_IN_DIR): | $(OBJDIR)
+
 test_ray_traceOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_ray_traceOBJ))
 $(test_ray_traceOBJ_IN_DIR): | $(OBJDIR)
 
@@ -154,6 +160,7 @@ $(test_samplersOBJ_IN_DIR): | $(OBJDIR)
 testOBJ_IN_DIR = \
     $(test_randomOBJ_IN_DIR) \
     $(test_renderOBJ_IN_DIR) \
+    $(test_materialsOBJ_IN_DIR) \
     $(test_ray_traceOBJ_IN_DIR) \
     $(test_samplersOBJ_IN_DIR)
 
@@ -167,9 +174,10 @@ fr: $(frOBJ_IN_DIR)
 #frui: $(fruiOBJ_IN_DIR)
 #	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
 
-tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_ray_traceOBJ_IN_DIR) $(test_samplersOBJ_IN_DIR)
+tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_materialsOBJ_IN_DIR) $(test_ray_traceOBJ_IN_DIR) $(test_samplersOBJ_IN_DIR)
 	g++ -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
 	g++ -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
+	g++ -o test_materials $(test_materialsOBJ_IN_DIR) $(test_materialsLDXXFLAGS)
 	g++ -o test_ray_trace $(test_ray_traceOBJ_IN_DIR) $(test_ray_traceLDXXFLAGS)
 	g++ -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
 
@@ -177,5 +185,5 @@ $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
-	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui test_random test_render test_ray_trace test_samplers
+	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui test_random test_render test_materials test_ray_trace test_samplers
 

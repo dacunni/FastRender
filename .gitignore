@@ -8,6 +8,7 @@ frui
 test_random
 test_samplers
 test_render
+test_materials
 test_ray_trace
 *.o
 .*.swp
