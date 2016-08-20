@@ -37,6 +37,23 @@ ImageTracer::~ImageTracer()
 void ImageTracer::render()
 {
     Timer image_flush_timer;
+
+    // Pixel order randomization
+    std::vector<unsigned int> randomized_indices;
+
+    if( randomize_pixel_order ) {
+        unsigned int num_pixels = image_width * image_height;
+        // Initialize with default order
+        for( unsigned int i = 0; i < num_pixels; i++ ) {
+            randomized_indices.push_back(i);
+        }
+        // Randomly swap each pixel with another
+        for( unsigned int i = 0; i < num_pixels; i++ ) {
+            unsigned int j = rand() % num_pixels;
+            std::swap(randomized_indices[i], randomized_indices[j]);
+        }
+    }
+
     image_flush_timer.start();
     float min_flush_period = 5.0; // seconds
     for( unsigned int frame = 0; frame < num_frames; ++frame ) {
@@ -51,11 +68,14 @@ void ImageTracer::render()
                 image_flush_timer.start(); // reset timer
             }
             for( unsigned int col = 0; col < image_width; ++col ) {
-                beginRenderPixel( row, col );
-                for( unsigned int ray_index = 0; ray_index < rays_per_pixel; ++ray_index ) {
-                    tracePixelRay( row, col, ray_index );
+                if( randomize_pixel_order ) {
+                    unsigned orig_index = row * image_width + col;
+                    unsigned rand_index = randomized_indices[orig_index];
+                    renderPixel( rand_index / image_width, rand_index % image_width );
                 }
-                endRenderPixel( row, col );
+                else {
+                    renderPixel( row, col );
+                }
             }
         }
         endFrame( frame );
@@ -97,6 +117,15 @@ void ImageTracer::endFrame( unsigned int frame_index )
 {
     if( frame_index < num_frames - 1 )
         artifacts.startNewFrame();
+}
+
+void ImageTracer::renderPixel( unsigned int row, unsigned int col )
+{
+    beginRenderPixel( row, col );
+    for( unsigned int ray_index = 0; ray_index < rays_per_pixel; ++ray_index ) {
+        tracePixelRay( row, col, ray_index );
+    }
+    endRenderPixel( row, col );
 }
 
 void ImageTracer::beginRenderPixel( unsigned int row, unsigned int col )

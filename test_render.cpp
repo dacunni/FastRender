@@ -2271,7 +2271,7 @@ int main (int argc, char * const argv[])
     MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
     MaterialTestMirrorHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
 #else
-    testRefraction4();  // Refractive sphere with caustics
+    testAO3();
 #endif
     
     total_run_timer.stop();
