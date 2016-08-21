@@ -6,6 +6,7 @@
 #include "Boolean.h"
 #include "BoundingVolume.h"
 #include "BoundingVolumeHierarchy.h"
+#include "CSG.h"
 #include "Color.h"
 #include "Container.h"
 #include "DistributionSamplers.h"

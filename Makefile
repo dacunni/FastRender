@@ -10,6 +10,7 @@ HDR = \
 	BoundingVolumeHierarchy.h \
 	Color.h \
 	Container.h \
+    CSG.h \
     DistributionSamplers.h \
     EnvironmentMap.h \
 	FlatContainer.h \
@@ -43,6 +44,7 @@ OBJ = \
 	BoundingVolume.o \
 	BoundingVolumeHierarchy.o \
 	Container.o \
+	CSG.o \
     DistributionSamplers.o \
     EnvironmentMap.o \
 	FlatContainer.o \

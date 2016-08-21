@@ -724,6 +724,138 @@ void testPointLight4()
 }
 
 // ------------------------------------------------------------ 
+// Logical Operations
+// ------------------------------------------------------------ 
+void testLogicalAND()
+{
+    int imageSize = 256;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    auto obj1 = new Sphere( -0.5, 1.00, 0, 1.00 );
+    auto obj2 = new Sphere( +0.5, 1.00, 0, 1.00 );
+    auto logical = new CSGAnd( *obj1, *obj2 );
+    //logical->material = new MirrorMaterial();
+    logical->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    //logical->material = new RefractiveMaterial(1.5);
+    container->add( logical );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    //tracer.shader = new AmbientOcclusionShader();
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_logical_and_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform translation_up = makeTranslation( 0.0, 1.0, 0.0 );
+    Transform rotation = makeRotation( -M_PI / 32, Vector4(1, 0, 0) );
+    Transform translation_back = makeTranslation( 0.0, 0.0, 10.0 );
+    tracer.setCameraTransform( compose( translation_up, rotation, translation_back ) );
+
+    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0, 1, 0), M_PI * 0.4 );
+    ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(1, 1, 0), M_PI * 0.4 );
+    env_map->setPower( 30.0f );
+    scene->env_map = env_map;
+
+    tracer.render();
+}
+
+// ------------------------------------------------------------ 
+// Base test configuration for a lens made from the logical AND of two spheres
+// Derived tests change the index of refraction
+BEGIN_SCENE(CSGLogicalANDLens)
+    float index_of_refraction = 1.3;
+SETUP_SCENE(
+    TestScene::setup();
+    tracer->rays_per_pixel = 50;
+    tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->setCameraTransform( compose(
+        // move up a bit
+        makeTranslation( 0.0, 1.0, 0.0 ),
+        // rotate so we are looking down
+        makeRotation( -M_PI / 32, Vector4(1, 0, 0) ),
+        // back away from the origin
+        makeTranslation( 0.0, 0.0, 10.0 )
+        ) );
+);
+TriangleMesh * mesh = nullptr;
+BUILD_SCENE(
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    auto obj1 = new Sphere( -9.95, 1.00, 0, 10.00 );
+    auto obj2 = new Sphere( +9.95, 1.00, 0, 10.00 );
+    auto logical = new CSGAnd( *obj1, *obj2 );
+    logical->material = new RefractiveMaterial(index_of_refraction);
+    logical->transform = new Transform();
+    *logical->transform = makeRotation( -M_PI / 2, Vector4(0, 1, 0) );
+    container->add( logical );
+
+    // Colored strips to show refraction from background objects
+    auto cube = new AxisAlignedSlab( -10.0, 0.0, -5.0, +10.0, 0.15, -5.15 );
+    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    container->add( cube );
+    cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -5.0, +10.0, 0.5 + 0.15, -5.15 );
+    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    container->add( cube );
+    cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -5.0, +10.0, 1.0 + 0.15, -5.15 );
+    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    container->add( cube );
+
+    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(1, 1, 1), M_PI * 0.4 );
+    //env_map->setPower( 30.0f );
+    //scene->env_map = env_map;
+    scene->env_map = new TestPatternEnvironmentMap();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(CSGLogicalANDLensWater, CSGLogicalANDLens)
+SETUP_SCENE(
+    CSGLogicalANDLens::setup();
+    index_of_refraction = N_WATER;
+);
+BUILD_SCENE(
+    CSGLogicalANDLens::buildScene();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(CSGLogicalANDLensCrownGlass, CSGLogicalANDLens)
+SETUP_SCENE(
+    CSGLogicalANDLens::setup();
+    index_of_refraction = N_CROWN_GLASS;
+);
+BUILD_SCENE(
+    CSGLogicalANDLens::buildScene();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(CSGLogicalANDLensFlintGlass, CSGLogicalANDLens)
+SETUP_SCENE(
+    CSGLogicalANDLens::setup();
+    index_of_refraction = N_FLINT_GLASS;
+);
+BUILD_SCENE(
+    CSGLogicalANDLens::buildScene();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+// ------------------------------------------------------------ 
 // Reflection
 // ------------------------------------------------------------ 
 void testReflection1()
@@ -2018,12 +2150,12 @@ int main (int argc, char * const argv[])
     // Tests
 #if 0
     // Ambient occlusion
-    testAO1();
-    testAO2();
-    testAO3();
-    testAO4();
-    testAO5();
-    testAO6();
+    testAO1(); // White spheres
+    testAO2(); // White spheres, overhead camera
+    testAO3(); // White cubes
+    testAO4(); // Colored cubes
+    testAO5(); // Stanford Bunny
+    testAO6(); // Dragon
     testAO7();
     testSphereLight1();
     testSphereLight2();
@@ -2051,10 +2183,15 @@ int main (int argc, char * const argv[])
     testRefraction4();  // Refractive sphere with caustics
     SimpleCube::run();
     Gooch::run();
+    testLogicalAND();
+    CSGLogicalANDLensWater::run();
+    CSGLogicalANDLensCrownGlass::run();
+    CSGLogicalANDLensFlintGlass::run();
 #else
-    //testAreaLight1();
-    //testRefraction3();  // Spheres of varying IoR
-    testRefraction4();  // Refractive sphere with caustics
+    //testLogicalAND();
+    CSGLogicalANDLensWater::run();
+    CSGLogicalANDLensCrownGlass::run();
+    CSGLogicalANDLensFlintGlass::run();
 #endif
     
     total_run_timer.stop();
