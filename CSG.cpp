@@ -17,14 +17,14 @@ bool CSGAnd::intersect( const Ray & ray, RayIntersection & intersection ) const
     RayIntersection tmp_isect = intersection;
     tmp_isect.min_distance = 0.0001;
     Ray tmp_ray = ray;
-    while( obj1.intersect( tmp_ray, tmp_isect ) ) {
+    while( obj1.intersectTransformed( tmp_ray, tmp_isect ) ) {
         obj1_hits++;
         tmp_ray.origin = tmp_isect.position;
     }
     tmp_isect = intersection;
     tmp_isect.min_distance = 0.0001;
     tmp_ray = ray;
-    while( obj2.intersect( tmp_ray, tmp_isect ) ) {
+    while( obj2.intersectTransformed( tmp_ray, tmp_isect ) ) {
         obj2_hits++;
         tmp_ray.origin = tmp_isect.position;
     }
@@ -46,8 +46,8 @@ bool CSGAnd::intersect( const Ray & ray, RayIntersection & intersection ) const
 
     while( 1 ) {
         // Find next closest intersection
-        bool hit1 = obj1.intersect( tmp_ray, isect1 ); 
-        bool hit2 = obj2.intersect( tmp_ray, isect2 ) ;
+        bool hit1 = obj1.intersectTransformed( tmp_ray, isect1 ); 
+        bool hit2 = obj2.intersectTransformed( tmp_ray, isect2 ) ;
 
         // Object 1 is closest
         if( (hit1 && !hit2)

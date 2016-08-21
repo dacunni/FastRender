@@ -771,6 +771,67 @@ void testLogicalAND()
 }
 
 // ------------------------------------------------------------ 
+void testLogicalANDMesh()
+{
+    int imageSize = 256;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 50 );
+    Scene * scene = new Scene();
+	FlatContainer * container = new FlatContainer();
+
+    // Ground plane at y=0
+    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    AssetLoader loader;
+    std::string modelBasePath = "models";
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    mesh->transform = new Transform();
+    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+
+    auto obj1 = mesh;
+    auto obj2 = new Sphere( +0.25, 1.00, 0, 1.00 );
+
+    auto logical = new CSGAnd( *obj1, *obj2 );
+    //logical->material = new MirrorMaterial();
+    logical->material = new DiffuseMaterial( 0.9, 0.9, 1.0 );
+    //logical->material = new RefractiveMaterial(1.5);
+    container->add( logical );
+    //container->add( mesh );
+    //container->add( obj2 );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    //tracer.shader = new AmbientOcclusionShader();
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_logical_and_mesh_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform translation_up = makeTranslation( 0.0, 1.0, 0.0 );
+    Transform rotation = makeRotation( -M_PI / 32, Vector4(1, 0, 0) );
+    Transform rotation_around = makeRotation( -M_PI / 4, Vector4(0, 1, 0) );
+    Transform translation_back = makeTranslation( 0.0, 0.0, 10.0 );
+    tracer.setCameraTransform( compose( rotation_around, translation_up, rotation, translation_back ) );
+
+    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0, 1, 0), M_PI * 0.4 );
+    ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0.2, 1, 0), M_PI * 0.4 );
+    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(1, 1, 0), M_PI * 0.4 );
+    env_map->setPower( 25.0f );
+    scene->env_map = env_map;
+
+    tracer.render();
+}
+// ------------------------------------------------------------ 
 // Base test configuration for a lens made from the logical AND of two spheres
 // Derived tests change the index of refraction
 BEGIN_SCENE(CSGLogicalANDLens)
@@ -2184,14 +2245,12 @@ int main (int argc, char * const argv[])
     SimpleCube::run();
     Gooch::run();
     testLogicalAND();
+    testLogicalANDMesh();
     CSGLogicalANDLensWater::run();
     CSGLogicalANDLensCrownGlass::run();
     CSGLogicalANDLensFlintGlass::run();
 #else
-    //testLogicalAND();
-    CSGLogicalANDLensWater::run();
-    CSGLogicalANDLensCrownGlass::run();
-    CSGLogicalANDLensFlintGlass::run();
+    testLogicalANDMesh();
 #endif
     
     total_run_timer.stop();
