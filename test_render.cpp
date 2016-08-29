@@ -136,19 +136,19 @@ void testAO4()
     AxisAlignedSlab * cube = nullptr;
 
     cube = new AxisAlignedSlab( +1.75, 0, 0, 1.25 );
-    cube->material = new DiffuseMaterial( 1.0, 1.0, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 0.5 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( +0.0, 0, 0, 1.00 );
-    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( -1.5, 0, 0, 0.75 );
-    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( -2.5, 0, 0, 0.50 );
-    cube->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( cube );
 
 	scene->root = container;
@@ -194,7 +194,7 @@ void testAO5()
         return;
     }
 
-    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -247,7 +247,7 @@ void testAO6()
         return;
     }
 
-    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -300,7 +300,7 @@ void testAO7()
         return;
     }
 
-    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -424,15 +424,15 @@ void testSphereLight3()
     Sphere * sphere = nullptr;
 
     sphere = new Sphere( -2, 0.25, 0, 0.25 );
-    sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( sphere );
 
     sphere = new Sphere( -1, 0.50, 0, 0.50 );
-    sphere->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( sphere );
 
     sphere = new Sphere( +1, 1.00, 0, 1.00 );
-    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
     addSphereLight( container,
@@ -605,7 +605,7 @@ void testPointLight3()
 
     AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-    //mesh->material = new DiffuseMaterial( 0.75, 1.0, 0.8 );
+    //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
 
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -618,7 +618,7 @@ void testPointLight3()
     container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
 
     auto cube = new AxisAlignedSlab( 0.8, 0, 2.0, 0.5 );
-    cube->material = new DiffuseMaterial( 1.0, 0.2, 0.2 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.2, 0.2 );
     container->add( cube );
 
     scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ),
@@ -671,7 +671,7 @@ void testPointLight4()
 
     AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-    mesh->material = new MirrorMaterial();
+    mesh->material = std::make_shared<MirrorMaterial>();
 
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -686,17 +686,17 @@ void testPointLight4()
 
     // colored balls to see if we are gettingn proper reflections
     auto s = new Sphere( -1.25, 0.25, 0.75, 0.25 );
-    s->material = new DiffuseMaterial(1, 1, 0);
+    s->material = std::make_shared<DiffuseMaterial>(1, 1, 0);
     container->add( s );
     s = new Sphere( 1.25, 0.25, 0.75, 0.25 );
-    s->material = new DiffuseMaterial(0, 1, 0);
+    s->material = std::make_shared<DiffuseMaterial>(0, 1, 0);
     container->add( s );
     s = new Sphere( 0.0, 0.25, 3.0, 0.25 );
-    s->material = new DiffuseMaterial(0, 1, 1);
+    s->material = std::make_shared<DiffuseMaterial>(0, 1, 1);
     container->add( s );
 
     auto cube = new AxisAlignedSlab( 0.8, 0, 2.0, 0.5 );
-    cube->material = new DiffuseMaterial( 1.0, 0.2, 0.2 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.2, 0.2 );
     container->add( cube );
 
     scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ),
@@ -742,9 +742,9 @@ void testLogicalAND()
     auto obj1 = new Sphere( -0.5, 1.00, 0, 1.00 );
     auto obj2 = new Sphere( +0.5, 1.00, 0, 1.00 );
     auto logical = new CSGAnd( *obj1, *obj2 );
-    //logical->material = new MirrorMaterial();
-    logical->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
-    //logical->material = new RefractiveMaterial(1.5);
+    //logical->material = std::make_shared<MirrorMaterial>();
+    logical->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
+    //logical->material = std::make_shared<RefractiveMaterial>(1.5);
     container->add( logical );
 
 	scene->root = container;
@@ -800,9 +800,9 @@ void testLogicalANDMesh()
     auto obj2 = new Sphere( +0.25, 1.00, 0, 1.00 );
 
     auto logical = new CSGAnd( *obj1, *obj2 );
-    //logical->material = new MirrorMaterial();
-    logical->material = new DiffuseMaterial( 0.9, 0.9, 1.0 );
-    //logical->material = new RefractiveMaterial(1.5);
+    //logical->material = std::make_shared<MirrorMaterial>();
+    logical->material = std::make_shared<DiffuseMaterial>( 0.9, 0.9, 1.0 );
+    //logical->material = std::make_shared<RefractiveMaterial>(1.5);
     container->add( logical );
     //container->add( mesh );
     //container->add( obj2 );
@@ -859,20 +859,20 @@ BUILD_SCENE(
     auto obj1 = new Sphere( -9.95, 1.00, 0, 10.00 );
     auto obj2 = new Sphere( +9.95, 1.00, 0, 10.00 );
     auto logical = new CSGAnd( *obj1, *obj2 );
-    logical->material = new RefractiveMaterial(index_of_refraction);
+    logical->material = std::make_shared<RefractiveMaterial>(index_of_refraction);
     logical->transform = new Transform();
     *logical->transform = makeRotation( -M_PI / 2, Vector4(0, 1, 0) );
     container->add( logical );
 
     // Colored strips to show refraction from background objects
     auto cube = new AxisAlignedSlab( -10.0, 0.0, -5.0, +10.0, 0.15, -5.15 );
-    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
     cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -5.0, +10.0, 0.5 + 0.15, -5.15 );
-    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
     container->add( cube );
     cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -5.0, +10.0, 1.0 + 0.15, -5.15 );
-    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
     container->add( cube );
 
     //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(1, 1, 1), M_PI * 0.4 );
@@ -935,19 +935,19 @@ void testReflection1()
     Sphere * sphere = nullptr;
 
     sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
-    sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( sphere );
 
     sphere = new Sphere( 0, 0.50, 1.5, 0.50 );
-    sphere->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( sphere );
 
     sphere = new Sphere( -1, 0.75, 0, 0.75  );
-    sphere->material = new MirrorMaterial();
+    sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
     sphere = new Sphere( +1, 1.00, 0, 1.00 );
-    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
 	scene->root = container;
@@ -984,27 +984,27 @@ void testReflection2()
     Sphere * sphere = nullptr;
 
     sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
-    sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( sphere );
 
     sphere = new Sphere( +1, 0.50, 4.0, 0.50 );
-    sphere->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( sphere );
 
     sphere = new Sphere( -1, 0.75, 0, 0.75  );
-    sphere->material = new MirrorMaterial( 0.75, 0.75, 0.15 );
+    sphere->material = std::make_shared<MirrorMaterial>( 0.75, 0.75, 0.15 );
     container->add( sphere );
 
     sphere = new Sphere( +1, 1.00, 0, 1.00 );
-    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
     sphere = new Sphere( 0, 0.5, 2.0, 0.5  );
-    sphere->material = new MirrorMaterial();
+    sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
     sphere = new Sphere( -0.75, 0.25, 3.5, 0.25  );
-    sphere->material = new MirrorMaterial( 1.0, 0.0, 1.0 );
+    sphere->material = std::make_shared<MirrorMaterial>( 1.0, 0.0, 1.0 );
     container->add( sphere );
 
 	scene->root = container;
@@ -1052,8 +1052,8 @@ void testReflection3()
 
     AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-    //mesh->material = new DiffuseMaterial( 0.75, 1.0, 0.8 );
-    mesh->material = new MirrorMaterial();
+    //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
+    mesh->material = std::make_shared<MirrorMaterial>();
 
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -1066,25 +1066,25 @@ void testReflection3()
     Sphere * sphere = nullptr;
 
     sphere = new Sphere( -2, 0.25, 2.5, 0.25 );
-    sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( sphere );
 
     sphere = new Sphere( -2, 0.75, 0, 0.75 );
-    sphere->material = new MirrorMaterial();
+    sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
     sphere = new Sphere( +2.5, 1.00, 0, 1.00 );
-    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
     sphere = new Sphere( -0.75, 0.50, 4.0, 0.50 );
-    sphere->material = new MirrorMaterial( 1.0, 0.2, 1.0 );
+    sphere->material = std::make_shared<MirrorMaterial>( 1.0, 0.2, 1.0 );
     container->add( sphere );
 
     AxisAlignedSlab * cube = nullptr;
 
     cube = new AxisAlignedSlab( +0.50, 0, 5.0, 1.0 );
-    cube->material = new DiffuseMaterial( 0.5, 1.0, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( cube );
 
 	scene->root = container;
@@ -1132,29 +1132,29 @@ void testRefraction1()
     Sphere * sphere = nullptr;
 
     //sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
-    //sphere->material = new DiffuseMaterial( 1.0, 0.5, 0.5 );
+    //sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     //container->add( sphere );
 
     sphere = new Sphere( 0, 0.50, 1.5, 0.50 );
-    sphere->material = new RefractiveMaterial(1.2);
-    //sphere->material = new RefractiveMaterial(1.5);
+    sphere->material = std::make_shared<RefractiveMaterial>(1.2);
+    //sphere->material = std::make_shared<RefractiveMaterial>(1.5);
     container->add( sphere );
 
     sphere = new Sphere( -1, 1.50, 10.0, 0.50 );
-    //sphere->material = new RefractiveMaterial(1.2);
-    sphere->material = new RefractiveMaterial(1.5);
+    //sphere->material = std::make_shared<RefractiveMaterial>(1.2);
+    sphere->material = std::make_shared<RefractiveMaterial>(1.5);
     container->add( sphere );
 
     sphere = new Sphere( -1, 0.75, 0, 0.75  );
-    sphere->material = new MirrorMaterial();
+    sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
     //sphere = new Sphere( +1, 1.00, 0, 1.00 );
-    //sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    //sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     //container->add( sphere );
 
     auto cube = new AxisAlignedSlab( -0.75, -0.75, -0.75, 1.5 );
-    cube->material = new RefractiveMaterial(1.2);
+    cube->material = std::make_shared<RefractiveMaterial>(1.2);
     container->add( cube );
     cube->transform = new TimeVaryingTransform(
         [](float anim_progress) {
@@ -1166,7 +1166,7 @@ void testRefraction1()
 
 #if 0
     cube = new AxisAlignedSlab( -0.50, -0.50, -0.50, 1.0 );
-    cube->material = new RefractiveMaterial(1.2);
+    cube->material = std::make_shared<RefractiveMaterial>(1.2);
     container->add( cube );
     cube->transform = new TimeVaryingTransform(
         [](float anim_progress) {
@@ -1179,17 +1179,17 @@ void testRefraction1()
     // Colored strips to show refraction from background objects
     cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
                                 +10.0, 0.15, -2.15 );
-    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( -10.0, 0.0, -0.0,
                                 +10.0, 0.15, -0.15 );
-    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( -10.0, 0.0, 2.0,
                                 +10.0, 0.15, 2.15 );
-    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
     container->add( cube );
 	scene->root = container;
 
@@ -1251,7 +1251,7 @@ void testRefraction2()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        mesh->material = new RefractiveMaterial(N_AIR);
+        mesh->material = std::make_shared<RefractiveMaterial>(N_AIR);
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1270,7 +1270,7 @@ void testRefraction2()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        mesh->material = new RefractiveMaterial(N_WATER);
+        mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1289,7 +1289,7 @@ void testRefraction2()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        mesh->material = new RefractiveMaterial(N_PLEXIGLAS);
+        mesh->material = std::make_shared<RefractiveMaterial>(N_PLEXIGLAS);
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1308,7 +1308,7 @@ void testRefraction2()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        mesh->material = new RefractiveMaterial(N_FLINT_GLASS);
+        mesh->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1327,7 +1327,7 @@ void testRefraction2()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        mesh->material = new RefractiveMaterial(N_DIAMOND);
+        mesh->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1344,24 +1344,24 @@ void testRefraction2()
 #if 1
     auto wall = new AxisAlignedSlab( -10.0, 0.0, -10.0,
                                      +10.0, 10.0, -10.0 );
-    wall->material = new DiffuseMaterial( 0.8, 0.8, 1.0 );
+    wall->material = std::make_shared<DiffuseMaterial>( 0.8, 0.8, 1.0 );
     container->add( wall );
 #endif
 
     // Colored strips to show refraction from background objects
     auto cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
                                      +10.0, 0.15, -2.15 );
-    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -2.0,
                                 +10.0, 0.5 + 0.15, -2.15 );
-    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -2.0,
                                 +10.0, 1.0 + 0.15, -2.15 );
-    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
     container->add( cube );
 	scene->root = container;
 
@@ -1411,39 +1411,39 @@ void testRefraction3()
     float y = 1.5, z = 2.0, radius = 1.0;
 
     sphere = new Sphere( -4, y, z, radius );
-    sphere->material = new RefractiveMaterial(1.3);
+    sphere->material = std::make_shared<RefractiveMaterial>(1.3);
     container->add( sphere );
 
     sphere = new Sphere( -2, y, z, radius );
-    sphere->material = new RefractiveMaterial(1.49);
+    sphere->material = std::make_shared<RefractiveMaterial>(1.49);
     container->add( sphere );
 
     sphere = new Sphere( 0, y, z, radius );
-    sphere->material = new RefractiveMaterial(1.6);
+    sphere->material = std::make_shared<RefractiveMaterial>(1.6);
     container->add( sphere );
 
     sphere = new Sphere( +2, y, z, radius );
-    sphere->material = new RefractiveMaterial(2.1);
+    sphere->material = std::make_shared<RefractiveMaterial>(2.1);
     container->add( sphere );
 
     sphere = new Sphere( +4, y, z, radius );
-    sphere->material = new RefractiveMaterial(2.5);
+    sphere->material = std::make_shared<RefractiveMaterial>(2.5);
     container->add( sphere );
 
     // Colored strips to show refraction from background objects
     auto cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
                                      +10.0, 0.15, -2.15 );
-    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -2.0,
                                 +10.0, 0.5 + 0.15, -2.15 );
-    cube->material = new DiffuseMaterial( 1.0, 0.5, 0.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
     container->add( cube );
 
     cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -2.0,
                                 +10.0, 1.0 + 0.15, -2.15 );
-    cube->material = new DiffuseMaterial( 0.0, 1.0, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
     container->add( cube );
 	scene->root = container;
 
@@ -1482,11 +1482,11 @@ void testRefraction4()
     container->add( floor );
 
     auto sphere = new Sphere( 0.0, 1.25, 0.0, 1.0 );
-    sphere->material = new RefractiveMaterial(1.4);
+    sphere->material = std::make_shared<RefractiveMaterial>(1.4);
     container->add( sphere );
 
     auto foo = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    foo->material = new RefractiveMaterial(1.1);
+    foo->material = std::make_shared<RefractiveMaterial>(1.1);
     foo->transform = new Transform();
     *foo->transform = compose( makeTranslation( Vector4( 1.5, 0.75, 0.0 ) ),
                                 //makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
@@ -1496,7 +1496,7 @@ void testRefraction4()
     // Light
     auto cube = new AxisAlignedSlab( 2.0, 2.5, -1.0,
                                      4.0, 4.5,  1.0 );
-    cube->material = new Material();
+    cube->material = std::make_shared<Material>();
     cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
     cube->material->emittance.scale( 5.0 );
     container->add( cube );
@@ -1548,8 +1548,8 @@ void testMesh1()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        //mesh->material = new DiffuseMaterial( 0.75, 1.0, 0.8 );
-        //mesh->material = new MirrorMaterial();
+        //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
+        //mesh->material = std::make_shared<MirrorMaterial>();
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1677,13 +1677,13 @@ void testMeshSanMiguel()
     container->add( mesh );
 
     auto s = new Sphere( -1.25, 0.25, 0.75, 0.25 );
-    s->material = new DiffuseMaterial(1, 1, 0);
+    s->material = std::make_shared<DiffuseMaterial>(1, 1, 0);
     container->add( s );
     s = new Sphere( 1.25, 0.25, 0.75, 0.25 );
-    s->material = new DiffuseMaterial(0, 1, 0);
+    s->material = std::make_shared<DiffuseMaterial>(0, 1, 0);
     container->add( s );
     s = new Sphere( 0.0, 0.25, 3.0, 0.25 );
-    s->material = new DiffuseMaterial(0, 1, 1);
+    s->material = std::make_shared<DiffuseMaterial>(0, 1, 1);
     container->add( s );
 
     scene->addPointLight( PointLight( Vector4( 20.0, 20.0, -15.0 ),
@@ -1756,8 +1756,8 @@ void testHairball()
 
         AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-        //mesh->material = new DiffuseMaterial( 0.75, 1.0, 0.8 );
-        //mesh->material = new MirrorMaterial();
+        //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
+        //mesh->material = std::make_shared<MirrorMaterial>();
 
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
@@ -1820,7 +1820,7 @@ void testAnimTransforms1()
 
     AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
 
-    mesh->material = new MirrorMaterial();
+    mesh->material = std::make_shared<MirrorMaterial>();
 
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
@@ -1838,17 +1838,17 @@ void testAnimTransforms1()
 
     // colored balls to see if we are gettingn proper reflections
     auto s = new Sphere( -1.25, 0.25, 0.75, 0.25 );
-    s->material = new DiffuseMaterial(1, 1, 0);
+    s->material = std::make_shared<DiffuseMaterial>(1, 1, 0);
     container->add( s );
     s = new Sphere( 1.25, 0.25, 0.75, 0.25 );
-    s->material = new DiffuseMaterial(0, 1, 0);
+    s->material = std::make_shared<DiffuseMaterial>(0, 1, 0);
     container->add( s );
     s = new Sphere( 0.0, 0.25, 3.0, 0.25 );
-    s->material = new DiffuseMaterial(0, 1, 1);
+    s->material = std::make_shared<DiffuseMaterial>(0, 1, 1);
     container->add( s );
 
     auto cube = new AxisAlignedSlab( 0.8, 0, 2.0, 0.5 );
-    cube->material = new DiffuseMaterial( 1.0, 0.2, 0.2 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.2, 0.2 );
     container->add( cube );
 
     scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ),
@@ -1958,7 +1958,7 @@ void testAnimTransforms3()
     container->add( floor );
 
     auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    cube->material = new MirrorMaterial();
+    cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = new TimeVaryingTransform(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( -2.0, 0.0, 0.0 ) ),
@@ -1966,7 +1966,7 @@ void testAnimTransforms3()
         });
     container->add( cube );
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    cube->material = new MirrorMaterial();
+    cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = new TimeVaryingTransform(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( 0.0, 0.0, 0.0 ) ),
@@ -1974,7 +1974,7 @@ void testAnimTransforms3()
         });
     container->add( cube );
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    cube->material = new MirrorMaterial();
+    cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = new TimeVaryingTransform(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( +2.0, 0.0, 0.0 ) ),
@@ -2024,7 +2024,7 @@ void testAreaLight1()
     container->add( floor );
 
     auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    //cube->material = new MirrorMaterial();
+    //cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = new Transform();
     *cube->transform = compose( makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ),
                                 makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
@@ -2033,7 +2033,7 @@ void testAreaLight1()
     // Light
     cube = new AxisAlignedSlab( 2.0, 2.5, -2.25,
                                 3.0, 3.5,  2.25 );
-    cube->material = new Material();
+    cube->material = std::make_shared<Material>();
     cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
     cube->material->emittance.scale( 5.0 );
     container->add( cube );
@@ -2080,7 +2080,7 @@ void testAreaLight2()
 
 #if 0
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    //cube->material = new MirrorMaterial();
+    //cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = new Transform();
     *cube->transform = compose( makeTranslation( Vector4( -0.8, 0.5, 0.0 ) ),
                                 makeRotation( -0.1 * M_PI, Vector4(0, 1, 0) ) );
@@ -2093,7 +2093,7 @@ void testAreaLight2()
     for( int i = 0; i < num_cubes; i++ ) {
         float angle = (float) i / (num_cubes-1) * (max_angle - min_angle) + min_angle;
         cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-        cube->material = new MirrorMaterial();
+        cube->material = std::make_shared<MirrorMaterial>();
         cube->transform = new Transform();
         *cube->transform = compose( makeRotation( angle, Vector4(0, 1, 0) ),
                                     makeTranslation( Vector4( -2.0, 0.5, 0.0 ) ),
@@ -2113,7 +2113,7 @@ void testAreaLight2()
     // Light
     cube = new AxisAlignedSlab( 2.0, 2.5, -2.25,
                                 3.0, 3.5,  2.25 );
-    cube->material = new Material();
+    cube->material = std::make_shared<Material>();
     cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
     cube->material->emittance.scale( 5.0 );
     container->add( cube );
@@ -2148,7 +2148,7 @@ BUILD_SCENE(
     float half_size = size / 2.0;
     auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
                                      half_size, size, half_size );
-    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
     scene->addPointLight( PointLight( Vector4( -3.0, 3.0, 3.0 ),
@@ -2250,7 +2250,7 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensCrownGlass::run();
     CSGLogicalANDLensFlintGlass::run();
 #else
-    testLogicalANDMesh();
+    testRefraction1();  // Mixed scene with some refractive elements
 #endif
     
     total_run_timer.stop();

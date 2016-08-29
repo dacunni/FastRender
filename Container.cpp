@@ -11,7 +11,8 @@
 #include "AxisAlignedSlab.h"
 
 
-void Container::add( Traceable * traceable, Material * material )
+void Container::add( Traceable * traceable,
+                     std::shared_ptr<Material> material )
 {
     traceable->material = material;
     add( traceable );

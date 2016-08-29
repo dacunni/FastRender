@@ -9,6 +9,7 @@
 #ifndef _RAY_H_
 #define _RAY_H_
 
+#include <memory>
 #include <float.h>
 #include <math.h>
 
@@ -41,7 +42,7 @@ public:
 
 class RayIntersection {
 public:
-	RayIntersection() : min_distance(0.0f), distance(FLT_MAX), best_hint(FLT_MAX), material(NULL) {}
+	RayIntersection() : min_distance(0.0f), distance(FLT_MAX), best_hint(FLT_MAX) {}
 	~RayIntersection() {}
 
     void print();
@@ -50,7 +51,7 @@ public:
 	Vector4 position;
 	Vector4 normal;
     RGBRadianceSample sample;
-    Material * material;
+    std::shared_ptr<Material> material;
 	float distance;
     float min_distance;
     float best_hint;

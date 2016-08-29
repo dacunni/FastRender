@@ -120,7 +120,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestPointLight::buildScene();
-    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 );
 END_SCENE()
 
@@ -132,7 +132,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestPointLight::buildScene();
-    mesh->material = new MirrorMaterial();
+    mesh->material = std::make_shared<MirrorMaterial>();
 );
 END_SCENE()
 
@@ -144,7 +144,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestPointLight::buildScene();
-    mesh->material = new RefractiveMaterial(N_WATER);
+    mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
 );
 END_SCENE()
 
@@ -156,7 +156,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestArcLight::buildScene();
-    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 );
 END_SCENE()
 
@@ -168,7 +168,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestArcLight::buildScene();
-    mesh->material = new MirrorMaterial();
+    mesh->material = std::make_shared<MirrorMaterial>();
 );
 END_SCENE()
 
@@ -180,7 +180,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestArcLight::buildScene();
-    mesh->material = new RefractiveMaterial(N_WATER);
+    mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
 );
 END_SCENE()
 
@@ -192,7 +192,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestArcLight::buildScene();
-    mesh->material = new RefractiveMaterial(N_DIAMOND);
+    mesh->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
 );
 END_SCENE()
 
@@ -204,7 +204,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestHDREnvironmentMap::buildScene();
-    mesh->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 );
 END_SCENE()
 
@@ -216,7 +216,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestHDREnvironmentMap::buildScene();
-    mesh->material = new MirrorMaterial();
+    mesh->material = std::make_shared<MirrorMaterial>();
 );
 END_SCENE()
 

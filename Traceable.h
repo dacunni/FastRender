@@ -40,7 +40,7 @@ public:
     virtual void print( FILE * file = stdout ) const;
 
     // FIXME - we probably don't want all traceables to get a material, or we'll just end up wasting memory
-    Material * material;
+    std::shared_ptr<Material> material;
 
     // Transform to apply to the object relative to any containing objects, or the scene if at the root
     Transform * transform;

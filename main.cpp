@@ -55,11 +55,11 @@ Scene * buildScene()
     //Sphere * sphere = new Sphere( Vector4( 0.0, 1.0, -3.0 ), 1.0 );
     //Sphere * sphere = new Sphere( Vector4( 0.0, 2.0, -5.0 ), 1.0 );
     Sphere * sphere = new Sphere( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
-    sphere->material = new MirrorMaterial();
+    sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
     Sphere * sphere2 = new Sphere( Vector4( -1.0, 0.1, -0.0 ), 0.25 );
-    sphere2->material = new DiffuseMaterial( 1.0, 0.0, 1.0 );
+    sphere2->material = std::make_shared<DiffuseMaterial>( 1.0, 0.0, 1.0 );
     container->add( sphere2 );
 
     // Tetrahedron for quick testing of mesh reflection bug
@@ -71,12 +71,12 @@ Scene * buildScene()
 
     // Cubes for reference
     AxisAlignedSlab * cube1 = new AxisAlignedSlab( 1.0, -0.5, -3.0, 0.5 );
-    cube1->material = new DiffuseMaterial( 0.0, 0.0, 1.0 );
+    cube1->material = std::make_shared<DiffuseMaterial>( 0.0, 0.0, 1.0 );
     cube1->transform = new Transform();
     *cube1->transform = makeTranslation( Vector4( 0.1, 0.5, -0.5 ) );
     container->add( cube1 );
     AxisAlignedSlab * cube2 = new AxisAlignedSlab( 1.0, -0.5+1.0, -3.0, 0.5 );
-    cube2->material = new DiffuseMaterial( 0.0, 1.0, 0.0 );
+    cube2->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.0 );
     container->add( cube2 );
 
     //addMirrors( container );

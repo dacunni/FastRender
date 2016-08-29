@@ -72,11 +72,11 @@ void TestScene::buildScene()
     float half_size = size / 2.0;
     auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
                                        half_size, size, half_size );
-    cube->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 #else
     auto sphere = new Sphere( 0.0, 1.0, 0, 1.0 );
-    sphere->material = new DiffuseMaterial( 0.5, 0.5, 1.0 );
+    sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 #endif
 
@@ -144,7 +144,7 @@ void addOffsetCubes( Container * container )
                                                     0.3, -0.3, -1.2 );
     AxisAlignedSlab * cube2 = new AxisAlignedSlab( -0.1, -0.5, -1.2,
                                                     0.1, -0.3, -1.4 );
-    cube1->material = new DiffuseMaterial( 1.0, 0.0, 0.0 );
+    cube1->material = std::make_shared<DiffuseMaterial>( 1.0, 0.0, 0.0 );
     container->add( cube1 );
     container->add( cube2 );
 }
@@ -164,8 +164,8 @@ void addBunny( Container * container )
         return;
     }
 
-    //mesh->material = new DiffuseMaterial( 0.0f, 0.66, 0.42f ); // emerald green
-    mesh->material = new MirrorMaterial();
+    //mesh->material = std::make_shared<DiffuseMaterial>( 0.0f, 0.66, 0.42f ); // emerald green
+    mesh->material = std::make_shared<MirrorMaterial>();
 
     printf("Building octree\n");
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
@@ -189,7 +189,7 @@ void addSphereLight( Container * container,
                      float power )
 {
     Sphere * emitter = new Sphere( center, r );
-    emitter->material = new Material();
+    emitter->material = std::make_shared<Material>();
     emitter->material->emittance = color;
     emitter->material->emittance.scale( power );
     container->add( emitter );
@@ -200,7 +200,7 @@ void addGroundPlane( Container * container )
     // makeshift ground plane
     AxisAlignedSlab * floor = new AxisAlignedSlab( -5.0, -0.5, +10.0,
                                                    5.0, -0.9, -10.0 );
-    floor->material = new DiffuseMaterial( 1.0, 1.0, 1.0 );
+    floor->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     container->add( floor );
     
 #if 0
@@ -222,9 +222,9 @@ void addTransformedCubes( Container * container )
     AxisAlignedSlab * cube3 = new AxisAlignedSlab( 0.0, 0.0, 0.0,
                                                    cube_size );
 
-    cube1->material = new DiffuseMaterial( 1.0, 0.0, 0.0 );
-    cube2->material = new DiffuseMaterial( 0.0, 0.0, 1.0 );
-    cube3->material = new DiffuseMaterial( 0.0, 1.0, 0.0 );
+    cube1->material = std::make_shared<DiffuseMaterial>( 1.0, 0.0, 0.0 );
+    cube2->material = std::make_shared<DiffuseMaterial>( 0.0, 0.0, 1.0 );
+    cube3->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.0 );
 
     cube1->transform = new Transform();
     *cube1->transform = makeTranslation( Vector4( 0.1, 0.5, -1.0 ) );
@@ -369,11 +369,11 @@ void addMirrors( Container * container )
 {
     AxisAlignedSlab * cube1 = new AxisAlignedSlab( -5.0, -5.0, -5.0,
                                                    5.0, 5.0, -5.2 );
-    cube1->material = new MirrorMaterial();
+    cube1->material = std::make_shared<MirrorMaterial>();
     container->add( cube1 );
     AxisAlignedSlab * cube2 = new AxisAlignedSlab( -2.5, -5.0, -5.0,
                                                    -2.7, 5.0, 5.0 );
-    cube2->material = new MirrorMaterial();
+    cube2->material = std::make_shared<MirrorMaterial>();
     container->add( cube2 );
 }
 

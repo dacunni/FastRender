@@ -23,8 +23,6 @@ Traceable::Traceable()
 
 Traceable::~Traceable()
 {
-    if( material )
-        delete material;
     if( transform )
         delete transform;
 }
