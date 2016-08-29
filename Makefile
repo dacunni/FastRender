@@ -20,6 +20,7 @@ HDR = \
 	Material.h \
 	Matrix.h \
     Plot2D.h \
+    Quaternion.h \
 	RandomNumberGenerator.h \
 	Ray.h \
 	Scene.h \
@@ -53,6 +54,7 @@ OBJ = \
     ImageTracer.o \
 	Matrix.o \
     Plot2D.o \
+    Quaternion.o \
 	RandomNumberGenerator.o \
 	Ray.o \
 	Scene.o \

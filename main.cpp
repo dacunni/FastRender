@@ -28,6 +28,8 @@
 #include "TestScenes.h"
 #include "EnvironmentMap.h"
 #include "ImageTracer.h"
+#include "Quaternion.h"
+#include "Types.h"
 
 RandomNumberGenerator rng;
 

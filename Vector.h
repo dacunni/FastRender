@@ -54,7 +54,7 @@ public:
     void assertIsDirection() const { assert( isDirection() ); }
 
     union {
-	float data[4];
+    	float data[4];
         struct {
             float x, y, z, w;
         };
