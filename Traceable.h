@@ -43,7 +43,7 @@ public:
     std::shared_ptr<Material> material;
 
     // Transform to apply to the object relative to any containing objects, or the scene if at the root
-    Transform * transform;
+    std::shared_ptr<Transform> transform;
 };
 
 

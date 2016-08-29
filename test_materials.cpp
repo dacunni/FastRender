@@ -31,7 +31,7 @@ BUILD_SCENE(
     float size = 1.0;
     auto floor = new AxisAlignedSlab( -10, -1, -10,
                                      10, 0, 10 );
-    floor->transform = new Transform();
+    floor->transform = std::make_shared<Transform>();
     *floor->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
     container->add( floor );
 
@@ -42,7 +42,7 @@ BUILD_SCENE(
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 1.0 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
     container->add( mesh );

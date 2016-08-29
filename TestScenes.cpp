@@ -171,7 +171,7 @@ void addBunny( Container * container )
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     *mesh->transform = makeTranslation( Vector4( 0.0, 0.2, -0.5 ) );
     container->add( mesh );
 }
@@ -226,10 +226,10 @@ void addTransformedCubes( Container * container )
     cube2->material = std::make_shared<DiffuseMaterial>( 0.0, 0.0, 1.0 );
     cube3->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.0 );
 
-    cube1->transform = new Transform();
+    cube1->transform = std::make_shared<Transform>();
     *cube1->transform = makeTranslation( Vector4( 0.1, 0.5, -1.0 ) );
 
-    cube2->transform = new Transform();
+    cube2->transform = std::make_shared<Transform>();
     *cube2->transform = 
         compose(
             makeTranslation( Vector4( 0.0, 0.15, -1.0 ) ),
@@ -239,7 +239,7 @@ void addTransformedCubes( Container * container )
                 )
             );
 
-    cube3->transform = new Transform();
+    cube3->transform = std::make_shared<Transform>();
     *cube3->transform = 
         compose(
             makeTranslation( Vector4( -0.3, 0.0, -1.0 ) ),

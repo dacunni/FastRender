@@ -65,14 +65,14 @@ Scene * buildScene()
     // Tetrahedron for quick testing of mesh reflection bug
     //TriangleMesh * mesh = new TriangleMesh();
     //makeTriangleMeshTetrahedron( *mesh );
-    //mesh->transform = new Transform();
+    //mesh->transform = std::make_shared<Transform>();
     //*mesh->transform = makeTranslation( Vector4( 0.0, 0.3, 0.0 ) );
     //container->add( mesh );
 
     // Cubes for reference
     AxisAlignedSlab * cube1 = new AxisAlignedSlab( 1.0, -0.5, -3.0, 0.5 );
     cube1->material = std::make_shared<DiffuseMaterial>( 0.0, 0.0, 1.0 );
-    cube1->transform = new Transform();
+    cube1->transform = std::make_shared<Transform>();
     *cube1->transform = makeTranslation( Vector4( 0.1, 0.5, -0.5 ) );
     container->add( cube1 );
     AxisAlignedSlab * cube2 = new AxisAlignedSlab( 1.0, -0.5+1.0, -3.0, 0.5 );

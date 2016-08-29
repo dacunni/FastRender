@@ -199,7 +199,7 @@ void testAO5()
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
     container->add( mesh );
@@ -252,7 +252,7 @@ void testAO6()
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
     container->add( mesh );
@@ -305,7 +305,7 @@ void testAO7()
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 4, 4, 4 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.5 ) ) );
     container->add( mesh );
@@ -610,7 +610,7 @@ void testPointLight3()
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
     container->add( mesh );
@@ -676,7 +676,7 @@ void testPointLight4()
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeRotation( 0.25 * M_PI, Vector4(0, 1, 0) ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -788,7 +788,7 @@ void testLogicalANDMesh()
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -860,7 +860,7 @@ BUILD_SCENE(
     auto obj2 = new Sphere( +9.95, 1.00, 0, 10.00 );
     auto logical = new CSGAnd( *obj1, *obj2 );
     logical->material = std::make_shared<RefractiveMaterial>(index_of_refraction);
-    logical->transform = new Transform();
+    logical->transform = std::make_shared<Transform>();
     *logical->transform = makeRotation( -M_PI / 2, Vector4(0, 1, 0) );
     container->add( logical );
 
@@ -1058,7 +1058,7 @@ void testReflection3()
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
     container->add( mesh );
@@ -1156,7 +1156,7 @@ void testRefraction1()
     auto cube = new AxisAlignedSlab( -0.75, -0.75, -0.75, 1.5 );
     cube->material = std::make_shared<RefractiveMaterial>(1.2);
     container->add( cube );
-    cube->transform = new TimeVaryingTransform(
+    cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( 1.75, 1.2, 2.75 ) ),
                             //makeRotation( anim_progress * 0.5 * M_PI + 0.6, Vector4(0, 1, 0) ) );
@@ -1168,7 +1168,7 @@ void testRefraction1()
     cube = new AxisAlignedSlab( -0.50, -0.50, -0.50, 1.0 );
     cube->material = std::make_shared<RefractiveMaterial>(1.2);
     container->add( cube );
-    cube->transform = new TimeVaryingTransform(
+    cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( -1.50, 1.00, 6.50 ) ),
                             makeRotation( anim_progress * 0.5 * M_PI, Vector4(1, 0, 0) ) );
@@ -1256,7 +1256,7 @@ void testRefraction2()
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
-        mesh->transform = new Transform();
+        mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( -2.0 * spacing, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
@@ -1275,7 +1275,7 @@ void testRefraction2()
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
-        mesh->transform = new Transform();
+        mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( -1.0 * spacing, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
@@ -1294,7 +1294,7 @@ void testRefraction2()
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
-        mesh->transform = new Transform();
+        mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( 0.0, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
@@ -1313,7 +1313,7 @@ void testRefraction2()
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
-        mesh->transform = new Transform();
+        mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( 1.0 * spacing, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
@@ -1332,7 +1332,7 @@ void testRefraction2()
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
-        mesh->transform = new Transform();
+        mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( 2.0 * spacing, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
@@ -1487,7 +1487,7 @@ void testRefraction4()
 
     auto foo = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
     foo->material = std::make_shared<RefractiveMaterial>(1.1);
-    foo->transform = new Transform();
+    foo->transform = std::make_shared<Transform>();
     *foo->transform = compose( makeTranslation( Vector4( 1.5, 0.75, 0.0 ) ),
                                 //makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
                                 makeRotation( 0.0, Vector4(0, 1, 0) ) );
@@ -1554,7 +1554,7 @@ void testMesh1()
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
-        mesh->transform = new Transform();
+        mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
         container->add( mesh );
@@ -1568,7 +1568,7 @@ void testMesh1()
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
-        mesh->transform = new Transform();
+        mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( 3.0, 0.0, 0.0 ),
                                     compose( makeScaling( 4, 4, 4 ),
                                              makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) ) );;
@@ -1615,7 +1615,7 @@ void testMesh2()
     auto meshes = loader.loadMultiPart( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
     //auto meshes = loader.loadMultiPartMerged( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
     if( !meshes ) { fprintf( stderr, "Error loading meshes\n" ); return; }
-    meshes->transform = new Transform();
+    meshes->transform = std::make_shared<Transform>();
     *meshes->transform = makeRotation( -0.5 * M_PI, Vector4( 1.0, 0.0, 0.0 ) );
     container->add( meshes );
 
@@ -1667,7 +1667,7 @@ void testMeshSanMiguel()
     //auto mesh = loader.loadMultiPartMerged( "models/san-miguel/san-miguel.obj" );
     if( !mesh ) { fprintf( stderr, "Error loading meshes\n" ); return; }
     //AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     //float scale = 35.0;
     float scale = 1.0;
     *mesh->transform = compose( makeScaling( scale, scale, scale ),
@@ -1762,7 +1762,7 @@ void testHairball()
         TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
-        mesh->transform = new Transform();
+        mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
         container->add( mesh );
@@ -1826,7 +1826,7 @@ void testAnimTransforms1()
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     float ymin = bounds->ymin;
-    mesh->transform = new TimeVaryingTransform(
+    mesh->transform = std::make_shared<TimeVaryingTransform>(
         [ymin](float anim_progress) {
             return compose( makeScaling( 2, 2, 2 ),
                             makeRotation( anim_progress * 2.0 * M_PI, Vector4(0, 1, 0) ),
@@ -1895,21 +1895,21 @@ void testAnimTransforms2()
     container->add( floor );
 
     auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    cube->transform = new TimeVaryingTransform(
+    cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( -2.0, 0.0, 0.0 ) ),
                             makeRotation( (anim_progress - 0.4) * 2.0 * M_PI, Vector4(1, 0, 0) ) );
         });
     container->add( cube );
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    cube->transform = new TimeVaryingTransform(
+    cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( 0.0, 0.0, 0.0 ) ),
                             makeRotation( (anim_progress - 0.4) * 2.0 * M_PI, Vector4(0, 1, 0) ) );
         });
     container->add( cube );
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    cube->transform = new TimeVaryingTransform(
+    cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( +2.0, 0.0, 0.0 ) ),
                             makeRotation( (anim_progress - 0.4) * 2.0 * M_PI, Vector4(0, 0, 1) ) );
@@ -1959,7 +1959,7 @@ void testAnimTransforms3()
 
     auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
     cube->material = std::make_shared<MirrorMaterial>();
-    cube->transform = new TimeVaryingTransform(
+    cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( -2.0, 0.0, 0.0 ) ),
                             makeRotation( (anim_progress - 0.4) * 0.5 * M_PI, Vector4(1, 0, 0) ) );
@@ -1967,7 +1967,7 @@ void testAnimTransforms3()
     container->add( cube );
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
     cube->material = std::make_shared<MirrorMaterial>();
-    cube->transform = new TimeVaryingTransform(
+    cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( 0.0, 0.0, 0.0 ) ),
                             makeRotation( (anim_progress - 0.4) * 0.5 * M_PI, Vector4(0, 1, 0) ) );
@@ -1975,7 +1975,7 @@ void testAnimTransforms3()
     container->add( cube );
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
     cube->material = std::make_shared<MirrorMaterial>();
-    cube->transform = new TimeVaryingTransform(
+    cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( +2.0, 0.0, 0.0 ) ),
                             makeRotation( (anim_progress - 0.4) * 0.5 * M_PI, Vector4(0, 0, 1) ) );
@@ -2025,7 +2025,7 @@ void testAreaLight1()
 
     auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
     //cube->material = std::make_shared<MirrorMaterial>();
-    cube->transform = new Transform();
+    cube->transform = std::make_shared<Transform>();
     *cube->transform = compose( makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ),
                                 makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
     container->add( cube );
@@ -2081,7 +2081,7 @@ void testAreaLight2()
 #if 0
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
     //cube->material = std::make_shared<MirrorMaterial>();
-    cube->transform = new Transform();
+    cube->transform = std::make_shared<Transform>();
     *cube->transform = compose( makeTranslation( Vector4( -0.8, 0.5, 0.0 ) ),
                                 makeRotation( -0.1 * M_PI, Vector4(0, 1, 0) ) );
     container->add( cube );
@@ -2094,7 +2094,7 @@ void testAreaLight2()
         float angle = (float) i / (num_cubes-1) * (max_angle - min_angle) + min_angle;
         cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
         cube->material = std::make_shared<MirrorMaterial>();
-        cube->transform = new Transform();
+        cube->transform = std::make_shared<Transform>();
         *cube->transform = compose( makeRotation( angle, Vector4(0, 1, 0) ),
                                     makeTranslation( Vector4( -2.0, 0.5, 0.0 ) ),
                                     makeScaling( 0.1, 1.0, 0.4 ) );
@@ -2103,7 +2103,7 @@ void testAreaLight2()
 
 #if 0
     cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
-    cube->transform = new Transform();
+    cube->transform = std::make_shared<Transform>();
     *cube->transform = compose( makeTranslation( Vector4( 0.8, 0.5, 0.0 ) ),
                                 makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
     container->add( cube );
@@ -2169,7 +2169,7 @@ BUILD_SCENE(
     float half_size = size / 2.0;
     auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
                                      half_size, size, half_size );
-    cube->transform = new Transform();
+    cube->transform = std::make_shared<Transform>();
     *cube->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
     container->add( cube );
 
@@ -2184,7 +2184,7 @@ BUILD_SCENE(
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
-    mesh->transform = new Transform();
+    mesh->transform = std::make_shared<Transform>();
     //*mesh->transform = makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) );
     *mesh->transform = makeScaling( 3.0 );
     container->add( mesh );

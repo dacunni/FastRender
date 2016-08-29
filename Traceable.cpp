@@ -15,16 +15,13 @@
 #include "Ray.h"
 
 Traceable::Traceable()
-    : material(NULL),
-      transform(NULL)
 {
 
 }
 
 Traceable::~Traceable()
 {
-    if( transform )
-        delete transform;
+
 }
 
 void Traceable::updateAnim( float t )
