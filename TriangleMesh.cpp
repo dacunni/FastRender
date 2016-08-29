@@ -27,7 +27,7 @@ TriangleMesh::~TriangleMesh()
 
 void TriangleMesh::makeCanonical()
 {
-    std::unique_ptr<AxisAlignedSlab> bounds( getAxisAlignedBounds() );
+    std::shared_ptr<AxisAlignedSlab> bounds( getAxisAlignedBounds() );
     //printf("makeCanonical: Initial bounds: "); bounds->print();
 
     float maxdim = bounds->maxdim();
@@ -207,12 +207,12 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
 }
 
 
-AxisAlignedSlab * TriangleMesh::getAxisAlignedBounds() const
+std::shared_ptr<AxisAlignedSlab> TriangleMesh::getAxisAlignedBounds() const
 {
     if( vertices.empty() )
         return nullptr;
     
-    auto bb = new AxisAlignedSlab();
+    auto bb = std::make_shared<AxisAlignedSlab>();
     
     bb->xmin = bb->xmax = vertices[0].x;
     bb->ymin = bb->ymax = vertices[0].y;

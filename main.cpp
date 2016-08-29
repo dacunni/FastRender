@@ -40,7 +40,7 @@ Scene * buildScene()
     printf( "Building scene\n" );
     Timer build_scene_timer;
     build_scene_timer.start();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 	
     //addLightingTest2( container );
     //addSlabGrid( container );
@@ -52,13 +52,11 @@ Scene * buildScene()
     //addTransformedCubes( container );
     //addLightingTest4( container );
 
-    //Sphere * sphere = new Sphere( Vector4( 0.0, 1.0, -3.0 ), 1.0 );
-    //Sphere * sphere = new Sphere( Vector4( 0.0, 2.0, -5.0 ), 1.0 );
-    Sphere * sphere = new Sphere( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
+    auto sphere = std::make_shared<Sphere>( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
     sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
-    Sphere * sphere2 = new Sphere( Vector4( -1.0, 0.1, -0.0 ), 0.25 );
+    auto sphere2 = std::make_shared<Sphere>( Vector4( -1.0, 0.1, -0.0 ), 0.25 );
     sphere2->material = std::make_shared<DiffuseMaterial>( 1.0, 0.0, 1.0 );
     container->add( sphere2 );
 
@@ -70,12 +68,12 @@ Scene * buildScene()
     //container->add( mesh );
 
     // Cubes for reference
-    AxisAlignedSlab * cube1 = new AxisAlignedSlab( 1.0, -0.5, -3.0, 0.5 );
+    auto cube1 = std::make_shared<AxisAlignedSlab>( 1.0, -0.5, -3.0, 0.5 );
     cube1->material = std::make_shared<DiffuseMaterial>( 0.0, 0.0, 1.0 );
     cube1->transform = std::make_shared<Transform>();
     *cube1->transform = makeTranslation( Vector4( 0.1, 0.5, -0.5 ) );
     container->add( cube1 );
-    AxisAlignedSlab * cube2 = new AxisAlignedSlab( 1.0, -0.5+1.0, -3.0, 0.5 );
+    auto cube2 = std::make_shared<AxisAlignedSlab>( 1.0, -0.5+1.0, -3.0, 0.5 );
     cube2->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.0 );
     container->add( cube2 );
 
@@ -83,7 +81,7 @@ Scene * buildScene()
 
 	scene->root = container;
     //scene->env_map = new TestPatternEnvironmentMap();
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
     //scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, 1.0 ), M_PI / 4.0 );
     //scene->env_map = new ArcLightEnvironmentMap( Vector4( 0.0, 1.0, 1.0 ), M_PI / 8.0 );
     scene->buildLightList();

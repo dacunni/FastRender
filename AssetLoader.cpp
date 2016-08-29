@@ -21,7 +21,7 @@
 #include "FlatContainer.h"
 #include "BoundingVolumeHierarchy.h"
 
-TriangleMesh * AssetLoader::load( const std::string & filename )
+std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename )
 {
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
@@ -54,7 +54,7 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
             (int) mesh->HasNormals(),
             (int) mesh->HasBones() );
     
-    TriangleMesh * trimesh = new TriangleMesh();
+    auto trimesh = std::make_shared<TriangleMesh>();
     
     trimesh->vertices.resize( mesh->mNumVertices );
     trimesh->normals.resize( mesh->mNumVertices );
@@ -87,13 +87,13 @@ TriangleMesh * AssetLoader::load( const std::string & filename )
     trimesh->makeCanonical();
 
     //printf("TriMesh bounds: ");
-    //std::unique_ptr<AxisAlignedSlab> bounds( trimesh->getAxisAlignedBounds() );
+    //auto bounds = trimesh->getAxisAlignedBounds();
     //bounds->print();
 
     return trimesh;
 }
 
-Container * AssetLoader::loadMultiPart( const std::string & filename )
+std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filename )
 {
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
@@ -115,7 +115,7 @@ Container * AssetLoader::loadMultiPart( const std::string & filename )
     printf( "Loaded %s\n", filename.c_str() );
     printf( " - # meshes -> %u\n", scene->mNumMeshes );
 
-    FlatContainer * container = new FlatContainer();
+    auto container = std::make_shared<FlatContainer>();
     
     aiMesh ** meshes = scene->mMeshes;
 
@@ -129,7 +129,7 @@ Container * AssetLoader::loadMultiPart( const std::string & filename )
                 (int) mesh->HasNormals(),
                 (int) mesh->HasBones() );
 
-        TriangleMesh * trimesh = new TriangleMesh();
+        auto trimesh = std::make_shared<TriangleMesh>();
 
         trimesh->vertices.resize( mesh->mNumVertices );
         trimesh->normals.resize( mesh->mNumVertices );
@@ -168,7 +168,7 @@ Container * AssetLoader::loadMultiPart( const std::string & filename )
         container->add( trimesh );
 
         printf("TriMesh bounds: ");
-        std::unique_ptr<AxisAlignedSlab> bounds( trimesh->getAxisAlignedBounds() );
+        auto bounds = trimesh->getAxisAlignedBounds();
         bounds->print();
 #endif
     }
@@ -179,11 +179,11 @@ Container * AssetLoader::loadMultiPart( const std::string & filename )
     // TODO[DAC]: Test how well this helps with various models to determine if there
     //            are cases where we might want to just return a flat container or
     //            merge parts into a single mesh like with loadMultiPartMerged()
-    auto bvh = new BoundingVolumeHierarchy();
+    auto bvh = std::make_shared<BoundingVolumeHierarchy>();
 
     bvh->build( container );
 
-    container = new FlatContainer();
+    container = std::make_shared<FlatContainer>();
     container->add( bvh );
 #endif
 
@@ -194,9 +194,9 @@ Container * AssetLoader::loadMultiPart( const std::string & filename )
 }
 
 // Loads a multipart mesh and merges the pieces into a single mesh object
-TriangleMesh * AssetLoader::loadMultiPartMerged( const std::string & filename )
+std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::string & filename )
 {
-    Container * container = loadMultiPart( filename );
+    auto container = loadMultiPart( filename );
 
     if( !container )
         return nullptr;
@@ -207,13 +207,13 @@ TriangleMesh * AssetLoader::loadMultiPartMerged( const std::string & filename )
 
     // Find out how much we need to allocate
     for( int i = 0; i < container->size(); i++ ) {
-        TriangleMesh * mesh = dynamic_cast<TriangleMesh *>(container->at(i));
+        auto mesh = std::dynamic_pointer_cast<TriangleMesh>(container->at(i));
         num_vertices += mesh->vertices.size();
         num_normals += mesh->normals.size();
         num_triangles += mesh->triangles.size();
     }
 
-    TriangleMesh * ubermesh = new TriangleMesh();
+    auto ubermesh = std::make_shared<TriangleMesh>();
 
     ubermesh->vertices.resize( num_vertices );
     ubermesh->normals.resize( num_normals );
@@ -228,7 +228,7 @@ TriangleMesh * AssetLoader::loadMultiPartMerged( const std::string & filename )
     unsigned int triangle_index = 0;
 
     for( int i = 0; i < container->size(); i++ ) {
-        TriangleMesh * mesh = dynamic_cast<TriangleMesh *>(container->at(i));
+        auto mesh = std::dynamic_pointer_cast<TriangleMesh>(container->at(i));
 
         unsigned int part_vertex_start = vertex_index;
 
@@ -255,7 +255,7 @@ TriangleMesh * AssetLoader::loadMultiPartMerged( const std::string & filename )
     //ubermesh->makeCanonical();
 
     printf("Ubermesh bounds: ");
-    std::unique_ptr<AxisAlignedSlab> bounds( ubermesh->getAxisAlignedBounds() );
+    auto bounds = ubermesh->getAxisAlignedBounds();
     bounds->print();
 
     // TODO: Maybe take this out and make it the caller's responsibility to build accel structures

@@ -28,27 +28,28 @@ bool BoundingVolumeHierarchy::intersectsAny( const Ray & ray, float min_distance
 }
 
 
-void BoundingVolumeHierarchy::build( Container * container )
+void BoundingVolumeHierarchy::build( std::shared_ptr<Container> container )
 {
     if( container->size() < 1 )
         return;
     
-    std::list<BoundingVolume*> objects;
+    std::list<std::shared_ptr<BoundingVolume> > objects;
 
     std::cout << "container.size = " << container->size() << std::endl; // TEMP
 
     // Create a BoundingVolume node for each object
     const int num_objects = container->size();
     for( int i = 0; i < num_objects; i++ ) {
-        objects.push_back( new BoundingVolume( container->at(i) ) );
+        objects.push_back( std::make_shared<BoundingVolume>( container->at(i) ) );
     }
 
     std::cout << "objects.size = " << objects.size() << std::endl; // TEMP
 
-    objects.sort( []( BoundingVolume *a, BoundingVolume * b ) {
-                      return static_cast<AxisAlignedSlab*>(a->bound)->volume() 
-                          < static_cast<AxisAlignedSlab*>(b->bound)->volume();
-                  });
+    auto compare = []( std::shared_ptr<BoundingVolume> a, std::shared_ptr<BoundingVolume> b ) {
+                           return std::static_pointer_cast<AxisAlignedSlab>(a->bound)->volume() 
+                              < std::static_pointer_cast<AxisAlignedSlab>(b->bound)->volume();
+                       };
+    objects.sort( compare );
 
     while(1) {
 
@@ -100,19 +101,19 @@ void BoundingVolumeHierarchy::build( Container * container )
         std::cout << "objects.size = " << objects.size() << std::endl; // TEMP
 
 #else
-        BoundingVolume * o = objects.front();
+        auto o = objects.front();
         objects.pop_front();
 
-        std::list<BoundingVolume*>::iterator partner, iter;
+        std::list<std::shared_ptr<BoundingVolume> >::iterator partner, iter;
 
         // Greedily take the node with the smallest bounding volume and combine it with
         // whichever node minimizes their combined bounding volume.
-        AxisAlignedSlab * o_bound = static_cast<AxisAlignedSlab*>(o->bound);
+        auto o_bound = std::static_pointer_cast<AxisAlignedSlab>(o->bound);
         float best_volume = o_bound->volume();
         //std::cout << "Initial volume = " << best_volume << std::endl; // TEMP
         partner = objects.end();
         for( iter = objects.begin(); iter != objects.end(); ++iter ) {
-            AxisAlignedSlab * o2_bound = static_cast<AxisAlignedSlab*>((*iter)->bound);
+            auto o2_bound = std::static_pointer_cast<AxisAlignedSlab>((*iter)->bound);
             //std::cout << "  volume = " << o2_bound->volume(); // TEMP
             AxisAlignedSlab combined = merge( *o_bound, *o2_bound );
             float volume = combined.volume();
@@ -127,21 +128,19 @@ void BoundingVolumeHierarchy::build( Container * container )
         //std::cout << "BEST volume = " << best_volume << std::endl; // TEMP
 
         // Replace the best partner with a node containing both nodes
-        FlatContainer * pair = new FlatContainer();
+        auto pair = std::make_shared<FlatContainer>();
         pair->add( o );
         pair->add( *partner );
 
         objects.erase( partner );
 
-        objects.push_front( new BoundingVolume( pair ) );
+        objects.push_front( std::make_shared<BoundingVolume>( pair ) );
 
         std::cout << "objects.size = " << objects.size() << std::endl; // TEMP
 
         // Resort them
-        objects.sort( []( BoundingVolume *a, BoundingVolume * b ) {
-                      return static_cast<AxisAlignedSlab*>(a->bound)->volume() 
-                      < static_cast<AxisAlignedSlab*>(b->bound)->volume();
-                      });
+        objects.sort( compare );
+
 #endif
     }
 }

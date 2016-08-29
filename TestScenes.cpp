@@ -63,8 +63,8 @@ void TestScene::setup()
 void TestScene::buildScene()
 {
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
-                                                   +10.0, -1.0, -10.0 );
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
+                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
 #if 0
@@ -75,12 +75,12 @@ void TestScene::buildScene()
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 #else
-    auto sphere = new Sphere( 0.0, 1.0, 0, 1.0 );
+    auto sphere = std::make_shared<Sphere>( 0.0, 1.0, 0, 1.0 );
     sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 #endif
 
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
 
     tracer->shader = new BasicDiffuseSpecularShader();
 }
@@ -95,69 +95,69 @@ void TestScene::render()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void addSlabGrid( Container * container )
+void addSlabGrid( std::shared_ptr<Container> container )
 {
-    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1, -1.0,
-                                         0.1-0.45,  0.1, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1, -1.0,
-                                         0.1+0.45,  0.1, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1, -0.1+0.45, -1.0,
-                                         0.1,  0.1+0.45, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1, -0.1-0.45, -1.0,
-                                         0.1,  0.1-0.45, -5.3 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.1-0.45, -0.1, -1.0,
+                                                       0.1-0.45,  0.1, -5.3 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.1+0.45, -0.1, -1.0,
+                                                       0.1+0.45,  0.1, -5.3 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.1, -0.1+0.45, -1.0,
+                                                       0.1,  0.1+0.45, -5.3 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.1, -0.1-0.45, -1.0,
+                                                       0.1,  0.1-0.45, -5.3 ) );
 
-    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1-0.45, -1.0,
-                                         0.1-0.45,  0.1-0.45, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1-0.45, -0.1+0.45, -1.0,
-                                         0.1-0.45,  0.1+0.45, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1-0.45, -1.0,
-                                         0.1+0.45,  0.1-0.45, -5.3 ) );
-    container->add( new AxisAlignedSlab( -0.1+0.45, -0.1+0.45, -1.0,
-                                         0.1+0.45,  0.1+0.45, -5.3 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.1-0.45, -0.1-0.45, -1.0,
+                                                       0.1-0.45,  0.1-0.45, -5.3 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.1-0.45, -0.1+0.45, -1.0,
+                                                       0.1-0.45,  0.1+0.45, -5.3 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.1+0.45, -0.1-0.45, -1.0,
+                                                       0.1+0.45,  0.1-0.45, -5.3 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.1+0.45, -0.1+0.45, -1.0,
+                                                       0.1+0.45,  0.1+0.45, -5.3 ) );
 }
 
-void addRandomSpheres( Container * container, RandomNumberGenerator & rng, int numSpheres )
+void addRandomSpheres( std::shared_ptr<Container> container, RandomNumberGenerator & rng, int numSpheres )
 {
 	for( int si = 0; si < numSpheres; si++ ) {
-		container->add( new Sphere( Vector4( rng.uniformRange( -1.5, 1.5 ),
-                                            rng.uniformRange( -1.5, 1.5 ),
-                                            rng.uniformRange( -10.0, -3.0 ) ),
-                                   0.15 ) );
-	}
+        container->add( std::make_shared<Sphere>( Vector4( rng.uniformRange( -1.5, 1.5 ),
+                                                           rng.uniformRange( -1.5, 1.5 ),
+                                                           rng.uniformRange( -10.0, -3.0 ) ),
+                                                  0.15 ) );
+    }
 }
 
-void addRandomCubes( Container * container, RandomNumberGenerator & rng, int numCubes )
+void addRandomCubes( std::shared_ptr<Container> container, RandomNumberGenerator & rng, int numCubes )
 {
 	for( int si = 0; si < numCubes; si++ ) {
         float x = rng.uniformRange( -1.5, 1.5 );
         float y = rng.uniformRange( -1.5, 1.5 );
         float z = rng.uniformRange( -10.0, -3.0 );
-        container->add( new AxisAlignedSlab( x - 0.1, y - 0.1, z - 0.1,
-                                             x + 0.1, y + 0.1, z + 0.1 ) );
+        container->add( std::make_shared<AxisAlignedSlab>( x - 0.1, y - 0.1, z - 0.1,
+                                                           x + 0.1, y + 0.1, z + 0.1 ) );
 	}
 }
 
-void addOffsetCubes( Container * container )
+void addOffsetCubes( std::shared_ptr<Container> container )
 {
     // Offset cubes for testing AO
-    AxisAlignedSlab * cube1 = new AxisAlignedSlab(  0.1, -0.5, -1.0,
-                                                    0.3, -0.3, -1.2 );
-    AxisAlignedSlab * cube2 = new AxisAlignedSlab( -0.1, -0.5, -1.2,
-                                                    0.1, -0.3, -1.4 );
+    auto cube1 = std::make_shared<AxisAlignedSlab>(  0.1, -0.5, -1.0,
+                                                     0.3, -0.3, -1.2 );
+    auto cube2 = std::make_shared<AxisAlignedSlab>( -0.1, -0.5, -1.2,
+                                                     0.1, -0.3, -1.4 );
     cube1->material = std::make_shared<DiffuseMaterial>( 1.0, 0.0, 0.0 );
     container->add( cube1 );
     container->add( cube2 );
 }
 
-void addBunny( Container * container )
+void addBunny( std::shared_ptr<Container> container )
 {
     AssetLoader loader;
     std::string modelPath = "models";
 
     // bunnies
     std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
-    //TriangleMesh * mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
+    auto mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
+    //auto mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
@@ -168,7 +168,7 @@ void addBunny( Container * container )
     mesh->material = std::make_shared<MirrorMaterial>();
 
     printf("Building octree\n");
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    auto mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
@@ -176,30 +176,30 @@ void addBunny( Container * container )
     container->add( mesh );
 }
 
-void addLitBunny( Container * container ) {
+void addLitBunny( std::shared_ptr<Container> container ) {
     addBunny( container );
     addSphereLight( container,
                     Vector4( 2.0, 3.8, -4.0 ), 0.5,
                     RGBColor( 1.0, 1.0, 1.0 ), 15.0 );
 }
 
-void addSphereLight( Container * container,
+void addSphereLight( std::shared_ptr<Container> container,
                      const Vector4 & center, float r,
                      const RGBColor & color,
                      float power )
 {
-    Sphere * emitter = new Sphere( center, r );
+    auto emitter = std::make_shared<Sphere>( center, r );
     emitter->material = std::make_shared<Material>();
     emitter->material->emittance = color;
     emitter->material->emittance.scale( power );
     container->add( emitter );
 }
 
-void addGroundPlane( Container * container )
+void addGroundPlane( std::shared_ptr<Container> container )
 {
     // makeshift ground plane
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -5.0, -0.5, +10.0,
-                                                   5.0, -0.9, -10.0 );
+    auto floor = std::make_shared<AxisAlignedSlab>( -5.0, -0.5, +10.0,
+                                                     5.0, -0.9, -10.0 );
     floor->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     container->add( floor );
     
@@ -211,16 +211,16 @@ void addGroundPlane( Container * container )
 #endif
 }
 
-void addTransformedCubes( Container * container )
+void addTransformedCubes( std::shared_ptr<Container> container )
 {
     // Offset cubes for testing AO
     float cube_size = 0.2;
-    AxisAlignedSlab * cube1 = new AxisAlignedSlab( 0.0, 0.0, 0.0,
+    auto cube1 = std::make_shared<AxisAlignedSlab>( 0.0, 0.0, 0.0,
                                                    cube_size );
-    AxisAlignedSlab * cube2 = new AxisAlignedSlab( 0.0, 0.0, 0.0,
-                                                   cube_size );
-    AxisAlignedSlab * cube3 = new AxisAlignedSlab( 0.0, 0.0, 0.0,
-                                                   cube_size );
+    auto cube2 = std::make_shared<AxisAlignedSlab>( 0.0, 0.0, 0.0,
+                                                    cube_size );
+    auto cube3 = std::make_shared<AxisAlignedSlab>( 0.0, 0.0, 0.0,
+                                                    cube_size );
 
     cube1->material = std::make_shared<DiffuseMaterial>( 1.0, 0.0, 0.0 );
     cube2->material = std::make_shared<DiffuseMaterial>( 0.0, 0.0, 1.0 );
@@ -261,25 +261,25 @@ void addTransformedCubes( Container * container )
 // Lighting Tests
 //////////////////////////////////////////
 
-void addLightingTest1( Container * container )
+void addLightingTest1( std::shared_ptr<Container> container )
 {
     addGroundPlane( container );
     addSphereLight( container,
                     Vector4( 1.0, 0.8, -3.0 ), 0.5,
                     RGBColor( 1.0, 1.0, 1.0 ), 20.0 );
-    AxisAlignedSlab * cube1 = new AxisAlignedSlab(  0.1, -0.5, -1.0,
-                                                    0.3, -0.3, -1.2 );
-    AxisAlignedSlab * cube2 = new AxisAlignedSlab( -0.1, -0.5, -1.2,
-                                                    0.1, -0.3, -1.4 );
+    auto cube1 = std::make_shared<AxisAlignedSlab>(  0.1, -0.5, -1.0,
+                                                     0.3, -0.3, -1.2 );
+    auto cube2 = std::make_shared<AxisAlignedSlab>( -0.1, -0.5, -1.2,
+                                                     0.1, -0.3, -1.4 );
     container->add( cube1 );
     container->add( cube2 );
-    AxisAlignedSlab * cube3 = new AxisAlignedSlab( -1.0, -0.5, -6.0,
-                                                    1.0 );
+    auto cube3 = std::make_shared<AxisAlignedSlab>( -1.0, -0.5, -6.0,
+                                                     1.0 );
     container->add( cube3 );
 }
 
 // cube pyramid
-void addLightingTest2( Container * container )
+void addLightingTest2( std::shared_ptr<Container> container )
 {
     addGroundPlane( container );
     addSphereLight( container,
@@ -289,15 +289,15 @@ void addLightingTest2( Container * container )
     float size = 0.4;
     Vector4 c( -0.6, -0.5, -2.0 ); // back corner
 
-    container->add( new AxisAlignedSlab( c.x,        c.y,        c.z,        size ) );
-    container->add( new AxisAlignedSlab( c.x + size, c.y,        c.z,        size ) );
-    container->add( new AxisAlignedSlab( c.x       , c.y + size, c.z,        size ) );
-    container->add( new AxisAlignedSlab( c.x       , c.y       , c.z + size, size ) );
+    container->add( std::make_shared<AxisAlignedSlab>( c.x,        c.y,        c.z,        size ) );
+    container->add( std::make_shared<AxisAlignedSlab>( c.x + size, c.y,        c.z,        size ) );
+    container->add( std::make_shared<AxisAlignedSlab>( c.x       , c.y + size, c.z,        size ) );
+    container->add( std::make_shared<AxisAlignedSlab>( c.x       , c.y       , c.z + size, size ) );
 
 }
 
 // cube pyramid
-void addLightingTest3( Container * container )
+void addLightingTest3( std::shared_ptr<Container> container )
 {
     addGroundPlane( container );
     addSphereLight( container,
@@ -317,10 +317,10 @@ void addLightingTest3( Container * container )
         for( int ys = 0; ys <= pyramid_size; ys++ ) {
             for( int zs = 0; zs <= pyramid_size; zs++ ) {
                 if( xs + ys + zs == pyramid_size ) {
-                    container->add( new AxisAlignedSlab( c.x + (float) xs * size,
-                                                         c.y + (float) ys * size,
-                                                         c.z + (float) zs * size,
-                                                         size ) );
+                    container->add( std::make_shared<AxisAlignedSlab>( c.x + (float) xs * size,
+                                                                       c.y + (float) ys * size,
+                                                                       c.z + (float) zs * size,
+                                                                       size ) );
                 }
             }
         }
@@ -335,15 +335,15 @@ void addLightingTest3( Container * container )
 }
 
 
-void addLightingTest4( Container * container )
+void addLightingTest4( std::shared_ptr<Container> container )
 {
     float zoff = -5.0;
 
-    container->add( new Sphere( 0.0, 0.0, zoff - 2.0, 0.2 ) );
-    container->add( new Sphere( -0.4, 0.0, zoff, 0.2 ) );
-    container->add( new Sphere( 0.4, 0.0, zoff, 0.2 ) );
-    container->add( new Sphere( 0.0, -0.4, zoff, 0.2 ) );
-    container->add( new Sphere( 0.0, 0.4, zoff, 0.2 ) );
+    container->add( std::make_shared<Sphere>( 0.0, 0.0, zoff - 2.0, 0.2 ) );
+    container->add( std::make_shared<Sphere>( -0.4, 0.0, zoff, 0.2 ) );
+    container->add( std::make_shared<Sphere>( 0.4, 0.0, zoff, 0.2 ) );
+    container->add( std::make_shared<Sphere>( 0.0, -0.4, zoff, 0.2 ) );
+    container->add( std::make_shared<Sphere>( 0.0, 0.4, zoff, 0.2 ) );
 
     float lightoff = zoff + 0.3;
 
@@ -365,14 +365,14 @@ void addLightingTest4( Container * container )
 //////////////////////////////////////////
 //     Mirror Test
 //////////////////////////////////////////
-void addMirrors( Container * container )
+void addMirrors( std::shared_ptr<Container> container )
 {
-    AxisAlignedSlab * cube1 = new AxisAlignedSlab( -5.0, -5.0, -5.0,
-                                                   5.0, 5.0, -5.2 );
+    auto cube1 = std::make_shared<AxisAlignedSlab>( -5.0, -5.0, -5.0,
+                                                     5.0, 5.0, -5.2 );
     cube1->material = std::make_shared<MirrorMaterial>();
     container->add( cube1 );
-    AxisAlignedSlab * cube2 = new AxisAlignedSlab( -2.5, -5.0, -5.0,
-                                                   -2.7, 5.0, 5.0 );
+    auto cube2 = std::make_shared<AxisAlignedSlab>( -2.5, -5.0, -5.0,
+                                                    -2.7, 5.0, 5.0 );
     cube2->material = std::make_shared<MirrorMaterial>();
     container->add( cube2 );
 }
@@ -381,12 +381,12 @@ void addMirrors( Container * container )
 //////////////////////////////////////////
 //     Standard Material Test Models
 //////////////////////////////////////////
-TriangleMesh * loadMaterialTestModel( AssetLoader & loader )
+std::shared_ptr<TriangleMesh> loadMaterialTestModel( AssetLoader & loader )
 {
     std::string modelBasePath = "models";
-    //TriangleMesh * mesh = loader.load( modelBasePath + "/dacunni/material_test1.obj" );
-    //TriangleMesh * mesh = loader.load( modelBasePath + "/dacunni/material_test1.stl" );
-    TriangleMesh * mesh = loader.load( modelBasePath + "/tf3dm.com/soccerball/untitled.ply" );
+    //auto mesh = loader.load( modelBasePath + "/dacunni/material_test1.obj" );
+    //auto mesh = loader.load( modelBasePath + "/dacunni/material_test1.stl" );
+    auto mesh = loader.load( modelBasePath + "/tf3dm.com/soccerball/untitled.ply" );
     return mesh;
 }
 

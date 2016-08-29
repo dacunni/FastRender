@@ -20,13 +20,13 @@ public:
 	FlatContainer();
 	virtual ~FlatContainer();
 	
-	virtual void add( Traceable * traceable );
-    virtual Traceable * at( int index ) const { return objects[ index ]; }
+	virtual void add( std::shared_ptr<Traceable> traceable );
+    virtual std::shared_ptr<Traceable> at( int index ) const { return objects[ index ]; }
     virtual int size() const { return objects.size(); }
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 	
-	std::vector<Traceable *> objects;
+	std::vector<std::shared_ptr<Traceable> > objects;
 };
 
 

@@ -15,20 +15,20 @@ class BoundingVolume : public Traceable
 {
 public:
     BoundingVolume() {}
-    BoundingVolume( Traceable * o );
+    BoundingVolume( std::shared_ptr<Traceable> o );
     virtual ~BoundingVolume() {}
 
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
-    void buildAxisAligned( Traceable * o );
+    void buildAxisAligned( std::shared_ptr<Traceable> o );
 
-    virtual AxisAlignedSlab * getAxisAlignedBounds() const;
+    virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const;
 
     virtual void print( FILE * file = stdout ) const;
     
-    Traceable * bound = nullptr;
-    Traceable * object = nullptr;
+    std::shared_ptr<Traceable> bound;
+    std::shared_ptr<Traceable> object;
 };
 
 #endif /* defined(__FastRender__BoundingVolume__) */

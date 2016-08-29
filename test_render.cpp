@@ -23,16 +23,16 @@ void testAO1()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
-    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
-    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -1, 0.50, 0, 0.50 ) );
+    container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
 
 	scene->root = container;
     tracer.scene = scene;
@@ -57,16 +57,16 @@ void testAO2()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
-    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
-    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -1, 0.50, 0, 0.50 ) );
+    container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
 
 	scene->root = container;
     tracer.scene = scene;
@@ -91,17 +91,17 @@ void testAO3()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    container->add( new AxisAlignedSlab( +1.75, 0, 0, 1.25 ) );
-    container->add( new AxisAlignedSlab( +0.0, 0, 0, 1.00 ) );
-    container->add( new AxisAlignedSlab( -1.5, 0, 0, 0.75 ) );
-    container->add( new AxisAlignedSlab( -2.5, 0, 0, 0.50 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( +1.75, 0, 0, 1.25 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( +0.0, 0, 0, 1.00 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -1.5, 0, 0, 0.75 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -2.5, 0, 0, 0.50 ) );
 
 	scene->root = container;
     tracer.scene = scene;
@@ -126,28 +126,28 @@ void testAO4()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AxisAlignedSlab * cube = nullptr;
+    std::shared_ptr<AxisAlignedSlab> cube;
 
-    cube = new AxisAlignedSlab( +1.75, 0, 0, 1.25 );
+    cube = std::make_shared<AxisAlignedSlab>( +1.75, 0, 0, 1.25 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 0.5 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( +0.0, 0, 0, 1.00 );
+    cube = std::make_shared<AxisAlignedSlab>( +0.0, 0, 0, 1.00 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( -1.5, 0, 0, 0.75 );
+    cube = std::make_shared<AxisAlignedSlab>( -1.5, 0, 0, 0.75 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( -2.5, 0, 0, 0.50 );
+    cube = std::make_shared<AxisAlignedSlab>( -2.5, 0, 0, 0.50 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( cube );
 
@@ -174,20 +174,20 @@ void testAO5()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AxisAlignedSlab * cube = nullptr;
+    auto cube = nullptr;
 
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
@@ -196,7 +196,7 @@ void testAO5()
 
     mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
@@ -227,20 +227,20 @@ void testAO6()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AxisAlignedSlab * cube = nullptr;
+    auto cube = nullptr;
 
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/dragon/reconstruction";
-    TriangleMesh * mesh = loader.load( modelPath + "/dragon_vrip_res2.ply" );
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto mesh = loader.load( modelPath + "/dragon_vrip_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
@@ -249,7 +249,7 @@ void testAO6()
 
     mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
@@ -280,20 +280,20 @@ void testAO7()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AxisAlignedSlab * cube = nullptr;
+    auto cube = nullptr;
 
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/happy/reconstruction";
-    TriangleMesh * mesh = loader.load( modelPath + "/happy_vrip_res2.ply" );
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto mesh = loader.load( modelPath + "/happy_vrip_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
@@ -302,7 +302,7 @@ void testAO7()
 
     mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
@@ -336,16 +336,16 @@ void testSphereLight1()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
-    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
-    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -1, 0.50, 0, 0.50 ) );
+    container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
 
     addSphereLight( container,
                     Vector4( 5.0, 5.0, 5.0 ), 2.5,
@@ -375,16 +375,16 @@ void testSphereLight2()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
-    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
-    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -1, 0.50, 0, 0.50 ) );
+    container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
 
     addSphereLight( container,
                     Vector4( 5.0, 5.0, 5.0 ), 2.5,
@@ -414,24 +414,24 @@ void testSphereLight3()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    Sphere * sphere = nullptr;
+    std::shared_ptr<Sphere> sphere;
 
-    sphere = new Sphere( -2, 0.25, 0, 0.25 );
+    sphere = std::make_shared<Sphere>( -2, 0.25, 0, 0.25 );
     sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( sphere );
 
-    sphere = new Sphere( -1, 0.50, 0, 0.50 );
+    sphere = std::make_shared<Sphere>( -1, 0.50, 0, 0.50 );
     sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( sphere );
 
-    sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    sphere = std::make_shared<Sphere>( +1, 1.00, 0, 1.00 );
     sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
@@ -463,16 +463,16 @@ void testSphereLight4()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
-    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
-    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -1, 0.50, 0, 0.50 ) );
+    container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
 
     float light_size = 1.5;
     float light_power = 25.0;
@@ -507,16 +507,16 @@ void testPointLight1()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
-    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
-    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -1, 0.50, 0, 0.50 ) );
+    container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
 
     scene->addPointLight( PointLight( Vector4( -5.0, 5.0, 5.0 ),
         RGBColor( 1.0, 1.0, 1.0 ).scaled(20.0) ) );
@@ -545,16 +545,16 @@ void testPointLight2()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
-    container->add( new Sphere( -1, 0.50, 0, 0.50 ) );
-    container->add( new Sphere( +1, 1.00, 0, 1.00 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -1, 0.50, 0, 0.50 ) );
+    container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
 
     scene->addPointLight( PointLight( Vector4( -5.0, 5.0, 5.0 ),
         RGBColor( 1.0, 1.0, 1.0 ).scaled(20.0) ) );
@@ -586,28 +586,28 @@ void testPointLight3()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
 
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto bounds = mesh->getAxisAlignedBounds();
 
     //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
@@ -615,9 +615,9 @@ void testPointLight3()
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
     container->add( mesh );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
 
-    auto cube = new AxisAlignedSlab( 0.8, 0, 2.0, 0.5 );
+    auto cube = std::make_shared<AxisAlignedSlab>( 0.8, 0, 2.0, 0.5 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.2, 0.2 );
     container->add( cube );
 
@@ -652,28 +652,28 @@ void testPointLight4()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 40 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
 
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto bounds = mesh->getAxisAlignedBounds();
 
     mesh->material = std::make_shared<MirrorMaterial>();
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
@@ -682,20 +682,20 @@ void testPointLight4()
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
     container->add( mesh );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
 
     // colored balls to see if we are gettingn proper reflections
-    auto s = new Sphere( -1.25, 0.25, 0.75, 0.25 );
+    auto s = std::make_shared<Sphere>( -1.25, 0.25, 0.75, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(1, 1, 0);
     container->add( s );
-    s = new Sphere( 1.25, 0.25, 0.75, 0.25 );
+    s = std::make_shared<Sphere>( 1.25, 0.25, 0.75, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(0, 1, 0);
     container->add( s );
-    s = new Sphere( 0.0, 0.25, 3.0, 0.25 );
+    s = std::make_shared<Sphere>( 0.0, 0.25, 3.0, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(0, 1, 1);
     container->add( s );
 
-    auto cube = new AxisAlignedSlab( 0.8, 0, 2.0, 0.5 );
+    auto cube = std::make_shared<AxisAlignedSlab>( 0.8, 0, 2.0, 0.5 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.2, 0.2 );
     container->add( cube );
 
@@ -732,16 +732,16 @@ void testLogicalAND()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    auto obj1 = new Sphere( -0.5, 1.00, 0, 1.00 );
-    auto obj2 = new Sphere( +0.5, 1.00, 0, 1.00 );
-    auto logical = new CSGAnd( *obj1, *obj2 );
+    auto obj1 = std::make_shared<Sphere>( -0.5, 1.00, 0, 1.00 );
+    auto obj2 = std::make_shared<Sphere>( +0.5, 1.00, 0, 1.00 );
+    auto logical = std::make_shared<CSGAnd>( *obj1, *obj2 );
     //logical->material = std::make_shared<MirrorMaterial>();
     logical->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     //logical->material = std::make_shared<RefractiveMaterial>(1.5);
@@ -762,8 +762,8 @@ void testLogicalAND()
     Transform translation_back = makeTranslation( 0.0, 0.0, 10.0 );
     tracer.setCameraTransform( compose( translation_up, rotation, translation_back ) );
 
-    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0, 1, 0), M_PI * 0.4 );
-    ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(1, 1, 0), M_PI * 0.4 );
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI * 0.4 );
+    auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(1, 1, 0), M_PI * 0.4 );
     env_map->setPower( 30.0f );
     scene->env_map = env_map;
 
@@ -777,29 +777,29 @@ void testLogicalANDMesh()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 50 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
     mesh->transform = std::make_shared<Transform>();
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto bounds = mesh->getAxisAlignedBounds();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
 
     auto obj1 = mesh;
-    auto obj2 = new Sphere( +0.25, 1.00, 0, 1.00 );
+    auto obj2 = std::make_shared<Sphere>( +0.25, 1.00, 0, 1.00 );
 
-    auto logical = new CSGAnd( *obj1, *obj2 );
+    auto logical = std::make_shared<CSGAnd>( *obj1, *obj2 );
     //logical->material = std::make_shared<MirrorMaterial>();
     logical->material = std::make_shared<DiffuseMaterial>( 0.9, 0.9, 1.0 );
     //logical->material = std::make_shared<RefractiveMaterial>(1.5);
@@ -823,9 +823,9 @@ void testLogicalANDMesh()
     Transform translation_back = makeTranslation( 0.0, 0.0, 10.0 );
     tracer.setCameraTransform( compose( rotation_around, translation_up, rotation, translation_back ) );
 
-    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0, 1, 0), M_PI * 0.4 );
-    ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0.2, 1, 0), M_PI * 0.4 );
-    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(1, 1, 0), M_PI * 0.4 );
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI * 0.4 );
+    auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0.2, 1, 0), M_PI * 0.4 );
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(1, 1, 0), M_PI * 0.4 );
     env_map->setPower( 25.0f );
     scene->env_map = env_map;
 
@@ -849,36 +849,36 @@ SETUP_SCENE(
         makeTranslation( 0.0, 0.0, 10.0 )
         ) );
 );
-TriangleMesh * mesh = nullptr;
+std::shared_ptr<TriangleMesh> mesh = nullptr;
 BUILD_SCENE(
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    auto obj1 = new Sphere( -9.95, 1.00, 0, 10.00 );
-    auto obj2 = new Sphere( +9.95, 1.00, 0, 10.00 );
-    auto logical = new CSGAnd( *obj1, *obj2 );
+    auto obj1 = std::make_shared<Sphere>( -9.95, 1.00, 0, 10.00 );
+    auto obj2 = std::make_shared<Sphere>( +9.95, 1.00, 0, 10.00 );
+    auto logical = std::make_shared<CSGAnd>( *obj1, *obj2 );
     logical->material = std::make_shared<RefractiveMaterial>(index_of_refraction);
     logical->transform = std::make_shared<Transform>();
     *logical->transform = makeRotation( -M_PI / 2, Vector4(0, 1, 0) );
     container->add( logical );
 
     // Colored strips to show refraction from background objects
-    auto cube = new AxisAlignedSlab( -10.0, 0.0, -5.0, +10.0, 0.15, -5.15 );
+    auto cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -5.0, +10.0, 0.15, -5.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
-    cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -5.0, +10.0, 0.5 + 0.15, -5.15 );
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.5 + 0.0, -5.0, +10.0, 0.5 + 0.15, -5.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
     container->add( cube );
-    cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -5.0, +10.0, 1.0 + 0.15, -5.15 );
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 1.0 + 0.0, -5.0, +10.0, 1.0 + 0.15, -5.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
     container->add( cube );
 
-    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(1, 1, 1), M_PI * 0.4 );
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(1, 1, 1), M_PI * 0.4 );
     //env_map->setPower( 30.0f );
     //scene->env_map = env_map;
-    scene->env_map = new TestPatternEnvironmentMap();
+    scene->env_map = std::make_shared<TestPatternEnvironmentMap>();
 );
 END_SCENE()
 
@@ -925,33 +925,33 @@ void testReflection1()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    Sphere * sphere = nullptr;
+    std::shared_ptr<Sphere> sphere;
 
-    sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
+    sphere = std::make_shared<Sphere>( -2, 0.25, 0.5, 0.25 );
     sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( sphere );
 
-    sphere = new Sphere( 0, 0.50, 1.5, 0.50 );
+    sphere = std::make_shared<Sphere>( 0, 0.50, 1.5, 0.50 );
     sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( sphere );
 
-    sphere = new Sphere( -1, 0.75, 0, 0.75  );
+    sphere = std::make_shared<Sphere>( -1, 0.75, 0, 0.75  );
     sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
-    sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    sphere = std::make_shared<Sphere>( +1, 1.00, 0, 1.00 );
     sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
 	scene->root = container;
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -974,41 +974,41 @@ void testReflection2()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    Sphere * sphere = nullptr;
+    std::shared_ptr<Sphere> sphere = nullptr;
 
-    sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
+    sphere = std::make_shared<Sphere>( -2, 0.25, 0.5, 0.25 );
     sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( sphere );
 
-    sphere = new Sphere( +1, 0.50, 4.0, 0.50 );
+    sphere = std::make_shared<Sphere>( +1, 0.50, 4.0, 0.50 );
     sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( sphere );
 
-    sphere = new Sphere( -1, 0.75, 0, 0.75  );
+    sphere = std::make_shared<Sphere>( -1, 0.75, 0, 0.75  );
     sphere->material = std::make_shared<MirrorMaterial>( 0.75, 0.75, 0.15 );
     container->add( sphere );
 
-    sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    sphere = std::make_shared<Sphere>( +1, 1.00, 0, 1.00 );
     sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
-    sphere = new Sphere( 0, 0.5, 2.0, 0.5  );
+    sphere = std::make_shared<Sphere>( 0, 0.5, 2.0, 0.5  );
     sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
-    sphere = new Sphere( -0.75, 0.25, 3.5, 0.25  );
+    sphere = std::make_shared<Sphere>( -0.75, 0.25, 3.5, 0.25  );
     sphere->material = std::make_shared<MirrorMaterial>( 1.0, 0.0, 1.0 );
     container->add( sphere );
 
 	scene->root = container;
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -1033,29 +1033,29 @@ void testReflection3()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
 
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto bounds = mesh->getAxisAlignedBounds();
 
     //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
     mesh->material = std::make_shared<MirrorMaterial>();
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
@@ -1063,32 +1063,32 @@ void testReflection3()
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
     container->add( mesh );
 
-    Sphere * sphere = nullptr;
+    std::shared_ptr<Sphere> sphere = nullptr;
 
-    sphere = new Sphere( -2, 0.25, 2.5, 0.25 );
+    sphere = std::make_shared<Sphere>( -2, 0.25, 2.5, 0.25 );
     sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     container->add( sphere );
 
-    sphere = new Sphere( -2, 0.75, 0, 0.75 );
+    sphere = std::make_shared<Sphere>( -2, 0.75, 0, 0.75 );
     sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
-    sphere = new Sphere( +2.5, 1.00, 0, 1.00 );
+    sphere = std::make_shared<Sphere>( +2.5, 1.00, 0, 1.00 );
     sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( sphere );
 
-    sphere = new Sphere( -0.75, 0.50, 4.0, 0.50 );
+    sphere = std::make_shared<Sphere>( -0.75, 0.50, 4.0, 0.50 );
     sphere->material = std::make_shared<MirrorMaterial>( 1.0, 0.2, 1.0 );
     container->add( sphere );
 
-    AxisAlignedSlab * cube = nullptr;
+    std::shared_ptr<AxisAlignedSlab> cube;
 
-    cube = new AxisAlignedSlab( +0.50, 0, 5.0, 1.0 );
+    cube = std::make_shared<AxisAlignedSlab>( +0.50, 0, 5.0, 1.0 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     container->add( cube );
 
 	scene->root = container;
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -1122,38 +1122,38 @@ void testRefraction1()
     ImageTracer tracer( imageWidth, imageHeight, anim_frames, samples_per_pixel );
     tracer.loopable_animations = true;
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    Sphere * sphere = nullptr;
+    std::shared_ptr<Sphere> sphere;
 
-    //sphere = new Sphere( -2, 0.25, 0.5, 0.25 );
+    //sphere = std::make_shared<Sphere>( -2, 0.25, 0.5, 0.25 );
     //sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     //container->add( sphere );
 
-    sphere = new Sphere( 0, 0.50, 1.5, 0.50 );
+    sphere = std::make_shared<Sphere>( 0, 0.50, 1.5, 0.50 );
     sphere->material = std::make_shared<RefractiveMaterial>(1.2);
     //sphere->material = std::make_shared<RefractiveMaterial>(1.5);
     container->add( sphere );
 
-    sphere = new Sphere( -1, 1.50, 10.0, 0.50 );
+    sphere = std::make_shared<Sphere>( -1, 1.50, 10.0, 0.50 );
     //sphere->material = std::make_shared<RefractiveMaterial>(1.2);
     sphere->material = std::make_shared<RefractiveMaterial>(1.5);
     container->add( sphere );
 
-    sphere = new Sphere( -1, 0.75, 0, 0.75  );
+    sphere = std::make_shared<Sphere>( -1, 0.75, 0, 0.75  );
     sphere->material = std::make_shared<MirrorMaterial>();
     container->add( sphere );
 
-    //sphere = new Sphere( +1, 1.00, 0, 1.00 );
+    //sphere = std::make_shared<Sphere>( +1, 1.00, 0, 1.00 );
     //sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     //container->add( sphere );
 
-    auto cube = new AxisAlignedSlab( -0.75, -0.75, -0.75, 1.5 );
+    auto cube = std::make_shared<AxisAlignedSlab>( -0.75, -0.75, -0.75, 1.5 );
     cube->material = std::make_shared<RefractiveMaterial>(1.2);
     container->add( cube );
     cube->transform = std::make_shared<TimeVaryingTransform>(
@@ -1165,7 +1165,7 @@ void testRefraction1()
         });
 
 #if 0
-    cube = new AxisAlignedSlab( -0.50, -0.50, -0.50, 1.0 );
+    cube = std::make_shared<AxisAlignedSlab>( -0.50, -0.50, -0.50, 1.0 );
     cube->material = std::make_shared<RefractiveMaterial>(1.2);
     container->add( cube );
     cube->transform = std::make_shared<TimeVaryingTransform>(
@@ -1177,23 +1177,23 @@ void testRefraction1()
 #endif
 
     // Colored strips to show refraction from background objects
-    cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -2.0,
                                 +10.0, 0.15, -2.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( -10.0, 0.0, -0.0,
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -0.0,
                                 +10.0, 0.15, -0.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( -10.0, 0.0, 2.0,
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, 2.0,
                                 +10.0, 0.15, 2.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
     container->add( cube );
 	scene->root = container;
 
-    scene->env_map = new ArcLightEnvironmentMap(Vector4(0, 1, 0), 0.25 * M_PI);
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>(Vector4(0, 1, 0), 0.25 * M_PI);
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -1227,15 +1227,15 @@ void testRefraction2()
     tracer.camera.ymin = -0.15;
     tracer.camera.ymax = 0.15;
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
     AssetLoader loader;
-    TriangleMesh * mesh = nullptr;
+    std::shared_ptr<TriangleMesh> mesh;
 
     Transform rotation = makeRotation( M_PI / 4.0, Vector4(0, 1, 0) );
     float spacing = 2.0;
@@ -1249,11 +1249,11 @@ void testRefraction2()
         mesh = loader.load( model );
         if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+        auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_AIR);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
@@ -1268,11 +1268,11 @@ void testRefraction2()
         mesh = loader.load( model );
         if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+        auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
@@ -1287,11 +1287,11 @@ void testRefraction2()
         mesh = loader.load( model );
         if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+        auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_PLEXIGLAS);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
@@ -1306,11 +1306,11 @@ void testRefraction2()
         mesh = loader.load( model );
         if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+        auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
@@ -1325,11 +1325,11 @@ void testRefraction2()
         mesh = loader.load( model );
         if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+        auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
@@ -1342,31 +1342,31 @@ void testRefraction2()
 
     // Walls
 #if 1
-    auto wall = new AxisAlignedSlab( -10.0, 0.0, -10.0,
+    auto wall = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -10.0,
                                      +10.0, 10.0, -10.0 );
     wall->material = std::make_shared<DiffuseMaterial>( 0.8, 0.8, 1.0 );
     container->add( wall );
 #endif
 
     // Colored strips to show refraction from background objects
-    auto cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+    auto cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -2.0,
                                      +10.0, 0.15, -2.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -2.0,
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.5 + 0.0, -2.0,
                                 +10.0, 0.5 + 0.15, -2.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -2.0,
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 1.0 + 0.0, -2.0,
                                 +10.0, 1.0 + 0.15, -2.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
     container->add( cube );
 	scene->root = container;
 
 	scene->root = container;
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -1400,55 +1400,55 @@ void testRefraction3()
     tracer.camera.ymin = -0.15;
     tracer.camera.ymax = 0.15;
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    Sphere * sphere = nullptr;
+    std::shared_ptr<Sphere> sphere;
     float y = 1.5, z = 2.0, radius = 1.0;
 
-    sphere = new Sphere( -4, y, z, radius );
+    sphere = std::make_shared<Sphere>( -4, y, z, radius );
     sphere->material = std::make_shared<RefractiveMaterial>(1.3);
     container->add( sphere );
 
-    sphere = new Sphere( -2, y, z, radius );
+    sphere = std::make_shared<Sphere>( -2, y, z, radius );
     sphere->material = std::make_shared<RefractiveMaterial>(1.49);
     container->add( sphere );
 
-    sphere = new Sphere( 0, y, z, radius );
+    sphere = std::make_shared<Sphere>( 0, y, z, radius );
     sphere->material = std::make_shared<RefractiveMaterial>(1.6);
     container->add( sphere );
 
-    sphere = new Sphere( +2, y, z, radius );
+    sphere = std::make_shared<Sphere>( +2, y, z, radius );
     sphere->material = std::make_shared<RefractiveMaterial>(2.1);
     container->add( sphere );
 
-    sphere = new Sphere( +4, y, z, radius );
+    sphere = std::make_shared<Sphere>( +4, y, z, radius );
     sphere->material = std::make_shared<RefractiveMaterial>(2.5);
     container->add( sphere );
 
     // Colored strips to show refraction from background objects
-    auto cube = new AxisAlignedSlab( -10.0, 0.0, -2.0,
+    auto cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -2.0,
                                      +10.0, 0.15, -2.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( -10.0, 0.5 + 0.0, -2.0,
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.5 + 0.0, -2.0,
                                 +10.0, 0.5 + 0.15, -2.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
     container->add( cube );
 
-    cube = new AxisAlignedSlab( -10.0, 1.0 + 0.0, -2.0,
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 1.0 + 0.0, -2.0,
                                 +10.0, 1.0 + 0.15, -2.15 );
     cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
     container->add( cube );
 	scene->root = container;
 
 	scene->root = container;
-    scene->env_map = new ArcLightEnvironmentMap(Vector4(0, 1, 0), M_PI * 0.25);
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>(Vector4(0, 1, 0), M_PI * 0.25);
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -1474,18 +1474,18 @@ void testRefraction4()
     int rays_per_pixel = 100;
     ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, 0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    auto sphere = new Sphere( 0.0, 1.25, 0.0, 1.0 );
+    auto sphere = std::make_shared<Sphere>( 0.0, 1.25, 0.0, 1.0 );
     sphere->material = std::make_shared<RefractiveMaterial>(1.4);
     container->add( sphere );
 
-    auto foo = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    auto foo = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     foo->material = std::make_shared<RefractiveMaterial>(1.1);
     foo->transform = std::make_shared<Transform>();
     *foo->transform = compose( makeTranslation( Vector4( 1.5, 0.75, 0.0 ) ),
@@ -1494,7 +1494,7 @@ void testRefraction4()
     container->add( foo );
 
     // Light
-    auto cube = new AxisAlignedSlab( 2.0, 2.5, -1.0,
+    auto cube = std::make_shared<AxisAlignedSlab>( 2.0, 2.5, -1.0,
                                      4.0, 4.5,  1.0 );
     cube->material = std::make_shared<Material>();
     cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
@@ -1532,26 +1532,26 @@ void testMesh1()
     tracer.camera.ymin = -0.15;
     tracer.camera.ymax = 0.15;
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
     AssetLoader loader;
-    TriangleMesh * mesh = nullptr;
+    std::shared_ptr<TriangleMesh> mesh;
 
     {
         mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper.ply" );
         if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+        auto bounds = mesh->getAxisAlignedBounds();
 
         //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
         //mesh->material = std::make_shared<MirrorMaterial>();
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
@@ -1563,9 +1563,9 @@ void testMesh1()
     {
         mesh = loader.load( "models/stanford/dragon/reconstruction/dragon_vrip.ply" );
         if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
-        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+        auto bounds = mesh->getAxisAlignedBounds();
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
@@ -1576,7 +1576,7 @@ void testMesh1()
     }
 
 	scene->root = container;
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -1604,10 +1604,10 @@ void testMesh2()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
@@ -1620,7 +1620,7 @@ void testMesh2()
     container->add( meshes );
 
 	scene->root = container;
-    //scene->env_map = new ArcLightEnvironmentMap();
+    //scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
     tracer.scene = scene;
 
     scene->addPointLight( PointLight( Vector4( 12.0, 5.0, 5.0 ),
@@ -1655,10 +1655,10 @@ void testMeshSanMiguel()
     //ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
     ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    //AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    //auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
     //                                               +10.0, -1.0, -10.0 );
     //container->add( floor );
 
@@ -1666,7 +1666,7 @@ void testMeshSanMiguel()
     auto mesh = loader.loadMultiPart( "models/san-miguel/san-miguel.obj" );
     //auto mesh = loader.loadMultiPartMerged( "models/san-miguel/san-miguel.obj" );
     if( !mesh ) { fprintf( stderr, "Error loading meshes\n" ); return; }
-    //AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    //auto bounds = mesh->getAxisAlignedBounds();
     mesh->transform = std::make_shared<Transform>();
     //float scale = 35.0;
     float scale = 1.0;
@@ -1676,13 +1676,13 @@ void testMeshSanMiguel()
                                // makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
     container->add( mesh );
 
-    auto s = new Sphere( -1.25, 0.25, 0.75, 0.25 );
+    auto s = std::make_shared<Sphere>( -1.25, 0.25, 0.75, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(1, 1, 0);
     container->add( s );
-    s = new Sphere( 1.25, 0.25, 0.75, 0.25 );
+    s = std::make_shared<Sphere>( 1.25, 0.25, 0.75, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(0, 1, 0);
     container->add( s );
-    s = new Sphere( 0.0, 0.25, 3.0, 0.25 );
+    s = std::make_shared<Sphere>( 0.0, 0.25, 3.0, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(0, 1, 1);
     container->add( s );
 
@@ -1694,7 +1694,7 @@ void testMeshSanMiguel()
         RGBColor( 1.0, 1.0, 1.0 ).scaled(500.0) ) );
 
 	scene->root = container;
-    //scene->env_map = new ArcLightEnvironmentMap();
+    //scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
     tracer.scene = scene;
 
     //tracer.shader = new BasicDiffuseSpecularShader();
@@ -1740,26 +1740,26 @@ void testHairball()
     int imageWidth = imageSize, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
     AssetLoader loader;
-    TriangleMesh * mesh = nullptr;
+    std::shared_ptr<TriangleMesh> mesh;
 
     {
         mesh = loader.load( "models/hairball.obj" );
         if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-        AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+        auto bounds = mesh->getAxisAlignedBounds();
 
         //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
         //mesh->material = std::make_shared<MirrorMaterial>();
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
         mesh_octree->build();
         mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
@@ -1769,8 +1769,8 @@ void testHairball()
     }
 
 	scene->root = container;
-    //scene->env_map = new ArcLightEnvironmentMap();
-    scene->env_map = new ArcLightEnvironmentMap(Vector4(1,1,0), M_PI / 4.0f);
+    //scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>(Vector4(1,1,0), M_PI / 4.0f);
     tracer.scene = scene;
 
     tracer.shader = new AmbientOcclusionShader();
@@ -1801,28 +1801,28 @@ void testAnimTransforms1()
     ImageTracer tracer( imageWidth, imageHeight, num_frames, rays_per_pixel );
     tracer.loopable_animations = true;
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane at y=0
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, +0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
-    TriangleMesh * mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
 
     if( !mesh ) {
         fprintf( stderr, "Error loading mesh\n" );
         return;
     }
 
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto bounds = mesh->getAxisAlignedBounds();
 
     mesh->material = std::make_shared<MirrorMaterial>();
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     float ymin = bounds->ymin;
@@ -1834,20 +1834,20 @@ void testAnimTransforms1()
         });
     container->add( mesh );
 
-    container->add( new Sphere( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
 
     // colored balls to see if we are gettingn proper reflections
-    auto s = new Sphere( -1.25, 0.25, 0.75, 0.25 );
+    auto s = std::make_shared<Sphere>( -1.25, 0.25, 0.75, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(1, 1, 0);
     container->add( s );
-    s = new Sphere( 1.25, 0.25, 0.75, 0.25 );
+    s = std::make_shared<Sphere>( 1.25, 0.25, 0.75, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(0, 1, 0);
     container->add( s );
-    s = new Sphere( 0.0, 0.25, 3.0, 0.25 );
+    s = std::make_shared<Sphere>( 0.0, 0.25, 3.0, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(0, 1, 1);
     container->add( s );
 
-    auto cube = new AxisAlignedSlab( 0.8, 0, 2.0, 0.5 );
+    auto cube = std::make_shared<AxisAlignedSlab>( 0.8, 0, 2.0, 0.5 );
     cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.2, 0.2 );
     container->add( cube );
 
@@ -1887,28 +1887,28 @@ void testAnimTransforms2()
     ImageTracer tracer( imageWidth, imageHeight, num_frames, rays_per_pixel );
     tracer.loopable_animations = true;
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, -2.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, -2.0, +10.0,
                                                    +10.0, -3.0, -10.0 );
     container->add( floor );
 
-    auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    auto cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( -2.0, 0.0, 0.0 ) ),
                             makeRotation( (anim_progress - 0.4) * 2.0 * M_PI, Vector4(1, 0, 0) ) );
         });
     container->add( cube );
-    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( 0.0, 0.0, 0.0 ) ),
                             makeRotation( (anim_progress - 0.4) * 2.0 * M_PI, Vector4(0, 1, 0) ) );
         });
     container->add( cube );
-    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
             return compose( makeTranslation( Vector4( +2.0, 0.0, 0.0 ) ),
@@ -1950,14 +1950,14 @@ void testAnimTransforms3()
     ImageTracer tracer( imageWidth, imageHeight, num_frames, rays_per_pixel );
     tracer.loopable_animations = true;
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, -2.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, -2.0, +10.0,
                                                    +10.0, -3.0, -10.0 );
     container->add( floor );
 
-    auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    auto cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
@@ -1965,7 +1965,7 @@ void testAnimTransforms3()
                             makeRotation( (anim_progress - 0.4) * 0.5 * M_PI, Vector4(1, 0, 0) ) );
         });
     container->add( cube );
-    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
@@ -1973,7 +1973,7 @@ void testAnimTransforms3()
                             makeRotation( (anim_progress - 0.4) * 0.5 * M_PI, Vector4(0, 1, 0) ) );
         });
     container->add( cube );
-    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = std::make_shared<TimeVaryingTransform>(
         [](float anim_progress) {
@@ -2016,14 +2016,14 @@ void testAreaLight1()
     int rays_per_pixel = 100;
     ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, 0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    auto cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    auto cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     //cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = std::make_shared<Transform>();
     *cube->transform = compose( makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ),
@@ -2031,14 +2031,14 @@ void testAreaLight1()
     container->add( cube );
 
     // Light
-    cube = new AxisAlignedSlab( 2.0, 2.5, -2.25,
+    cube = std::make_shared<AxisAlignedSlab>( 2.0, 2.5, -2.25,
                                 3.0, 3.5,  2.25 );
     cube->material = std::make_shared<Material>();
     cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
     cube->material->emittance.scale( 5.0 );
     container->add( cube );
 
-    ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0, 1, 0), M_PI / 2.0 );
+    auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
     env_map->setPower( 10.0f );
     scene->env_map = env_map;
 
@@ -2069,17 +2069,17 @@ void testAreaLight2()
     int rays_per_pixel = 1000;
     ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
     Scene * scene = new Scene();
-	FlatContainer * container = new FlatContainer();
+	auto container = std::make_shared<FlatContainer>();
 
     // Ground plane
-    AxisAlignedSlab * floor = new AxisAlignedSlab( -10.0, 0.0, +10.0,
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AxisAlignedSlab * cube = nullptr;
+    std::shared_ptr<AxisAlignedSlab> cube;
 
 #if 0
-    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     //cube->material = std::make_shared<MirrorMaterial>();
     cube->transform = std::make_shared<Transform>();
     *cube->transform = compose( makeTranslation( Vector4( -0.8, 0.5, 0.0 ) ),
@@ -2092,7 +2092,7 @@ void testAreaLight2()
     float max_angle = M_PI / 2.0;
     for( int i = 0; i < num_cubes; i++ ) {
         float angle = (float) i / (num_cubes-1) * (max_angle - min_angle) + min_angle;
-        cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+        cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
         cube->material = std::make_shared<MirrorMaterial>();
         cube->transform = std::make_shared<Transform>();
         *cube->transform = compose( makeRotation( angle, Vector4(0, 1, 0) ),
@@ -2102,7 +2102,7 @@ void testAreaLight2()
     }
 
 #if 0
-    cube = new AxisAlignedSlab( -0.5, -0.5, -0.5, 1.0 );
+    cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
     cube->transform = std::make_shared<Transform>();
     *cube->transform = compose( makeTranslation( Vector4( 0.8, 0.5, 0.0 ) ),
                                 makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
@@ -2111,14 +2111,14 @@ void testAreaLight2()
 
 
     // Light
-    cube = new AxisAlignedSlab( 2.0, 2.5, -2.25,
+    cube = std::make_shared<AxisAlignedSlab>( 2.0, 2.5, -2.25,
                                 3.0, 3.5,  2.25 );
     cube->material = std::make_shared<Material>();
     cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
     cube->material->emittance.scale( 5.0 );
     container->add( cube );
 
-    //ArcLightEnvironmentMap * env_map = new ArcLightEnvironmentMap( Vector4(0, 1, 0), M_PI / 2.0 );
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
     //env_map->setPower( 10.0f );
     //scene->env_map = env_map;
 
@@ -2146,7 +2146,7 @@ SETUP_SCENE( TestScene::setup(); );
 BUILD_SCENE(
     float size = 1.0;
     float half_size = size / 2.0;
-    auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
+    auto cube = std::make_shared<AxisAlignedSlab>( -half_size, 0.0, -half_size,
                                      half_size, size, half_size );
     cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
     container->add( cube );
@@ -2167,21 +2167,21 @@ SETUP_SCENE(
 BUILD_SCENE(
     float size = 1.0;
     float half_size = size / 2.0;
-    auto cube = new AxisAlignedSlab( -half_size, 0.0, -half_size,
-                                     half_size, size, half_size );
+    auto cube = std::make_shared<AxisAlignedSlab>( -half_size, 0.0, -half_size,
+                                                    half_size, size, half_size );
     cube->transform = std::make_shared<Transform>();
     *cube->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
     container->add( cube );
 
-    auto sphere = new Sphere( 1.0, half_size, 0.0, half_size );
+    auto sphere = std::make_shared<Sphere>( 1.0, half_size, 0.0, half_size );
     container->add( sphere );
 
     std::string modelBasePath = "models";
-    TriangleMesh * mesh = loader.load( modelBasePath + "/stanford/happy/reconstruction/happy_vrip_res4.ply" );
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto mesh = loader.load( modelBasePath + "/stanford/happy/reconstruction/happy_vrip_res4.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
     if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    auto mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();

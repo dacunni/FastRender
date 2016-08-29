@@ -11,7 +11,7 @@
 #include "AxisAlignedSlab.h"
 
 
-void Container::add( Traceable * traceable,
+void Container::add( std::shared_ptr<Traceable> traceable,
                      std::shared_ptr<Material> material )
 {
     traceable->material = material;
@@ -26,9 +26,9 @@ void Container::updateAnim( float t )
     }
 }
 
-AxisAlignedSlab * Container::getAxisAlignedBounds() const
+std::shared_ptr<AxisAlignedSlab> Container::getAxisAlignedBounds() const
 {
-    AxisAlignedSlab * bounds = new AxisAlignedSlab( *at(0)->getAxisAlignedBounds() );
+    auto bounds = std::make_shared<AxisAlignedSlab>( *at(0)->getAxisAlignedBounds() );
     auto size = this->size();
     for( int i = 1; i < size; i++ ) {
         *bounds = merge( *bounds, *at(i)->getAxisAlignedBounds() );

@@ -10,6 +10,7 @@
 #define __FastRender__AssetLoader__
 
 #include <string>
+#include <memory>
 
 class Container;
 class Traceable;
@@ -20,9 +21,9 @@ public:
     AssetLoader() {}
     ~AssetLoader() {}
     
-    TriangleMesh * load( const std::string & filename );
-    Container *    loadMultiPart( const std::string & filename );
-    TriangleMesh * loadMultiPartMerged( const std::string & filename );
+    std::shared_ptr<TriangleMesh> load( const std::string & filename );
+    std::shared_ptr<Container>    loadMultiPart( const std::string & filename );
+    std::shared_ptr<TriangleMesh> loadMultiPartMerged( const std::string & filename );
 
 };
 

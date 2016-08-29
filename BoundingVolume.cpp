@@ -12,7 +12,7 @@
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
 
-BoundingVolume::BoundingVolume( Traceable * o )
+BoundingVolume::BoundingVolume( std::shared_ptr<Traceable> o )
 {
     buildAxisAligned(o);
 }
@@ -44,7 +44,7 @@ bool BoundingVolume::intersectsAny( const Ray & ray, float min_distance ) const
 }
 
 
-void BoundingVolume::buildAxisAligned( Traceable * o )
+void BoundingVolume::buildAxisAligned( std::shared_ptr<Traceable> o )
 {
     if( !o ) {
         return;
@@ -54,9 +54,9 @@ void BoundingVolume::buildAxisAligned( Traceable * o )
     bound = o->getAxisAlignedBounds();
 }
 
-AxisAlignedSlab * BoundingVolume::getAxisAlignedBounds() const
+std::shared_ptr<AxisAlignedSlab> BoundingVolume::getAxisAlignedBounds() const
 {
-    return new AxisAlignedSlab(*static_cast<AxisAlignedSlab*>(bound)); 
+    return std::make_shared<AxisAlignedSlab>(*std::static_pointer_cast<AxisAlignedSlab>(bound)); 
 }
 
 void BoundingVolume::print( FILE * file ) const

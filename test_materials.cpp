@@ -26,20 +26,20 @@ SETUP_SCENE(
         makeTranslation( 0.0, 0.0, 5.0 )
         ) );
 );
-TriangleMesh * mesh = nullptr;
+std::shared_ptr<TriangleMesh> mesh;
 BUILD_SCENE(
     float size = 1.0;
-    auto floor = new AxisAlignedSlab( -10, -1, -10,
-                                     10, 0, 10 );
+    auto floor = std::make_shared<AxisAlignedSlab>( -10, -1, -10,
+                                                     10, 0, 10 );
     floor->transform = std::make_shared<Transform>();
     *floor->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
     container->add( floor );
 
     mesh = loadMaterialTestModel( loader );
     if( !mesh ) { return; }
-    AxisAlignedSlab * bounds = mesh->getAxisAlignedBounds();
+    auto bounds = mesh->getAxisAlignedBounds();
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *dynamic_cast<TriangleMesh*>(mesh) );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
     mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
@@ -83,7 +83,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestBase::buildScene();
-    scene->env_map = new ArcLightEnvironmentMap();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
 );
 END_SCENE()
 
@@ -99,7 +99,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestBase::buildScene();
-    scene->env_map = new HDRImageEnvironmentMap(env_map_filename, env_map_width, env_map_height);
+    scene->env_map = std::make_shared<HDRImageEnvironmentMap>(env_map_filename, env_map_width, env_map_height);
 );
 #if 1
 std::string env_map_filename = "light_probes/debevec/stpeters_probe.float";
@@ -250,6 +250,7 @@ int main (int argc, char * const argv[])
     MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
     MaterialTestMirrorHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
 #else
+    MaterialTestRefractWaterArcLight::run();
 #endif
     
     total_run_timer.stop();

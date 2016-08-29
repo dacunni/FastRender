@@ -21,11 +21,11 @@ public:
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
-    void build( Container * container );
+    void build( std::shared_ptr<Container> container );
 
     virtual void print( FILE * file = stdout ) const;
 
-    BoundingVolume * root = nullptr;
+    std::shared_ptr<BoundingVolume> root = nullptr;
 };
 
 #endif

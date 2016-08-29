@@ -35,7 +35,7 @@ public:
 
     // Children should implement this to create an axis-aligned bounding box
     // Returns null if not implemented
-    virtual AxisAlignedSlab * getAxisAlignedBounds() const { return nullptr; }
+    virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const { return std::shared_ptr<AxisAlignedSlab>(); }
 
     virtual void print( FILE * file = stdout ) const;
 

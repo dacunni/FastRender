@@ -19,13 +19,13 @@ class Container : public Traceable
 {
 public:
 	
-	virtual void add( Traceable * traceable ) = 0;
-	void add( Traceable * traceable, std::shared_ptr<Material> material );
+	virtual void add( std::shared_ptr<Traceable> traceable ) = 0;
+	void add( std::shared_ptr<Traceable> traceable, std::shared_ptr<Material> material );
 		
-    virtual Traceable * at( int index ) const = 0;
+    virtual std::shared_ptr<Traceable> at( int index ) const = 0;
     virtual int size() const = 0;
 
-    virtual AxisAlignedSlab * getAxisAlignedBounds() const;
+    virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const;
 
     virtual void updateAnim( float t );
 };

@@ -37,7 +37,7 @@ public:
     bool intersectsTriangles( const Ray & ray, const std::vector< IndexTriangle > & vtri,
                               RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
 
-    virtual AxisAlignedSlab * getAxisAlignedBounds() const;
+    virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const;
 
     std::vector< Vector4 >          vertices;
     std::vector< Vector4 >          normals;

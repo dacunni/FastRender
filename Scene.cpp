@@ -99,9 +99,9 @@ void Scene::buildLightList()
     printf("Found %u point lights\n", (unsigned int) point_lights.size());
 }
 
-void Scene::addLightsForTraceable( Traceable * obj )
+void Scene::addLightsForTraceable( std::shared_ptr<Traceable> obj )
 {
-    Container * container;
+    std::shared_ptr<Container> container;
 
     // If the object has non-zero emittance, add it to the light list
     if( obj->material && !obj->material->emittance.isZero() ) {
@@ -109,7 +109,7 @@ void Scene::addLightsForTraceable( Traceable * obj )
     }
 
     // If this is a container, recursives check its contents for more lights
-    if( obj && (container = dynamic_cast<Container *>(obj)) ) {
+    if( obj && (container = std::dynamic_pointer_cast<Container>(obj)) ) {
         int size = container->size();
 
         for( int i = 0; i < size; i++ ) {

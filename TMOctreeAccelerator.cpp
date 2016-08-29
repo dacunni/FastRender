@@ -59,9 +59,8 @@ void TMOctreeAccelerator::build()
     debug_num_nodes = 0;
     debug_average_depth = 0;
 #endif
-    AxisAlignedSlab * full_bounds = mesh.getAxisAlignedBounds();
+    auto full_bounds = mesh.getAxisAlignedBounds();
     root.bounds = *full_bounds;
-    delete full_bounds;
     
 #ifdef DEBUG_BUILD_TREE
     printf( "#### bb: %5f:%5f, %5f:%5f, %5f:%5f):\n",
