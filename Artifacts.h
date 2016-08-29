@@ -9,6 +9,7 @@
 #ifndef __FastRender__Artifacts__
 #define __FastRender__Artifacts__
 
+#include <memory>
 #include <vector>
 
 // ImageMagick stuff. We get compile-time warnings if we don't define these manually
@@ -30,12 +31,14 @@ public:
     void setPixelDepth( unsigned int row, unsigned int col, float depth );
     void setPixelTime( unsigned int row, unsigned int col, float value );
     void flush();
+
+    typedef std::unique_ptr<Magick::Image> ImagePtr;
     
     std::string output_path;
-    Magick::Image * image = nullptr;
-    Magick::Image * normal_image = nullptr;
-    Magick::Image * depth_image = nullptr;
-    Magick::Image * time_image = nullptr;
+    ImagePtr image = nullptr;
+    ImagePtr normal_image = nullptr;
+    ImagePtr depth_image = nullptr;
+    ImagePtr time_image = nullptr;
     std::vector<double> time_unnormalized_image;
     FILE * intersections_file;
 

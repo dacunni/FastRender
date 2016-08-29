@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <memory>
 #include <algorithm>
 #include "Vector.h"
 #include "Artifacts.h"
@@ -17,13 +18,13 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
     height( imageHeight ),
     frame_number( 1 )
 {
-    image = new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" );
+    image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
     image->magick( "png" ); // set the output file type
-    normal_image = new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" );
+    normal_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
     normal_image->magick( "png" ); // set the output file type
-    depth_image = new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), Magick::ColorRGB(0.0f, 0.0f, 0.0f) );
+    depth_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), Magick::ColorRGB(0.0f, 0.0f, 0.0f) ) );
     depth_image->magick( "png" ); // set the output file type
-    time_image = new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" );
+    time_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
     time_image->magick( "png" ); // set the output file type
     time_unnormalized_image.resize( imageWidth * imageHeight );
     intersections_file = fopen( (output_path + file_prefix + "/intersections.txt").c_str(), "w" );
@@ -31,14 +32,6 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
 
 Artifacts::~Artifacts()
 {
-    if( image )
-        delete image;
-    if( depth_image )
-        delete depth_image;
-    if( normal_image )
-        delete normal_image;
-    if( time_image )
-        delete time_image;
     if( intersections_file )
         fclose( intersections_file );
 }
@@ -48,22 +41,13 @@ void Artifacts::startNewFrame()
 {
     flush();
 
-    if( image )
-        delete image;
-    if( depth_image )
-        delete depth_image;
-    if( normal_image )
-        delete normal_image;
-    if( time_image )
-        delete time_image;
-
-    image = new Magick::Image( Magick::Geometry( width, height ), "black" );
+    image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     image->magick( "png" ); // set the output file type
-    normal_image = new Magick::Image( Magick::Geometry( width, height ), "black" );
+    normal_image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     normal_image->magick( "png" ); // set the output file type
-    depth_image = new Magick::Image( Magick::Geometry( width, height ), Magick::ColorRGB(0.0f, 0.0f, 0.0f) );
+    depth_image.reset( new Magick::Image( Magick::Geometry( width, height ), Magick::ColorRGB(0.0f, 0.0f, 0.0f) ) );
     depth_image->magick( "png" ); // set the output file type
-    time_image = new Magick::Image( Magick::Geometry( width, height ), "black" );
+    time_image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     time_image->magick( "png" ); // set the output file type
     frame_number++;
 }
