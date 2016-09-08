@@ -61,6 +61,7 @@ public:
     // found by randomly shooting rays. We keep track of them separately so we
     // can consider them explicitely.
     std::vector<PointLight> point_lights;
+
 };
 
 

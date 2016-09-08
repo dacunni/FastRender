@@ -68,6 +68,7 @@ void ImageTracer::render()
                 image_flush_timer.start(); // reset timer
             }
             for( unsigned int col = 0; col < image_width; ++col ) {
+                //printf("COL %d / %d\n", col, image_width);
                 if( randomize_pixel_order ) {
                     unsigned orig_index = row * image_width + col;
                     unsigned rand_index = randomized_indices[orig_index];

@@ -41,9 +41,11 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 #if 0
     for( int i = 0; i < ray.depth; i++ )
         printf(" ");
-    printf("o %f %f %f %f  d %f %f %f %f (%f)\n",
+    printf("dp %d o %f %f %f %f  d %f %f %f %f (%f) ior %f\n",
+           (int) ray.depth,
            ray.origin.x, ray.origin.y, ray.origin.z, ray.origin.w,
-           ray.direction.x, ray.direction.y, ray.direction.z, ray.direction.w, ray.direction.magnitude());
+           ray.direction.x, ray.direction.y, ray.direction.z, ray.direction.w, ray.direction.magnitude(),
+           ray.index_of_refraction);
 #endif
 
 	if( root != 0 && root->intersectTransformed( ray, intersection ) ) {

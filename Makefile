@@ -96,9 +96,11 @@ INC += -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
+# Uncomment to enable symbols
 #CXXFLAGS += -g
 # Uncomment to disable asserts
-#CXXFLAGS += -DNDEBUG
+CXXFLAGS += -DNDEBUG
+
 ifeq ($(UNAME_S),Darwin)
     CXXFLAGS += -mmacosx-version-min=10.10
 endif

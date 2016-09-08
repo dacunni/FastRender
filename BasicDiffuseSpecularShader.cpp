@@ -120,6 +120,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 new_ray.direction = refracted;
                 new_ray.index_of_refraction = index_out;
 
+                //printf("\trefract ior %f -> %f\n", intersection.ray.index_of_refraction, new_ray.index_of_refraction); // TEMP
                 if( scene.intersect( new_ray, new_intersection ) ) {
                     if( new_intersection.distance != FLT_MAX ) {
                         shade( scene, rng, new_intersection );
@@ -131,7 +132,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             // Trace reflection
             if( fresnel > 0.0f ) {
                 new_ray.direction = mirror( from_dir, intersection.normal );
+                new_ray.index_of_refraction = index_in;
 
+                //printf("\treflect ior %f -> %f\n", intersection.ray.index_of_refraction, new_ray.index_of_refraction); // TEMP
                 if( scene.intersect( new_ray, new_intersection ) ) {
                     if( new_intersection.distance != FLT_MAX ) {
                         shade( scene, rng, new_intersection );

@@ -741,7 +741,7 @@ void testLogicalAND()
 
     auto obj1 = std::make_shared<Sphere>( -0.5, 1.00, 0, 1.00 );
     auto obj2 = std::make_shared<Sphere>( +0.5, 1.00, 0, 1.00 );
-    auto logical = std::make_shared<CSGAnd>( *obj1, *obj2 );
+    auto logical = std::make_shared<CSGAnd>( obj1, obj2 );
     //logical->material = std::make_shared<MirrorMaterial>();
     logical->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
     //logical->material = std::make_shared<RefractiveMaterial>(1.5);
@@ -799,7 +799,7 @@ void testLogicalANDMesh()
     auto obj1 = mesh;
     auto obj2 = std::make_shared<Sphere>( +0.25, 1.00, 0, 1.00 );
 
-    auto logical = std::make_shared<CSGAnd>( *obj1, *obj2 );
+    auto logical = std::make_shared<CSGAnd>( obj1, obj2 );
     //logical->material = std::make_shared<MirrorMaterial>();
     logical->material = std::make_shared<DiffuseMaterial>( 0.9, 0.9, 1.0 );
     //logical->material = std::make_shared<RefractiveMaterial>(1.5);
@@ -832,6 +832,57 @@ void testLogicalANDMesh()
     tracer.render();
 }
 // ------------------------------------------------------------ 
+void testLogicalANDLensFocusLight()
+{
+    int imageSize = 256;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 50 );
+    Scene * scene = new Scene();
+	auto container = std::make_shared<FlatContainer>();
+
+    // Ground plane at y=0
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    //container->add( floor );
+
+    float lens_thickness = 0.35;
+    auto obj1 = std::make_shared<Sphere>( -2.0 + lens_thickness * 0.5, 1.00, 0, 2.00 );
+    auto obj2 = std::make_shared<Sphere>( +2.0 - lens_thickness * 0.5, 1.00, 0, 2.00 );
+    auto logical = std::make_shared<CSGAnd>( obj1, obj2 );
+    logical->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
+    container->add( logical );
+
+    auto cube = std::make_shared<AxisAlignedSlab>( -2.0, 0.0, -2.0,
+                                                   -1.0, 2.0, 2.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    container->add( cube );
+
+    addSphereLight( container,
+                    Vector4( 15.0, 1.0, 0.0 ), 4.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 10.0 );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    //tracer.shader = new AmbientOcclusionShader();
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_logical_and_focus_light";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation_around = makeRotation( M_PI * 0.2, Vector4(0, 1, 0) );
+    //Transform rotation_around = makeRotation( M_PI / 4, Vector4(0, 1, 0) );
+    //Transform rotation_around = makeRotation( M_PI / 16, Vector4(0, 1, 0) );
+    Transform translation_up = makeTranslation( 0.0, 1.0, 0.0 );
+    Transform rotation = makeRotation( -M_PI / 32, Vector4(1, 0, 0) );
+    Transform translation_back = makeTranslation( 0.0, 0.0, 10.0 );
+    tracer.setCameraTransform( compose( rotation_around, translation_up, rotation, translation_back ) );
+
+    tracer.render();
+}
+
+// ------------------------------------------------------------ 
 // Base test configuration for a lens made from the logical AND of two spheres
 // Derived tests change the index of refraction
 BEGIN_SCENE(CSGLogicalANDLens)
@@ -858,7 +909,7 @@ BUILD_SCENE(
 
     auto obj1 = std::make_shared<Sphere>( -9.95, 1.00, 0, 10.00 );
     auto obj2 = std::make_shared<Sphere>( +9.95, 1.00, 0, 10.00 );
-    auto logical = std::make_shared<CSGAnd>( *obj1, *obj2 );
+    auto logical = std::make_shared<CSGAnd>( obj1, obj2 );
     logical->material = std::make_shared<RefractiveMaterial>(index_of_refraction);
     logical->transform = std::make_shared<Transform>();
     *logical->transform = makeRotation( -M_PI / 2, Vector4(0, 1, 0) );
@@ -2246,11 +2297,13 @@ int main (int argc, char * const argv[])
     Gooch::run();
     testLogicalAND();
     testLogicalANDMesh();
+    testLogicalANDLensFocusLight();
     CSGLogicalANDLensWater::run();
     CSGLogicalANDLensCrownGlass::run();
     CSGLogicalANDLensFlintGlass::run();
 #else
-    testRefraction1();  // Mixed scene with some refractive elements
+    testLogicalANDLensFocusLight();
+
 #endif
     
     total_run_timer.stop();

@@ -15,13 +15,13 @@
 class CSGAnd : public Traceable
 {
 public:
-	CSGAnd( const Traceable & o1, const Traceable & o2 ) : obj1(o1), obj2(o2) {}
+	CSGAnd( std::shared_ptr<Traceable> o1, std::shared_ptr<Traceable> o2 ) : obj1(o1), obj2(o2) {}
 	virtual ~CSGAnd() {}
 	
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
-    const Traceable & obj1;
-    const Traceable & obj2;
+    std::shared_ptr<Traceable> obj1;
+    std::shared_ptr<Traceable> obj2;
 };
 
 
