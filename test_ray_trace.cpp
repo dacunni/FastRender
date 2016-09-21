@@ -398,6 +398,82 @@ void testSimpleCamera()
 }
 
 // ------------------------------------------------------------ 
+// Timing
+// ------------------------------------------------------------ 
+void testRayObjectTiming(Traceable & traceable, const char * name)
+{
+    std::vector<Ray> rays;
+    int ray_pool_size = 1000;
+    int num_rays = 100000000;
+    //int num_rays = 10000;
+    double timer_cutoff = 5.0;
+    
+    for( int i = 0; i < ray_pool_size; i++ ) {
+        Ray ray;
+        float x = rng.uniformRange( -1.0, 1.0 );
+        float y = rng.uniformRange( -1.0, 1.0 );
+        ray.origin = Vector4( x, y, -10 );
+        ray.direction = Vector4( 0, 0, 1, 0 );
+        rays.push_back( ray );
+    }
+
+    RayIntersection isect;
+
+    Timer timer;
+    timer.start();
+    for( int i = 0; i < num_rays; i++ ) {
+        int j = i % ray_pool_size;
+        bool hit = traceable.intersect( rays[j], isect );
+        if( i % 1000 == 0
+            && timer.elapsed() > timer_cutoff ) {
+            num_rays = i + 1;
+            break;
+        }
+    }
+    timer.stop();
+    float elapsed = timer.elapsed();
+    float rays_per_second = (float) num_rays / elapsed;
+    printf("%s : %d rays in %f seconds = %.2f rays / sec\n",
+           name, num_rays, elapsed, rays_per_second);
+}
+
+void testRaySphereTiming()
+{
+    Sphere sphere( 0, 0, 0, 1 );
+    testRayObjectTiming( sphere, "Sphere" );
+}
+
+void testRayAxisAlignedSlabTiming()
+{
+    AxisAlignedSlab slab( -1, -1, -1, 1, 1, 1 );
+    testRayObjectTiming( slab, "AxisAlignedSlab" );
+}
+
+void testRayMeshBunnyTiming()
+{
+    AssetLoader loader;
+    std::string modelBasePath = "models";
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper.ply" );
+    mesh->makeCanonical();
+
+    testRayObjectTiming( *mesh, "MeshBunny" );
+}
+
+void testRayMeshOctreeBunnyTiming()
+{
+    AssetLoader loader;
+    std::string modelBasePath = "models";
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper.ply" );
+    mesh->makeCanonical();
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    testRayObjectTiming( *mesh, "MeshOctreeBunny" );
+}
+
+// ------------------------------------------------------------ 
 // Test runner
 // ------------------------------------------------------------ 
 int main (int argc, char * const argv[]) 
@@ -429,7 +505,17 @@ int main (int argc, char * const argv[])
     testRefractAnglesLowHigh();
     testRefractAnglesHighLow();
     testRefractAnglesEqualIndex();
+    // Timing
+    testRaySphereTiming();
+    testRayAxisAlignedSlabTiming();
+    testRayMeshBunnyTiming();
+    testRayMeshOctreeBunnyTiming();
 #else
+    testRaySphereTiming();
+    testRayAxisAlignedSlabTiming();
+    testRayMeshBunnyTiming();
+    testRayMeshOctreeBunnyTiming();
+
 #endif
     
     total_run_timer.stop();
