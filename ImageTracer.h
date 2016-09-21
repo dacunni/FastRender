@@ -53,6 +53,9 @@ class ImageTracer
         // Randomize the order of pixel rendering within a frame, instead of raster order
         bool randomize_pixel_order = true;
 
+        unsigned int flush_period_rows = 10;
+        unsigned int min_flush_period_seconds = 5.0;
+
     protected:
         // Frame rendering
         // Blend factor from 0.0 to 1.0 throughout animation
