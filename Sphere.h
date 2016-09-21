@@ -20,6 +20,7 @@ public:
 	Sphere( float x, float y, float z, float r ) : center(x, y, z), radius(r) {}
 	virtual ~Sphere() {}
 	
+	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
 	Vector4 center;

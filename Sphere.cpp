@@ -13,6 +13,27 @@
 
 unsigned long Sphere::intersection_test_count = 0;
 
+bool Sphere::intersectsAny( const Ray & ray, float min_distance ) const
+{
+	Vector4 dst;
+	float b = 0, c = 0, d = 0;
+	
+	subtract( ray.origin, center, dst );
+	dot( dst, ray.direction, b );
+	dot( dst, dst, c );
+	c -= sq( radius );
+	d = sq( b ) - c;
+    
+    if( d < 0.0f )
+        return false;
+
+    float sqrtd = sqrtf(d);
+    float dist1 = -b - sqrtd;
+    float dist2 = -b + sqrtd;
+
+    return dist1 >= min_distance ||
+           dist2 >= min_distance;
+}
 
 bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
