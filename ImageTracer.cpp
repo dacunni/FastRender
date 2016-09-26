@@ -59,10 +59,11 @@ void ImageTracer::render()
         printf("FRAME %4d / %4d\n", frame + 1, num_frames);
         beginFrame( frame );
         for( unsigned int row = 0; row < image_height; ++row ) {
-            printf("ROW %d / %d\n", row, image_height);
-            if( row % (image_height / flush_period_rows) == 0
+            if( (flush_period_rows <= image_height
+                 && row % (image_height / flush_period_rows) == 0)
                 || image_flush_timer.elapsed() > min_flush_period_seconds )
             {
+                printf("ROW %d / %d\n", row, image_height);
                 artifacts.flush();
                 image_flush_timer.start(); // reset timer
             }

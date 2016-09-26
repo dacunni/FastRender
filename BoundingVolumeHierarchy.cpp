@@ -27,8 +27,12 @@ bool BoundingVolumeHierarchy::intersectsAny( const Ray & ray, float min_distance
     return false;
 }
 
-
 void BoundingVolumeHierarchy::build( std::shared_ptr<Container> container )
+{
+    buildBottomUp( container );
+}
+
+void BoundingVolumeHierarchy::buildBottomUp( std::shared_ptr<Container> container )
 {
     if( container->size() < 1 )
         return;
@@ -57,50 +61,7 @@ void BoundingVolumeHierarchy::build( std::shared_ptr<Container> container )
             root = objects.front();
             return;
         }
-#if 0
 
-        std::list<BoundingVolume*>::iterator p1, p2;
-        bool found = false;
-
-        float best_volume = FLT_MAX;
-        std::cout << "Initial volume = " << best_volume << std::endl; // TEMP
-
-        // Check all pairings of bounding volumes and find a pair that has a minimum combined volume
-        for( auto iter1 = objects.begin(); iter1 != objects.end(); ++iter1 ) {
-            AxisAlignedSlab * bound1 = static_cast<AxisAlignedSlab*>((*iter1)->bound);
-            //std::cout << " bound1 = " << bound1->volume() << std::endl; // TEMP
-            for( auto iter2 = objects.begin(); iter2 != objects.end(); ++iter2 ) {
-                AxisAlignedSlab * bound2 = static_cast<AxisAlignedSlab*>((*iter2)->bound);
-                //std::cout << "   bound2 = " << bound2->volume() << std::endl; // TEMP
-                AxisAlignedSlab combined = merge( *bound1, *bound2 );
-                float volume = combined.volume();
-                //std::cout << "      combined = " << volume << std::endl; // TEMP
-
-                if( (!found || volume < best_volume) && iter1 != iter2 ) {
-                    std::cout << "Found better volume = " << volume << ", was = " << best_volume << std::endl; // TEMP
-                    p1 = iter1;
-                    p2 = iter2;
-                    best_volume = volume;
-                    found = true;
-                }
-            }
-        }
-
-        std::cout << "BEST volume = " << best_volume << std::endl; // TEMP
-
-        // Replace the best partner with a node containing both nodes
-        FlatContainer * pair = new FlatContainer();
-        pair->add( *p1 );
-        pair->add( *p2 );
-
-        objects.erase( p1 );
-        objects.erase( p2 );
-
-        objects.push_front( new BoundingVolume( pair ) );
-
-        std::cout << "objects.size = " << objects.size() << std::endl; // TEMP
-
-#else
         auto o = objects.front();
         objects.pop_front();
 
@@ -136,15 +97,18 @@ void BoundingVolumeHierarchy::build( std::shared_ptr<Container> container )
 
         objects.push_front( std::make_shared<BoundingVolume>( pair ) );
 
-        std::cout << "objects.size = " << objects.size() << std::endl; // TEMP
+        std::cout << "objects.size = " << objects.size() << " best_volume = " << best_volume << std::endl; // TEMP
 
         // Resort them
         objects.sort( compare );
-
-#endif
     }
+
 }
 
+void BoundingVolumeHierarchy::buildTopDown( std::shared_ptr<Container> container )
+{
+    // IMPLEMENT ME
+}
 
 void BoundingVolumeHierarchy::print( FILE * file ) const
 {

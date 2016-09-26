@@ -7,6 +7,8 @@
  *
  */
 
+#include <iostream>
+
 #include "Container.h"
 #include "AxisAlignedSlab.h"
 #include "RandomNumberGenerator.h"
@@ -20,6 +22,27 @@
 #include "BasicDiffuseSpecularShader.h"
 #include "TestScenes.h"
 
+////////////////////////////////////////////////////////////////////////////
+//
+// Test Registry
+//
+std::vector<TestRegistryEntryErased *> testRegistry;
+
+// Prints a list of all tests in the test registry
+void printTests() {
+    std::cout << "Tests (" << testRegistry.size() << ")" << std::endl;
+    for( auto & test : testRegistry ) {
+        std::cout << "\t" << test->name << std::endl;
+    }
+}
+
+// Calls the run() method on all tests in the registry
+void runTests() {
+    for( auto & test : testRegistry ) {
+        std::cout << "---[ Running Test : " << test->name  << " ]---" << std::endl;
+        test->run();
+    }
+}
 ////////////////////////////////////////////////////////////////////////////
 //
 // TestScene Class

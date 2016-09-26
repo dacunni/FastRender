@@ -44,6 +44,62 @@ void addMirrors( std::shared_ptr<Container> container );
 std::shared_ptr<TriangleMesh> loadMaterialTestModel( AssetLoader & loader );
 
 //
+// Test Registry
+//
+// The following classes utilize type erasure to allow us to
+// statically register tests at compile time during their
+// declaration, either by using REGISTER_TEST(TEST_CLASS) or
+// automatically when using the BEGIN_SCENE(TEST_CLASS) or
+// BEGIN_DERIVED_SCENE(TEST_CLASS) macros.
+//
+
+// Base class used for type erasure in the registry
+class TestRegistryEntryErased {
+    public:
+        TestRegistryEntryErased(const char * _name) : name(_name) {}
+        virtual ~TestRegistryEntryErased() = default;
+        std::string name = "undefined";
+        virtual void run() = 0;
+};
+
+// Test registry entry for a class. Stores the name and gives us
+// a means to invoke the test's run() method.
+template<class TEST_CLASS>
+class TestRegistryEntry : public TestRegistryEntryErased {
+    public:
+        TestRegistryEntry(const char * _name) : TestRegistryEntryErased(_name) {}
+        virtual ~TestRegistryEntry() = default;
+        virtual void run() { TEST_CLASS::run(); }
+};
+
+extern std::vector<TestRegistryEntryErased *> testRegistry;
+
+// This class is used by the REGISTER_TEST() macro to register a test.
+// The macro declares a static instance of this class in the global scope,
+// ensuring that its constructor is called before we enter main(), so
+// all tests are guaranteed to be registered before we first access
+// testRegistry.
+template<class TEST_CLASS>
+class RegisterTest {
+    public:
+        RegisterTest<TEST_CLASS>(const char * name) {
+            testRegistry.push_back(new TestRegistryEntry<TEST_CLASS>(name));
+        }
+};
+
+// Macro used to register a test
+#define REGISTER_TEST(TEST_NAME) \
+    class TEST_NAME; \
+    static RegisterTest<TEST_NAME> registry_##TEST_NAME(#TEST_NAME);
+
+// Prints a list of all tests in the test registry
+void printTests();
+
+// Calls the run() method on all tests in the registry
+void runTests();
+
+
+//
 // Base class for a test scene. Use the macros below to define
 // a subclass and call the static run() method to run it.
 //
@@ -69,6 +125,7 @@ public:
 };
 
 #define BEGIN_DERIVED_SCENE(TEST_NAME, PARENT) \
+    REGISTER_TEST(TEST_NAME); \
     class TEST_NAME : public PARENT \
     { \
     public: \
@@ -84,6 +141,7 @@ public:
         }
 
 #define BEGIN_SCENE(TEST_NAME) \
+    REGISTER_TEST(TEST_NAME); \
     class TEST_NAME : public TestScene \
     { \
     public: \

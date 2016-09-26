@@ -22,6 +22,8 @@ public:
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
     void build( std::shared_ptr<Container> container );
+    void buildBottomUp( std::shared_ptr<Container> container );
+    void buildTopDown( std::shared_ptr<Container> container );
 
     virtual void print( FILE * file = stdout ) const;
 

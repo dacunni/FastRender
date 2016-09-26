@@ -97,7 +97,7 @@ CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
 # Uncomment to enable symbols
-#CXXFLAGS += -g
+CXXFLAGS += -g
 # Uncomment to disable asserts
 CXXFLAGS += -DNDEBUG
 

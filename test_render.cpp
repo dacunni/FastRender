@@ -2302,7 +2302,7 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensCrownGlass::run();
     CSGLogicalANDLensFlintGlass::run();
 #else
-    testLogicalANDLensFocusLight();
+    testSphereLight1();
 
 #endif
     

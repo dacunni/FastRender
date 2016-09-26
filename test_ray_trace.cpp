@@ -424,6 +424,9 @@ void testRayObjectTiming(Traceable & traceable, const char * name)
     for( int i = 0; i < num_rays; i++ ) {
         int j = i % ray_pool_size;
         bool hit = traceable.intersect( rays[j], isect );
+        // TEMP >>>
+        //bool hit = traceable.intersectsAny( rays[j], 0.01 );
+        // TEMP <<<
         if( i % 1000 == 0
             && timer.elapsed() > timer_cutoff ) {
             num_rays = i + 1;
@@ -511,10 +514,10 @@ int main (int argc, char * const argv[])
     testRayMeshBunnyTiming();
     testRayMeshOctreeBunnyTiming();
 #else
-    testRaySphereTiming();
+    //testRaySphereTiming();
     testRayAxisAlignedSlabTiming();
-    testRayMeshBunnyTiming();
-    testRayMeshOctreeBunnyTiming();
+    //testRayMeshBunnyTiming();
+    //testRayMeshOctreeBunnyTiming();
 
 #endif
     

@@ -54,7 +54,7 @@ class ImageTracer
         bool randomize_pixel_order = true;
 
         unsigned int flush_period_rows = 10;
-        unsigned int min_flush_period_seconds = 5.0;
+        float min_flush_period_seconds = 5.0;
 
     protected:
         // Frame rendering

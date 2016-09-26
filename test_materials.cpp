@@ -16,7 +16,7 @@ BEGIN_SCENE(MaterialTestBase)
 SETUP_SCENE(
     TestScene::setup();
     tracer->rays_per_pixel = 1;
-    tracer->shader = new GoochShader();
+    tracer->shader = new BasicDiffuseSpecularShader();
     tracer->setCameraTransform( compose(
         // move up a bit
         makeTranslation( 0.0, 0.5, 0.0 ),
@@ -235,10 +235,16 @@ int main (int argc, char * const argv[])
     total_run_timer.start();
 
     rng.seedCurrentTime();
-    
+
     // Tests
 #if 1
+    // Run all tests
+    printTests();
+    runTests();
+#elif 0
     //MaterialTestBase::run();
+    //MaterialTestPointLight::run();
+    //MaterialTestArcLight::run();
     MaterialTestAmbientOcclusion::run();
     MaterialTestDiffuseWhitePointLight::run();
     MaterialTestMirrorPointLight::run();
@@ -250,7 +256,7 @@ int main (int argc, char * const argv[])
     MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
     MaterialTestMirrorHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
 #else
-    MaterialTestRefractWaterArcLight::run();
+    //MaterialTestRefractWaterArcLight::run();
 #endif
     
     total_run_timer.stop();
