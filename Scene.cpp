@@ -33,6 +33,8 @@ void Scene::updateAnim( float t )
 
 bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
+    bool hit = false;
+
     // Asserts
     ray.direction.assertIsUnity();
     ray.direction.assertIsDirection();
@@ -61,17 +63,19 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
         }
         intersection.normal.normalize();
         intersection.normal.makeDirection();
-        return true;
+        hit =  true;
 	}
 
-	if( env_map ) {
+	if( !hit && env_map ) {
         intersection.sample = env_map->sample( ray );
         intersection.ray = ray;
         intersection.distance = FLT_MAX;
-        return true;
+        hit = false;
     }
 
-    return false;
+    logIntersect( ray, intersection, hit );
+
+    return hit;
 }
 
 bool Scene::intersectsAny( const Ray & ray, float min_distance ) const
@@ -120,3 +124,13 @@ void Scene::addLightsForTraceable( std::shared_ptr<Traceable> obj )
     }
 }
 
+inline void Scene::logIntersect( const Ray & ray, const RayIntersection & intersection, bool hit ) const
+{
+    if( trace_log ) {
+        TraceLog::Entry entry;
+        entry.ray = ray;
+        entry.intersection = intersection;
+        entry.hit = hit;
+        trace_log->entries.push_back( entry );
+    }
+}

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <memory>
 #include <algorithm>
+#include <functional>
 
 #include <sys/stat.h>
 #include <stdio.h>
@@ -332,6 +333,101 @@ void testRefractAnglesEqualIndex()
     testRefractForIndices( plot, 1.2, 1.2 );
 }
 
+
+enum LightSourcePattern { PATTERN_RADIAL, PATTERN_PARALLEL };
+void testRefractObject(std::shared_ptr<Traceable> obj,
+                       const std::string & plot_file_name,
+                       std::function<void(Plot2D&)> plot_obj,
+                       LightSourcePattern light_pattern)
+{
+    Plot2D plot( output_path + "/" + plot_file_name, 1000, 1000,
+                 -2.0, 4.0, -3.0, 3.0 );
+    Scene scene;
+    Vector4 o( -1, 1, 0 ), d;
+    auto at = Vector4( 0.0, 0.0, 0.0 );
+
+    plot.fillColor( 0.8, 0.8, 1.0 );
+    plot.strokeColor( 0.4, 0.4, 1.0 );
+    plot_obj( plot );
+
+    obj->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
+    scene.root = obj;
+
+    TraceLog log; scene.startLogging( &log );
+    BasicDiffuseSpecularShader shader;
+
+    float radius = 1.5;
+    int nsteps = 35;
+    float alpha = 0.0;
+
+    for( int i = 1; i <= nsteps; i++ ) {
+        log.entries.clear();
+
+        if( light_pattern == PATTERN_RADIAL ) {
+            alpha = (float) i / (nsteps + 2);
+            float angle = (1.0 - alpha) * M_PI + alpha * M_PI / 2.0;
+            o.x = radius * cos(angle);
+            o.y = radius * sin(angle);
+            d = subtract( at, o ).normalized();
+        }
+        else if( light_pattern == PATTERN_PARALLEL ) {
+            alpha = (float) i / nsteps;
+            o = blend( Vector4( -1.5, 0, 0 ), 1.0 - alpha, Vector4( 0, 1.5, 0 ), alpha );
+            d = Vector4( 1, -1, 0 ).normalized();
+        }
+
+        Ray ray( o, d );
+        RayIntersection intersection;
+
+        bool hit = scene.intersect( ray, intersection );
+
+        if( hit ) {
+            if( intersection.distance != FLT_MAX ) {
+                shader.shade( scene, rng, intersection );
+            }
+        }
+
+        for( int i = 0; i < (int) log.entries.size(); i++ ) {
+            auto & entry = log.entries[i];
+            auto & o = entry.ray.origin;
+            auto & d = entry.ray.direction;
+            plot.strokeColor( alpha, 0.0, 1.0 - alpha );
+            plot.fillColor( alpha, 0.0, 1.0 - alpha );
+            plot.drawCircle( o.x, o.y, 0.03 );
+            plot.drawLine( o, add( o, scale( d, 0.4 ) ) );
+        }
+    }
+}
+
+void testRefractAxisAlignedSlab()
+{
+    auto obj = std::make_shared<AxisAlignedSlab>( -1.0, -1.5, -2.0,
+                                                   3.0,  0.0,  2.0 );
+    auto plot_obj = [obj](Plot2D & plot) {
+        plot.drawRect( obj->xmin, obj->ymin, obj->xmax, obj->ymax );
+    };
+
+    testRefractObject( std::dynamic_pointer_cast<Traceable>(obj),
+                       std::string("refract_slab_parallel.png"), plot_obj, PATTERN_PARALLEL );
+    testRefractObject( std::dynamic_pointer_cast<Traceable>(obj),
+                       std::string("refract_slab_radial.png"), plot_obj, PATTERN_RADIAL );
+}
+
+void testRefractSphere()
+{
+    auto obj = std::make_shared<Sphere>( 1.0, -1.0, 0.0, 1.0 );
+
+    auto plot_obj = [obj](Plot2D & plot) {
+        plot.drawCircle( obj->center.x, obj->center.y, obj->radius );
+    };
+
+    testRefractObject( std::dynamic_pointer_cast<Traceable>(obj),
+                       std::string("refract_sphere_radial.png"), plot_obj, PATTERN_RADIAL );
+    testRefractObject( std::dynamic_pointer_cast<Traceable>(obj),
+                       std::string("refract_sphere_parallel.png"), plot_obj, PATTERN_PARALLEL );
+}
+
+
 // ------------------------------------------------------------ 
 // Camera ray generation
 // ------------------------------------------------------------ 
@@ -499,26 +595,22 @@ int main (int argc, char * const argv[])
     testRefractAnglesLowHigh();
     testRefractAnglesHighLow();
     testRefractAnglesEqualIndex();
+    testRefractAxisAlignedSlab();
+    testRefractSphere();
     testFresnelDialectric1();
     testFresnelDialectric2();
     testFresnelDialectric3();
     testFresnelDialectric4();
     testSimpleCameraNoJitter();
     testSimpleCamera();
-    testRefractAnglesLowHigh();
-    testRefractAnglesHighLow();
-    testRefractAnglesEqualIndex();
     // Timing
     testRaySphereTiming();
     testRayAxisAlignedSlabTiming();
     testRayMeshBunnyTiming();
     testRayMeshOctreeBunnyTiming();
 #else
-    //testRaySphereTiming();
-    testRayAxisAlignedSlabTiming();
-    //testRayMeshBunnyTiming();
-    //testRayMeshOctreeBunnyTiming();
-
+    testRefractAxisAlignedSlab();
+    testRefractSphere();
 #endif
     
     total_run_timer.stop();

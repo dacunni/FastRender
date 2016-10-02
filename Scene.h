@@ -11,10 +11,9 @@
 #define _SCENE_H_
 
 #include <vector>
+#include "Ray.h"
 
 class Traceable;
-class Ray;
-class RayIntersection;
 class EnvironmentMap;
 
 // TEMP >>> move this to its own file
@@ -33,6 +32,20 @@ public:
 };
 // TEMP <<<
 
+class TraceLog
+{
+    public:
+        class Entry
+        {
+            public:
+                Ray ray;
+                RayIntersection intersection;
+                bool hit;
+        };
+
+        std::vector<Entry> entries;
+};
+
 class Scene 
 {
 public:
@@ -50,6 +63,10 @@ public:
     // Helper for buildLightList
     void addLightsForTraceable( std::shared_ptr<Traceable> obj );
 
+    void startLogging( TraceLog * log ) { trace_log = log; }
+    void stopLogging() { trace_log = nullptr; }
+    void logIntersect( const Ray & ray, const RayIntersection & intersection, bool hit ) const;
+
     std::shared_ptr<Traceable> root;
     std::shared_ptr<EnvironmentMap> env_map;
 
@@ -62,6 +79,8 @@ public:
     // can consider them explicitely.
     std::vector<PointLight> point_lights;
 
+    // Logging
+    mutable TraceLog * trace_log = nullptr;
 };
 
 
