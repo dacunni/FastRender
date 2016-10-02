@@ -96,7 +96,7 @@ const int LOOK_NEGATIVE_NORMAL_OFFSET = 1;
 //
 // Note: This method assumes that min/max values are ordered correctly. Call correctMinMax() to ensure this
 //       prior to calling intersect().
-bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection ) const
+inline bool AxisAlignedSlab::intersectHelper( const Ray & ray, RayIntersection & intersection, bool any_test ) const
 {
     float xn, xf, yn, yf, zn, zf;       // near and far planes for the box
     int nin, nif, nix, niy, niz;        // indices into normal table (near plane, far plane, x, y, z)
@@ -190,26 +190,42 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
 #endif
         
     if( tn > intersection.min_distance ) {
-        intersection.normal = boxNormals[ nin ];
-        intersection.distance = tn;
-        intersection.ray = ray;
-		scale( ray.direction, intersection.distance, intersection.position );
-		add( intersection.position, ray.origin, intersection.position );
-        intersection.material = material;
+        if( !any_test ) {
+            intersection.normal = boxNormals[ nin ];
+            intersection.distance = tn;
+            intersection.ray = ray;
+            scale( ray.direction, intersection.distance, intersection.position );
+            add( intersection.position, ray.origin, intersection.position );
+            intersection.material = material;
+        }
         return true;
     }
     else if( tf > intersection.min_distance ) {
-        intersection.normal = boxNormals[ nif ];
-        intersection.distance = tf;
-        intersection.ray = ray;
-		scale( ray.direction, intersection.distance, intersection.position );
-		add( intersection.position, ray.origin, intersection.position );
-        intersection.material = material;
+        if( !any_test ) {
+            intersection.normal = boxNormals[ nif ];
+            intersection.distance = tf;
+            intersection.ray = ray;
+            scale( ray.direction, intersection.distance, intersection.position );
+            add( intersection.position, ray.origin, intersection.position );
+            intersection.material = material;
+        }
         return true;
     }
     else {
         return false;
     }
+}
+
+bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection ) const
+{
+    return intersectHelper( ray, intersection, false );
+}
+
+bool AxisAlignedSlab::intersectsAny( const Ray & ray, float min_distance ) const
+{
+    RayIntersection intersection;
+    intersection.min_distance = min_distance;
+    return intersectHelper( ray, intersection, true );
 }
 
 void AxisAlignedSlab::print( FILE * file ) const

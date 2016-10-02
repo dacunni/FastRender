@@ -31,6 +31,7 @@ public:
     inline float volume() const { return xdim() * ydim() * zdim(); }
     
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
     float xmin, ymin, zmin;
     float xmax, ymax, zmax;
@@ -38,6 +39,9 @@ public:
     static unsigned long intersection_test_count;       // Counts the number of intersection tests against
                                                         // objects of this class
     virtual void print( FILE * file = stdout ) const;
+
+private:
+    inline bool intersectHelper( const Ray & ray, RayIntersection & intersection, bool any_test ) const;
 };
 
 AxisAlignedSlab merge( const AxisAlignedSlab & a, const AxisAlignedSlab & b );

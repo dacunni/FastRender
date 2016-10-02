@@ -70,7 +70,7 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
         intersection.sample = env_map->sample( ray );
         intersection.ray = ray;
         intersection.distance = FLT_MAX;
-        hit = false;
+        hit = true;
     }
 
     logIntersect( ray, intersection, hit );

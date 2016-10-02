@@ -2302,7 +2302,10 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensCrownGlass::run();
     CSGLogicalANDLensFlintGlass::run();
 #else
-    testSphereLight1();
+    //testSphereLight1();
+    //testMesh1();         // Stanford Bunny and Dragon
+    //testAreaLight1();   // Cube with area light
+    testLogicalAND();
 
 #endif
     

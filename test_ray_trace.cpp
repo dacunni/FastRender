@@ -496,7 +496,7 @@ void testSimpleCamera()
 // ------------------------------------------------------------ 
 // Timing
 // ------------------------------------------------------------ 
-void testRayObjectTiming(Traceable & traceable, const char * name)
+void testRayObjectTiming(Traceable & traceable, const char * name, bool test_any = false)
 {
     std::vector<Ray> rays;
     int ray_pool_size = 1000;
@@ -514,15 +514,18 @@ void testRayObjectTiming(Traceable & traceable, const char * name)
     }
 
     RayIntersection isect;
+    bool hit;
 
     Timer timer;
     timer.start();
     for( int i = 0; i < num_rays; i++ ) {
         int j = i % ray_pool_size;
-        bool hit = traceable.intersect( rays[j], isect );
-        // TEMP >>>
-        //bool hit = traceable.intersectsAny( rays[j], 0.01 );
-        // TEMP <<<
+        if( test_any ) {
+            hit = traceable.intersectsAny( rays[j], 0.01 );
+        }
+        else {
+            hit = traceable.intersect( rays[j], isect );
+        }
         if( i % 1000 == 0
             && timer.elapsed() > timer_cutoff ) {
             num_rays = i + 1;
@@ -532,20 +535,22 @@ void testRayObjectTiming(Traceable & traceable, const char * name)
     timer.stop();
     float elapsed = timer.elapsed();
     float rays_per_second = (float) num_rays / elapsed;
-    printf("%s : %d rays in %f seconds = %.2f rays / sec\n",
-           name, num_rays, elapsed, rays_per_second);
+    printf("%s (any=%d) : %d rays in %f seconds = %.2f rays / sec\n",
+           name, (int)test_any, num_rays, elapsed, rays_per_second);
 }
 
 void testRaySphereTiming()
 {
     Sphere sphere( 0, 0, 0, 1 );
-    testRayObjectTiming( sphere, "Sphere" );
+    testRayObjectTiming( sphere, "Sphere", false );
+    testRayObjectTiming( sphere, "Sphere", true );
 }
 
 void testRayAxisAlignedSlabTiming()
 {
     AxisAlignedSlab slab( -1, -1, -1, 1, 1, 1 );
-    testRayObjectTiming( slab, "AxisAlignedSlab" );
+    testRayObjectTiming( slab, "AxisAlignedSlab", false );
+    testRayObjectTiming( slab, "AxisAlignedSlab", true );
 }
 
 void testRayMeshBunnyTiming()
@@ -588,7 +593,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 1
+#if 0
     testRayIntersect();
     testReflectAngles();
     testSnellAngles();
@@ -609,8 +614,9 @@ int main (int argc, char * const argv[])
     testRayMeshBunnyTiming();
     testRayMeshOctreeBunnyTiming();
 #else
-    testRefractAxisAlignedSlab();
-    testRefractSphere();
+    //testRaySphereTiming();
+    testRayAxisAlignedSlabTiming();
+    testRayMeshOctreeBunnyTiming();
 #endif
     
     total_run_timer.stop();

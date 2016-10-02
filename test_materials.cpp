@@ -237,7 +237,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 1
+#if 0
     // Run all tests
     printTests();
     runTests();
@@ -256,7 +256,7 @@ int main (int argc, char * const argv[])
     MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
     MaterialTestMirrorHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
 #else
-    //MaterialTestRefractWaterArcLight::run();
+    MaterialTestRefractWaterArcLight::run();
 #endif
     
     total_run_timer.stop();
