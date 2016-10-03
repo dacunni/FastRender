@@ -614,8 +614,6 @@ int main (int argc, char * const argv[])
     testRayMeshBunnyTiming();
     testRayMeshOctreeBunnyTiming();
 #else
-    //testRaySphereTiming();
-    testRayAxisAlignedSlabTiming();
     testRayMeshOctreeBunnyTiming();
 #endif
     

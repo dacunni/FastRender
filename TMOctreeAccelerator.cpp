@@ -24,6 +24,9 @@ static int debug_num_nodes = 0;
 static float debug_average_depth = 0;
 #endif
 
+// Set to non-zero to break BVH decent at the specified level for debugging
+#define DEBUG_VISUALIZE_HIERARCHY_LEVEL 0
+
 TMOctreeAccelerator::TMOctreeAccelerator( TriangleMesh & m )
 :   TriangleMeshAccelerator(m)
 {
@@ -243,7 +246,9 @@ void TMOctreeAccelerator::buildNode( Node * node )
 
 bool TMOctreeAccelerator::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
-    return root.intersect( ray, intersection, mesh, 0 );
+    unsigned int indices[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    childOrderForDirection( ray.direction, indices );
+    return root.intersect( ray, intersection, mesh, 0, indices );
 }
 
 bool TMOctreeAccelerator::intersectsAny( const Ray & ray, float min_distance ) const
@@ -251,19 +256,44 @@ bool TMOctreeAccelerator::intersectsAny( const Ray & ray, float min_distance ) c
     return root.intersectsAny( ray, min_distance, mesh, 0 );
 }
 
-bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & intersection, TriangleMesh & mesh, unsigned int level ) const
+void TMOctreeAccelerator::childOrderForDirection( const Vector4 & d, unsigned int indices[8] ) const
+{
+    unsigned int xsense = d.x < 0 ? 0 : 1;
+    unsigned int ysense = d.y < 0 ? 0 : 1;
+    unsigned int zsense = d.z < 0 ? 0 : 1;
+    float xmag = fabs(d.x);
+    float ymag = fabs(d.y);
+    float zmag = fabs(d.z);
+
+    unsigned int xstep = 1, ystep = 1, zstep = 1;
+    if( xmag > ymag ) xstep *= 2; else ystep *= 2;
+    if( xmag > zmag ) xstep *= 2; else zstep *= 2;
+    if( ymag > zmag ) ystep *= 2; else zstep *= 2;
+
+    for( unsigned int ci = 0; ci < 8; ci++ ) {
+        indices[ci] = 0;
+        if( ((ci / xstep) & 0x1) == xsense )
+            indices[ci] |= 0x1;
+        if( ((ci / ystep) & 0x1) == ysense )
+            indices[ci] |= 0x2;
+        if( ((ci / zstep) & 0x1) == zsense )
+            indices[ci] |= 0x4;
+    }
+}
+
+bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & intersection,
+                                           TriangleMesh & mesh, unsigned int level,
+                                           unsigned int indices[8] ) const
 {
     // Early rejection test for bounding box intersection
     if( !bounds.intersectsAny( ray, intersection.min_distance ) ) {
         return false;
     } 
 
-#if 0
-    // TEMP >>> - viz the bounding volume
+#if DEBUG_VISUALIZE_HIERARCHY_LEVEL > 0
     if( (bounds.intersect( ray, intersection ) && level > 4)) {
         return true;
     }
-    // TEMP <<<
 #endif
 
     bool isleaf = triangles.size() > 0;
@@ -274,12 +304,15 @@ bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & in
     }
     else {
         bool found_isect = false;
+
         // For inner nodes, we recurse to children to determine if there is an intersection.
         // Note, we don't check the triangles in non-leaf nodes, as they are restricted to not contain any triangles during construction
-        for( unsigned int ci = 0; ci < 8; ci++ ) {
+        for( unsigned int index = 0; index < 8; index++ ) {
+            unsigned int ci = indices[index];
             if( children[ci] ) {
-                if( children[ci]->intersect( ray, intersection, mesh, level + 1 ) ) {
+                if( children[ci]->intersect( ray, intersection, mesh, level + 1, indices ) ) {
                     found_isect = true;
+                    break;
                 }
             }
         }
@@ -287,7 +320,8 @@ bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & in
     }
 }
 
-bool TMOctreeAccelerator::Node::intersectsAny( const Ray & ray, float min_distance, TriangleMesh & mesh, unsigned int level ) const
+bool TMOctreeAccelerator::Node::intersectsAny( const Ray & ray, float min_distance,
+                                               TriangleMesh & mesh, unsigned int level ) const
 {
     bool isleaf = triangles.size() > 0;
 
@@ -305,7 +339,8 @@ bool TMOctreeAccelerator::Node::intersectsAny( const Ray & ray, float min_distan
     else {
         bool found_isect = false;
         // For inner nodes, we recurse to children to determine if there is an intersection.
-        // Note, we don't check the triangles in non-leaf nodes, as they are restricted to not contain any triangles during construction
+        // Note, we don't check the triangles in non-leaf nodes, as they are restricted to not
+        // contain any triangles during construction
         for( unsigned int ci = 0; ci < 8; ci++ ) {
             if( children[ci] ) {
                 if( children[ci]->intersectsAny( ray, min_distance, mesh, level + 1 ) ) {

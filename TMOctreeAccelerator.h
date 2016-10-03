@@ -27,8 +27,11 @@ public:
         void print( FILE * file = stdout, unsigned int level = 0 );
 
         // Helpers for intersection methods of TMOctreeAccelerator
-        bool intersect( const Ray & ray, RayIntersection & intersection, TriangleMesh & mesh, unsigned int level ) const;
-        bool intersectsAny( const Ray & ray, float min_distance, TriangleMesh & mesh, unsigned int level ) const;
+        bool intersect( const Ray & ray, RayIntersection & intersection,
+                        TriangleMesh & mesh, unsigned int level,
+                        unsigned int indices[8] ) const;
+        bool intersectsAny( const Ray & ray, float min_distance,
+                            TriangleMesh & mesh, unsigned int level ) const;
 
         // FIXME - no need for bounds in each node. we can compute this knowing the depth in the tree and a global bounds
         AxisAlignedSlab bounds;
@@ -56,6 +59,8 @@ public:
                                     unsigned char zi )
     { return zi << 2 | yi << 1 | xi; }
 
+private:
+    void childOrderForDirection( const Vector4 & d, unsigned int indices[8] ) const;
 };
 
 #endif /* defined(__FastRender__TMOctreeAccelerator__) */

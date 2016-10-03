@@ -2305,7 +2305,9 @@ int main (int argc, char * const argv[])
     //testSphereLight1();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAreaLight1();   // Cube with area light
-    testLogicalAND();
+    //testLogicalAND();
+    //testAO5(); // Stanford Bunny
+    testRefraction1();  // Mixed scene with some refractive elements
 
 #endif
     
