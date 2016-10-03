@@ -577,6 +577,120 @@ void testRayMeshOctreeBunnyTiming()
     testRayObjectTiming( *mesh, "MeshOctreeBunny" );
 }
 
+void testVectorTiming()
+{
+    std::vector<Vector4> vectors;
+    unsigned long num_iterations = 100000000;
+    unsigned int pool_size = 1000;
+
+    // Setup some vectors for the timing code to use
+    for( int i = 0; i < pool_size; i++ ) {
+        Vector4 v;
+        rng.uniformSurfaceUnitSphere( v );
+        vectors.push_back( v );
+    }
+
+    std::map<std::string, float> results;
+    Timer timer;
+
+    // Member functions
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size].z = vectors[(i+1) % pool_size][i % 4];
+    } timer.stop(); results["u[i] -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[(i+1) % pool_size][i % 4] = vectors[i % pool_size].z;
+    } timer.stop(); results["u[i] <- w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size].w = vectors[(i+1) % pool_size].magnitude_sq();
+    } timer.stop(); results["u[i].magnitude_sq()"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size].w = vectors[(i+1) % pool_size].magnitude();
+    } timer.stop(); results["u[i].magnitude()"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = vectors[(i+1) % pool_size].normalized();
+    } timer.stop(); results["u[i].normalized() -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[(i+1) % pool_size].normalize();
+    } timer.stop(); results["u[i].normalize()"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = vectors[(i+1) % pool_size].negated();
+    } timer.stop(); results["u[i].negated() -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[(i+1) % pool_size].negate();
+    } timer.stop(); results["u[i].negate()"] = timer.elapsed();
+
+    // Functions between vectors
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = add( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size] );
+    } timer.stop(); results["add(u, v) -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        add( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], vectors[i % pool_size] );
+    } timer.stop(); results["add(u, v, w)"] = timer.elapsed();
+
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = subtract( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size] );
+    } timer.stop(); results["subtract(u, v) -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        subtract( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], vectors[i % pool_size] );
+    } timer.stop(); results["subtract(u, v, w)"] = timer.elapsed();
+
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size].x = dot( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size] );
+    } timer.stop(); results["dot(u, v) -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        dot( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], vectors[i % pool_size].x );
+    } timer.stop(); results["dot(u, v, w)"] = timer.elapsed();
+
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = cross( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size] );
+    } timer.stop(); results["cross(u, v) -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        cross( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], vectors[i % pool_size] );
+    } timer.stop(); results["cross(u, v, w)"] = timer.elapsed();
+
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = scale( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size].x );
+    } timer.stop(); results["scale(u, v) -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        scale( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size].x, vectors[i % pool_size] );
+    } timer.stop(); results["scale(u, v, w)"] = timer.elapsed();
+
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = blend( vectors[(i+1) % pool_size], vectors[(i+1) % pool_size].x,
+                                        vectors[(i+2) % pool_size], vectors[(i+1) % pool_size].y );
+    } timer.stop(); results["blend(u, s, v, t) -> w"] = timer.elapsed();
+    
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = mirror( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size] );
+    } timer.stop(); results["mirror(u, v) -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        mirror( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], vectors[i % pool_size] );
+    } timer.stop(); results["mirror(u, v, w)"] = timer.elapsed();
+
+    float n1 = 1.03, n2 = 1.4;
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = refract( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], n1, n2 );
+    } timer.stop(); results["refract(u, v, n1, n2) -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        refract( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], n1, n2, vectors[i % pool_size] );
+    } timer.stop(); results["refract(u, v, n1, n2, w)"] = timer.elapsed();
+
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = interp( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], 0.25 );
+    } timer.stop(); results["interp(u, v, a) -> w"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        interp( vectors[(i+1) % pool_size], vectors[(i+2) % pool_size], 0.25, vectors[i % pool_size] );
+    } timer.stop(); results["interp(u, v, a, w)"] = timer.elapsed();
+
+    // Results
+    printf("Vector Operations Timing:\n");
+    for( auto result : results ) {
+        printf("%30s : %lu ops in %6.2f seconds = %15.0f ops / sec\n",
+               result.first.c_str(), num_iterations, result.second, (float) num_iterations / result.second);
+
+    }
+}
+
 // ------------------------------------------------------------ 
 // Test runner
 // ------------------------------------------------------------ 
@@ -613,8 +727,9 @@ int main (int argc, char * const argv[])
     testRayAxisAlignedSlabTiming();
     testRayMeshBunnyTiming();
     testRayMeshOctreeBunnyTiming();
+    testVectorTiming();
 #else
-    testRayMeshOctreeBunnyTiming();
+    testVectorTiming();
 #endif
     
     total_run_timer.stop();
