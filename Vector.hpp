@@ -42,6 +42,46 @@ inline void Vector4::set( float xn, float yn, float zn, float wn )
 	data[3] = wn;
 }
 
+inline float Vector4::magnitude_sq() const
+{
+	return sq(data[0]) + sq(data[1]) + sq(data[2]);
+}
+
+inline float Vector4::magnitude() const
+{
+	return sqrt( sq(data[0]) + sq(data[1]) + sq(data[2]) );
+}
+
+inline void Vector4::normalize()
+{
+	float mag = magnitude();
+	
+	if( mag != 0.0 ) {
+		scale( *this, 1.0f / mag, *this );
+	}
+}
+
+inline Vector4 Vector4::normalized() const
+{
+    Vector4 v = *this;
+    v.normalize();
+    return v;
+}
+
+inline void Vector4::negate()
+{
+    data[0] = -data[0];
+    data[1] = -data[1];
+    data[2] = -data[2];
+}
+
+inline Vector4 Vector4::negated() const
+{
+    Vector4 v = *this;
+    v.negate();
+    return v;
+}
+
 // TODO - Decide whether to normalize by 1/w before doing this
 inline void dot( const Vector4 & a, const Vector4 & b, float & r )
 {

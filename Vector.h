@@ -35,14 +35,14 @@ public:
 	
     inline void set( float x, float y, float z, float w = 1.0f );
     
-	float magnitude_sq() const;
-	float magnitude() const;
-	void normalize();
-    void negate();
-    void makeDirection() { w = 0.0f; }
+	inline float magnitude_sq() const;
+	inline float magnitude() const;
+	inline void normalize();
+    inline void negate();
+    inline void makeDirection() { w = 0.0f; }
 
-	Vector4 normalized() const;
-	Vector4 negated() const;
+	inline Vector4 normalized() const;
+	inline Vector4 negated() const;
     bool isUnity() const { float m = magnitude(); return m > 0.99 && m < 1.01; }
     bool isDirection() const { return w == 0.0f; }
 	
