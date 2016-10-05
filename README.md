@@ -1,8 +1,8 @@
 # FastRender
 
-These are not the bits you're looking for ...
+This is my personal ray tracer project. It is very much a work in progress.
 
-Just a personal ray tracer project. Nothing to see here. Move along.
+Check out the [gallery](http://dacunni.github.io/render_gallery.html) for examples of the recent renders.
 
 # Installing dependencies
 
