@@ -51,12 +51,16 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     // Point lights
     for( const PointLight & light : scene.point_lights ) {
         Vector4 to_light = subtract( light.position, intersection.position );
+        float dist_sq_to_light = to_light.magnitude_sq();
         Vector4 direction = to_light.normalized();
         direction.makeDirection();
 
         // Shoot a ray toward the light to see if we are in shadow
         Ray shadow_ray( intersection.position, direction );
-        if( scene.intersectsAny( shadow_ray, 0.01 ) ) {
+        RayIntersection shadow_isect;
+        shadow_isect.min_distance = 0.01;
+        if( scene.intersect( shadow_ray, shadow_isect )
+            && sq(shadow_isect.distance) < dist_sq_to_light ) {
             continue;
         }
 

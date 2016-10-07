@@ -1696,11 +1696,11 @@ void testMesh2()
 // Big multipart mesh
 void testMeshSanMiguel()
 {
-    //int imageSize = 50;
+    int imageSize = 50;
     //int imageSize = 100;
     //int imageSize = 256;
     //int imageSize = 320;
-    int imageSize = 512;
+    //int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize, imageHeight = imageSize;
     //ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
@@ -1781,6 +1781,81 @@ void testMeshSanMiguel()
     tracer.render();
 }
 
+// Big multipart mesh
+void testMeshDabrovicSponza()
+{
+    //int imageSize = 50;
+    //int imageSize = 100;
+    int imageSize = 256;
+    //int imageSize = 320;
+    //int imageSize = 512;
+    //int imageSize = 1024;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    //ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
+    //ImageTracer tracer( imageWidth, imageHeight, 1, 30 );
+    ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
+    //ImageTracer tracer( imageWidth, imageHeight, 1, 3 );
+    //ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
+    tracer.camera.xmin = -0.45;
+    tracer.camera.xmax = 0.45;
+    tracer.camera.ymin = -0.45;
+    tracer.camera.ymax = 0.45;
+    tracer.min_flush_period_seconds = 100000.0;
+    Scene * scene = new Scene();
+	auto container = std::make_shared<FlatContainer>();
+
+    AssetLoader loader;
+    auto mesh = loader.loadMultiPart( "models/dabrovic-sponza/sponza.obj" );
+    if( !mesh ) { fprintf( stderr, "Error loading meshes\n" ); return; }
+    //auto bounds = mesh->getAxisAlignedBounds();
+    mesh->transform = std::make_shared<Transform>();
+    float scale = 1.0;
+    *mesh->transform = compose( makeScaling( scale, scale, scale ),
+                                makeRotation( M_PI / 2, Vector4( 0.0, 1.0, 0.0 ) )//,
+                              );
+    container->add( mesh );
+
+    scene->addPointLight( PointLight( Vector4( 3.0, 1.0, 0.0 ),
+                                      RGBColor( 1.0, 0.5, 0.3 ).scaled(20.0) ) );
+
+    //addSphereLight( container,
+    //                Vector4( 0.0, 10.0, 0.0 ), 1.5,
+    //                RGBColor( 0.5, 0.5, 1.0 ), 5.0 );
+    auto emitter = std::make_shared<AxisAlignedSlab>( -1.5, 15.0, -20.0,
+                                                       1.5, 16.0,  20.0 );
+    emitter->material = std::make_shared<Material>();
+    emitter->material->emittance = RGBColor( 0.5, 0.5, 1.0 );
+    emitter->material->emittance.scale( 5.0 );
+    container->add( emitter );
+
+	scene->root = container;
+    tracer.scene = scene;
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 4.0 );
+    //env_map->setPower( 1000.0f );
+    //scene->env_map = env_map;
+
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+    //tracer.shader = new AmbientOcclusionShader();
+    //tracer.shader = new GoochShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_mesh_dabrovic_sponza_";
+
+#if 1
+    tracer.setCameraTransform( compose( makeTranslation( 0.0, 5.0, 10.0 ),
+                                        makeRotation( 0.0 * M_PI, Vector4(1, 0, 0) ),
+                                        makeTranslation( 0.0, 0.0, 0.0 ) ) );
+#else
+    tracer.setCameraTransform( compose( makeTranslation( 0.0, -10.0, -50.0 ),
+                                        makeRotation( -0.11 * M_PI, Vector4(1, 0, 0) ),
+                                        makeTranslation( 0.0, 0.0, 50.0 ) ) );
+#endif
+
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
 
 void testHairball()
 {
@@ -2279,6 +2354,7 @@ int main (int argc, char * const argv[])
     testMesh1();         // Stanford Bunny and Dragon
     testMesh2();         // Apollo lander
     //testMeshSanMiguel();      // TODO: slow - san miguel scene
+    testMeshDabrovicSponza();
     //testHairball();   // TODO: slow
     testPointLight1();
     testPointLight2();
@@ -2302,12 +2378,7 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensCrownGlass::run();
     CSGLogicalANDLensFlintGlass::run();
 #else
-    //testSphereLight1();
-    //testMesh1();         // Stanford Bunny and Dragon
-    //testAreaLight1();   // Cube with area light
-    //testLogicalAND();
-    //testAO5(); // Stanford Bunny
-    testRefraction1();  // Mixed scene with some refractive elements
+    testMeshDabrovicSponza();
 
 #endif
     

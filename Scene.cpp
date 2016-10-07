@@ -50,7 +50,7 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
            ray.index_of_refraction);
 #endif
 
-	if( root != 0 && root->intersectTransformed( ray, intersection ) ) {
+	if( root && root->intersectTransformed( ray, intersection ) ) {
         // Asserts
         intersection.ray.direction.assertIsUnity();
         intersection.ray.direction.assertIsDirection();
