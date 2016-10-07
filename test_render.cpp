@@ -2378,7 +2378,8 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensCrownGlass::run();
     CSGLogicalANDLensFlintGlass::run();
 #else
-    testMeshDabrovicSponza();
+    //testAO3(); // White cubes
+    testAO5(); // Stanford Bunny
 
 #endif
     

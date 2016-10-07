@@ -730,6 +730,9 @@ int main (int argc, char * const argv[])
     testVectorTiming();
 #else
     testVectorTiming();
+    //testRaySphereTiming();
+    //testRayAxisAlignedSlabTiming();
+    //testRayMeshOctreeBunnyTiming();
 #endif
     
     total_run_timer.stop();

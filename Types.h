@@ -15,6 +15,8 @@ union ScalarArray3 {
     struct { SCALAR x, y, z; }; 
     struct { SCALAR r, g, b; }; 
     struct { SCALAR u, v; }; 
+    ScalarArray3(const ScalarArray3<SCALAR> &) = default;
+    ScalarArray3(SCALAR _x, SCALAR _y, SCALAR _z) : x(_x), y(_y), z(_z) {}
     SCALAR & operator[](unsigned int i) { return data[i]; }
     const SCALAR & operator[](unsigned int i) const { return data[i]; }
 };
@@ -30,6 +32,8 @@ union ScalarArray4 {
     struct { SCALAR x, y, z, w; }; 
     struct { SCALAR r, g, b, a; }; 
     struct { SCALAR u, v; }; 
+    ScalarArray4(const ScalarArray4<SCALAR> &) = default;
+    ScalarArray4(SCALAR _x, SCALAR _y, SCALAR _z, SCALAR _w) : x(_x), y(_y), z(_z), w(_w) {}
     SCALAR & operator[](unsigned int i) { return data[i]; }
     const SCALAR & operator[](unsigned int i) const { return data[i]; }
 };

@@ -11,6 +11,7 @@
 #include <math.h>
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
+#include "Types.h"
 
 unsigned long AxisAlignedSlab::intersection_test_count = 0;
 
@@ -221,11 +222,39 @@ bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection
     return intersectHelper( ray, intersection, false );
 }
 
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+
 bool AxisAlignedSlab::intersectsAny( const Ray & ray, float min_distance ) const
 {
+#if 1
+    // NOTE: MIN/MAX macros give measurably faster timing results than std::min/max
+    // TODO: Handle NaNs
+    float3 dinv( 1.0f / ray.direction.x, 1.0f / ray.direction.y, 1.0f / ray.direction.z );
+    float tx1 = (xmin - ray.origin.x) * dinv.x;
+    float tx2 = (xmax - ray.origin.x) * dinv.x;
+
+    float tmin = MIN(tx1, tx2);
+    float tmax = MAX(tx1, tx2);
+
+    float ty1 = (ymin - ray.origin.y) * dinv.y;
+    float ty2 = (ymax - ray.origin.y) * dinv.y;
+
+    tmin = MAX(tmin, MIN(ty1, ty2));
+    tmax = MIN(tmax, MAX(ty1, ty2));
+
+    float tz1 = (zmin - ray.origin.z) * dinv.z;
+    float tz2 = (zmax - ray.origin.z) * dinv.z;
+
+    tmin = MAX(tmin, MIN(tz1, tz2));
+    tmax = MIN(tmax, MAX(tz1, tz2));
+
+    return tmax >= tmin && (tmin > min_distance || tmax > min_distance);
+#else
     RayIntersection intersection;
     intersection.min_distance = min_distance;
     return intersectHelper( ray, intersection, true );
+#endif
 }
 
 void AxisAlignedSlab::print( FILE * file ) const
