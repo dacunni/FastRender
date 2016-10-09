@@ -692,6 +692,59 @@ void testVectorTiming()
     }
 }
 
+void testMatrixTiming()
+{
+    std::vector<Matrix4x4> matrices;
+    std::vector<Vector4> vectors;
+    unsigned long num_iterations = 100000000;
+    unsigned int pool_size = 1000;
+
+    // Setup some matrices and vectors for the timing code to use
+    for( int i = 0; i < pool_size; i++ ) {
+        Matrix4x4 m;
+        for( int j = 0; j < 16; j++ ) {
+            m.data[j] = rng.uniformRange( -10.0, 10.0 );
+        }
+        matrices.push_back( m );
+        Vector4 v;
+        rng.uniformSurfaceUnitSphere( v );
+        vectors.push_back( v );
+    }
+
+    std::map<std::string, float> results;
+    Timer timer;
+
+    // Functions between matrices and vectors
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        matrices[i % pool_size] = mult( matrices[(i+1) % pool_size], matrices[(i+2) % pool_size] );
+    } timer.stop(); results["mult(M, N) -> P"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        mult( matrices[(i+1) % pool_size], matrices[(i+2) % pool_size], matrices[i % pool_size] );
+    } timer.stop(); results["mult(M, N, P)"] = timer.elapsed();
+
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        vectors[i % pool_size] = mult( matrices[(i+1) % pool_size], vectors[(i+2) % pool_size] );
+    } timer.stop(); results["mult(M, u) -> v"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        mult( matrices[(i+1) % pool_size], vectors[(i+2) % pool_size], vectors[i % pool_size] );
+    } timer.stop(); results["mult(M, u, v)"] = timer.elapsed();
+
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        matrices[i % pool_size] = inverse( matrices[(i+1) % pool_size] );
+    } timer.stop(); results["inverse(M) -> P"] = timer.elapsed();
+    timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
+        inverse( matrices[(i+1) % pool_size], matrices[(i+2) % pool_size] );
+    } timer.stop(); results["inverse(M, P)"] = timer.elapsed();
+
+    // Results
+    printf("Matrix Operations Timing:\n");
+    for( auto result : results ) {
+        printf("%30s : %lu ops in %6.2f seconds = %15.0f ops / sec\n",
+               result.first.c_str(), num_iterations, result.second, (float) num_iterations / result.second);
+
+    }
+}
+
 // ------------------------------------------------------------ 
 // Test runner
 // ------------------------------------------------------------ 
@@ -731,10 +784,9 @@ int main (int argc, char * const argv[])
     testVectorTiming();
 #else
     //testVectorTiming();
+    testMatrixTiming();
     //testRaySphereTiming();
     //testRayAxisAlignedSlabTiming();
-    testRayMeshBunnyTiming();
-    testRayMeshOctreeBunnyTiming();
 #endif
     
     total_run_timer.stop();
