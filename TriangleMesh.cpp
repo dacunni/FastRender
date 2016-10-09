@@ -104,6 +104,8 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
     bool hit = false;
     const float epsilon = 0.000001;
 
+    IndexTriangle best_tri;
+
     //
     // Test for intersection against all triangles
     //
@@ -122,7 +124,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
         
         // If determinant zero, the ray does not intersect the plane of the triangle
         // Note, we're not culling backfaces.
-        if( det > -epsilon && det < epsilon )
+        if( fabs(det) < epsilon )
             continue;   // no intersection
         inv_det = 1.0f / det;
         
@@ -148,48 +150,50 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
         }
 
         if( t > intersection.min_distance && t < best_t ) {
-            intersection.ray = ray;
-            intersection.distance = t;
-            // compute intersection position
-            scale( ray.direction, intersection.distance, intersection.position );
-            add( intersection.position, ray.origin, intersection.position );
-            // compute barycentric coordinate
-            BarycentricCoordinate bary = barycentricForPointInTriangle( intersection.position, 
-                                                                        vertices[tri.vi[0]],
-                                                                        vertices[tri.vi[1]],
-                                                                        vertices[tri.vi[2]] );
-#if 1
-            // Interpolate vertex normals
-            intersection.normal = add( add( scale( normals[tri.vi[0]], bary.u ),
-                                            scale( normals[tri.vi[1]], bary.v ) ),
-                                       scale( normals[tri.vi[2]], bary.w ) ).normalized();
-#else
-            // compute surface normal
-            // TODO - make sure this normal agrees with front/back sense above
-            intersection.normal = cross( e1, e2 ).normalized();
-#endif
-
-            if( !intersection.normal.isUnity() ) {
-                // FIXME[DAC]: We shouldn't need to do this, but sometimes we get back bad normals
-                //             from AssetLoader (due to another bug). For now, if we get a non-unity
-                //             vector, we will simply fall back to calculating the normal as the
-                //             perpendicular vector to the triangle.
-                // TODO - make sure this normal agrees with front/back sense above
-                intersection.normal = cross( e1, e2 ).normalized();
-            }
-
-            // Make sure the normal is pointing toward the direction of the incoming ray
-            if( dot( intersection.normal, ray.direction ) > 0.0f ) {
-                intersection.normal.negate();
-            }
-
-            intersection.normal.assertIsUnity();
-
+            best_tri = tri;
             best_t = t;
-            intersection.best_hint = best_t;
             hit = true;
         }
-        
+    } // for
+
+    if( hit ) {
+        intersection.ray = ray;
+        intersection.distance = best_t;
+        // compute intersection position
+        scale( ray.direction, intersection.distance, intersection.position );
+        add( intersection.position, ray.origin, intersection.position );
+        // compute barycentric coordinate
+        BarycentricCoordinate bary = barycentricForPointInTriangle( intersection.position, 
+                                                                    vertices[best_tri.vi[0]],
+                                                                    vertices[best_tri.vi[1]],
+                                                                    vertices[best_tri.vi[2]] );
+#if 1
+        // Interpolate vertex normals
+        intersection.normal = add( add( scale( normals[best_tri.vi[0]], bary.u ),
+                                        scale( normals[best_tri.vi[1]], bary.v ) ),
+                                   scale( normals[best_tri.vi[2]], bary.w ) ).normalized();
+#else
+        // compute surface normal
+        // TODO - make sure this normal agrees with front/back sense above
+        intersection.normal = cross( e1, e2 ).normalized();
+#endif
+
+        if( !intersection.normal.isUnity() ) {
+            // FIXME[DAC]: We shouldn't need to do this, but sometimes we get back bad normals
+            //             from AssetLoader (due to another bug). For now, if we get a non-unity
+            //             vector, we will simply fall back to calculating the normal as the
+            //             perpendicular vector to the triangle.
+            // TODO - make sure this normal agrees with front/back sense above
+            intersection.normal = cross( e1, e2 ).normalized();
+        }
+
+        // Make sure the normal is pointing toward the direction of the incoming ray
+        if( dot( intersection.normal, ray.direction ) > 0.0f ) {
+            intersection.normal.negate();
+        }
+
+        intersection.normal.assertIsUnity();
+        intersection.best_hint = best_t;
     }
     
     // TODO - move this to the general purpose ray intersection code so it will apply to any backwards normals
