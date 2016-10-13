@@ -761,7 +761,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 0
+#if 1
     testRayIntersect();
     testReflectAngles();
     testSnellAngles();
@@ -777,16 +777,19 @@ int main (int argc, char * const argv[])
     testSimpleCameraNoJitter();
     testSimpleCamera();
     // Timing
+    testVectorTiming();
+    testMatrixTiming();
     testRaySphereTiming();
     testRayAxisAlignedSlabTiming();
     testRayMeshBunnyTiming();
     testRayMeshOctreeBunnyTiming();
-    testVectorTiming();
 #else
-    //testVectorTiming();
+    testVectorTiming();
     testMatrixTiming();
     //testRaySphereTiming();
     //testRayAxisAlignedSlabTiming();
+    //testRayMeshBunnyTiming();
+    //testRayMeshOctreeBunnyTiming();
 #endif
     
     total_run_timer.stop();

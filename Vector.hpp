@@ -63,9 +63,13 @@ inline void Vector4::normalize()
 
 inline Vector4 Vector4::normalized() const
 {
-    Vector4 v = *this;
-    v.normalize();
-    return v;
+	float mag = magnitude();
+	
+	if( mag != 0.0 ) {
+        float invmag = 1.0f / mag;
+        return Vector4( data[0] * invmag, data[1] * invmag, data[2] * invmag, data[3] );
+    }
+    return *this;
 }
 
 inline void Vector4::negate()
@@ -77,9 +81,7 @@ inline void Vector4::negate()
 
 inline Vector4 Vector4::negated() const
 {
-    Vector4 v = *this;
-    v.negate();
-    return v;
+    return Vector4( -data[0], -data[1], -data[2], data[3] );
 }
 
 // TODO - Decide whether to normalize by 1/w before doing this
