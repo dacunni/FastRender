@@ -28,7 +28,8 @@ class ImageTracer
         void setCameraTransform( const std::function<Transform(float)> & xform_cb ) { camera_transform_cb = xform_cb; }
 
         virtual void render();
-        virtual void renderPixel( unsigned int row, unsigned int col );
+        virtual void renderPixel( unsigned int row, unsigned int col,
+                                  unsigned int num_rays );
 
         virtual void beginFrame( unsigned int frame_index );
         virtual void endFrame( unsigned int frame_index );
@@ -50,10 +51,12 @@ class ImageTracer
         // If true, will adjust animation interpolant to make animation loops seemless
         bool loopable_animations = false;
 
-        // Randomize the order of pixel rendering within a frame, instead of raster order
-        bool randomize_pixel_order = true;
+        enum TraversalOrder { TopToBottom, Randomized };
+        TraversalOrder traversal_order = TopToBottom;
+        enum TraversalNesting { PositionSample, SamplePosition };
+        //TraversalNesting traversal_nesting = PositionSample;
+        TraversalNesting traversal_nesting = SamplePosition;
 
-        unsigned int flush_period_rows = 10;
         float min_flush_period_seconds = 5.0;
 
     protected:

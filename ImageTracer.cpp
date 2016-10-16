@@ -41,7 +41,7 @@ void ImageTracer::render()
     // Pixel order randomization
     std::vector<unsigned int> randomized_indices;
 
-    if( randomize_pixel_order ) {
+    if( traversal_order == Randomized ) {
         unsigned int num_pixels = image_width * image_height;
         // Initialize with default order
         for( unsigned int i = 0; i < num_pixels; i++ ) {
@@ -58,24 +58,43 @@ void ImageTracer::render()
     for( unsigned int frame = 0; frame < num_frames; ++frame ) {
         printf("FRAME %4d / %4d\n", frame + 1, num_frames);
         beginFrame( frame );
-        for( unsigned int row = 0; row < image_height; ++row ) {
-            if( (flush_period_rows <= image_height
-                 && row % (image_height / flush_period_rows) == 0)
-                || image_flush_timer.elapsed() > min_flush_period_seconds )
-            {
-                printf("ROW %d / %d\n", row, image_height);
-                artifacts.flush();
-                image_flush_timer.start(); // reset timer
-            }
-            for( unsigned int col = 0; col < image_width; ++col ) {
-                //printf("COL %d / %d\n", col, image_width);
-                if( randomize_pixel_order ) {
-                    unsigned orig_index = row * image_width + col;
-                    unsigned rand_index = randomized_indices[orig_index];
-                    renderPixel( rand_index / image_width, rand_index % image_width );
+        if( traversal_nesting == SamplePosition ) {
+            for( unsigned int sample_index = 0; sample_index < rays_per_pixel; sample_index++ ) {
+                for( unsigned int row = 0; row < image_height; ++row ) {
+                    if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
+                        printf("Flushing artifacts\n");
+                        artifacts.flush();
+                        image_flush_timer.start(); // reset timer
+                    }
+                    for( unsigned int col = 0; col < image_width; ++col ) {
+                        if( traversal_order == Randomized ) {
+                            unsigned orig_index = row * image_width + col;
+                            unsigned rand_index = randomized_indices[orig_index];
+                            renderPixel( rand_index / image_width, rand_index % image_width, 1 );
+                        }
+                        else { // TopToBottom
+                            renderPixel( row, col, 1 );
+                        }
+                    }
                 }
-                else {
-                    renderPixel( row, col );
+            }
+        }
+        else { // PositionSample
+            for( unsigned int row = 0; row < image_height; ++row ) {
+                if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
+                    printf("Flushing artifacts\n");
+                    artifacts.flush();
+                    image_flush_timer.start(); // reset timer
+                }
+                for( unsigned int col = 0; col < image_width; ++col ) {
+                    if( traversal_order == Randomized ) {
+                        unsigned orig_index = row * image_width + col;
+                        unsigned rand_index = randomized_indices[orig_index];
+                        renderPixel( rand_index / image_width, rand_index % image_width, rays_per_pixel );
+                    }
+                    else { // TopToBottom
+                        renderPixel( row, col, rays_per_pixel );
+                    }
                 }
             }
         }
@@ -120,10 +139,10 @@ void ImageTracer::endFrame( unsigned int frame_index )
         artifacts.startNewFrame();
 }
 
-void ImageTracer::renderPixel( unsigned int row, unsigned int col )
+void ImageTracer::renderPixel( unsigned int row, unsigned int col, unsigned int num_rays )
 {
     beginRenderPixel( row, col );
-    for( unsigned int ray_index = 0; ray_index < rays_per_pixel; ++ray_index ) {
+    for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
         tracePixelRay( row, col, ray_index );
     }
     endRenderPixel( row, col );
@@ -140,10 +159,12 @@ void ImageTracer::beginRenderPixel( unsigned int row, unsigned int col )
 
 void ImageTracer::endRenderPixel( unsigned int row, unsigned int col )
 {
-    pixel_color.scale( 1.0f / rays_per_pixel );
     pixel_render_timer.stop();
-    artifacts.setPixelTime( row, col, pixel_render_timer.elapsed() );
-    artifacts.setPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
+    artifacts.accumPixelTime( row, col, pixel_render_timer.elapsed() );
+    if( traversal_nesting == PositionSample ) {
+        pixel_color.scale( 1.0f / rays_per_pixel );
+    }
+    artifacts.accumPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
     artifacts.setPixelNormal( row, col, pixel_normal );
     artifacts.setPixelDepth( row, col, pixel_distance );
 }

@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include <iostream>
 #include <memory>
 #include <algorithm>
 #include "Vector.h"
@@ -26,7 +27,11 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
     depth_image->magick( "png" ); // set the output file type
     time_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
     time_image->magick( "png" ); // set the output file type
-    time_unnormalized_image.resize( imageWidth * imageHeight );
+
+    pixel_color_accum.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
+    pixel_color_num_samples.assign( imageWidth * imageHeight, 0 );
+    time_unnormalized_image.assign( imageWidth * imageHeight, 0.0 );
+
     intersections_file = fopen( (output_path + file_prefix + "/intersections.txt").c_str(), "w" );
 }
 
@@ -49,6 +54,9 @@ void Artifacts::startNewFrame()
     depth_image->magick( "png" ); // set the output file type
     time_image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     time_image->magick( "png" ); // set the output file type
+    pixel_color_accum.assign( pixel_color_accum.size(), float3(0.0, 0.0, 0.0) );
+    pixel_color_num_samples.assign( pixel_color_num_samples.size(), 0 );
+    time_unnormalized_image.assign( time_unnormalized_image.size(), 0.0 );
     frame_number++;
 }
 
@@ -56,6 +64,22 @@ void Artifacts::flush()
 {
     char sindex[32];
     sprintf( sindex, "%08u", frame_number );
+
+    for( int row = 0; row < height; row++ ) {
+        for( int col = 0; col < width; col++ ) {
+            auto color = pixel_color_accum[ row * width + col ];
+            auto nsamples = pixel_color_num_samples[ row * width + col ];
+            if( nsamples > 0 ) {
+                color.r /= nsamples;
+                color.g /= nsamples;
+                color.b /= nsamples;
+            }
+            image->pixelColor( col, row, Magick::ColorRGB( std::min( color.r, 1.0f ), 
+                                                           std::min( color.g, 1.0f ), 
+                                                           std::min( color.b, 1.0f ) ) );
+        }
+    }
+
     image->write( output_path + "/" + file_prefix + "framebuffer_" + sindex + ".png" );
     normal_image->write( output_path + "/" + file_prefix + "normals.png" );
     depth_image->write( output_path + "/" + file_prefix + "depth.png" );
@@ -92,18 +116,21 @@ void Artifacts::flush()
     printf( "Average pixel render time: %f sec max: %f sec\n", average_value, max_value );
 }
 
-void Artifacts::setPixelColorMono( unsigned int row, unsigned int col, float value )
+void Artifacts::accumPixelColorMono( unsigned int row, unsigned int col, float value )
 {
-    image->pixelColor( col, row, Magick::ColorRGB( value, value, value ) );
+    pixel_color_accum[ row * width + col ][0] += value;
+    pixel_color_accum[ row * width + col ][1] += value;
+    pixel_color_accum[ row * width + col ][2] += value;
+    pixel_color_num_samples[ row * width + col ]++;
 }
 
-void Artifacts::setPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b )
+void Artifacts::accumPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b )
 {
-    image->pixelColor( col, row, Magick::ColorRGB( std::min( r, 1.0f ), 
-                                                   std::min( g, 1.0f ), 
-                                                   std::min( b, 1.0f ) ) );
+    pixel_color_accum[ row * width + col ][0] += r;
+    pixel_color_accum[ row * width + col ][1] += g;
+    pixel_color_accum[ row * width + col ][2] += b;
+    pixel_color_num_samples[ row * width + col ]++;
 }
-
 
 void Artifacts::setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n )
 {
@@ -121,10 +148,14 @@ void Artifacts::setPixelDepth( unsigned int row, unsigned int col, float depth )
     depth_image->pixelColor( col, row, Magick::ColorRGB( depth, depth, depth ) );
 }
 
+void Artifacts::accumPixelTime( unsigned int row, unsigned int col, float value )
+{
+    time_unnormalized_image[ row * width + col ] += value;
+}
+
 void Artifacts::setPixelTime( unsigned int row, unsigned int col, float value )
 {
     time_unnormalized_image[ row * width + col ] = value;
-    //time_image->pixelColor( col, row, Magick::ColorRGB( value, value, value ) );
 }
 
 

@@ -2379,7 +2379,8 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensFlintGlass::run();
 #else
     //testAO3(); // White cubes
-    testAO5(); // Stanford Bunny
+    //testAO5(); // Stanford Bunny
+    testAnimTransforms2(); // 3 Spimming Cubes and point lights
 
 #endif
     

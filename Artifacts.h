@@ -17,6 +17,8 @@
 #define MAGICKCORE_HDRI_ENABLE 0
 #include <Magick++.h>
 
+#include "Types.h"
+
 class Vector4;
 
 class Artifacts {
@@ -25,10 +27,11 @@ public:
     virtual ~Artifacts();
     
     void startNewFrame();
-    void setPixelColorMono( unsigned int row, unsigned int col, float value );
-    void setPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b );
+    void accumPixelColorMono( unsigned int row, unsigned int col, float value );
+    void accumPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );
     void setPixelDepth( unsigned int row, unsigned int col, float depth );
+    void accumPixelTime( unsigned int row, unsigned int col, float value );
     void setPixelTime( unsigned int row, unsigned int col, float value );
     void flush();
 
@@ -39,6 +42,8 @@ public:
     ImagePtr normal_image = nullptr;
     ImagePtr depth_image = nullptr;
     ImagePtr time_image = nullptr;
+    std::vector<float3> pixel_color_accum;
+    std::vector<unsigned long> pixel_color_num_samples;
     std::vector<double> time_unnormalized_image;
     FILE * intersections_file;
 
