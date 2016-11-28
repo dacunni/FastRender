@@ -116,6 +116,7 @@ public:
     Scene * scene = nullptr;
     std::shared_ptr<Container> container;
     std::string name;
+    std::string output_dir;
     int rays_per_pixel;
     int image_width;
     int image_height;

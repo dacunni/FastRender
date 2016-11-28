@@ -51,17 +51,14 @@ TestScene::TestScene( const std::string & output_path, const std::string & test_
   : scene(new Scene()),
     container(new FlatContainer()),
     name(test_name),
+    output_dir(output_path),
+    tracer(nullptr),
     rays_per_pixel(10),
     // TODO[DAC]: Figure out an easy way for tests to override these settings
     image_width(256),
     image_height(256),
     anim_frames(1)
 {
-    tracer = new ImageTracer( image_width, image_height,
-                              anim_frames, rays_per_pixel );
-
-    tracer->artifacts.output_path = output_path;
-    tracer->artifacts.file_prefix = test_name + "_";
 }
 
 TestScene::~TestScene()
@@ -71,6 +68,12 @@ TestScene::~TestScene()
 
 void TestScene::setup()
 {
+    tracer = new ImageTracer( image_width, image_height,
+                              anim_frames, rays_per_pixel );
+
+    tracer->artifacts.output_path = output_dir;
+    tracer->artifacts.file_prefix = name + "_";
+
     tracer->shader = new BasicDiffuseSpecularShader();
 
     tracer->setCameraTransform( compose(

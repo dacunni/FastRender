@@ -63,8 +63,8 @@ void ImageTracer::render()
                 for( unsigned int row = 0; row < image_height; ++row ) {
                     if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
                         printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %%)\n",
-                               (float) row * sample_index / (image_height * rays_per_pixel) * 100.0f,
-                               (float) frame / (num_frames - 1) * 100.0f);
+                               (float) (image_height * sample_index + row) / (image_height * rays_per_pixel) * 100.0f,
+                               num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f);
                         artifacts.flush();
                         image_flush_timer.start(); // reset timer
                     }

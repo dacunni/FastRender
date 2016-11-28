@@ -256,7 +256,9 @@ int main (int argc, char * const argv[])
     MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
     MaterialTestMirrorHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
 #else
-    MaterialTestRefractWaterArcLight::run();
+    //MaterialTestRefractWaterArcLight::run();
+    MaterialTestDiffuseWhiteArcLight::run();
+    //MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
 #endif
     
     total_run_timer.stop();
