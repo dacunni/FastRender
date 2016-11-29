@@ -2331,12 +2331,15 @@ BUILD_SCENE(
     container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, +0.5, -0.5 * 1.1 ), white_material );
     //container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, +0.5, 0.5, +0.5, +0.5 * 1.1 ), white_material );
 
-    //scene->addPointLight( PointLight( Vector4( 0.2, 0.2, 0.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(0.15) ) );
+#if 1
+    scene->addPointLight( PointLight( Vector4( 0.2, 0.2, 0.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(0.15) ) );
+#else
     auto area_light = std::make_shared<AxisAlignedSlab>( -0.2, 0.5, -0.2, 0.2, 0.5 * 0.95, +0.2 );
     area_light->material = std::make_shared<Material>();
     area_light->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
     area_light->material->emittance.scale( 30.0 );
     container->add( area_light );
+#endif
 
     tracer->setCameraTransform( makeTranslation( 0.0, 0.0, 1.5 ) );
     tracer->rays_per_pixel = 30;
@@ -2434,7 +2437,10 @@ int main (int argc, char * const argv[])
     RoomSceneWithSpheres::run();
 #else
     //RoomScene::run();
-    RoomSceneWithSpheres::run();
+    //RoomSceneWithSpheres::run();
+    //testRefraction4();  // Refractive sphere with caustics
+    //testRefraction1();  // Mixed scene with some refractive elements
+    testRefraction3();  // Spheres of varying IoR
 
 #endif
     

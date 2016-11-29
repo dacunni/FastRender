@@ -17,6 +17,7 @@ HDR = \
     GeometryUtils.h \
     GoochShader.h \
     ImageTracer.h \
+    Lights.h \
 	Material.h \
 	Matrix.h \
     Plot2D.h \

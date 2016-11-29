@@ -11,26 +11,11 @@
 #define _SCENE_H_
 
 #include <vector>
+#include "Lights.h"
 #include "Ray.h"
 
 class Traceable;
 class EnvironmentMap;
-
-// TEMP >>> move this to its own file
-#include "Color.h"
-#include "Vector.h"
-
-class PointLight
-{
-public:
-    PointLight() {}
-    PointLight( const Vector4 & pos, const RGBColor & bp ) : position(pos), band_power(bp) {}
-    ~PointLight() {}
-
-    Vector4  position;
-    RGBColor band_power;
-};
-// TEMP <<<
 
 class TraceLog
 {

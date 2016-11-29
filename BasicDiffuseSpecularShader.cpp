@@ -118,33 +118,27 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                                              index_out );
             }
 
-            // Trace refraction
-            if( fresnel < 1.0f ) {
-                new_ray.direction = refracted;
-                new_ray.index_of_refraction = index_out;
-
-                //printf("\trefract ior %f -> %f\n", intersection.ray.index_of_refraction, new_ray.index_of_refraction); // TEMP
-                if( scene.intersect( new_ray, new_intersection ) ) {
-                    if( new_intersection.distance != FLT_MAX ) {
-                        shade( scene, rng, new_intersection );
-                    }
-                    specular_contrib.accum( new_intersection.sample.color.scaled( 1.0 - fresnel ) );
-                }
-            }
-
-            // Trace reflection
-            if( fresnel > 0.0f ) {
+            // Use RNG to choose whether to reflect or refract based on Fresnel coefficient.
+            //   Random selection accounts for fresnel or 1-fresnel scale factor.
+            if( fresnel == 1.0f || rng.uniform01() < fresnel ) {
+                // Trace reflection (mirror ray scaled by fresnel or 1 for total internal reflection)
                 new_ray.direction = mirror( from_dir, intersection.normal );
                 new_ray.index_of_refraction = index_in;
-
                 //printf("\treflect ior %f -> %f\n", intersection.ray.index_of_refraction, new_ray.index_of_refraction); // TEMP
-                if( scene.intersect( new_ray, new_intersection ) ) {
-                    if( new_intersection.distance != FLT_MAX ) {
-                        shade( scene, rng, new_intersection );
-                    }
-                    specular_contrib.accum( new_intersection.sample.color.scaled( fresnel ) );
+            }
+            else {
+                // Trace refraction (refracted ray scaled by 1-fresnel)
+                new_ray.direction = refracted;
+                new_ray.index_of_refraction = index_out;
+                //printf("\trefract ior %f -> %f\n", intersection.ray.index_of_refraction, new_ray.index_of_refraction); // TEMP
+            }
+
+            if( scene.intersect( new_ray, new_intersection ) ) {
+                if( new_intersection.distance != FLT_MAX ) {
+                    shade( scene, rng, new_intersection );
                 }
-            } 
+                specular_contrib.accum( new_intersection.sample.color );
+            }
         }
         else if( diff_spec_select < diffuse_chance ) {
             // Diffuse
