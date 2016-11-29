@@ -54,6 +54,10 @@ void ImageTracer::render()
         }
     }
 
+    printf("ImageTracer: Tracing scene\n"
+           "  num_frames = %u  rays_per_pixel = %u\n",
+           num_frames, rays_per_pixel);
+
     image_flush_timer.start();
     for( unsigned int frame = 0; frame < num_frames; ++frame ) {
         printf("FRAME %4d / %4d\n", frame + 1, num_frames);

@@ -2317,7 +2317,60 @@ BUILD_SCENE(
 );
 END_SCENE()
 // ------------------------------------------------------------ 
+BEGIN_SCENE( RoomScene )
+SETUP_SCENE( TestScene::setup(); );
+BUILD_SCENE(
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto red_material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
+    auto blue_material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
 
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, -0.5 * 1.1, +0.5 ), white_material );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, +0.5, -0.5, 0.5, +0.5 * 1.1, +0.5 ), white_material );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, -0.5 * 1.1, +0.5, +0.5 ), red_material );
+    container->add( std::make_shared<AxisAlignedSlab>( +0.5, -0.5, -0.5, +0.5 * 1.1, +0.5, +0.5 ), blue_material );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, +0.5, -0.5 * 1.1 ), white_material );
+    //container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, +0.5, 0.5, +0.5, +0.5 * 1.1 ), white_material );
+
+    //scene->addPointLight( PointLight( Vector4( 0.2, 0.2, 0.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(0.15) ) );
+    auto area_light = std::make_shared<AxisAlignedSlab>( -0.2, 0.5, -0.2, 0.2, 0.5 * 0.95, +0.2 );
+    area_light->material = std::make_shared<Material>();
+    area_light->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
+    area_light->material->emittance.scale( 30.0 );
+    container->add( area_light );
+
+    tracer->setCameraTransform( makeTranslation( 0.0, 0.0, 1.5 ) );
+    tracer->rays_per_pixel = 30;
+    float focal_plane_span = 0.5;
+    tracer->camera.xmin = -focal_plane_span;
+    tracer->camera.xmax = +focal_plane_span;
+    tracer->camera.ymin = -focal_plane_span;
+    tracer->camera.ymax = +focal_plane_span;
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(RoomSceneWithSpheres, RoomScene)
+SETUP_SCENE(
+    RoomScene::setup();
+    tracer->rays_per_pixel = 10;
+);
+BUILD_SCENE(
+    RoomScene::buildScene();
+    tracer->rays_per_pixel = 300;
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
+#if 1
+    container->add( std::make_shared<Sphere>( -0.3, -0.3, -0.3, 0.2 ), mirror_material );
+    container->add( std::make_shared<Sphere>( +0.3, -0.3, +0.3, 0.2 ), refractive_material );
+#else
+    container->add( std::make_shared<Sphere>( -0.25, -0.40, 0, 0.1 ), white_material );
+    container->add( std::make_shared<Sphere>( 0.0, -0.40, 0, 0.1 ), mirror_material );
+    container->add( std::make_shared<Sphere>( +0.25, -0.40, 0, 0.1 ), refractive_material );
+#endif
+);
+END_SCENE()
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -2377,10 +2430,11 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensWater::run();
     CSGLogicalANDLensCrownGlass::run();
     CSGLogicalANDLensFlintGlass::run();
+    RoomScene::run();
+    RoomSceneWithSpheres::run();
 #else
-    //testAO3(); // White cubes
-    //testAO5(); // Stanford Bunny
-    testAnimTransforms2(); // 3 Spimming Cubes and point lights
+    //RoomScene::run();
+    RoomSceneWithSpheres::run();
 
 #endif
     
