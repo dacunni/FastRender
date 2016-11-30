@@ -67,12 +67,6 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
         }
     }
     
-    // Fail early if this intersection is farther than the closest hit so far
-    // BUG: TODO: get rid of best_hint unless we can figure out how to transform distances
-    //if( dist1 > intersection.best_hint ) {
-    //    return false;
-    //}
-
     intersection.ray = ray;
     intersection.distance = dist1;
     // compute intersection position

@@ -36,6 +36,5 @@ void RayIntersection::print()
     printf("sample       : "); sample.color.print();
     printf("distance     : %f\n", distance);
     printf("min_distance : %f\n", min_distance);
-    printf("best_hint    : %f\n", best_hint);
 
 }

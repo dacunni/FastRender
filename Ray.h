@@ -42,7 +42,7 @@ public:
 
 class RayIntersection {
 public:
-	RayIntersection() : min_distance(0.0f), distance(FLT_MAX), best_hint(FLT_MAX) {}
+	RayIntersection() : min_distance(0.0f), distance(FLT_MAX) {}
 	~RayIntersection() {}
 
     void print();
@@ -54,7 +54,6 @@ public:
     std::shared_ptr<Material> material;
 	float distance;
     float min_distance;
-    float best_hint;
 };
 
 class Sample {

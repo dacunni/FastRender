@@ -100,7 +100,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
     Vector4 e1, e2;     // edge vectors
     Vector4 P, Q, T;
     float det, inv_det, u, v, t;
-    float best_t = intersection.best_hint;
+    float best_t = FLT_MAX;
     bool hit = false;
     const float epsilon = 0.000001;
 
@@ -193,7 +193,6 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
         }
 
         intersection.normal.assertIsUnity();
-        intersection.best_hint = best_t;
     }
     
     // TODO - move this to the general purpose ray intersection code so it will apply to any backwards normals
