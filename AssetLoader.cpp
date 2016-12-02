@@ -86,9 +86,9 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename )
     // TODO[DAC]: Make this configurable
     trimesh->makeCanonical();
 
-    //printf("TriMesh bounds: ");
-    //auto bounds = trimesh->getAxisAlignedBounds();
-    //bounds->print();
+    printf("TriMesh bounds: ");
+    auto bounds = trimesh->getAxisAlignedBounds();
+    bounds->print();
 
     return trimesh;
 }

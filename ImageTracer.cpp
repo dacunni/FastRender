@@ -55,7 +55,9 @@ void ImageTracer::render()
     }
 
     printf("ImageTracer: Tracing scene\n"
+           "  image_width = %u  image_height = %u\n"
            "  num_frames = %u  rays_per_pixel = %u\n",
+           image_width, image_height,
            num_frames, rays_per_pixel);
 
     image_flush_timer.start();
