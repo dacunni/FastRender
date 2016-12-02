@@ -25,6 +25,17 @@ void testUniformSquare()
     }
 }
 
+void testUniformCircle()
+{
+    Plot2D plot( output_path + "/random_circle.png", plot_size, plot_size );
+
+    float x, y;
+    for( auto i = 0; i < points_per_plot; i++ ) {
+        rng.uniformUnitCircle( x, y );
+        plot.addPoint( x, y );
+    }
+}
+
 void testUniformSurfaceUnitSphere()
 {
     Plot2D plot( output_path + "/random_sphere.png", plot_size, plot_size );
@@ -194,6 +205,7 @@ int main (int argc, char * const argv[])
 
 #if 1
     testUniformSquare();
+    testUniformCircle();
     testUniformSurfaceUnitSphere();
     testUniformSurfaceUnitHalfSphere();
     testUniformConeDirection();
@@ -204,7 +216,7 @@ int main (int argc, char * const argv[])
     testBasicTriangle2D();
     testBasicTriangle3D();
 #else
-    testBasicTriangle3D();
+    testUniformCircle();
 #endif
     
     total_run_timer.stop();
