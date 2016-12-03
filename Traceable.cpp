@@ -55,8 +55,11 @@ bool Traceable::intersectTransformed( const Ray & ray, RayIntersection & interse
             intersection.position = mult( transform->fwd, intersection.position );
             intersection.distance = subtract( intersection.position, ray.origin ).magnitude();
 
+            // FIXME - The min_distance checks in each Traceable's intersect() function
+            //         do not account for transforms.
+
             assert( intersection.distance > 0.0f );
-            assert( intersection.distance > intersection.min_distance );
+            //assert( intersection.distance > intersection.min_distance );
             assert( intersection.distance < FLT_MAX );
 
             // Set normal W to be 0, since vector math elsewhere may be sloppy about this
@@ -84,7 +87,11 @@ bool Traceable::intersectsAnyTransformed( const Ray & ray, float min_distance ) 
     if( transform ) {
         Ray tray = ray;
         tray.origin = mult( transform->rev, ray.origin );
-        tray.direction = mult( transform->rev, ray.direction );
+        // Fix direction W in case other code is sloppy
+        Vector4 dir = ray.direction;
+        dir.normalize();
+        dir.makeDirection();
+        tray.direction = mult( transform->rev, dir );
         tray.direction.normalize();
         tray.direction.makeDirection();
         return intersectsAny( tray, min_distance );
