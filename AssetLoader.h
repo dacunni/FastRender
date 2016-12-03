@@ -23,9 +23,12 @@ public:
     AssetLoader() {}
     ~AssetLoader() {}
     
-    std::shared_ptr<TriangleMesh> load( const std::string & filename ) throw(AssetFileNotFoundException);
-    std::shared_ptr<Container>    loadMultiPart( const std::string & filename ) throw(AssetFileNotFoundException);
-    std::shared_ptr<TriangleMesh> loadMultiPartMerged( const std::string & filename ) throw(AssetFileNotFoundException);
+    std::shared_ptr<TriangleMesh> load( const std::string & filename,
+                                        bool build_accelerator = true ) throw(AssetFileNotFoundException);
+    std::shared_ptr<Container>    loadMultiPart( const std::string & filename,
+                                                 bool build_accelerator = true ) throw(AssetFileNotFoundException);
+    std::shared_ptr<TriangleMesh> loadMultiPartMerged( const std::string & filename,
+                                                       bool build_accelerator = true ) throw(AssetFileNotFoundException);
 
 };
 

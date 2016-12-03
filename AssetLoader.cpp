@@ -21,7 +21,8 @@
 #include "FlatContainer.h"
 #include "BoundingVolumeHierarchy.h"
 
-std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename ) throw(AssetFileNotFoundException)
+std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
+                                                 bool build_accelerator ) throw(AssetFileNotFoundException)
 {
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
@@ -90,10 +91,17 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename ) 
     auto bounds = trimesh->getAxisAlignedBounds();
     bounds->print();
 
+    if( build_accelerator ) {
+        TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );
+        trimesh_octree->build();
+        trimesh->accelerator = trimesh_octree;
+    }
+
     return trimesh;
 }
 
-std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filename ) throw(AssetFileNotFoundException)
+std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filename,
+                                                       bool build_accelerator ) throw(AssetFileNotFoundException)
 {
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
@@ -157,9 +165,11 @@ std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filen
             trimesh->triangles[ti].vi[2] = t.mIndices[2];
         }
 
-        TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );
-        trimesh_octree->build();
-        trimesh->accelerator = trimesh_octree;
+        if( build_accelerator ) {
+            TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );
+            trimesh_octree->build();
+            trimesh->accelerator = trimesh_octree;
+        }
 
 #if 0
         // TEMP: return bounding box for fast rendering
@@ -194,7 +204,8 @@ std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filen
 }
 
 // Loads a multipart mesh and merges the pieces into a single mesh object
-std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::string & filename ) throw(AssetFileNotFoundException)
+std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::string & filename,
+                                                                bool build_accelerator ) throw(AssetFileNotFoundException)
 {
     auto container = loadMultiPart( filename );
 
@@ -258,10 +269,11 @@ std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::strin
     auto bounds = ubermesh->getAxisAlignedBounds();
     bounds->print();
 
-    // TODO: Maybe take this out and make it the caller's responsibility to build accel structures
-    TMOctreeAccelerator * octree = new TMOctreeAccelerator( *ubermesh );
-    octree->build();
-    ubermesh->accelerator = octree;
+    if( build_accelerator ) {
+        TMOctreeAccelerator * octree = new TMOctreeAccelerator( *ubermesh );
+        octree->build();
+        ubermesh->accelerator = octree;
+    }
 
     return ubermesh;
 }
