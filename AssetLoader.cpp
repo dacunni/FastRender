@@ -21,7 +21,7 @@
 #include "FlatContainer.h"
 #include "BoundingVolumeHierarchy.h"
 
-std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename )
+std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename ) throw(AssetFileNotFoundException)
 {
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
@@ -36,7 +36,7 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename )
     
     if( !scene ) {
         fprintf( stderr, "Failed to load %s : %s\n", filename.c_str(), importer.GetErrorString() );
-        return nullptr;
+        throw AssetFileNotFoundException();
     }
     
     printf( "Loaded %s\n", filename.c_str() );
@@ -93,7 +93,7 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename )
     return trimesh;
 }
 
-std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filename )
+std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filename ) throw(AssetFileNotFoundException)
 {
     Assimp::Importer importer;
     const aiScene * scene = nullptr;
@@ -109,7 +109,7 @@ std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filen
     
     if( !scene ) {
         fprintf( stderr, "Failed to load %s\n", filename.c_str() );
-        return nullptr;
+        throw AssetFileNotFoundException();
     }
     
     printf( "Loaded %s\n", filename.c_str() );
@@ -194,7 +194,7 @@ std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filen
 }
 
 // Loads a multipart mesh and merges the pieces into a single mesh object
-std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::string & filename )
+std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::string & filename ) throw(AssetFileNotFoundException)
 {
     auto container = loadMultiPart( filename );
 

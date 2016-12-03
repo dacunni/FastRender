@@ -16,14 +16,16 @@ class Container;
 class Traceable;
 class TriangleMesh;
 
+class AssetFileNotFoundException {};
+
 class AssetLoader {
 public:
     AssetLoader() {}
     ~AssetLoader() {}
     
-    std::shared_ptr<TriangleMesh> load( const std::string & filename );
-    std::shared_ptr<Container>    loadMultiPart( const std::string & filename );
-    std::shared_ptr<TriangleMesh> loadMultiPartMerged( const std::string & filename );
+    std::shared_ptr<TriangleMesh> load( const std::string & filename ) throw(AssetFileNotFoundException);
+    std::shared_ptr<Container>    loadMultiPart( const std::string & filename ) throw(AssetFileNotFoundException);
+    std::shared_ptr<TriangleMesh> loadMultiPartMerged( const std::string & filename ) throw(AssetFileNotFoundException);
 
 };
 
