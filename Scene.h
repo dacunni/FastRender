@@ -19,16 +19,16 @@ class EnvironmentMap;
 
 class TraceLog
 {
+public:
+    class Entry
+    {
     public:
-        class Entry
-        {
-            public:
-                Ray ray;
-                RayIntersection intersection;
-                bool hit;
-        };
+        Ray ray;
+        RayIntersection intersection;
+        bool hit;
+    };
 
-        std::vector<Entry> entries;
+    std::vector<Entry> entries;
 };
 
 class Scene 
@@ -43,6 +43,7 @@ public:
 	bool intersectsAny( const Ray & ray, float min_distance ) const;
 
     void addPointLight( const PointLight & light ) { point_lights.push_back(light); }
+    void addAreaLight( const std::shared_ptr<AreaLight> & light ) { area_lights.push_back(light); } // FIXME - should also add to the scene graph
 
     void buildLightList();
     // Helper for buildLightList
@@ -63,6 +64,8 @@ public:
     // found by randomly shooting rays. We keep track of them separately so we
     // can consider them explicitely.
     std::vector<PointLight> point_lights;
+
+    std::vector<std::shared_ptr<AreaLight>> area_lights;
 
     // Logging
     mutable TraceLog * trace_log = nullptr;

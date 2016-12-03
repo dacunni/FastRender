@@ -142,7 +142,8 @@ void Artifacts::setPixelNormal( unsigned int row, unsigned int col, const Vector
 
 void Artifacts::setPixelDepth( unsigned int row, unsigned int col, float depth )
 {
-    depth = (1.0 - (depth - 3.0) / 20.0);
+    //depth = (1.0 - (depth - 3.0) / 20.0);
+    depth = (1.0 - depth / 2.0);
     depth = std::min( std::max( depth, 0.0f ), 1.0f );
 
     depth_image->pixelColor( col, row, Magick::ColorRGB( depth, depth, depth ) );

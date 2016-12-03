@@ -1,5 +1,8 @@
 
+#include <stdio.h>
+#include <iostream>
 #include <cassert>
+#include <algorithm>
 #include "Material.h"
 #include "Scene.h"
 #include "Ray.h"
@@ -45,9 +48,38 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     // Direct lighting
     //
     // Area lights
-    //for( Traceable * traceable : scene.lights ) {
-    //    // TODO - sample lights
-    //}
+    for( auto light : scene.area_lights ) {
+        Vector4 sample_pos = light->generateSample( rng );
+        //sample_pos.print();
+        Vector4 to_light = subtract( sample_pos, intersection.position );
+        float dist_sq_to_light = to_light.magnitude_sq();
+        Vector4 direction = to_light.normalized();
+        direction.makeDirection();
+
+        // Shoot a ray toward the light to see if we are in shadow
+        Ray shadow_ray( intersection.position, direction );
+        RayIntersection shadow_isect;
+        shadow_isect.min_distance = 0.01;
+        if( scene.intersect( shadow_ray, shadow_isect )
+            && sq(shadow_isect.distance) < dist_sq_to_light ) {
+            continue;
+        }
+
+        // Not in shadow
+        float cos_r_n = fabs( dot( direction, intersection.normal ) ); 
+        //RGBColor color = light->band_power;
+        auto orientation = light->orientation();
+        float fore = std::max( 0.0f, -dot( direction, orientation ) );
+        RGBColor color = light->band_power.scaled(fore);
+        color.scale(cos_r_n);
+        //color.scale(1.0f / to_light.magnitude_sq()); // distance falloff
+        // TODO: use actual material parameters properly so we can get specular here, too
+        if( intersection.material )
+            direct_contrib.accum( mult( color, intersection.material->diffuse ) );
+        else
+            direct_contrib.accum( color );
+
+    }
     // Point lights
     for( const PointLight & light : scene.point_lights ) {
         Vector4 to_light = subtract( light.position, intersection.position );

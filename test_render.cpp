@@ -2324,21 +2324,23 @@ BUILD_SCENE(
     auto red_material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
     auto blue_material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
 
-    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, -0.5 * 1.1, +0.5 ), white_material );
-    container->add( std::make_shared<AxisAlignedSlab>( -0.5, +0.5, -0.5, 0.5, +0.5 * 1.1, +0.5 ), white_material );
-    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, -0.5 * 1.1, +0.5, +0.5 ), red_material );
-    container->add( std::make_shared<AxisAlignedSlab>( +0.5, -0.5, -0.5, +0.5 * 1.1, +0.5, +0.5 ), blue_material );
-    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, +0.5, -0.5 * 1.1 ), white_material );
-    //container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, +0.5, 0.5, +0.5, +0.5 * 1.1 ), white_material );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, -0.5 * 1.1, +0.5 ), white_material ); // bottom
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, +0.5, -0.5, 0.5, +0.5 * 1.1, +0.5 ), white_material ); // top
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, -0.5 * 1.1, +0.5, +0.5 ), red_material );  // left
+    container->add( std::make_shared<AxisAlignedSlab>( +0.5, -0.5, -0.5, +0.5 * 1.1, +0.5, +0.5 ), blue_material ); // right
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, +0.5, -0.5 * 1.1 ), white_material ); // back
+    //container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, +0.5, 0.5, +0.5, +0.5 * 1.1 ), white_material ); // front
 
-#if 1
+#if 0
     scene->addPointLight( PointLight( Vector4( 0.2, 0.2, 0.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(0.15) ) );
-#else
+#elif 0 // emitter object
     auto area_light = std::make_shared<AxisAlignedSlab>( -0.2, 0.5, -0.2, 0.2, 0.5 * 0.95, +0.2 );
     area_light->material = std::make_shared<Material>();
     area_light->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
     area_light->material->emittance.scale( 30.0 );
     container->add( area_light );
+#else
+    // no lights
 #endif
 
     tracer->setCameraTransform( makeTranslation( 0.0, 0.0, 1.5 ) );
@@ -2357,7 +2359,6 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(RoomSceneWithSpheres, RoomScene)
 SETUP_SCENE(
     RoomScene::setup();
-    tracer->rays_per_pixel = 10;
 );
 BUILD_SCENE(
     RoomScene::buildScene();
@@ -2371,6 +2372,55 @@ BUILD_SCENE(
     container->add( std::make_shared<Sphere>( -0.25, -0.40, 0, 0.1 ), white_material );
     container->add( std::make_shared<Sphere>( 0.0, -0.40, 0, 0.1 ), mirror_material );
     container->add( std::make_shared<Sphere>( +0.25, -0.40, 0, 0.1 ), refractive_material );
+#endif
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(RoomSceneCircleAreaLight, RoomScene)
+SETUP_SCENE(
+    //image_width = 200;
+    //image_height = 200;
+    RoomScene::setup();
+);
+BUILD_SCENE(
+    RoomScene::buildScene();
+    tracer->rays_per_pixel = 100;
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
+
+#if 0
+    container->add( std::make_shared<Sphere>( -0.25, -0.40, 0, 0.1 ), white_material );
+    container->add( std::make_shared<Sphere>( 0.0, -0.40, 0, 0.1 ), mirror_material );
+    container->add( std::make_shared<Sphere>( +0.25, -0.40, 0, 0.1 ), refractive_material );
+#endif
+
+#if 1
+    AssetLoader loader;
+    std::string modelBasePath = "models";
+    //std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    //auto mesh = loader.load( modelPath + "/bun_zipper_res4.ply" );
+    std::string modelPath = modelBasePath + "/blender";
+    auto mesh = loader.load( modelPath + "/monkey1.obj" );
+    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
+    mesh_octree->build();
+    mesh->accelerator = mesh_octree;
+    mesh->transform = std::make_shared<Transform>();
+    //*mesh->transform = compose( makeScaling( 0.5 ),
+    //                            makeTranslation( Vector4( 0.0, -0.5, 0.0 ) ) );
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                makeTranslation( Vector4( 0.0, 0.0, 0.0 ) ) );
+    //mesh->material = refractive_material;
+    container->add( mesh );
+#endif
+
+#if 1
+    //auto area_light = std::make_shared<CircleAreaLight>( Vector4(0.0, 0.5, 0.0), Vector4(0, -1, 0), 0.3 );
+    auto area_light = std::make_shared<CircleAreaLight>();
+    area_light->transform = makeTranslation( 0, 0.3, 0 );
+    area_light->band_power = RGBColor( 1.0, 1.0, 1.0 ).scaled(2.0);
+    scene->addAreaLight( area_light );
 #endif
 );
 END_SCENE()
@@ -2438,9 +2488,7 @@ int main (int argc, char * const argv[])
 #else
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
-    //testRefraction4();  // Refractive sphere with caustics
-    //testRefraction1();  // Mixed scene with some refractive elements
-    testRefraction3();  // Spheres of varying IoR
+    RoomSceneCircleAreaLight::run();
 
 #endif
     
