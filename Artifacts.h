@@ -44,6 +44,8 @@ public:
     ImagePtr time_image = nullptr;
     std::vector<float3> pixel_color_accum;
     std::vector<unsigned long> pixel_color_num_samples;
+    std::vector<float3> pixel_normal;
+    std::vector<float> pixel_depth;
     std::vector<double> time_unnormalized_image;
     FILE * intersections_file;
 

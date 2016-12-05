@@ -30,6 +30,8 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
 
     pixel_color_accum.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
     pixel_color_num_samples.assign( imageWidth * imageHeight, 0 );
+    pixel_normal.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
+    pixel_depth.assign( imageWidth * imageHeight, 0.0f );
     time_unnormalized_image.assign( imageWidth * imageHeight, 0.0 );
 
     intersections_file = fopen( (output_path + file_prefix + "/intersections.txt").c_str(), "w" );
@@ -56,6 +58,8 @@ void Artifacts::startNewFrame()
     time_image->magick( "png" ); // set the output file type
     pixel_color_accum.assign( pixel_color_accum.size(), float3(0.0, 0.0, 0.0) );
     pixel_color_num_samples.assign( pixel_color_num_samples.size(), 0 );
+    pixel_normal.assign( pixel_normal.size(), float3(0.0, 0.0, 0.0) );
+    pixel_depth.assign( pixel_depth.size(), 0.0f );
     time_unnormalized_image.assign( time_unnormalized_image.size(), 0.0 );
     frame_number++;
 }
@@ -77,6 +81,10 @@ void Artifacts::flush()
             image->pixelColor( col, row, Magick::ColorRGB( std::min( color.r, 1.0f ), 
                                                            std::min( color.g, 1.0f ), 
                                                            std::min( color.b, 1.0f ) ) );
+            auto normal = pixel_normal[ row * width + col ];
+            normal_image->pixelColor( col, row, Magick::ColorRGB( normal.x, normal.y, normal.z) );
+            auto depth = pixel_depth[ row * width + col ];
+            depth_image->pixelColor( col, row, Magick::ColorRGB( depth, depth, depth ) );
         }
     }
 
@@ -134,10 +142,9 @@ void Artifacts::accumPixelColorRGB( unsigned int row, unsigned int col, float r,
 
 void Artifacts::setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n )
 {
-    normal_image->pixelColor( col, row,
-                              Magick::ColorRGB( n.x * 0.5 + 0.5,
-                                                n.y * 0.5 + 0.5,
-                                                n.z * 0.5 + 0.5 ) );
+    pixel_normal[ row * width + col ][0] = n.x * 0.5 + 0.5;
+    pixel_normal[ row * width + col ][1] = n.y * 0.5 + 0.5;
+    pixel_normal[ row * width + col ][2] = n.z * 0.5 + 0.5;
 }
 
 void Artifacts::setPixelDepth( unsigned int row, unsigned int col, float depth )
@@ -145,7 +152,7 @@ void Artifacts::setPixelDepth( unsigned int row, unsigned int col, float depth )
     depth = (1.0 - (depth - 3.0) / 20.0);
     depth = std::min( std::max( depth, 0.0f ), 1.0f );
 
-    depth_image->pixelColor( col, row, Magick::ColorRGB( depth, depth, depth ) );
+    pixel_depth[ row * width + col ] = depth;
 }
 
 void Artifacts::accumPixelTime( unsigned int row, unsigned int col, float value )
