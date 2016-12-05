@@ -34,6 +34,16 @@ inline Vector4::Vector4( float xn, float yn, float zn, float wn )
 	data[3] = wn;
 }
 
+inline float & Vector4::operator[]( int i )
+{
+    return data[i];
+}
+
+inline const float & Vector4::operator[]( int i ) const
+{
+    return data[i];
+}
+
 inline void Vector4::set( float xn, float yn, float zn, float wn )
 {
 	data[0] = xn;
@@ -82,6 +92,17 @@ inline void Vector4::negate()
 inline Vector4 Vector4::negated() const
 {
     return Vector4( -data[0], -data[1], -data[2], data[3] );
+}
+
+inline bool Vector4::isUnity() const
+{
+    float m = magnitude();
+    return m > 0.99 && m < 1.01;
+}
+
+inline bool Vector4::isDirection() const
+{
+    return w == 0.0f;
 }
 
 // TODO - Decide whether to normalize by 1/w before doing this

@@ -23,15 +23,8 @@ public:
 	inline Vector4( float x, float y, float z, float w = 1.0f );
 	inline ~Vector4() {}
 	
-	inline float & operator[]( int i ) 
-	{ 
-		return data[i]; 
-	}
-
-	inline const float & operator[]( int i ) const
-	{ 
-		return data[i]; 
-	}
+	inline float & operator[]( int i );
+	inline const float & operator[]( int i ) const;
 	
     inline void set( float x, float y, float z, float w = 1.0f );
     
@@ -43,14 +36,14 @@ public:
 
 	inline Vector4 normalized() const;
 	inline Vector4 negated() const;
-    bool isUnity() const { float m = magnitude(); return m > 0.99 && m < 1.01; }
-    bool isDirection() const { return w == 0.0f; }
+    inline bool isUnity() const;
+    inline bool isDirection() const;
 	
 	void print() const;
     void fprintCSV( FILE * file ) const;
 
     // Assert methods
-    void assertIsUnity() const { float m = magnitude(); assert( isUnity() ); }
+    void assertIsUnity() const { assert( isUnity() ); }
     void assertIsDirection() const { assert( isDirection() ); }
 
     union {
