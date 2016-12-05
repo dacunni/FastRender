@@ -69,6 +69,13 @@ void Artifacts::flush()
     char sindex[32];
     sprintf( sindex, "%08u", frame_number );
 
+    // Use ImageMagick pixel caches to quickly write pixel data
+    Magick::PixelPacket * color_cache = image->setPixels( 0, 0, width, height );
+    Magick::PixelPacket * normal_cache = normal_image->setPixels( 0, 0, width, height );
+    Magick::PixelPacket * depth_cache = depth_image->setPixels( 0, 0, width, height );
+
+    unsigned short pixel_max = (1 << MAGICKCORE_QUANTUM_DEPTH) - 1;
+
     for( int row = 0; row < height; row++ ) {
         for( int col = 0; col < width; col++ ) {
             auto color = pixel_color_accum[ row * width + col ];
@@ -78,13 +85,22 @@ void Artifacts::flush()
                 color.g /= nsamples;
                 color.b /= nsamples;
             }
-            image->pixelColor( col, row, Magick::ColorRGB( std::min( color.r, 1.0f ), 
-                                                           std::min( color.g, 1.0f ), 
-                                                           std::min( color.b, 1.0f ) ) );
+            color.r = std::min( color.r, 1.0f );
+            color.g = std::min( color.g, 1.0f );
+            color.b = std::min( color.b, 1.0f );
+            color_cache[ row * width + col ].red   = color.r * pixel_max;
+            color_cache[ row * width + col ].green = color.g * pixel_max;
+            color_cache[ row * width + col ].blue  = color.b * pixel_max;
+
             auto normal = pixel_normal[ row * width + col ];
-            normal_image->pixelColor( col, row, Magick::ColorRGB( normal.x, normal.y, normal.z) );
+            normal_cache[ row * width + col ].red   = normal.x * pixel_max;
+            normal_cache[ row * width + col ].green = normal.y * pixel_max;
+            normal_cache[ row * width + col ].blue  = normal.z * pixel_max;
+
             auto depth = pixel_depth[ row * width + col ];
-            depth_image->pixelColor( col, row, Magick::ColorRGB( depth, depth, depth ) );
+            depth_cache[ row * width + col ].red   = depth * pixel_max;
+            depth_cache[ row * width + col ].green = depth * pixel_max;
+            depth_cache[ row * width + col ].blue  = depth * pixel_max;
         }
     }
 
@@ -113,11 +129,14 @@ void Artifacts::flush()
     max_value = sorted_times[  (1.0 - percentile) * width * height - 1 ];
 
     // Normalize the time image by the maximum time
+    Magick::PixelPacket * time_cache = time_image->setPixels( 0, 0, width, height );
     for( int i = 0; i < width * height; i++ ) {
         double value = (time_unnormalized_image[i] - min_value) / max_value;
         value = std::max( value, 0.0 );
         value = std::min( value, 1.0 );
-        time_image->pixelColor( i % width, i / width, Magick::ColorRGB( value, value, value ) );
+        time_cache[ i ].red   = value * pixel_max;
+        time_cache[ i ].green = value * pixel_max;
+        time_cache[ i ].blue  = value * pixel_max;
     }
 
     time_image->write( output_path + "/" + file_prefix + "time.png" );
