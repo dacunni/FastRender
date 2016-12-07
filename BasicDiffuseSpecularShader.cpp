@@ -23,6 +23,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     const unsigned char max_depth = 5;
     //const unsigned char max_depth = 4;
     //const unsigned char max_depth = 3;
+    //const unsigned char max_depth = 2;
 
     Vector4 from_dir = intersection.fromDirection();
 
