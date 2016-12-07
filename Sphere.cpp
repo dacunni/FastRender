@@ -76,5 +76,6 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
     subtract( intersection.position, center, intersection.normal );
     intersection.normal.normalize();
     intersection.material = material;
+    intersection.traceable = this;
     return true;
 }

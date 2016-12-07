@@ -15,6 +15,7 @@
 #include "Ray.h"
 
 Traceable::Traceable()
+    : material(DEFAULT_MATERIAL)
 {
 
 }

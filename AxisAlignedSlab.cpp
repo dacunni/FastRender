@@ -198,6 +198,7 @@ inline bool AxisAlignedSlab::intersectHelper( const Ray & ray, RayIntersection &
             scale( ray.direction, intersection.distance, intersection.position );
             add( intersection.position, ray.origin, intersection.position );
             intersection.material = material;
+            intersection.traceable = this;
         }
         return true;
     }
@@ -209,6 +210,7 @@ inline bool AxisAlignedSlab::intersectHelper( const Ray & ray, RayIntersection &
             scale( ray.direction, intersection.distance, intersection.position );
             add( intersection.position, ray.origin, intersection.position );
             intersection.material = material;
+            intersection.traceable = this;
         }
         return true;
     }

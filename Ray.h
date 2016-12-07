@@ -17,16 +17,18 @@
 #include "Color.h"
 
 class Scene;
+class Traceable;
 class Material;
+extern std::shared_ptr<Material> DEFAULT_MATERIAL;
 
 class Ray {
 public:
-	Ray() : depth(1) {}
-	Ray( const Vector4 & o, const Vector4 & d ) : origin(o), direction(d), depth(1) {}
-	~Ray() {}
-	
-	Vector4 origin;
-	Vector4 direction;
+    Ray() : depth(1) {}
+    Ray( const Vector4 & o, const Vector4 & d ) : origin(o), direction(d), depth(1) {}
+    ~Ray() {}
+
+    Vector4 origin;
+    Vector4 direction;
     unsigned char depth;
     float index_of_refraction = 1.0f;  // index of the material we're in
 };
@@ -42,17 +44,23 @@ public:
 
 class RayIntersection {
 public:
-	RayIntersection() : min_distance(0.0f), distance(FLT_MAX) {}
-	~RayIntersection() {}
+    RayIntersection()
+        : min_distance(0.0f), distance(FLT_MAX),
+          material(DEFAULT_MATERIAL) // So we can assume there is always a material in tracing logic
+    {}
+    ~RayIntersection() {}
+
+    Vector4 fromDirection() const;
 
     void print();
-	
-	Ray ray;
-	Vector4 position;
-	Vector4 normal;
+
+    Ray ray;
+    Vector4 position;
+    Vector4 normal;
     RGBRadianceSample sample;
     std::shared_ptr<Material> material;
-	float distance;
+    const Traceable * traceable; // For debugging
+    float distance;
     float min_distance;
 };
 

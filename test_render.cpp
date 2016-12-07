@@ -9,9 +9,12 @@
 
 #include "FastRender.h"
 
+AssetLoader loader;
 RandomNumberGenerator rng;
 std::string output_path = "testoutput";
 unsigned int plot_size = 500;
+
+const std::string modelBasePath = "models";
 
 // ------------------------------------------------------------ 
 // Ambient occlusion
@@ -183,22 +186,11 @@ void testAO5()
 
     auto cube = nullptr;
 
-    AssetLoader loader;
-    std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
-
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return;
-    }
-
     mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
@@ -236,22 +228,12 @@ void testAO6()
 
     auto cube = nullptr;
 
-    AssetLoader loader;
-    std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/dragon/reconstruction";
     auto mesh = loader.load( modelPath + "/dragon_vrip_res2.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
 
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return;
-    }
-
     mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
@@ -289,22 +271,12 @@ void testAO7()
 
     auto cube = nullptr;
 
-    AssetLoader loader;
-    std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/happy/reconstruction";
     auto mesh = loader.load( modelPath + "/happy_vrip_res2.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
 
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return;
-    }
-
     mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 4, 4, 4 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.5 ) ) );
@@ -593,23 +565,12 @@ void testPointLight3()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
-    std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
-
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return;
-    }
-
     auto bounds = mesh->getAxisAlignedBounds();
 
     //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -659,23 +620,12 @@ void testPointLight4()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
-    std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
-
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return;
-    }
-
     auto bounds = mesh->getAxisAlignedBounds();
 
     mesh->material = std::make_shared<MirrorMaterial>();
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeRotation( 0.25 * M_PI, Vector4(0, 1, 0) ),
@@ -784,17 +734,12 @@ void testLogicalANDMesh()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
-    std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
     mesh->transform = std::make_shared<Transform>();
     auto bounds = mesh->getAxisAlignedBounds();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
 
     auto obj1 = mesh;
     auto obj2 = std::make_shared<Sphere>( +0.25, 1.00, 0, 1.00 );
@@ -1091,24 +1036,13 @@ void testReflection3()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
-    std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
-
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return;
-    }
-
     auto bounds = mesh->getAxisAlignedBounds();
 
     //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
     mesh->material = std::make_shared<MirrorMaterial>();
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -1285,7 +1219,6 @@ void testRefraction2()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
     std::shared_ptr<TriangleMesh> mesh;
 
     Transform rotation = makeRotation( M_PI / 4.0, Vector4(0, 1, 0) );
@@ -1298,15 +1231,10 @@ void testRefraction2()
 
     {
         mesh = loader.load( model );
-        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
-
         auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_AIR);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-        mesh_octree->build();
-        mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( -2.0 * spacing, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
@@ -1317,15 +1245,10 @@ void testRefraction2()
 
     {
         mesh = loader.load( model );
-        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
-
         auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-        mesh_octree->build();
-        mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( -1.0 * spacing, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
@@ -1336,15 +1259,10 @@ void testRefraction2()
 
     {
         mesh = loader.load( model );
-        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
-
         auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_PLEXIGLAS);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-        mesh_octree->build();
-        mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( 0.0, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
@@ -1355,15 +1273,10 @@ void testRefraction2()
 
     {
         mesh = loader.load( model );
-        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
-
         auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-        mesh_octree->build();
-        mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( 1.0 * spacing, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
@@ -1374,15 +1287,10 @@ void testRefraction2()
 
     {
         mesh = loader.load( model );
-        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
-
         auto bounds = mesh->getAxisAlignedBounds();
 
         mesh->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-        mesh_octree->build();
-        mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( Vector4( 2.0 * spacing, 0.1, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
@@ -1590,21 +1498,15 @@ void testMesh1()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
     std::shared_ptr<TriangleMesh> mesh;
 
     {
         mesh = loader.load( "models/stanford/bunny/reconstruction/bun_zipper.ply" );
-        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
-
         auto bounds = mesh->getAxisAlignedBounds();
 
         //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
         //mesh->material = std::make_shared<MirrorMaterial>();
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-        mesh_octree->build();
-        mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -1613,12 +1515,8 @@ void testMesh1()
 
     {
         mesh = loader.load( "models/stanford/dragon/reconstruction/dragon_vrip.ply" );
-        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
         auto bounds = mesh->getAxisAlignedBounds();
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-        mesh_octree->build();
-        mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeTranslation( 3.0, 0.0, 0.0 ),
                                     compose( makeScaling( 4, 4, 4 ),
@@ -1662,10 +1560,8 @@ void testMesh2()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
     auto meshes = loader.loadMultiPart( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
     //auto meshes = loader.loadMultiPartMerged( "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
-    if( !meshes ) { fprintf( stderr, "Error loading meshes\n" ); return; }
     meshes->transform = std::make_shared<Transform>();
     *meshes->transform = makeRotation( -0.5 * M_PI, Vector4( 1.0, 0.0, 0.0 ) );
     container->add( meshes );
@@ -1713,10 +1609,8 @@ void testMeshSanMiguel()
     //                                               +10.0, -1.0, -10.0 );
     //container->add( floor );
 
-    AssetLoader loader;
     auto mesh = loader.loadMultiPart( "models/san-miguel/san-miguel.obj" );
     //auto mesh = loader.loadMultiPartMerged( "models/san-miguel/san-miguel.obj" );
-    if( !mesh ) { fprintf( stderr, "Error loading meshes\n" ); return; }
     //auto bounds = mesh->getAxisAlignedBounds();
     mesh->transform = std::make_shared<Transform>();
     //float scale = 35.0;
@@ -1804,7 +1698,6 @@ void testMeshDabrovicSponza()
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
 
-    AssetLoader loader;
     auto mesh = loader.loadMultiPart( "models/dabrovic-sponza/sponza.obj" );
     if( !mesh ) { fprintf( stderr, "Error loading meshes\n" ); return; }
     //auto bounds = mesh->getAxisAlignedBounds();
@@ -1873,21 +1766,15 @@ void testHairball()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
     std::shared_ptr<TriangleMesh> mesh;
 
     {
         mesh = loader.load( "models/hairball.obj" );
-        if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
-
         auto bounds = mesh->getAxisAlignedBounds();
 
         //mesh->material = std::make_shared<DiffuseMaterial>( 0.75, 1.0, 0.8 );
         //mesh->material = std::make_shared<MirrorMaterial>();
 
-        TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-        mesh_octree->build();
-        mesh->accelerator = mesh_octree;
         mesh->transform = std::make_shared<Transform>();
         *mesh->transform = compose( makeScaling( 2, 2, 2 ),
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -1934,23 +1821,12 @@ void testAnimTransforms1()
                                                    +10.0, -1.0, -10.0 );
     container->add( floor );
 
-    AssetLoader loader;
-    std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
-
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return;
-    }
-
     auto bounds = mesh->getAxisAlignedBounds();
 
     mesh->material = std::make_shared<MirrorMaterial>();
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     float ymin = bounds->ymin;
     mesh->transform = std::make_shared<TimeVaryingTransform>(
         [ymin](float anim_progress) {
@@ -2158,7 +2034,7 @@ void testAreaLight1()
 
     // Light
     cube = std::make_shared<AxisAlignedSlab>( 2.0, 2.5, -2.25,
-                                3.0, 3.5,  2.25 );
+                                              3.0, 3.5,  2.25 );
     cube->material = std::make_shared<Material>();
     cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
     cube->material->emittance.scale( 5.0 );
@@ -2302,14 +2178,9 @@ BUILD_SCENE(
     auto sphere = std::make_shared<Sphere>( 1.0, half_size, 0.0, half_size );
     container->add( sphere );
 
-    std::string modelBasePath = "models";
     auto mesh = loader.load( modelBasePath + "/stanford/happy/reconstruction/happy_vrip_res4.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
-    if( !mesh ) { fprintf( stderr, "Error loading mesh\n" ); return; }
 
-    auto mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
     //*mesh->transform = makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) );
     *mesh->transform = makeScaling( 3.0 );
@@ -2438,9 +2309,11 @@ int main (int argc, char * const argv[])
 #else
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
-    //testRefraction4();  // Refractive sphere with caustics
-    //testRefraction1();  // Mixed scene with some refractive elements
-    testRefraction3();  // Spheres of varying IoR
+    //testLogicalAND();
+    //testMesh1();         // Stanford Bunny and Dragon
+    //testAnimTransforms1(); // Mirror Bunny and simple shapes
+    //testRefraction2();  // Mesh bunnies with varying IoR
+    testAO5(); // Stanford Bunny
 
 #endif
     

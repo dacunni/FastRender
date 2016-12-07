@@ -27,6 +27,17 @@ void shade( Scene & scene, RayIntersection & intersection, Sample & sample )
     sample.value = intersection.normal.x;
 }
 
+Vector4 RayIntersection::fromDirection() const
+{
+    Vector4 from_dir = ray.direction.negated();
+
+    // Asserts
+    from_dir.assertIsUnity();
+    from_dir.assertIsDirection();
+
+    return from_dir;
+}
+
 void RayIntersection::print()
 {
     printf("Ray Intersection :\n");

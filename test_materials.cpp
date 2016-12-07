@@ -36,12 +36,8 @@ BUILD_SCENE(
     container->add( floor );
 
     mesh = loadMaterialTestModel( loader );
-    if( !mesh ) { return; }
     auto bounds = mesh->getAxisAlignedBounds();
 
-    TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
-    mesh_octree->build();
-    mesh->accelerator = mesh_octree;
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 1.0 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );

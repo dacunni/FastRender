@@ -104,7 +104,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
     bool hit = false;
     const float epsilon = 0.000001;
 
-    IndexTriangle best_tri;
+    const IndexTriangle * best_tri;
 
     //
     // Test for intersection against all triangles
@@ -150,7 +150,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
         }
 
         if( t > intersection.min_distance && t < best_t ) {
-            best_tri = tri;
+            best_tri = &tri;
             best_t = t;
             hit = true;
         }
@@ -164,14 +164,14 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
         add( intersection.position, ray.origin, intersection.position );
         // compute barycentric coordinate
         BarycentricCoordinate bary = barycentricForPointInTriangle( intersection.position, 
-                                                                    vertices[best_tri.vi[0]],
-                                                                    vertices[best_tri.vi[1]],
-                                                                    vertices[best_tri.vi[2]] );
+                                                                    vertices[best_tri->vi[0]],
+                                                                    vertices[best_tri->vi[1]],
+                                                                    vertices[best_tri->vi[2]] );
 #if 1
         // Interpolate vertex normals
-        intersection.normal = add( add( scale( normals[best_tri.vi[0]], bary.u ),
-                                        scale( normals[best_tri.vi[1]], bary.v ) ),
-                                   scale( normals[best_tri.vi[2]], bary.w ) ).normalized();
+        intersection.normal = add( add( scale( normals[best_tri->vi[0]], bary.u ),
+                                        scale( normals[best_tri->vi[1]], bary.v ) ),
+                                   scale( normals[best_tri->vi[2]], bary.w ) ).normalized();
 #else
         // compute surface normal
         // TODO - make sure this normal agrees with front/back sense above
@@ -204,6 +204,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
 
     if( hit ) {
         intersection.material = material;
+        intersection.traceable = this;
     }
     
     return hit;

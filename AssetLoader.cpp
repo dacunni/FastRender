@@ -262,6 +262,8 @@ std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::strin
 
     // Shift to the canonical position and size
     // TODO: Should we have this here or make it the caller's responsibility?
+    //       - Thought: Just have makeCananical() generate the appropriate transform and make it
+    //                  the user's responsibility
     // TODO: Make this configurable
     //ubermesh->makeCanonical();
 

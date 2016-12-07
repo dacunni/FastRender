@@ -44,7 +44,6 @@ public:
 	void print();
 	
 	float data[16];
-	
 };
 
 // Computes the matrix R = A * B

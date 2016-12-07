@@ -8,22 +8,13 @@
 #include "AxisAlignedSlab.h"
 
 
-// TODO 
-//  - diffuse
-//      - trace rays to get irradiance
-//      - evaluate diffuse formula
-//  - specular
-//      - trace specular rays
-//      - evaluate specular formula
-
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
     RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
     RGBColor specular_contrib( 0.0, 0.0, 0.0 );
     RGBColor direct_contrib( 0.0, 0.0, 0.0 );
     Ray new_ray;
-    //RayIntersection new_intersection;
-    RayIntersection new_intersection = RayIntersection();
+    RayIntersection new_intersection;
     new_intersection.min_distance = 0.01;
     Vector4 offset( 0.0, 0.0, 0.0 );
     //offset = scale( intersection.normal, 0.01 ); // NOTE - Seems to help 
@@ -33,12 +24,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     //const unsigned char max_depth = 4;
     //const unsigned char max_depth = 3;
 
-    Vector4 from_dir = intersection.ray.direction;
-    from_dir.negate();
+    Vector4 from_dir = intersection.fromDirection();
 
     // Asserts
-    from_dir.assertIsUnity();
-    from_dir.assertIsDirection();
     intersection.normal.assertIsUnity();
     intersection.normal.assertIsDirection();
 
@@ -76,62 +64,18 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             direct_contrib.accum( color );
     }
 
+    // TODO - How best should we choose between diffuse and specular?
+    // FIXME: Should I scale by the cosine for a perfect reflector?
+
     if( intersection.ray.depth < max_depth ) {
-        // TODO - How best should we choose between diffuse and specular?
-        // TODO - should we scale the color by the inverse probability for the sampling we chose?
         const float diffuse_chance = 0.9;
         float diff_spec_select = rng.uniform01();
 
-        if( intersection.material && intersection.material->perfect_reflector ) {
-            new_ray.direction = mirror( from_dir, intersection.normal );
-
-            if( scene.intersect( new_ray, new_intersection ) ) {
-                if( new_intersection.distance != FLT_MAX ) {
-                    shade( scene, rng, new_intersection );
-                }
-                // FIXME: Should I scale by the cosine for a perfect reflector?
-                //float cos_r_n = dot( new_ray.direction, intersection.normal ); 
-                //new_intersection.sample.color.scale( cos_r_n );
-                specular_contrib.accum( new_intersection.sample.color );
-            }
-        }
-        else if( intersection.material && intersection.material->perfect_refractor ) {
-            float index_in = intersection.ray.index_of_refraction;
-            float index_out = intersection.material->index_of_refraction;
-
-            // FIXME: HACK - This assumes that if we hit the surface of an object with the same
-            //        index of refraction as the material we're in, then we are moving back into
-            //        free space. This might not be true if there are numerical errors tracing
-            //        abutting objects of the same material type, or for objects that are intersecting.
-            if( !intersection.material ||
-                intersection.material->index_of_refraction == intersection.ray.index_of_refraction ) {
-                index_out = 1.0f;
-            }
-
-            Vector4 refracted = refract( from_dir, intersection.normal, index_in, index_out );
-            float fresnel = 1.0f; // default to total internal reflection if refract() returns
-                                  // a zero length vector
-            if( refracted.magnitude() > 0.0001 ) {
-                fresnel = fresnelDialectric( dot( from_dir, intersection.normal ),
-                                             dot( refracted, intersection.normal.negated() ),
-                                             index_in,
-                                             index_out );
-            }
-
-            // Use RNG to choose whether to reflect or refract based on Fresnel coefficient.
-            //   Random selection accounts for fresnel or 1-fresnel scale factor.
-            if( fresnel == 1.0f || rng.uniform01() < fresnel ) {
-                // Trace reflection (mirror ray scaled by fresnel or 1 for total internal reflection)
-                new_ray.direction = mirror( from_dir, intersection.normal );
-                new_ray.index_of_refraction = index_in;
-                //printf("\treflect ior %f -> %f\n", intersection.ray.index_of_refraction, new_ray.index_of_refraction); // TEMP
-            }
-            else {
-                // Trace refraction (refracted ray scaled by 1-fresnel)
-                new_ray.direction = refracted;
-                new_ray.index_of_refraction = index_out;
-                //printf("\trefract ior %f -> %f\n", intersection.ray.index_of_refraction, new_ray.index_of_refraction); // TEMP
-            }
+        if( intersection.material->perfect_reflector
+            || intersection.material->perfect_refractor ) {
+            auto sample = intersection.material->sampleBxDF( rng, intersection );
+            new_ray.direction = sample.direction;
+            new_ray.index_of_refraction = sample.new_index_of_refraction;
 
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX ) {
@@ -145,8 +89,6 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             rng.uniformSurfaceUnitHalfSphere( intersection.normal, new_ray.direction );
             new_ray.direction.makeDirection();
 
-            //new_intersection = RayIntersection();
-            //new_intersection.min_distance = 0.01;
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX )
                     shade( scene, rng, new_intersection );
