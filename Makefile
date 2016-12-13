@@ -5,23 +5,23 @@ HDR = \
 	AssetLoader.h \
 	AxisAlignedSlab.h \
 	BasicDiffuseSpecularShader.h \
-    Boolean.h \
+	Boolean.h \
 	BoundingVolume.h \
 	BoundingVolumeHierarchy.h \
 	Color.h \
 	Container.h \
-    CSG.h \
-    DistributionSamplers.h \
-    EnvironmentMap.h \
+	CSG.h \
+	DistributionSamplers.h \
+	EnvironmentMap.h \
 	FlatContainer.h \
-    GeometryUtils.h \
-    GoochShader.h \
-    ImageTracer.h \
-    Lights.h \
+	GeometryUtils.h \
+	GoochShader.h \
+	ImageTracer.h \
+	Lights.h \
 	Material.h \
 	Matrix.h \
-    Plot2D.h \
-    Quaternion.h \
+	Plot2D.h \
+	Quaternion.h \
 	RandomNumberGenerator.h \
 	Ray.h \
 	Scene.h \
@@ -32,6 +32,7 @@ HDR = \
 	TestScenes.h \
 	Timer.h \
 	Traceable.h \
+	TraceLog.h \
 	Transform.h \
 	TriangleMesh.h \
 	Vector.h
@@ -42,21 +43,21 @@ OBJ = \
 	AssetLoader.o \
 	AxisAlignedSlab.o \
 	BasicDiffuseSpecularShader.o \
-    Boolean.o \
+	Boolean.o \
 	BoundingVolume.o \
 	BoundingVolumeHierarchy.o \
 	Container.o \
 	CSG.o \
-    DistributionSamplers.o \
-    EnvironmentMap.o \
+	DistributionSamplers.o \
+	EnvironmentMap.o \
 	FlatContainer.o \
-    GeometryUtils.o \
-    GoochShader.o \
-    ImageTracer.o \
-    Material.o \
+	GeometryUtils.o \
+	GoochShader.o \
+	ImageTracer.o \
+	Material.o \
 	Matrix.o \
-    Plot2D.o \
-    Quaternion.o \
+	Plot2D.o \
+	Quaternion.o \
 	RandomNumberGenerator.o \
 	Ray.o \
 	Scene.o \
@@ -66,6 +67,7 @@ OBJ = \
 	TMOctreeAccelerator.o \
 	Timer.o \
 	Traceable.o \
+	TraceLog.o \
 	Transform.o \
 	TriangleMesh.o \
 	Vector.o \
@@ -166,11 +168,11 @@ test_samplersOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_samplersOBJ))
 $(test_samplersOBJ_IN_DIR): | $(OBJDIR)
 
 testOBJ_IN_DIR = \
-    $(test_randomOBJ_IN_DIR) \
-    $(test_renderOBJ_IN_DIR) \
-    $(test_materialsOBJ_IN_DIR) \
-    $(test_ray_traceOBJ_IN_DIR) \
-    $(test_samplersOBJ_IN_DIR)
+	$(test_randomOBJ_IN_DIR) \
+	$(test_renderOBJ_IN_DIR) \
+	$(test_materialsOBJ_IN_DIR) \
+	$(test_ray_traceOBJ_IN_DIR) \
+	$(test_samplersOBJ_IN_DIR)
 
 $(OBJDIR):
 	mkdir $(OBJDIR)

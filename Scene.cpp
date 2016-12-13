@@ -10,6 +10,7 @@
 #include "Scene.h"
 #include "Ray.h"
 #include "Traceable.h"
+#include "TraceLog.h"
 #include "Container.h"
 #include "Material.h"
 #include "EnvironmentMap.h"

@@ -15,21 +15,8 @@
 #include "Ray.h"
 
 class Traceable;
+class TraceLog;
 class EnvironmentMap;
-
-class TraceLog
-{
-    public:
-        class Entry
-        {
-            public:
-                Ray ray;
-                RayIntersection intersection;
-                bool hit;
-        };
-
-        std::vector<Entry> entries;
-};
 
 class Scene 
 {

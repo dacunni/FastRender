@@ -20,6 +20,7 @@
 #include "BasicDiffuseSpecularShader.h"
 #include "FlatContainer.h"
 #include "AxisAlignedSlab.h"
+#include "TraceLog.h"
 #include "TriangleMesh.h"
 #include "Timer.h"
 #include "BoundingVolume.h"
@@ -130,7 +131,19 @@ void testScene()
     tracer.num_frames = 20;
 #endif
 
+//#define DO_LOGGING
+#ifdef DO_LOGGING
+    TraceLog log;
+    tracer.scene->startLogging( &log );
+#endif
+
     tracer.render();
+
+#ifdef DO_LOGGING
+    tracer.scene->stopLogging();
+    //log.writeCSV( "trace_log.txt" );
+    log.writeRaw( "trace_log.txt" );
+#endif
 }
 
 // TODO - make tests for Transforms

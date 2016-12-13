@@ -233,7 +233,7 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // Tests
-#if 0
+#if 1
     // Run all tests
     printTests();
     runTests();
