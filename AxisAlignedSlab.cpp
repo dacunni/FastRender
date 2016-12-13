@@ -70,12 +70,12 @@ float AxisAlignedSlab::maxdim() const
 }
 
 static const Vector4 boxNormals[6] = {
-    Vector4( -1.0, 0.0, 0.0 ),
-    Vector4( 1.0, 0.0, 0.0 ),
-    Vector4( 0.0, -1.0, 0.0 ),
-    Vector4( 0.0, 1.0, 0.0 ),
-    Vector4( 0.0, 0.0, -1.0 ),
-    Vector4( 0.0, 0.0, 1.0 )
+    Vector4( -1.0, 0.0, 0.0, 0.0 ),
+    Vector4( 1.0, 0.0, 0.0, 0.0 ),
+    Vector4( 0.0, -1.0, 0.0, 0.0 ),
+    Vector4( 0.0, 1.0, 0.0, 0.0 ),
+    Vector4( 0.0, 0.0, -1.0, 0.0 ),
+    Vector4( 0.0, 0.0, 1.0, 0.0 )
 };
 
 const int MINUS_X_NORMAL_INDEX = 0;

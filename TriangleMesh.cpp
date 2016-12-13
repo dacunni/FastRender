@@ -102,7 +102,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
     float det, inv_det, u, v, t;
     float best_t = FLT_MAX;
     bool hit = false;
-    const float epsilon = 0.000001;
+    const float epsilon = 1.0e-6;
 
     const IndexTriangle * best_tri;
 

@@ -552,7 +552,7 @@ void testRayMeshBunnyTiming()
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
-    auto mesh = loader.load( modelPath + "/bun_zipper.ply" );
+    auto mesh = loader.load( modelPath + "/bun_zipper.ply", false );
     mesh->makeCanonical();
     testRayObjectTiming( *mesh, "MeshBunny", false );
     testRayObjectTiming( *mesh, "MeshBunny", true );
@@ -563,7 +563,7 @@ void testRayMeshOctreeBunnyTiming()
     AssetLoader loader;
     std::string modelBasePath = "models";
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
-    auto mesh = loader.load( modelPath + "/bun_zipper.ply" );
+    auto mesh = loader.load( modelPath + "/bun_zipper.ply", true );
     mesh->makeCanonical();
     TMOctreeAccelerator * mesh_octree = new TMOctreeAccelerator( *std::dynamic_pointer_cast<TriangleMesh>(mesh) );
     mesh_octree->build();
@@ -782,9 +782,8 @@ int main (int argc, char * const argv[])
     //testMatrixTiming();
     //testRaySphereTiming();
     //testRayAxisAlignedSlabTiming();
-    //testRayMeshBunnyTiming();
-    //testRayMeshOctreeBunnyTiming();
-    testRefractSphere();
+    testRayMeshBunnyTiming();
+    testRayMeshOctreeBunnyTiming();
 #endif
     
     total_run_timer.stop();
