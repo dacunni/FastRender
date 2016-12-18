@@ -41,6 +41,7 @@ public:
 	
 	void print() const;
     void fprintCSV( FILE * file ) const;
+    std::string toJSON() const;
 
     // Assert methods
     void assertIsUnity() const { assert( isUnity() ); }

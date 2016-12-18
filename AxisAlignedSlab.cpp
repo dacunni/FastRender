@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <utility>
 #include <math.h>
+#include <sstream>
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
 #include "Types.h"
@@ -262,6 +263,18 @@ bool AxisAlignedSlab::intersectsAny( const Ray & ray, float min_distance ) const
 void AxisAlignedSlab::print( FILE * file ) const
 {
     printf( "AASlab: x: %f, %f y: %f, %f z: %f, %f\n", xmin, xmax, ymin, ymax, zmin, zmax );
+}
+
+std::string AxisAlignedSlab::toJSON() const
+{
+    std::stringstream ss;
+
+    ss << "{\"type\":\"AxisAlignedSlab\","
+        << "\"min\":[" << xmin << "," << ymin << "," << zmin << "],"
+        << "\"max\":[" << xmax << "," << ymax << "," << zmax << "]"
+        << "}";
+
+    return ss.str();
 }
 
 

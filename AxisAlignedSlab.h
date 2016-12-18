@@ -39,6 +39,7 @@ public:
     static unsigned long intersection_test_count;       // Counts the number of intersection tests against
                                                         // objects of this class
     virtual void print( FILE * file = stdout ) const;
+    virtual std::string toJSON() const;
 
 private:
     inline bool intersectHelper( const Ray & ray, RayIntersection & intersection, bool any_test ) const;

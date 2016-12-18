@@ -7,6 +7,7 @@
 //
 
 #include <cmath>
+#include <sstream>
 #include "Transform.h"
 
 //
@@ -42,6 +43,18 @@ void Transform::print()
     fwd.print();
     printf("rev:\n");
     rev.print();
+}
+
+std::string Transform::toJSON() const
+{
+    std::stringstream ss;
+
+    ss << "{"
+        "\"fwd\":" << fwd.toJSON() << ","
+        "\"rev\":" << rev.toJSON()
+        << "}";
+
+    return ss.str();
 }
 
 //

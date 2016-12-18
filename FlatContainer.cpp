@@ -7,6 +7,8 @@
  *
  */
 
+#include <sstream>
+
 #include "FlatContainer.h"
 #include "Ray.h"
 
@@ -68,5 +70,25 @@ bool FlatContainer::intersectsAny( const Ray & ray, float min_distance ) const
 	}
 	
 	return false;
+}
+
+std::string FlatContainer::toJSON() const
+{
+    std::stringstream ss;
+
+    ss << "{\"type\":\"FlatContainer\","
+        << "\"objects\":" << "[";
+
+    for( auto oi = objects.begin(); oi != objects.end(); ++oi ) {
+        if( oi != objects.begin() ) {
+            ss << ",";
+        }
+        ss << (*oi)->toJSON();
+    }
+
+    ss << "]"
+        << "}";
+
+    return ss.str();
 }
 

@@ -6,6 +6,8 @@
 //
 //
 
+#include <sstream>
+
 #include "TriangleMesh.h"
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
@@ -285,5 +287,47 @@ void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size )
     mesh.triangles[1].vi[0] = 1;
     mesh.triangles[1].vi[1] = 3;
     mesh.triangles[1].vi[2] = 2;
+}
+
+std::string TriangleMesh::IndexTriangle::toJSON() const
+{
+    std::stringstream ss;
+    
+    ss << "["
+        << vi[0] << ","
+        << vi[1] << ","
+        << vi[2] << "]";
+
+    return ss.str();
+}
+
+std::string TriangleMesh::toJSON() const
+{
+    std::stringstream ss;
+
+    ss << "{\"type\":\"TriangleMesh\",";
+
+    ss << "\"vertices\":" << "[";
+    for( auto vi = vertices.begin(); vi != vertices.end(); ++vi ) {
+        if( vi != vertices.begin() ) { ss << ","; }
+        ss << vi->toJSON();
+    }
+    ss << "],";
+    ss << "\"normals\":" << "[";
+    for( auto ni = normals.begin(); ni != normals.end(); ++ni ) {
+        if( ni != normals.begin() ) { ss << ","; }
+        ss << ni->toJSON();
+    }
+    ss << "],";
+    ss << "\"triangles\":" << "[";
+    for( auto ti = triangles.begin(); ti != triangles.end(); ++ti ) {
+        if( ti != triangles.begin() ) { ss << ","; }
+        ss << ti->toJSON();
+    }
+    ss << "]";
+
+    ss << "}";
+
+    return ss.str();
 }
 

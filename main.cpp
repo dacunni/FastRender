@@ -2,35 +2,9 @@
 #include <fstream>
 #include <stdio.h>
 
-// TEMP >>>
-//#include <Magick++.h>
 #include <math.h>
-// TEMP <<<
 
-#include "Artifacts.h"
-#include "Matrix.h"
-#include "Transform.h"
-#include "Ray.h"
-#include "Sphere.h"
-#include "RandomNumberGenerator.h"
-#include "Scene.h"
-#include "Shader.h"
-#include "SimpleCamera.h"
-#include "AmbientOcclusionShader.h"
-#include "BasicDiffuseSpecularShader.h"
-#include "FlatContainer.h"
-#include "AxisAlignedSlab.h"
-#include "TraceLog.h"
-#include "TriangleMesh.h"
-#include "Timer.h"
-#include "BoundingVolume.h"
-#include "TMOctreeAccelerator.h"
-#include "Material.h"
-#include "TestScenes.h"
-#include "EnvironmentMap.h"
-#include "ImageTracer.h"
-#include "Quaternion.h"
-#include "Types.h"
+#include "FastRender.h"
 
 RandomNumberGenerator rng;
 
@@ -136,6 +110,26 @@ void testScene()
     TraceLog log;
     tracer.scene->startLogging( &log );
 #endif
+
+    // TEMP >>> Testing JSON output
+#if 0
+    std::ofstream scene_json("scene.txt", std::ios::out);
+    scene_json << "[";
+    scene_json << Vector4().toJSON() << "," << std::endl;
+    scene_json << Matrix4x4().toJSON() << "," << std::endl;
+    scene_json << Transform().toJSON() << "," << std::endl;
+    scene_json << AxisAlignedSlab().toJSON() << "," << std::endl;
+    scene_json << Sphere(3, 4, 5, 7.2).toJSON() << "," << std::endl;
+    auto container = std::make_shared<FlatContainer>();
+    addOffsetCubes( container );
+    scene_json << container->toJSON() << "," << std::endl;
+    TriangleMesh mesh;
+    makeTriangleMeshTetrahedron(mesh);
+    scene_json << mesh.toJSON() << std::endl;
+    scene_json << "]" << std::endl;
+    scene_json.close();
+#endif
+    // TEMP <<<
 
     tracer.render();
 

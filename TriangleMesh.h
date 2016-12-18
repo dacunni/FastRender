@@ -20,6 +20,7 @@ class TriangleMesh : public Traceable
 public:
     class IndexTriangle {
     public:
+        std::string toJSON() const;
         unsigned int vi[3];
     };
     
@@ -38,6 +39,8 @@ public:
                               RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
 
     virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const;
+
+    virtual std::string toJSON() const;
 
     std::vector< Vector4 >          vertices;
     std::vector< Vector4 >          normals;

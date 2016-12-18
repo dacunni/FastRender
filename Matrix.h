@@ -41,7 +41,8 @@ public:
     
 	void identity();
 	
-	void print();
+	void print() const;
+    std::string toJSON() const;
 	
 	float data[16];
 };

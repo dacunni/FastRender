@@ -110,6 +110,10 @@ void Traceable::print( FILE * file ) const
              transform ? "yes" : "no" );
 }
 
+std::string Traceable::toJSON() const
+{
+    return "{\"type\":none}";
+}
 
 
 

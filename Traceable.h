@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <memory>
+#include <string>
 
 #include "Transform.h"
 
@@ -38,6 +39,7 @@ public:
     virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const { return std::shared_ptr<AxisAlignedSlab>(); }
 
     virtual void print( FILE * file = stdout ) const;
+    virtual std::string toJSON() const;
 
     // FIXME - we probably don't want all traceables to get a material, or we'll just end up wasting memory
     std::shared_ptr<Material> material;

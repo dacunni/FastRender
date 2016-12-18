@@ -8,6 +8,7 @@
  */
 
 #include <cmath>
+#include <sstream>
 
 #include "Sphere.h"
 
@@ -79,3 +80,16 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
     intersection.traceable = this;
     return true;
 }
+
+std::string Sphere::toJSON() const
+{
+    std::stringstream ss;
+
+    ss << "{\"type\":\"Sphere\","
+        << "\"center\":" << center.toJSON() << ","
+        << "\"radius\":" << radius
+        << "}";
+
+    return ss.str();
+}
+

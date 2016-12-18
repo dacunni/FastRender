@@ -23,6 +23,8 @@ public:
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
+    virtual std::string toJSON() const;
+
 	Vector4 center;
 	float radius;
     

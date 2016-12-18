@@ -25,6 +25,8 @@ public:
     virtual int size() const { return objects.size(); }
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
+
+    virtual std::string toJSON() const;
 	
 	std::vector<std::shared_ptr<Traceable> > objects;
 };
