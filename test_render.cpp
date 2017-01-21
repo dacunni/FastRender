@@ -2245,6 +2245,55 @@ BUILD_SCENE(
 #endif
 );
 END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_SCENE( GridRoomScene )
+SETUP_SCENE( TestScene::setup(); );
+BUILD_SCENE(
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+
+    float dim = 1.0;
+    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, -0.1, dim ), checkerboard_material ); // floor
+    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, -dim * 1.1, dim * 2.0, dim ), white_material ); // left wall
+    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, dim * 2.0, -dim * 1.1 ), white_material ); // back wall
+
+    auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
+    env_map->setPower( 30.0f );
+    scene->env_map = env_map;
+
+    //container->add( std::make_shared<Sphere>( -0.0, 0.2, 0.0, 0.2 ), white_material ); // TEMP
+
+    tracer->setCameraTransform( compose( makeRotation( M_PI / 4, Vector4(0, 1, 0) ),
+                                        makeTranslation( 0.0, 0.5, 0.0 ),
+                                        makeRotation( -M_PI / 8, Vector4(1, 0, 0) ),
+                                        makeTranslation( 0.0, 0.0, 1.5 ))
+                              );
+    tracer->rays_per_pixel = 30;
+    //tracer->rays_per_pixel = 100;
+    float focal_plane_span = 0.5;
+    tracer->camera.xmin = -focal_plane_span;
+    tracer->camera.xmax = +focal_plane_span;
+    tracer->camera.ymin = -focal_plane_span;
+    tracer->camera.ymax = +focal_plane_span;
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithSpheres, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
+    container->add( std::make_shared<Sphere>( -0.3, 0.2, -0.3, 0.2 ), mirror_material );
+    container->add( std::make_shared<Sphere>( -0.3, 0.2, 0.3, 0.2 ), refractive_material );
+    container->add( std::make_shared<Sphere>( 0.3, 0.2, -0.3, 0.2 ), white_material );
+);
+END_SCENE()
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -2309,11 +2358,13 @@ int main (int argc, char * const argv[])
 #else
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
+    GridRoomScene::run();
+    GridRoomSceneWithSpheres::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testRefraction2();  // Mesh bunnies with varying IoR
-    testAO5(); // Stanford Bunny
+    //testAO5(); // Stanford Bunny
 
 #endif
     

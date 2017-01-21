@@ -60,7 +60,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         color.scale(1.0f / to_light.magnitude_sq()); // distance falloff
         // TODO: use actual material parameters properly so we can get specular here, too
         if( intersection.material )
-            direct_contrib.accum( mult( color, intersection.material->diffuse ) );
+            direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
         else
             direct_contrib.accum( color );
     }
@@ -115,8 +115,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     }
 
     if( intersection.material ) {
-        intersection.sample.color = mult( diffuse_contrib, intersection.material->diffuse );
-        intersection.sample.color.accum( mult( specular_contrib, intersection.material->specular ) );
+        intersection.sample.color = mult( diffuse_contrib, intersection.material->diffuse(intersection) );
+        intersection.sample.color.accum( mult( specular_contrib, intersection.material->specular(intersection) ) );
         intersection.sample.color.accum( intersection.material->emittance );
         intersection.sample.color.accum( direct_contrib );
     }

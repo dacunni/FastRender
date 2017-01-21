@@ -36,14 +36,10 @@ void AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng, 
     value = 1.0f - (float) hits / (float) num_ao_rays;
 
     if( intersection.material ) {
-        intersection.sample.color.r = value * intersection.material->diffuse.r;
-        intersection.sample.color.g = value * intersection.material->diffuse.g;
-        intersection.sample.color.b = value * intersection.material->diffuse.b;
+        intersection.sample.color = intersection.material->diffuse(intersection).scaled(value);
     }
     else {
-        intersection.sample.color.r = value;
-        intersection.sample.color.g = value;
-        intersection.sample.color.b = value;
+        intersection.sample.color.setRGB(value, value, value);
     }
 }
 

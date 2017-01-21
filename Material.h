@@ -11,6 +11,7 @@
 #define _MATERIAL_H_
 
 #include <stdio.h>
+#include <math.h>
 #include "Color.h"
 #include "Ray.h"
 
@@ -57,10 +58,13 @@ class Material
         // FIXME - stopgap
         virtual bool isEmitter() { return emittance.r > 0.0 || emittance.g > 0.0 || emittance.b > 0.; }
 
+        virtual RGBColor diffuse( RayIntersection & isect ) { return diffuseColor; }
+        virtual RGBColor specular( RayIntersection & isect ) { return specularColor; }
+
         // Reflectances
         // FIXME - not realistic. need a more generic, physically-based reflection model. gotta start somewhere, though
-        RGBColor diffuse;
-        RGBColor specular;
+        RGBColor diffuseColor;
+        RGBColor specularColor;
         RGBColor emittance;
 
         float index_of_refraction = 1.0f;
@@ -75,19 +79,42 @@ class DiffuseMaterial : public Material
 {
     public:
         DiffuseMaterial() : Material() {
-            diffuse.setRGB( 1.0f, 1.0f, 1.0f );
-            specular.setRGB( 0.0f, 0.0f, 0.0f ); 
+            diffuseColor.setRGB( 1.0f, 1.0f, 1.0f );
+            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
         }
         DiffuseMaterial( float r, float g, float b ) : Material() { 
-            diffuse.setRGB( r, g, b ); 
-            specular.setRGB( 0.0f, 0.0f, 0.0f ); 
+            diffuseColor.setRGB( r, g, b ); 
+            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
         }
         ~DiffuseMaterial() {}
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection );
+};
+
+class DiffuseCheckerBoardMaterial : public Material 
+{
+    public:
+        DiffuseCheckerBoardMaterial() : Material() {
+            diffuseColor.setRGB( 1.0f, 1.0f, 1.0f );
+            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            emittance.setRGB( 0.0f, 0.0f, 0.0f );
+        }
+        DiffuseCheckerBoardMaterial( float r, float g, float b ) : Material() { 
+            diffuseColor.setRGB( r, g, b ); 
+            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            emittance.setRGB( 0.0f, 0.0f, 0.0f );
+        }
+        ~DiffuseCheckerBoardMaterial() {}
+        
+        virtual RGBColor diffuse( RayIntersection & isect );
+
+        virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
+                                               const RayIntersection & intersection );
+
+        float gridSize = 0.2;
 };
 
 class MirrorMaterial : public Material 
@@ -107,8 +134,8 @@ class MirrorMaterial : public Material
 
         void init( float r, float g, float b )
         {
-            diffuse.setRGB( 0.0f, 0.0f, 0.0f ); 
-            specular.setRGB( r, g, b ); 
+            diffuseColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            specularColor.setRGB( r, g, b ); 
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
             perfect_reflector = true;
         }
@@ -143,8 +170,8 @@ class RefractiveMaterial : public Material
 
         void init( float r, float g, float b )
         {
-            diffuse.setRGB( 0.0f, 0.0f, 0.0f ); 
-            specular.setRGB( r, g, b ); 
+            diffuseColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            specularColor.setRGB( r, g, b ); 
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
             perfect_refractor = true;
         }

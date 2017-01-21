@@ -168,14 +168,12 @@ GLuint loadShader( GLuint type, const std::string & filename )
 
 GLuint createShaders( const char * vs, const char * fs ) 
 {
-    GLuint status = 0;
     GLint program_status = 0;
-    GLuint shader_program = 0;
 
     GLuint vertex_shader = loadShader( GL_VERTEX_SHADER, vs );
     GLuint fragment_shader = loadShader( GL_FRAGMENT_SHADER, fs );
 
-    shader_program = glCreateProgram();
+    GLuint shader_program = glCreateProgram();
     if( vertex_shader != 0 )
         glAttachShader( shader_program, vertex_shader );
     if( fragment_shader != 0 ) 

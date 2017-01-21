@@ -31,6 +31,30 @@ DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
     return sample;
 }
 
+RGBColor
+DiffuseCheckerBoardMaterial::diffuse( RayIntersection & isect ) {
+    return (bool(int(floorf(isect.position.x / gridSize)) % 2) ^
+            bool(int(floorf(isect.position.y / gridSize)) % 2) ^
+            bool(int(floorf(isect.position.z / gridSize)) % 2)
+            )
+        ?  diffuseColor 
+        : RGBColor(0.0f, 0.0f, 0.0f);
+        //?  RGBColor(1.0f, 0.0f, 0.0f)
+        //: RGBColor(0.0f, 1.0f, 0.0f);
+}
+
+DistributionSample
+DiffuseCheckerBoardMaterial::sampleBxDF( RandomNumberGenerator & rng,
+                             const RayIntersection & intersection )
+{
+    // Perfectly diffuse surface
+    DistributionSample sample;
+    rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
+    sample.direction.makeDirection();
+    sample.pdf_sample = 1.0f / (2.0f * M_PI);
+    return sample;
+}
+
 DistributionSample
 MirrorMaterial::sampleBxDF( RandomNumberGenerator & rng,
                             const RayIntersection & intersection )
