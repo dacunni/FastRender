@@ -25,5 +25,33 @@ public:
     RGBColor band_power;
 };
 
+// TODO: Make area lights Traceables
+// TODO: Figure out how to handle transforms, as they impact the power density
+//       output of the light
+
+// Abstrat base class for area lights
+class AreaLight
+{
+public:
+    AreaLight() {}
+    AreaLight( const Vector4 & pos, const Vector4 & dir, const RGBColor & bp )
+        : position(pos), direction(dir), band_power(bp) {}
+    virtual ~AreaLight();
+
+    Vector4 position;
+    Vector4 direction;
+    RGBColor band_power;
+};
+
+class CircleAreaLight : public AreaLight
+{
+public:
+    CircleAreaLight() {}
+    CircleAreaLight( const Vector4 & pos, const Vector4 & dir, float r, const RGBColor & bp )
+        : AreaLight(pos, dir, bp), radius(r) {}
+
+    float radius;
+};
+
 
 #endif
