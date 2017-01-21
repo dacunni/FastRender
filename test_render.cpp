@@ -2142,6 +2142,58 @@ void testAreaLight2()
     tracer.render();
 }
 
+// Test with a real circular area light
+void testCircleAreaLight1()
+{
+    //int imageSize = 512;
+    int imageSize = 256;
+    //int imageSize = 128;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 10;
+    ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
+    Scene * scene = new Scene();
+	auto container = std::make_shared<FlatContainer>();
+
+    // Ground plane
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    auto cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
+    cube->transform = std::make_shared<Transform>();
+    *cube->transform = compose( makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ),
+                                makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
+    container->add( cube );
+
+    // Area Light
+    auto light1_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 4.0 );
+    auto light1 = std::make_shared<CircleAreaLight>( 1.0, light1_color );
+    light1->transform = std::make_shared<Transform>();
+    *light1->transform = compose( makeRotation( M_PI * 0.25, Vector4(0, 0, 1) ),
+                                  makeTranslation( Vector4( 0, 2.0, 0 ) ) );
+    container->add( light1 );
+
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
+    //env_map->setPower( 10.0f );
+    //scene->env_map = env_map;
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_cirlce_area_light1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 // ------------------------------------------------------------ 
 BEGIN_SCENE(SimpleCube)
 SETUP_SCENE( TestScene::setup(); );
@@ -2341,6 +2393,7 @@ int main (int argc, char * const argv[])
     testAnimTransforms3(); // 3 Spinning Mirror Cubes
     testAreaLight1();   // Cube with area light
     testAreaLight2();   // FIXME: assert tripping
+    testCircleAreaLight1();   // Cube with circular area light
     testRefraction1();  // Mixed scene with some refractive elements
     testRefraction2();  // Mesh bunnies with varying IoR
     testRefraction3();  // Spheres of varying IoR
@@ -2358,13 +2411,14 @@ int main (int argc, char * const argv[])
 #else
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
-    GridRoomScene::run();
-    GridRoomSceneWithSpheres::run();
+    //GridRoomScene::run();
+    //GridRoomSceneWithSpheres::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testRefraction2();  // Mesh bunnies with varying IoR
     //testAO5(); // Stanford Bunny
+    testCircleAreaLight1();   // Cube with circular area light
 
 #endif
     

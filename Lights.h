@@ -12,6 +12,7 @@
 
 #include "Color.h"
 #include "Vector.h"
+#include "Traceable.h"
 
 class PointLight
 {
@@ -25,30 +26,29 @@ public:
     RGBColor band_power;
 };
 
-// TODO: Make area lights Traceables
 // TODO: Figure out how to handle transforms, as they impact the power density
-//       output of the light
+//       output of the light. For now, only going to allow rotation / translation
 
-// Abstrat base class for area lights
-class AreaLight
+// Abstract base class for area lights
+//   For simplicity, area lights are oriented with their front face pointing
+//   in the +Y direction. Placement and orientation should be done with a Transform.
+//   NOTE: Area lights should not be scaled
+class AreaLight : public Traceable
 {
 public:
     AreaLight() {}
-    AreaLight( const Vector4 & pos, const Vector4 & dir, const RGBColor & bp )
-        : position(pos), direction(dir), band_power(bp) {}
+    AreaLight( const RGBColor & emittance );
     virtual ~AreaLight();
-
-    Vector4 position;
-    Vector4 direction;
-    RGBColor band_power;
 };
 
 class CircleAreaLight : public AreaLight
 {
 public:
     CircleAreaLight() {}
-    CircleAreaLight( const Vector4 & pos, const Vector4 & dir, float r, const RGBColor & bp )
-        : AreaLight(pos, dir, bp), radius(r) {}
+    CircleAreaLight( float r, const RGBColor & emittance );
+    virtual ~CircleAreaLight();
+
+	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
     float radius;
 };

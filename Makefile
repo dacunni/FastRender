@@ -54,6 +54,7 @@ OBJ = \
 	GeometryUtils.o \
 	GoochShader.o \
 	ImageTracer.o \
+    Lights.o \
 	Material.o \
 	Matrix.o \
 	Plot2D.o \

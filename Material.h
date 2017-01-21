@@ -88,10 +88,17 @@ class DiffuseMaterial : public Material
             specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
         }
-        ~DiffuseMaterial() {}
+        virtual ~DiffuseMaterial() {}
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection );
+};
+
+class DiffuseEmitterMaterial : public DiffuseMaterial
+{
+    public:
+        DiffuseEmitterMaterial( const RGBColor & e ) : DiffuseMaterial() { emittance = e; }
+        virtual ~DiffuseEmitterMaterial() {}
 };
 
 class DiffuseCheckerBoardMaterial : public Material 
@@ -107,7 +114,7 @@ class DiffuseCheckerBoardMaterial : public Material
             specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
         }
-        ~DiffuseCheckerBoardMaterial() {}
+        virtual ~DiffuseCheckerBoardMaterial() {}
         
         virtual RGBColor diffuse( RayIntersection & isect );
 
@@ -140,7 +147,7 @@ class MirrorMaterial : public Material
             perfect_reflector = true;
         }
 
-        ~MirrorMaterial() {}
+        virtual ~MirrorMaterial() {}
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection );
@@ -176,7 +183,7 @@ class RefractiveMaterial : public Material
             perfect_refractor = true;
         }
 
-        ~RefractiveMaterial() {}
+        virtual ~RefractiveMaterial() {}
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection );

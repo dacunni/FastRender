@@ -81,7 +81,7 @@ void RandomNumberGenerator::uniformConeDirection( const Vector4 & dir, float the
     float cos_theta = cosf( theta );
     v.z = uniformRange( cos_theta, 1.0f );
     float phi = uniformRange( 0.0f, 2.0 * M_PI );
-    float s = sqrt( 1.0f - sq(v.z) );
+    float s = sqrtf( 1.0f - sq(v.z) );
     v.x = s * cosf( phi );
     v.y = s * sinf( phi );
 
@@ -128,7 +128,7 @@ void RandomNumberGenerator::uniformUnitTriangle2D( float & x, float & y )
     // Make a pdf for x by normalizing y(x) to give p(x) = 2x
     // Pick a random x using the inverse of the cdf c(x) = x^2
     // inv cdf c'(u) = sqrt(u), u in [0, 1]
-    x = sqrt( uniformRange( 0.0, 1.0 ) );
+    x = sqrtf( uniformRange( 0.0, 1.0 ) );
     y = uniformRange( 0.0, x );
 }
 
