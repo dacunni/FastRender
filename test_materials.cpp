@@ -12,6 +12,9 @@
 RandomNumberGenerator rng;
 std::string output_path = "testoutput";
 
+// ------------------------------------------------------------ 
+//                   Material Test Base
+// ------------------------------------------------------------ 
 BEGIN_SCENE(MaterialTestBase)
 SETUP_SCENE(
     TestScene::setup();
@@ -44,6 +47,9 @@ BUILD_SCENE(
     container->add( mesh );
 );
 END_SCENE()
+
+// ------------------------------------------------------------ 
+//                   Ambient Occlusion
 // ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestAmbientOcclusion, MaterialTestBase)
 SETUP_SCENE(
@@ -57,6 +63,8 @@ BUILD_SCENE(
 END_SCENE()
 
 // ------------------------------------------------------------ 
+//                     Point Light
+// ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestPointLight, MaterialTestBase)
 SETUP_SCENE(
     MaterialTestBase::setup();
@@ -69,43 +77,6 @@ BUILD_SCENE(
     scene->addPointLight( PointLight( Vector4( 5.0, 5.0, 5.0 ),
                           RGBColor( 1.0, 1.0, 1.0 ).scaled(30.0) ) );
 );
-END_SCENE()
-
-// ------------------------------------------------------------ 
-BEGIN_DERIVED_SCENE(MaterialTestArcLight, MaterialTestBase)
-SETUP_SCENE(
-    MaterialTestBase::setup();
-    tracer->rays_per_pixel = 30;
-);
-BUILD_SCENE(
-    MaterialTestBase::buildScene();
-    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
-);
-END_SCENE()
-
-// ------------------------------------------------------------ 
-BEGIN_DERIVED_SCENE(MaterialTestHDREnvironmentMap, MaterialTestBase)
-SETUP_SCENE(
-    MaterialTestBase::setup();
-    tracer->rays_per_pixel = 30;
-    //tracer->camera.xmin = -0.25;// TEMP
-    //tracer->camera.xmax = +0.25;// TEMP
-    //tracer->camera.ymin = -0.25;// TEMP
-    //tracer->camera.ymax = +0.25;// TEMP
-);
-BUILD_SCENE(
-    MaterialTestBase::buildScene();
-    scene->env_map = std::make_shared<HDRImageEnvironmentMap>(env_map_filename, env_map_width, env_map_height);
-);
-#if 1
-std::string env_map_filename = "light_probes/debevec/stpeters_probe.float";
-unsigned int env_map_width = 1500;
-unsigned int env_map_height = 1500;
-#else
-std::string env_map_filename = "light_probes/debevec/grace_probe.float";
-unsigned int env_map_width = 1000;
-unsigned int env_map_height = 1000;
-#endif
 END_SCENE()
 
 // ------------------------------------------------------------ 
@@ -141,6 +112,75 @@ SETUP_SCENE(
 BUILD_SCENE(
     MaterialTestPointLight::buildScene();
     mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+//                     Area Light
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestAreaLight, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 10.0 );
+    auto light = std::make_shared<CircleAreaLight>( 2.0, light_color );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * 0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, 3.0, 0 ) ) );
+    container->add( light );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteAreaLight, MaterialTestAreaLight)
+SETUP_SCENE(
+    MaterialTestAreaLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestAreaLight::buildScene();
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestMirrorAreaLight, MaterialTestAreaLight)
+SETUP_SCENE(
+    MaterialTestAreaLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestAreaLight::buildScene();
+    mesh->material = std::make_shared<MirrorMaterial>();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractAreaLight, MaterialTestAreaLight)
+SETUP_SCENE(
+    MaterialTestAreaLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestAreaLight::buildScene();
+    mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+//                     Arc Light
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestArcLight, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
 );
 END_SCENE()
 
@@ -193,6 +233,29 @@ BUILD_SCENE(
 END_SCENE()
 
 // ------------------------------------------------------------ 
+//                   HDR Environment Map
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHDREnvironmentMap, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    scene->env_map = std::make_shared<HDRImageEnvironmentMap>(env_map_filename, env_map_width, env_map_height);
+);
+#if 1
+    std::string env_map_filename = "light_probes/debevec/stpeters_probe.float";
+    unsigned int env_map_width = 1500;
+    unsigned int env_map_height = 1500;
+#else
+    std::string env_map_filename = "light_probes/debevec/grace_probe.float";
+    unsigned int env_map_width = 1000;
+    unsigned int env_map_height = 1000;
+#endif
+END_SCENE()
+
+// ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteHDREnvironmentMap, MaterialTestHDREnvironmentMap)
 SETUP_SCENE(
     MaterialTestHDREnvironmentMap::setup();
@@ -215,7 +278,6 @@ BUILD_SCENE(
     mesh->material = std::make_shared<MirrorMaterial>();
 );
 END_SCENE()
-
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -253,8 +315,12 @@ int main (int argc, char * const argv[])
     MaterialTestMirrorHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
 #else
     //MaterialTestRefractWaterArcLight::run();
-    MaterialTestDiffuseWhiteArcLight::run();
+    //MaterialTestDiffuseWhiteArcLight::run();
     //MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
+    MaterialTestAreaLight::run();
+    MaterialTestDiffuseWhiteAreaLight::run();
+    MaterialTestMirrorAreaLight::run();
+    MaterialTestRefractAreaLight::run();
 #endif
     
     total_run_timer.stop();
