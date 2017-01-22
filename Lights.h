@@ -47,6 +47,8 @@ public:
     AreaLight( const RGBColor & emittance );
     virtual ~AreaLight();
 
+    virtual bool isAreaLight() const { return true; }
+
     // Return a point sampled uniformly across the surface
     virtual LightSample sampleSurface( RandomNumberGenerator & rng ) const = 0;
     LightSample sampleSurfaceTransformed( RandomNumberGenerator & rng ) const;

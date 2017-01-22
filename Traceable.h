@@ -38,6 +38,8 @@ public:
     // Returns null if not implemented
     virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const { return std::shared_ptr<AxisAlignedSlab>(); }
 
+    virtual bool isAreaLight() const { return false; }
+
     virtual void print( FILE * file = stdout ) const;
     virtual std::string toJSON() const;
 
