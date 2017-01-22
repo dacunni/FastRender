@@ -2149,7 +2149,7 @@ void testCircleAreaLight1()
     int imageSize = 256;
     //int imageSize = 128;
     int imageWidth = imageSize, imageHeight = imageSize;
-    int rays_per_pixel = 10;
+    int rays_per_pixel = 30;
     ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
@@ -2165,17 +2165,26 @@ void testCircleAreaLight1()
                                 makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
     container->add( cube );
 
-    // Area Light
-    auto light1_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 4.0 );
-    auto light1 = std::make_shared<CircleAreaLight>( 1.0, light1_color );
-    light1->transform = std::make_shared<Transform>();
-    *light1->transform = compose( makeRotation( M_PI * 0.25, Vector4(0, 0, 1) ),
-                                  makeTranslation( Vector4( 0, 2.0, 0 ) ) );
-    container->add( light1 );
+    float sradius = 0.5;
+    auto sphere = std::make_shared<Sphere>( 0.0, sradius, 0.0, sradius );
+    //container->add( sphere );
 
-    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
-    //env_map->setPower( 10.0f );
-    //scene->env_map = env_map;
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.5, 1.5, 1.5 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    //container->add( mesh );
+
+    // Area Light
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 5.0 );
+    auto light = std::make_shared<CircleAreaLight>( 2.0, light_color );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * 0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, 3.0, 0 ) ) );
+    container->add( light );
 
 	scene->root = container;
     tracer.scene = scene;
@@ -2183,7 +2192,7 @@ void testCircleAreaLight1()
     tracer.shader = new BasicDiffuseSpecularShader();
 
     tracer.artifacts.output_path = output_path;
-    tracer.artifacts.file_prefix = "test_cirlce_area_light1_";
+    tracer.artifacts.file_prefix = "test_circle_area_light1_";
 
     // Camera back and rotated a bit around x so we're looking slightly down
     Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );

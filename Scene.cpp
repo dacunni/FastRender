@@ -111,8 +111,12 @@ void Scene::addLightsForTraceable( std::shared_ptr<Traceable> obj )
     std::shared_ptr<Container> container;
 
     // If the object has non-zero emittance, add it to the light list
-    if( obj->material && !obj->material->emittance.isZero() ) {
+    if( obj->material
+        // FIXME: Just supporting area lights for now
+        && std::dynamic_pointer_cast<AreaLight>(obj)
+        && !obj->material->emittance.isZero() ) {
         lights.push_back( obj );
+        area_lights.push_back( std::dynamic_pointer_cast<AreaLight>(obj) );
     }
 
     // If this is a container, recursives check its contents for more lights

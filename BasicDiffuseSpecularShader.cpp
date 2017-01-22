@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <iostream>
 #include "Material.h"
 #include "Scene.h"
 #include "Ray.h"
@@ -31,12 +32,39 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     intersection.normal.assertIsUnity();
     intersection.normal.assertIsDirection();
 
+    const bool sample_area_lights = true;
+
     // Direct lighting
     //
     // Area lights
-    //for( Traceable * traceable : scene.lights ) {
-    //    // TODO - sample lights
-    //}
+    if( sample_area_lights ) {
+        for( const auto light : scene.area_lights ) {
+            // TODO - sample lights
+            auto sample = light->sampleSurfaceTransformed( rng );
+            auto to_light = subtract( sample.position, intersection.position );
+            float dist_sq_to_light = to_light.magnitude_sq();
+            auto direction = to_light.normalized();
+            direction.makeDirection();
+
+            // Shoot a ray toward the light to see if we are in shadow
+            Ray shadow_ray( intersection.position, direction );
+            RayIntersection shadow_isect;
+            shadow_isect.min_distance = 0.01;
+            if( scene.intersect( shadow_ray, shadow_isect )
+                && sq(shadow_isect.distance + shadow_isect.min_distance) < dist_sq_to_light) {
+                continue;
+            }
+
+            // Not in shadow
+            float cos_r_n = fabs( dot( direction, intersection.normal ) ); 
+            RGBColor color = light->material->emittance;
+            color.scale(cos_r_n);
+            color.scale( fabs( dot( sample.normal, direction.negated() ) ) ); // account for projected area of the light
+            color.scale( 1.0f / dist_sq_to_light ); // distance falloff
+            // TODO: use actual material parameters properly so we can get specular here, too
+            direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
+        }
+    }
     // Point lights
     for( const PointLight & light : scene.point_lights ) {
         Vector4 to_light = subtract( light.position, intersection.position );
@@ -79,7 +107,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_ray.index_of_refraction = sample.new_index_of_refraction;
 
             if( scene.intersect( new_ray, new_intersection ) ) {
-                if( new_intersection.distance != FLT_MAX ) {
+                if( new_intersection.distance != FLT_MAX
+                    && !new_intersection.material->isEmitter()
+                    ) {
                     shade( scene, rng, new_intersection );
                 }
                 specular_contrib.accum( new_intersection.sample.color );
@@ -91,8 +121,11 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_ray.direction.makeDirection();
 
             if( scene.intersect( new_ray, new_intersection ) ) {
-                if( new_intersection.distance != FLT_MAX )
+                if( new_intersection.distance != FLT_MAX
+                    && (!sample_area_lights || !new_intersection.material->isEmitter())
+                  ) {
                     shade( scene, rng, new_intersection );
+                }
                 float cos_r_n = dot( new_ray.direction, intersection.normal ); 
                 new_intersection.sample.color.scale( cos_r_n );
                 diffuse_contrib.accum( new_intersection.sample.color );
@@ -105,8 +138,11 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_ray.direction.makeDirection();
 
             if( scene.intersect( new_ray, new_intersection ) ) {
-                if( new_intersection.distance != FLT_MAX )
+                if( new_intersection.distance != FLT_MAX
+                    && !new_intersection.material->isEmitter()
+                    ) {
                     shade( scene, rng, new_intersection );
+                }
                 float cos_r_n = dot( new_ray.direction, intersection.normal ); 
                 new_intersection.sample.color.scale( cos_r_n );
                 specular_contrib.accum( new_intersection.sample.color );

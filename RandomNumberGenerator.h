@@ -31,6 +31,7 @@ public:
     inline float cosineQuarterWave( void );
 
     void uniformUnitCircle( float & x, float & y );
+    void uniformCircle( float radius, float & x, float & y );
     
 	void uniformSurfaceUnitSphere( float & x, float & y, float & z );
     void uniformSurfaceUnitSphere( Vector4 & v );

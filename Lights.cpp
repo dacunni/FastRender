@@ -2,10 +2,26 @@
 #include "Lights.h"
 #include "Ray.h"
 #include "Material.h"
+#include "RandomNumberGenerator.h"
 
 AreaLight::AreaLight( const RGBColor & emittance ) { material = std::make_shared<DiffuseEmitterMaterial>(emittance); }
 AreaLight::~AreaLight() {}
 
+// FIXME: This won't work for lights in containers that have transforms
+LightSample AreaLight::sampleSurfaceTransformed( RandomNumberGenerator & rng ) const
+{
+    auto sample = sampleSurface( rng );
+    sample.normal.assertIsDirection();
+
+    if( transform ) {
+        sample.position = mult( transform->fwd, sample.position );
+        sample.normal = mult( transform->fwd, sample.normal );
+    }
+
+    return sample;
+}
+
+CircleAreaLight::CircleAreaLight() : AreaLight(RGBColor(1, 1, 1)), radius(1.0) {}
 CircleAreaLight::CircleAreaLight( float r, const RGBColor & emittance ) : AreaLight(emittance), radius(r) {}
 CircleAreaLight::~CircleAreaLight() {}
 
@@ -42,5 +58,22 @@ bool CircleAreaLight::intersect( const Ray & ray, RayIntersection & intersection
     intersection.traceable = this;
 
     return true;
+}
+
+LightSample CircleAreaLight::sampleSurface( RandomNumberGenerator & rng ) const
+{
+    LightSample sample = {
+        .position = Vector4(0, 0, 0),
+        .normal = Vector4(0, -1, 0, 0)
+    };
+    
+    rng.uniformCircle( radius, sample.position.x, sample.position.z );
+
+    return sample;
+}
+
+float CircleAreaLight::area() const
+{
+    return M_PI * radius * radius;
 }
 

@@ -14,3 +14,5 @@ test_ray_trace
 .*.swp
 *.xcodeproj
 tags
+*.trace
+*.bak

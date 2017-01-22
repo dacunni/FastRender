@@ -49,6 +49,14 @@ void RandomNumberGenerator::uniformUnitCircle( float & x, float & y )
     y = r * sinf( theta );
 }
 
+void RandomNumberGenerator::uniformCircle( float radius, float & x, float & y )
+{
+    float r = radius * sqrtf( uniform01() );
+    float theta = uniformRange( 0.0, 2.0 * M_PI );
+    x = r * cosf( theta );
+    y = r * sinf( theta );
+}
+
 // Generate a random 3D point on the surface of the unit sphere by means of the rejection method
 void RandomNumberGenerator::uniformSurfaceUnitSphere( float & x, float & y, float & z )
 {

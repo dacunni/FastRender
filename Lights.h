@@ -14,6 +14,8 @@
 #include "Vector.h"
 #include "Traceable.h"
 
+class RandomNumberGenerator;
+
 class PointLight
 {
 public:
@@ -29,6 +31,11 @@ public:
 // TODO: Figure out how to handle transforms, as they impact the power density
 //       output of the light. For now, only going to allow rotation / translation
 
+struct LightSample {
+    Vector4 position;
+    Vector4 normal;
+};
+
 // Abstract base class for area lights
 //   For simplicity, area lights are oriented with their front face pointing
 //   in the +Y direction. Placement and orientation should be done with a Transform.
@@ -39,16 +46,26 @@ public:
     AreaLight() {}
     AreaLight( const RGBColor & emittance );
     virtual ~AreaLight();
+
+    // Return a point sampled uniformly across the surface
+    virtual LightSample sampleSurface( RandomNumberGenerator & rng ) const = 0;
+    LightSample sampleSurfaceTransformed( RandomNumberGenerator & rng ) const;
+
+    virtual float area() const = 0;
 };
 
 class CircleAreaLight : public AreaLight
 {
 public:
-    CircleAreaLight() {}
+    CircleAreaLight();
     CircleAreaLight( float r, const RGBColor & emittance );
     virtual ~CircleAreaLight();
 
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+    
+    virtual LightSample sampleSurface( RandomNumberGenerator & rng ) const;
+
+    virtual float area() const;
 
     float radius;
 };
