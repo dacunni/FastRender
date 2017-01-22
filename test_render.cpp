@@ -2203,6 +2203,74 @@ void testCircleAreaLight1()
     tracer.render();
 }
 
+void testAnimLights1()
+{
+    int imageSize = 256;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 100;
+    int num_frames = 15;
+    ImageTracer tracer( imageWidth, imageHeight, num_frames, rays_per_pixel );
+    Scene * scene = new Scene();
+	auto container = std::make_shared<FlatContainer>();
+
+    // Ground plane
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    auto cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
+    cube->transform = std::make_shared<Transform>();
+    *cube->transform = compose( makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ),
+                                makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
+    container->add( cube );
+
+    float sradius = 0.5;
+    auto sphere = std::make_shared<Sphere>( 0.0, sradius, 0.0, sradius );
+    //container->add( sphere );
+
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.5, 1.5, 1.5 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    //container->add( mesh );
+
+    // Area Light
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 10.0 );
+    auto light = std::make_shared<CircleAreaLight>( 1.0, light_color );
+#if 1
+    light->transform = std::make_shared<TimeVaryingTransform>(
+        [](float anim_progress) {
+            return compose( makeRotation( anim_progress * 2.0 * M_PI, Vector4(0, 1, 0) ),
+                            makeRotation( M_PI * 0.25, Vector4(0, 0, 1) ),
+                            makeTranslation( Vector4( 0, 3.0, 0 ) ) );
+        });
+#else
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * 0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, 3.0, 0 ) ) );
+#endif
+    container->add( light );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_anim_lights1_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 // ------------------------------------------------------------ 
 BEGIN_SCENE(SimpleCube)
 SETUP_SCENE( TestScene::setup(); );
@@ -2425,7 +2493,7 @@ int main (int argc, char * const argv[])
     RoomScene::run();
     RoomSceneWithSpheres::run();
 #else
-    RoomScene::run();
+    //RoomScene::run();
     //RoomSceneWithSpheres::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
@@ -2435,6 +2503,7 @@ int main (int argc, char * const argv[])
     //testRefraction2();  // Mesh bunnies with varying IoR
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
+    testAnimLights1();
 
 #endif
     
