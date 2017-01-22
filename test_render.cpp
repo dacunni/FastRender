@@ -1694,7 +1694,7 @@ void testMeshDabrovicSponza()
     tracer.camera.xmax = 0.45;
     tracer.camera.ymin = -0.45;
     tracer.camera.ymax = 0.45;
-    tracer.min_flush_period_seconds = 100000.0;
+    //tracer.min_flush_period_seconds = 100000.0;
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
 
@@ -2394,7 +2394,7 @@ BUILD_SCENE(
     container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, dim * 2.0, -dim * 1.1 ), white_material ); // back wall
 
     auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
-    env_map->setPower( 30.0f );
+    env_map->setPower( 50.0f );
     scene->env_map = env_map;
 
     //container->add( std::make_shared<Sphere>( -0.0, 0.2, 0.0, 0.2 ), white_material ); // TEMP
@@ -2428,6 +2428,29 @@ BUILD_SCENE(
     container->add( std::make_shared<Sphere>( -0.3, 0.2, -0.3, 0.2 ), mirror_material );
     container->add( std::make_shared<Sphere>( -0.3, 0.2, 0.3, 0.2 ), refractive_material );
     container->add( std::make_shared<Sphere>( 0.3, 0.2, -0.3, 0.2 ), white_material );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithBunny, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
+
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    mesh->material = mirror_material;
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                makeRotation( M_PI * 0.25, Vector4( 0, 1, 0 ) ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    container->add( mesh );
 );
 END_SCENE()
 
@@ -2497,13 +2520,17 @@ int main (int argc, char * const argv[])
     //RoomSceneWithSpheres::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
+    GridRoomSceneWithBunny::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testRefraction2();  // Mesh bunnies with varying IoR
+    //testRefraction3();  // Spheres of varying IoR
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
-    testAnimLights1();
+    //testAnimLights1();
+    //testLogicalANDLensFocusLight();
+    //testMeshDabrovicSponza();
 
 #endif
     
