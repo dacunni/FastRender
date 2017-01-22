@@ -2263,14 +2263,22 @@ BUILD_SCENE(
     container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, +0.5, -0.5 * 1.1 ), white_material );
     //container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, +0.5, 0.5, +0.5, +0.5 * 1.1 ), white_material );
 
-#if 1
+#if 0
     scene->addPointLight( PointLight( Vector4( 0.2, 0.2, 0.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(0.15) ) );
+#elif 0
+    // FIXME: Something is wrong with area lights when they are close to objects.
+    //        There is extra brightness for close objects, and other objects in the
+    //        scene get speckles as a result.
+    auto light = std::make_shared<CircleAreaLight>( 0.2, RGBColor( 1.0, 1.0, 1.0 ).scaled( 0.35 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = makeTranslation( Vector4( 0, 0.49, 0 ) );
+    container->add( light );
 #else
-    auto area_light = std::make_shared<AxisAlignedSlab>( -0.2, 0.5, -0.2, 0.2, 0.5 * 0.95, +0.2 );
-    area_light->material = std::make_shared<Material>();
-    area_light->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
-    area_light->material->emittance.scale( 30.0 );
-    container->add( area_light );
+    auto box_light = std::make_shared<AxisAlignedSlab>( -0.2, 0.5, -0.2, 0.2, 0.5 * 0.95, +0.2 );
+    box_light->material = std::make_shared<Material>();
+    box_light->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
+    box_light->material->emittance.scale( 30.0 );
+    container->add( box_light );
 #endif
 
     tracer->setCameraTransform( makeTranslation( 0.0, 0.0, 1.5 ) );
@@ -2293,7 +2301,6 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     RoomScene::buildScene();
-    tracer->rays_per_pixel = 300;
     auto mirror_material = std::make_shared<MirrorMaterial>();
     auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
 #if 1
@@ -2418,7 +2425,7 @@ int main (int argc, char * const argv[])
     RoomScene::run();
     RoomSceneWithSpheres::run();
 #else
-    //RoomScene::run();
+    RoomScene::run();
     //RoomSceneWithSpheres::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
@@ -2427,7 +2434,7 @@ int main (int argc, char * const argv[])
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testRefraction2();  // Mesh bunnies with varying IoR
     //testAO5(); // Stanford Bunny
-    testCircleAreaLight1();   // Cube with circular area light
+    //testCircleAreaLight1();   // Cube with circular area light
 
 #endif
     
