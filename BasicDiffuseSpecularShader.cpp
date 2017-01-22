@@ -107,9 +107,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             new_ray.index_of_refraction = sample.new_index_of_refraction;
 
             if( scene.intersect( new_ray, new_intersection ) ) {
-                if( new_intersection.distance != FLT_MAX
-                    && !new_intersection.material->isEmitter()
-                    ) {
+                if( new_intersection.distance != FLT_MAX ) {
                     shade( scene, rng, new_intersection );
                 }
                 specular_contrib.accum( new_intersection.sample.color );
