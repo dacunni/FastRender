@@ -1708,9 +1708,18 @@ void testMeshDabrovicSponza()
                               );
     container->add( mesh );
 
+#if 1
+    auto light = std::make_shared<CircleAreaLight>( 2.0, RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.0 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * 0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, 10.0, 0 ) ) );
+    container->add( light );
+#else
     scene->addPointLight( PointLight( Vector4( 3.0, 1.0, 0.0 ),
                                       RGBColor( 1.0, 0.5, 0.3 ).scaled(20.0) ) );
+#endif
 
+#if 0
     //addSphereLight( container,
     //                Vector4( 0.0, 10.0, 0.0 ), 1.5,
     //                RGBColor( 0.5, 0.5, 1.0 ), 5.0 );
@@ -1720,6 +1729,7 @@ void testMeshDabrovicSponza()
     emitter->material->emittance = RGBColor( 0.5, 0.5, 1.0 );
     emitter->material->emittance.scale( 5.0 );
     container->add( emitter );
+#endif
 
 	scene->root = container;
     tracer.scene = scene;
@@ -2604,7 +2614,7 @@ int main (int argc, char * const argv[])
     //RoomSceneWithSpheres::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
-    GridRoomSceneWithBunny::run();
+    //GridRoomSceneWithBunny::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
@@ -2615,7 +2625,7 @@ int main (int argc, char * const argv[])
     //testCircleAreaLight2();   // Area light proximity test
     //testAnimLights1();
     //testLogicalANDLensFocusLight();
-    //testMeshDabrovicSponza();
+    testMeshDabrovicSponza();
 
 #endif
     
