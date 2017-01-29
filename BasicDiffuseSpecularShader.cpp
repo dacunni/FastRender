@@ -39,9 +39,13 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     // Area lights
     if( sample_area_lights ) {
         for( const auto light : scene.area_lights ) {
-            // TODO - sample lights
             auto sample = light->sampleSurfaceTransformed( rng );
             auto to_light = subtract( sample.position, intersection.position );
+
+            if( dot( to_light, intersection.normal ) <= 0.0 ) {
+                continue;
+            }
+            
             float dist_sq_to_light = to_light.magnitude_sq();
             auto direction = to_light.normalized();
             direction.makeDirection();
@@ -50,9 +54,11 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             Ray shadow_ray( intersection.position, direction );
             RayIntersection shadow_isect;
             shadow_isect.min_distance = 0.01;
-            if( scene.intersect( shadow_ray, shadow_isect )
-                && sq(shadow_isect.distance + shadow_isect.min_distance) < dist_sq_to_light) {
-                continue;
+            if( scene.intersect( shadow_ray, shadow_isect ) ) {
+                float dist_sq_to_isect = sq(shadow_isect.distance + shadow_isect.min_distance);
+                if( dist_sq_to_isect < dist_sq_to_light) {
+                    continue;
+                }
             }
 
             // Not in shadow
