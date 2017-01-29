@@ -64,9 +64,10 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             // Not in shadow
             float cos_r_n = fabs( dot( direction, intersection.normal ) ); 
             RGBColor color = light->material->emittance;
-            color.scale(cos_r_n);
+            color.scale( cos_r_n );
             color.scale( fabs( dot( sample.normal, direction.negated() ) ) ); // account for projected area of the light
-            color.scale( 1.0f / dist_sq_to_light ); // distance falloff
+            // FIXME - Should there be a distance falloff? Things seem too bright for objects close to lights if we do
+            //color.scale( 1.0f / dist_sq_to_light ); // distance falloff
             // TODO: use actual material parameters properly so we can get specular here, too
             direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
         }

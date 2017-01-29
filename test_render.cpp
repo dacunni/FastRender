@@ -2179,7 +2179,7 @@ void testCircleAreaLight1()
     //container->add( mesh );
 
     // Area Light
-    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 5.0 );
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.0 );
     auto light = std::make_shared<CircleAreaLight>( 2.0, light_color );
     light->transform = std::make_shared<Transform>();
     *light->transform = compose( makeRotation( M_PI * 0.0, Vector4(0, 0, 1) ),
@@ -2235,19 +2235,19 @@ void testCircleAreaLight2()
 
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 1.5, 1.5, 1.5 ),
-                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+                                makeTranslation( Vector4( 0.0, 0.0, 0.0 ) ) );
     //container->add( mesh );
 
     // Area Light
     float light_radius = 1.0;
     float light_distance = 0.7;
-    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 0.4, 0.2 ).scaled( 1.0 ) );
+    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 0.4, 0.2 ).scaled( 3.0 ) );
     light->transform = std::make_shared<Transform>();
     *light->transform = compose( makeRotation( M_PI * -0.0, Vector4(0, 0, 1) ),
                                  makeTranslation( Vector4( 0, light_distance, 0 ) ) );
     container->add( light );
     // Area Light
-    light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1, 1, 1 ) );
+    light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1, 1, 1 ).scaled( 3.0 ) );
     light->transform = std::make_shared<Transform>();
     *light->transform = compose( makeRotation( M_PI * -0.0, Vector4(0, 0, 1) ),
                                  makeTranslation( Vector4( 0, -light_distance, 0 ) ) );
@@ -2306,7 +2306,7 @@ void testAnimLights1()
     //container->add( mesh );
 
     // Area Light
-    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 10.0 );
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.0 );
     auto light = std::make_shared<CircleAreaLight>( 1.0, light_color );
 #if 1
     light->transform = std::make_shared<TimeVaryingTransform>(
@@ -2399,17 +2399,14 @@ BUILD_SCENE(
     container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, +0.5, -0.5 * 1.1 ), white_material );
     //container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, +0.5, 0.5, +0.5, +0.5 * 1.1 ), white_material );
 
-#if 0
+#if 0 // Point light
     scene->addPointLight( PointLight( Vector4( 0.2, 0.2, 0.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(0.15) ) );
-#elif 0
-    // FIXME: Something is wrong with area lights when they are close to objects.
-    //        There is extra brightness for close objects, and other objects in the
-    //        scene get speckles as a result.
-    auto light = std::make_shared<CircleAreaLight>( 0.2, RGBColor( 1.0, 1.0, 1.0 ).scaled( 0.35 ) );
+#elif 1 // Area light
+    auto light = std::make_shared<CircleAreaLight>( 0.2, RGBColor( 1.0, 1.0, 1.0 ).scaled( 0.75 ) );
     light->transform = std::make_shared<Transform>();
-    *light->transform = makeTranslation( Vector4( 0, 0.49, 0 ) );
+    *light->transform = makeTranslation( Vector4( 0, 0.45, 0 ) );
     container->add( light );
-#else
+#else // Emitting object
     auto box_light = std::make_shared<AxisAlignedSlab>( -0.2, 0.5, -0.2, 0.2, 0.5 * 0.95, +0.2 );
     box_light->material = std::make_shared<Material>();
     box_light->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
@@ -2451,19 +2448,35 @@ BUILD_SCENE(
 END_SCENE()
 // ------------------------------------------------------------ 
 BEGIN_SCENE( GridRoomScene )
-SETUP_SCENE( TestScene::setup(); );
+//SETUP_SCENE( TestScene::setup(); );
+SETUP_SCENE(
+    //image_width = image_height = 512;
+    TestScene::setup();
+);
 BUILD_SCENE(
     auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
 
     float dim = 1.0;
     container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, -0.1, dim ), checkerboard_material ); // floor
-    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, -dim * 1.1, dim * 2.0, dim ), white_material ); // left wall
-    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, dim * 2.0, -dim * 1.1 ), white_material ); // back wall
+    //container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, -dim * 1.1, dim * 2.0, dim ), white_material ); // left wall
+    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, -dim * 1.1, dim * 2.0, dim ), checkerboard_material ); // left wall
+    //container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, dim * 2.0, -dim * 1.1 ), white_material ); // back wall
+    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, dim * 2.0, -dim * 1.1 ), checkerboard_material ); // back wall
 
+#if 1 // Area light
+    float light_radius = dim;
+    float light_distance = 2.0 * dim;
+    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.2 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * -0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, light_distance, 0 ) ) );
+    container->add( light );
+#else // Arc light environment map
     auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
     env_map->setPower( 50.0f );
     scene->env_map = env_map;
+#endif
 
     //container->add( std::make_shared<Sphere>( -0.0, 0.2, 0.0, 0.2 ), white_material ); // TEMP
 
@@ -2513,6 +2526,8 @@ BUILD_SCENE(
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
     mesh->material = mirror_material;
+    //mesh->material = refractive_material;
+    //mesh->material = white_material;
 
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 1.0 ),
@@ -2589,7 +2604,7 @@ int main (int argc, char * const argv[])
     //RoomSceneWithSpheres::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
-    //GridRoomSceneWithBunny::run();
+    GridRoomSceneWithBunny::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
@@ -2597,7 +2612,7 @@ int main (int argc, char * const argv[])
     //testRefraction3();  // Spheres of varying IoR
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
-    testCircleAreaLight2();   // Area light proximity test
+    //testCircleAreaLight2();   // Area light proximity test
     //testAnimLights1();
     //testLogicalANDLensFocusLight();
     //testMeshDabrovicSponza();
