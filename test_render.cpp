@@ -2202,6 +2202,74 @@ void testCircleAreaLight1()
     tracer.scene->buildLightList();
     tracer.render();
 }
+// Test with a real circular area light
+void testCircleAreaLight2()
+{
+    //int imageSize = 512;
+    int imageSize = 256;
+    //int imageSize = 128;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    int rays_per_pixel = 30;
+    ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
+    Scene * scene = new Scene();
+	auto container = std::make_shared<FlatContainer>();
+
+    // Ground plane
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    //container->add( floor );
+
+    auto cube = std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 1.0 );
+    cube->transform = std::make_shared<Transform>();
+    *cube->transform = compose( makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ),
+                                makeRotation( -0.8 * M_PI, Vector4(0, 1, 0) ) );
+    //container->add( cube );
+
+    float sradius = 0.5;
+    auto sphere = std::make_shared<Sphere>( 0.0, 0.0, 0.0, sradius );
+    container->add( sphere );
+
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.5, 1.5, 1.5 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    //container->add( mesh );
+
+    // Area Light
+    float light_radius = 1.0;
+    float light_distance = 0.7;
+    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 0.4, 0.2 ).scaled( 1.0 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * -0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, light_distance, 0 ) ) );
+    container->add( light );
+    // Area Light
+    light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1, 1, 1 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * -0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, -light_distance, 0 ) ) );
+    container->add( light );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_circle_area_light2_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    //Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform rotation = makeRotation( 0.0, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 8.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
 
 void testAnimLights1()
 {
@@ -2501,6 +2569,7 @@ int main (int argc, char * const argv[])
     testAreaLight1();   // Cube with area light
     testAreaLight2();   // FIXME: assert tripping
     testCircleAreaLight1();   // Cube with circular area light
+    testCircleAreaLight2();   // Area light proximity test
     testRefraction1();  // Mixed scene with some refractive elements
     testRefraction2();  // Mesh bunnies with varying IoR
     testRefraction3();  // Spheres of varying IoR
@@ -2520,7 +2589,7 @@ int main (int argc, char * const argv[])
     //RoomSceneWithSpheres::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
-    GridRoomSceneWithBunny::run();
+    //GridRoomSceneWithBunny::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
@@ -2528,6 +2597,7 @@ int main (int argc, char * const argv[])
     //testRefraction3();  // Spheres of varying IoR
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
+    testCircleAreaLight2();   // Area light proximity test
     //testAnimLights1();
     //testLogicalANDLensFocusLight();
     //testMeshDabrovicSponza();
