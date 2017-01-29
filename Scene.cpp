@@ -114,7 +114,7 @@ void Scene::addLightsForTraceable( std::shared_ptr<Traceable> obj )
     if( obj->material
         // FIXME: Just supporting area lights for now
         && std::dynamic_pointer_cast<AreaLight>(obj)
-        && !obj->material->emittance.isZero() ) {
+        && obj->material->isEmitter() ) {
         lights.push_back( obj );
         area_lights.push_back( std::dynamic_pointer_cast<AreaLight>(obj) );
     }

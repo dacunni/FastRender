@@ -37,7 +37,7 @@ class RGBColor {
 
     void print() { printf("RGBColor( %0.3f %0.3f %0.3f )\n", r, g, b ); }
 
-    bool isZero() { return r == 0.0f || g == 0.0f || b == 0.0f; }
+    bool isZero() { return r == 0.0f && g == 0.0f && b == 0.0f; }
 
     union {
         struct {

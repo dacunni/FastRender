@@ -56,7 +56,7 @@ class Material
                                                const RayIntersection & intersection );
 
         // FIXME - stopgap
-        virtual bool isEmitter() { return emittance.r > 0.0 || emittance.g > 0.0 || emittance.b > 0.; }
+        virtual bool isEmitter() { return emittance.r > 0.0 || emittance.g > 0.0 || emittance.b > 0.0; }
 
         virtual RGBColor diffuse( RayIntersection & isect ) { return diffuseColor; }
         virtual RGBColor specular( RayIntersection & isect ) { return specularColor; }
