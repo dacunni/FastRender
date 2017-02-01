@@ -28,10 +28,10 @@ RGBRadianceSample TestPatternEnvironmentMap::sample( const Ray & ray ) const
     const float tick1 = 0.01f;
     const float tick10 = 0.05f;
 
-    if( fabs( el - roundf(el) ) < tick1                     // 1 degree elevation
-        || fabs( el - 10.0f * roundf(0.1 * el) ) < tick10   // 10 degree elevation
-        || fabs( az - roundf(az) ) < tick1                  // 1 degree azimuth
-        || fabs( az - 10.0f * roundf(0.1 * az) ) < tick10 ) // 10 degree azimuth
+    if( fabsf( el - roundf(el) ) < tick1                     // 1 degree elevation
+        || fabsf( el - 10.0f * roundf(0.1 * el) ) < tick10   // 10 degree elevation
+        || fabsf( az - roundf(az) ) < tick1                  // 1 degree azimuth
+        || fabsf( az - 10.0f * roundf(0.1 * az) ) < tick10 ) // 10 degree azimuth
     {
         s.color.r = s.color.g = s.color.b = 0.0f;
     }

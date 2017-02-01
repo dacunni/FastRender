@@ -261,9 +261,9 @@ void TMOctreeAccelerator::childOrderForDirection( const Vector4 & d, unsigned in
     unsigned int xsense = d.x < 0 ? 0 : 1;
     unsigned int ysense = d.y < 0 ? 0 : 1;
     unsigned int zsense = d.z < 0 ? 0 : 1;
-    float xmag = fabs(d.x);
-    float ymag = fabs(d.y);
-    float zmag = fabs(d.z);
+    float xmag = fabsf(d.x);
+    float ymag = fabsf(d.y);
+    float zmag = fabsf(d.z);
 
     unsigned int xstep = 1, ystep = 1, zstep = 1;
     if( xmag > ymag ) xstep *= 2; else ystep *= 2;

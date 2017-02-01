@@ -126,7 +126,7 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
         
         // If determinant zero, the ray does not intersect the plane of the triangle
         // Note, we're not culling backfaces.
-        if( fabs(det) < epsilon )
+        if( fabsf(det) < epsilon )
             continue;   // no intersection
         inv_det = 1.0f / det;
         

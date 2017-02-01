@@ -2613,7 +2613,7 @@ int main (int argc, char * const argv[])
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
     //GridRoomScene::run();
-    //GridRoomSceneWithSpheres::run();
+    GridRoomSceneWithSpheres::run();
     //GridRoomSceneWithBunny::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
@@ -2625,7 +2625,7 @@ int main (int argc, char * const argv[])
     //testCircleAreaLight2();   // Area light proximity test
     //testAnimLights1();
     //testLogicalANDLensFocusLight();
-    testMeshDabrovicSponza();
+    //testMeshDabrovicSponza();
 
 #endif
     
