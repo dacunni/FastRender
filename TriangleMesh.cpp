@@ -91,6 +91,11 @@ bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
     return intersectsTriangles( ray, triangles, intersection, FAST_ISECT_TEST );
 }
 
+//
+// Test for intersection of a ray with a single triangle
+//
+// This is an implementation of the Moller-Trumbore algorithm.
+//
 inline bool TriangleMesh::intersectsTriangle( const Ray & ray, const IndexTriangle & tri,
                                               float min_distance,
                                               float & t_param ) const
@@ -141,23 +146,15 @@ inline bool TriangleMesh::intersectsTriangle( const Ray & ray, const IndexTriang
 //
 // Find the ray intersection with the triangles in the supplied mesh
 //
-// This is an implementation of the Moller-Trumbore algorithm.
-//
 bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< IndexTriangle > & vtri,
                                         RayIntersection & intersection, IsectBehavior behavior ) const
 {
-    Vector4 e1, e2;     // edge vectors
-    Vector4 P, Q, T;
-    float det, inv_det, u, v, t;
-    float best_t = FLT_MAX;
+    float t, best_t = FLT_MAX;
     bool hit = false;
-    const float epsilon = 1.0e-6;
 
     const IndexTriangle * best_tri;
 
-    //
     // Test for intersection against all triangles
-    //
     for( const IndexTriangle & tri : vtri ) {
         bool hit_tri = intersectsTriangle( ray, tri, intersection.min_distance, t );
 
@@ -174,49 +171,63 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
     } // for
 
     if( hit ) {
-        intersection.ray = ray;
-        intersection.distance = best_t;
-        // compute intersection position
-        scale( ray.direction, intersection.distance, intersection.position );
-        add( intersection.position, ray.origin, intersection.position );
-#if 1
-        // compute barycentric coordinate
-        BarycentricCoordinate bary = barycentricForPointInTriangle( intersection.position, 
-                                                                    vertices[best_tri->vi[0]],
-                                                                    vertices[best_tri->vi[1]],
-                                                                    vertices[best_tri->vi[2]] );
-        // Interpolate vertex normals
-        intersection.normal = add( add( scale( normals[best_tri->vi[0]], bary.u ),
-                                        scale( normals[best_tri->vi[1]], bary.v ) ),
-                                   scale( normals[best_tri->vi[2]], bary.w ) ).normalized();
-#else
-        // compute surface normal
-        // TODO - make sure this normal agrees with front/back sense above
-        intersection.normal = cross( e1, e2 ).normalized();
-#endif
-
-        if( !intersection.normal.isUnity() ) {
-            // FIXME[DAC]: We shouldn't need to do this, but sometimes we get back bad normals
-            //             from AssetLoader (due to another bug). For now, if we get a non-unity
-            //             vector, we will simply fall back to calculating the normal as the
-            //             perpendicular vector to the triangle.
-            // TODO - make sure this normal agrees with front/back sense above
-            intersection.normal = cross( e1, e2 ).normalized();
-        }
-
-        // Make sure the normal is pointing toward the direction of the incoming ray
-        // TODO - move this to the general purpose ray intersection code so it will apply to any backwards normals
-        if( dot( intersection.normal, ray.direction ) > 0.0f ) {
-            intersection.normal.negate();
-        }
-
-        intersection.material = material;
-        intersection.traceable = this;
+        populateIntersection( ray, *best_tri, best_t, intersection );
     }
     
     return hit;
 }
 
+inline void TriangleMesh::populateIntersection( const Ray & ray,
+                                                const IndexTriangle & tri,
+                                                float t,
+                                                RayIntersection & intersection ) const
+{
+    // Compute edge vectors
+    // FIXME: This is redudant computation, but it is happening in another
+    //        function. Should we just pass them around?
+    Vector4 e1, e2;
+    subtract( vertices[tri.vi[1]], vertices[tri.vi[0]], e1 );
+    subtract( vertices[tri.vi[2]], vertices[tri.vi[0]], e2 );
+
+    intersection.ray = ray;
+    intersection.distance = t;
+    // compute intersection position
+    scale( ray.direction, intersection.distance, intersection.position );
+    add( intersection.position, ray.origin, intersection.position );
+#if 1
+    // compute barycentric coordinate
+    BarycentricCoordinate bary = barycentricForPointInTriangle( intersection.position, 
+                                                                vertices[tri.vi[0]],
+                                                                vertices[tri.vi[1]],
+                                                                vertices[tri.vi[2]] );
+    // Interpolate vertex normals
+    intersection.normal = add( add( scale( normals[tri.vi[0]], bary.u ),
+                                    scale( normals[tri.vi[1]], bary.v ) ),
+                               scale( normals[tri.vi[2]], bary.w ) ).normalized();
+#else
+    // compute surface normal
+    // TODO - make sure this normal agrees with front/back sense above
+    intersection.normal = cross( e1, e2 ).normalized();
+#endif
+
+    if( !intersection.normal.isUnity() ) {
+        // FIXME[DAC]: We shouldn't need to do this, but sometimes we get back bad normals
+        //             from AssetLoader (due to another bug). For now, if we get a non-unity
+        //             vector, we will simply fall back to calculating the normal as the
+        //             perpendicular vector to the triangle.
+        // TODO - make sure this normal agrees with front/back sense above
+        intersection.normal = cross( e1, e2 ).normalized();
+    }
+
+    // Make sure the normal is pointing toward the direction of the incoming ray
+    // TODO - move this to the general purpose ray intersection code so it will apply to any backwards normals
+    if( dot( intersection.normal, ray.direction ) > 0.0f ) {
+        intersection.normal.negate();
+    }
+
+    intersection.material = material;
+    intersection.traceable = this;
+}
 
 std::shared_ptr<AxisAlignedSlab> TriangleMesh::getAxisAlignedBounds() const
 {

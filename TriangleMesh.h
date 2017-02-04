@@ -40,6 +40,8 @@ public:
                              float & t ) const;
     bool intersectsTriangles( const Ray & ray, const std::vector< IndexTriangle > & vtri,
                               RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
+    inline void populateIntersection( const Ray & ray, const IndexTriangle & tri,
+                                      float t, RayIntersection & intersection ) const;
 
     virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const;
 
