@@ -63,13 +63,30 @@ public:
     CircleAreaLight( float r, const RGBColor & emittance );
     virtual ~CircleAreaLight();
 
-	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+    virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
     
     virtual LightSample sampleSurface( RandomNumberGenerator & rng ) const;
 
     virtual float area() const;
 
     float radius;
+};
+
+class RectangleAreaLight : public AreaLight
+{
+public:
+    RectangleAreaLight();
+    RectangleAreaLight( float xd, float zd, const RGBColor & emittance );
+    virtual ~RectangleAreaLight();
+
+    virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+    
+    virtual LightSample sampleSurface( RandomNumberGenerator & rng ) const;
+
+    virtual float area() const;
+
+    float xdim;
+    float zdim;
 };
 
 
