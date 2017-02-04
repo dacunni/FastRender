@@ -73,8 +73,8 @@ void TMOctreeAccelerator::build()
             );
 #endif
     
-    for( unsigned int ti = 0; ti < mesh.triangles.size(); ++ti ) {
-        root.triangles.push_back( mesh.triangles[ ti ] );
+    for( auto ti = 0; ti < mesh.triangles.size(); ++ti ) {
+        root.triangles.push_back( ti );
     }
     
     buildNode( &root );
@@ -123,9 +123,10 @@ void TMOctreeAccelerator::buildNode( Node * node )
     enum { XLOW = 0x1, XHIGH = 0x2, YLOW = 0x4, YHIGH = 0x8, ZLOW = 0x10, ZHIGH = 0x20 };
 
     // Loop over all triangles, adding them to children where the overlap
-    for( unsigned int ti = 0; ti < node->triangles.size(); ++ti ) {
+    for( auto ti = 0; ti < node->triangles.size(); ++ti ) {
         unsigned char bins = 0x0;
-        TriangleMesh::IndexTriangle & tri = node->triangles[ ti ];
+        auto triangle_index = node->triangles[ ti ];
+        TriangleMesh::IndexTriangle & tri = mesh.triangles[ triangle_index ];
         for( unsigned int vi = 0; vi < 3; vi++ ) {
             Vector4 & vertex = mesh.vertices[ tri.vi[ vi ] ];
             
@@ -154,7 +155,7 @@ void TMOctreeAccelerator::buildNode( Node * node )
                     node->children[ ci ] = new Node();
                     has_children = true;
                 }
-                node->children[ ci ]->triangles.push_back( tri );
+                node->children[ ci ]->triangles.push_back( triangle_index );
             }
         }
         

@@ -18,11 +18,20 @@ class TriangleMeshAccelerator;
 class TriangleMesh : public Traceable
 {
 public:
+    // IndexTriangle represents a single triangle, whose
+    // vertices are in the TriangleMesh's vertices array.
+    // It stores indices into this array.
     class IndexTriangle {
     public:
         std::string toJSON() const;
         unsigned int vi[3];
     };
+
+    typedef std::vector< Vector4 >      VertexArray;
+    typedef std::vector< Vector4 >      NormalArray;
+    typedef std::vector< IndexTriangle > IndexTriangleArray;
+    // List of indices into the IndexTriangleArray
+    typedef std::vector< unsigned int > TriangleIndexArray;
     
     TriangleMesh();
     virtual ~TriangleMesh();
@@ -38,7 +47,9 @@ public:
     inline bool intersectsTriangle( const Ray & ray, const IndexTriangle & tri,
                              float min_distance,
                              float & t ) const;
-    bool intersectsTriangles( const Ray & ray, const std::vector< IndexTriangle > & vtri,
+    bool intersectsTriangles( const Ray & ray, const IndexTriangleArray & vtri,
+                              RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
+    bool intersectsTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
                               RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
     inline void populateIntersection( const Ray & ray, const IndexTriangle & tri,
                                       float t, RayIntersection & intersection ) const;
@@ -47,9 +58,9 @@ public:
 
     virtual std::string toJSON() const;
 
-    std::vector< Vector4 >          vertices;
-    std::vector< Vector4 >          normals;
-    std::vector< IndexTriangle >    triangles;
+    VertexArray                     vertices;
+    NormalArray                     normals;
+    IndexTriangleArray              triangles;
 
     TriangleMeshAccelerator       * accelerator;        // Intersetion acceleration object (null if none)
     

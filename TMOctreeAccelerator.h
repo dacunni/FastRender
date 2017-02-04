@@ -35,8 +35,7 @@ public:
 
         // FIXME - no need for bounds in each node. we can compute this knowing the depth in the tree and a global bounds
         AxisAlignedSlab bounds;
-        // TODO - change this and the intersection code to use indices into a single triangle list in TriangleMesh
-        std::vector< TriangleMesh::IndexTriangle >    triangles;
+        TriangleMesh::TriangleIndexArray    triangles;
         // TODO perhaps speed this up with indices into a vector of Nodes rather than pointers
         // Pointers to child cells, coordinates indicated by:
         //      index % 2        -> 0:xmin 1:xmax
