@@ -179,12 +179,12 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
         // compute intersection position
         scale( ray.direction, intersection.distance, intersection.position );
         add( intersection.position, ray.origin, intersection.position );
+#if 1
         // compute barycentric coordinate
         BarycentricCoordinate bary = barycentricForPointInTriangle( intersection.position, 
                                                                     vertices[best_tri->vi[0]],
                                                                     vertices[best_tri->vi[1]],
                                                                     vertices[best_tri->vi[2]] );
-#if 1
         // Interpolate vertex normals
         intersection.normal = add( add( scale( normals[best_tri->vi[0]], bary.u ),
                                         scale( normals[best_tri->vi[1]], bary.v ) ),
@@ -205,21 +205,11 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
         }
 
         // Make sure the normal is pointing toward the direction of the incoming ray
+        // TODO - move this to the general purpose ray intersection code so it will apply to any backwards normals
         if( dot( intersection.normal, ray.direction ) > 0.0f ) {
             intersection.normal.negate();
         }
 
-        intersection.normal.assertIsUnity();
-    }
-    
-    // TODO - move this to the general purpose ray intersection code so it will apply to any backwards normals
-    if( hit && dot( ray.direction, intersection.normal ) > 0.0 ) {
-        intersection.normal.negate();
-    }
-    
-    intersection.normal.normalize();
-
-    if( hit ) {
         intersection.material = material;
         intersection.traceable = this;
     }
