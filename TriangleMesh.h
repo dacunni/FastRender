@@ -35,6 +35,9 @@ public:
     
     // Helper for intersect() and related methods
     enum IsectBehavior { CLOSEST_ISECT, FAST_ISECT_TEST };
+    inline bool intersectsTriangle( const Ray & ray, const IndexTriangle & tri,
+                             float min_distance,
+                             float & t ) const;
     bool intersectsTriangles( const Ray & ray, const std::vector< IndexTriangle > & vtri,
                               RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
 

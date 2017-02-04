@@ -2613,8 +2613,8 @@ int main (int argc, char * const argv[])
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
     //GridRoomScene::run();
-    GridRoomSceneWithSpheres::run();
-    //GridRoomSceneWithBunny::run();
+    //GridRoomSceneWithSpheres::run();
+    GridRoomSceneWithBunny::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes

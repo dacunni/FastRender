@@ -91,6 +91,53 @@ bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
     return intersectsTriangles( ray, triangles, intersection, FAST_ISECT_TEST );
 }
 
+inline bool TriangleMesh::intersectsTriangle( const Ray & ray, const IndexTriangle & tri,
+                                              float min_distance,
+                                              float & t_param ) const
+{
+    Vector4 e1, e2;     // edge vectors
+    Vector4 P, Q, T;
+    const float epsilon = 1.0e-6;
+
+    // Compute edge vectors
+    subtract( vertices[tri.vi[1]], vertices[tri.vi[0]], e1 );
+    subtract( vertices[tri.vi[2]], vertices[tri.vi[0]], e2 );
+
+    // Compute determinant
+    cross( ray.direction, e2, P );
+    float det = dot( e1, P );
+
+    // If determinant zero, the ray does not intersect the plane of the triangle
+    // Note, we're not culling backfaces.
+    if( fabsf(det) < epsilon )
+        return false;   // no intersection
+    float inv_det = 1.0f / det;
+
+    // Calculate vector from V0 to ray origin
+    subtract( ray.origin, vertices[tri.vi[0]], T );
+
+    // Calculate u coordinate and test whether the intersection lies within the valid range of u
+    float u = inv_det * dot( T, P );
+    if( u < 0.0f || u > 1.0f )
+        return false;   // intersection out of valid u range
+
+    // Calculate v coordinate and test whether the intersection lies within the valid range of v
+    cross( T, e1, Q );
+    float v = inv_det * dot( ray.direction, Q );
+    if( v < 0.0f || u + v > 1.0f )
+        return false;   // intersection out of u/v range
+
+    float t = inv_det * dot( e2, Q );
+
+    if( t > min_distance ) {
+        t_param = t;
+        return true;
+    }
+
+    return false;
+}
+
+
 //
 // Find the ray intersection with the triangles in the supplied mesh
 //
@@ -112,49 +159,17 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const std::vector< Inde
     // Test for intersection against all triangles
     //
     for( const IndexTriangle & tri : vtri ) {
-        //
-        // Test triangle for intersection with the ray
-        //
-        
-        // Compute edge vectors
-        subtract( vertices[tri.vi[1]], vertices[tri.vi[0]], e1 );
-        subtract( vertices[tri.vi[2]], vertices[tri.vi[0]], e2 );
-        
-        // Compute determinant
-        cross( ray.direction, e2, P );
-        det = dot( e1, P );
-        
-        // If determinant zero, the ray does not intersect the plane of the triangle
-        // Note, we're not culling backfaces.
-        if( fabsf(det) < epsilon )
-            continue;   // no intersection
-        inv_det = 1.0f / det;
-        
-        // Calculate vector from V0 to ray origin
-        subtract( ray.origin, vertices[tri.vi[0]], T );
-        
-        // Calculate u coordinate and test whether the intersection lies within the valid range of u
-        u = inv_det * dot( T, P );
-        if( u < 0.0f || u > 1.0f )
-            continue;   // intersection out of valid u range
-        
-        // Calculate v coordinate and test whether the intersection lies within the valid range of v
-        cross( T, e1, Q );
-        v = inv_det * dot( ray.direction, Q );
-        if( v < 0.0f || u + v > 1.0f )
-            continue;   // intersection out of u/v range
-        
-        t = inv_det * dot( e2, Q );
-        
-        // If this is a fast intersection test (ie: predicate, itersects or doesn't), return on first hit
-        if( t > intersection.min_distance && behavior == FAST_ISECT_TEST ) {
-            return true;
-        }
+        bool hit_tri = intersectsTriangle( ray, tri, intersection.min_distance, t );
 
-        if( t > intersection.min_distance && t < best_t ) {
-            best_tri = &tri;
-            best_t = t;
-            hit = true;
+        if( hit_tri ) {
+            if( behavior == FAST_ISECT_TEST ) {
+                return true;
+            }
+            else if( t < best_t ) {
+                best_tri = &tri;
+                best_t = t;
+                hit = true;
+            }
         }
     } // for
 
