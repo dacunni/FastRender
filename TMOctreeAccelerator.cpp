@@ -292,7 +292,7 @@ bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & in
     } 
 
 #if DEBUG_VISUALIZE_HIERARCHY_LEVEL > 0
-    if( (bounds.intersect( ray, intersection ) && level > 4)) {
+    if( (bounds.intersect( ray, intersection ) && level > DEBUG_VISUALIZE_HIERARCHY_LEVEL)) {
         return true;
     }
 #endif
