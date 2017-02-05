@@ -2332,7 +2332,7 @@ void testRectangleAreaLight1()
     tracer.shader = new BasicDiffuseSpecularShader();
 
     tracer.artifacts.output_path = output_path;
-    tracer.artifacts.file_prefix = "test_circle_area_light1_";
+    tracer.artifacts.file_prefix = "test_rectangle_area_light1_";
 
     // Camera back and rotated a bit around x so we're looking slightly down
     Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
@@ -2458,6 +2458,7 @@ BUILD_SCENE(
 END_SCENE()
 // ------------------------------------------------------------ 
 BEGIN_SCENE( RoomScene )
+    std::shared_ptr<Traceable> main_light = nullptr;;
 SETUP_SCENE( TestScene::setup(); );
 BUILD_SCENE(
     auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
@@ -2485,6 +2486,8 @@ BUILD_SCENE(
     box_light->material->emittance.scale( 30.0 );
     container->add( box_light );
 #endif
+
+    main_light = light;
 
     tracer->setCameraTransform( makeTranslation( 0.0, 0.0, 1.5 ) );
     tracer->rays_per_pixel = 30;
@@ -2516,6 +2519,36 @@ BUILD_SCENE(
     container->add( std::make_shared<Sphere>( 0.0, -0.40, 0, 0.1 ), mirror_material );
     container->add( std::make_shared<Sphere>( +0.25, -0.40, 0, 0.1 ), refractive_material );
 #endif
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(RoomSceneWithSpheresAnimLight, RoomScene)
+SETUP_SCENE(
+    image_width = image_height = 128;
+    rays_per_pixel = 10;
+    anim_frames = 32;
+    RoomScene::setup();
+    tracer->loopable_animations = true;
+);
+BUILD_SCENE(
+    RoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_DIAMOND );
+    container->add( std::make_shared<Sphere>( -0.3, -0.3, -0.3, 0.2 ), mirror_material );
+    container->add( std::make_shared<Sphere>( +0.3, -0.3, +0.2, 0.2 ), refractive_material );
+    container->add( std::make_shared<Sphere>( -0.3, -0.0, +0.1, 0.1 ), white_material );
+    main_light->transform = std::make_shared<TimeVaryingTransform>(
+        [](float anim_progress) {
+            float phase = anim_progress * 2.0 * M_PI;
+            const float rot_per_cycle = 2.0;
+            float rot_phase = anim_progress * 2.0 * M_PI * rot_per_cycle;
+            return compose( 
+                            makeTranslation( Vector4( 0.3 * sin(phase), 0.35, 0.3 * cos(phase) ) ),
+                            makeRotation( rot_phase, Vector4(0, 1, 0) )//,
+                            //makeRotation( M_PI * 0.5, Vector4(1, 0, 0) ) // party time
+                            );
+        });
 );
 END_SCENE()
 // ------------------------------------------------------------ 
@@ -2675,18 +2708,20 @@ int main (int argc, char * const argv[])
 #else
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
+    RoomSceneWithSpheresAnimLight::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
     //GridRoomSceneWithBunny::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
+    //testAnimTransforms3(); // 3 Spinning Mirror Cubes
     //testRefraction2();  // Mesh bunnies with varying IoR
     //testRefraction3();  // Spheres of varying IoR
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
     //testCircleAreaLight2();   // Area light proximity test
-    testRectangleAreaLight1();   // Cube with rectangle area light
+    //testRectangleAreaLight1();   // Cube with rectangle area light
     //testAnimLights1();
     //testLogicalANDLensFocusLight();
     //testMeshDabrovicSponza();

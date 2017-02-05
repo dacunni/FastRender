@@ -141,7 +141,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
 
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX
-                    && !new_intersection.material->isEmitter()
+                    //&& !new_intersection.material->isEmitter()
+                    && !(sample_area_lights && new_intersection.traceable->isAreaLight())
                     ) {
                     shade( scene, rng, new_intersection );
                 }
