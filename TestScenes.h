@@ -96,6 +96,7 @@ class RegisterTest {
 void printTests();
 
 // Calls the run() method on all tests in the registry
+void runTest( unsigned int index );
 void runTests();
 
 

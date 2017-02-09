@@ -31,9 +31,18 @@ std::vector<TestRegistryEntryErased *> testRegistry;
 // Prints a list of all tests in the test registry
 void printTests() {
     std::cout << "Tests (" << testRegistry.size() << ")" << std::endl;
+    unsigned int index = 0;
     for( auto & test : testRegistry ) {
-        std::cout << "\t" << test->name << std::endl;
+        std::cout << "\t" << index << "  " << test->name << std::endl;
+        index++;
     }
+}
+
+void runTest( unsigned int index )
+{
+    auto & test = testRegistry[index];
+    std::cout << "---[ Running Test : " << test->name  << " ]---" << std::endl;
+    test->run();
 }
 
 // Calls the run() method on all tests in the registry

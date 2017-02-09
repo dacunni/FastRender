@@ -296,9 +296,14 @@ int main (int argc, char * const argv[])
 
     // Tests
 #if 1
-    // Run all tests
-    printTests();
-    runTests();
+    if( argc > 1 ) {
+        runTest(atoi(argv[1]));
+    }
+    else {
+        // Run all tests
+        printTests();
+        runTests();
+    }
 #elif 0
     //MaterialTestBase::run();
     //MaterialTestPointLight::run();
