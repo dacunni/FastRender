@@ -515,7 +515,7 @@ void testRayObjectTiming(Traceable & traceable, const char * name, bool test_any
     for( int i = 0; i < num_rays; i++ ) {
         int j = i % ray_pool_size;
         if( test_any ) {
-            hit = traceable.intersectsAny( rays[j], 0.01 );
+            hit = traceable.intersectsAny( rays[j], EPSILON );
         }
         else {
             hit = traceable.intersect( rays[j], isect );

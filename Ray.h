@@ -21,6 +21,8 @@ class Traceable;
 class Material;
 extern std::shared_ptr<Material> DEFAULT_MATERIAL;
 
+const float EPSILON = 0.01;
+
 class Ray {
 public:
     Ray() : depth(1) {}

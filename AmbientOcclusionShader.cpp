@@ -15,7 +15,7 @@ void AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng, 
     RayIntersection ao_intersection;
     //ao_ray.origin = intersection.position;
     Vector4 offset( 0.0, 0.0, 0.0 );
-    scale( intersection.normal, 0.01, offset ); // NOTE - Seems to help 
+    scale( intersection.normal, EPSILON, offset ); // NOTE - Seems to help 
     add( intersection.position, offset, ao_ray.origin );
 
     for( unsigned int aori = 0; aori < num_ao_rays; aori++ ) {
@@ -23,7 +23,7 @@ void AmbientOcclusionShader::shade( Scene & scene, RandomNumberGenerator & rng, 
         ao_ray.direction.makeDirection();
 
         ao_intersection = RayIntersection();
-        ao_intersection.min_distance = 0.01;
+        ao_intersection.min_distance = EPSILON;
 
         // FIXME???: Can't use intersectsAny() because it will return true for
         // infinite light sources like environment maps.

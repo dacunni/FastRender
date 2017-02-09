@@ -97,10 +97,10 @@ void BoundingVolumeHierarchy::buildBottomUp( std::shared_ptr<Container> containe
 
         objects.push_front( std::make_shared<BoundingVolume>( pair ) );
 
-        std::cout << "objects.size = " << objects.size() << " best_volume = " << best_volume << std::endl; // TEMP
-
         // Resort them
         objects.sort( compare );
+
+        std::cout << "objects.size = " << objects.size() << " best_volume = " << best_volume << std::endl; // TEMP
     }
 
 }

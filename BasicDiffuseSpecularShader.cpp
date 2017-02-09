@@ -16,9 +16,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     RGBColor direct_contrib( 0.0, 0.0, 0.0 );
     Ray new_ray;
     RayIntersection new_intersection;
-    new_intersection.min_distance = 0.01;
+    new_intersection.min_distance = EPSILON;
     Vector4 offset( 0.0, 0.0, 0.0 );
-    //offset = scale( intersection.normal, 0.01 ); // NOTE - Seems to help 
+    //offset = scale( intersection.normal, EPSILON ); // NOTE - Seems to help 
     new_ray.origin = add( intersection.position, offset );
     new_ray.depth = intersection.ray.depth + 1;
     const unsigned char max_depth = 5;
@@ -53,7 +53,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             // Shoot a ray toward the light to see if we are in shadow
             Ray shadow_ray( intersection.position, direction );
             RayIntersection shadow_isect;
-            shadow_isect.min_distance = 0.01;
+            shadow_isect.min_distance = EPSILON;
             if( scene.intersect( shadow_ray, shadow_isect ) ) {
                 float dist_sq_to_isect = sq(shadow_isect.distance + shadow_isect.min_distance);
                 if( dist_sq_to_isect < dist_sq_to_light) {
@@ -82,7 +82,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         // Shoot a ray toward the light to see if we are in shadow
         Ray shadow_ray( intersection.position, direction );
         RayIntersection shadow_isect;
-        shadow_isect.min_distance = 0.01;
+        shadow_isect.min_distance = EPSILON;
         if( scene.intersect( shadow_ray, shadow_isect )
             && sq(shadow_isect.distance) < dist_sq_to_light ) {
             continue;
