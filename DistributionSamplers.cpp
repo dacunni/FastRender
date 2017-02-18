@@ -124,23 +124,31 @@ DistributionSampler2D::Sample DistributionSampler2D::sample()
     // TODO: Binary search or something faster
     // TODO: Interpolate
 
-    for( unsigned int u = 0; u < width; ++u ) {
+    unsigned int u, v;
+
+    // Find u using CDF(u)
+    for( u = 0; u < width; ++u ) {
         if( cdf_u[u] > e1 ) {
-            for( unsigned int v = 0; v < height; ++v ) {
-                if( cdf_v_given_u[uvToIndex(u, v)] > e2 ) {
-                    return {
-                        .u = (float) u / (width - 1),
-                        .v = (float) v / (height - 1),
-                        // FIXME: Is this the right thing to do?
-                        // Transform discrete PDF to real PDF
-                        .pdf = pdf[uvToIndex(u, v)] * width * height
-                    };
-                }
-            }
+            break;
         }
     }
+    if( u == width ) u = width - 1;
+
+    // Find v using CDF(v|u)
+    for( v = 0; v < height; ++v ) {
+        if( cdf_v_given_u[uvToIndex(u, v)] > e2 ) {
+            break;
+        }
+    }
+    if( v == height ) v = height - 1;
     
-    return { .u = 0.0f, .v = 0.0f, .pdf = 0.0f }; // FIXME: Is this okay?
+    return {
+        .u = (float) u / (width - 1),
+        .v = (float) v / (height - 1),
+        // FIXME: Is this the right thing to do?
+        // Transform discrete PDF to real PDF
+        .pdf = pdf[uvToIndex(u, v)] * width * height
+    };
 }
 
 

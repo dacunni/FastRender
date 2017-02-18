@@ -562,40 +562,6 @@ void testRayAxisAlignedSlabTiming()
     testRayObjectTiming( slab, "AxisAlignedSlab", true );
 }
 
-void testEnvironmentMapImportanceSamplingTiming()
-{
-    double timer_cutoff = 5.0;
-    int num_samples = 100000000;
-    std::string env_map_filename = "light_probes/debevec/stpeters_probe.float";
-    unsigned int env_map_width = 1500;
-    unsigned int env_map_height = 1500;
-    auto env_map = std::make_shared<HDRImageEnvironmentMap>(env_map_filename, env_map_width, env_map_height);
-    assert(env_map->canImportanceSample());
-
-    unsigned int pool_size = 1000;
-    std::vector<RayIntersection> intersections;
-    makeRayIntersectionPool(intersections, pool_size);
-
-    Timer timer;
-    timer.start();
-    for( int i = 0; i < num_samples; i++ ) {
-        int j = i % pool_size;
-        auto isamp = env_map->importanceSample( rng, intersections[j] );
-
-        if( i % 1000 == 0
-            && timer.elapsed() > timer_cutoff ) {
-            num_samples = i + 1;
-            break;
-        }
-    }
-    timer.stop();
-    float elapsed = timer.elapsed();
-    float samples_per_second = (float) num_samples / elapsed;
-    const char * name = "HDR EnvMap Imp Sampling";
-    printf("%s : %d samples in %f seconds = %.2f rays / sec\n",
-           name, num_samples, elapsed, samples_per_second);
-}
-
 void testRayMeshBunnyTiming()
 {
     AssetLoader loader;
@@ -788,6 +754,40 @@ void testMatrixTiming()
     }
 }
 
+void testEnvironmentMapImportanceSamplingTiming()
+{
+    double timer_cutoff = 5.0;
+    int num_samples = 100000000;
+    std::string env_map_filename = "light_probes/debevec/stpeters_probe.float";
+    unsigned int env_map_width = 1500;
+    unsigned int env_map_height = 1500;
+    auto env_map = std::make_shared<HDRImageEnvironmentMap>(env_map_filename, env_map_width, env_map_height);
+    assert(env_map->canImportanceSample());
+
+    unsigned int pool_size = 1000;
+    std::vector<RayIntersection> intersections;
+    makeRayIntersectionPool(intersections, pool_size);
+
+    Timer timer;
+    timer.start();
+    for( int i = 0; i < num_samples; i++ ) {
+        int j = i % pool_size;
+        auto isamp = env_map->importanceSample( rng, intersections[j] );
+
+        if( i % 1000 == 0
+            && timer.elapsed() > timer_cutoff ) {
+            num_samples = i + 1;
+            break;
+        }
+    }
+    timer.stop();
+    float elapsed = timer.elapsed();
+    float samples_per_second = (float) num_samples / elapsed;
+    const char * name = "HDR EnvMap Imp Sampling";
+    printf("%s : %d samples in %f seconds = %.2f rays / sec\n",
+           name, num_samples, elapsed, samples_per_second);
+}
+
 // ------------------------------------------------------------ 
 // Test runner
 // ------------------------------------------------------------ 
@@ -830,7 +830,7 @@ int main (int argc, char * const argv[])
 #else
     //testVectorTiming();
     //testMatrixTiming();
-    testRaySphereTiming();
+    //testRaySphereTiming();
     //testRayAxisAlignedSlabTiming();
     //testRayMeshBunnyTiming();
     //testRayMeshOctreeBunnyTiming();
