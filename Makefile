@@ -16,6 +16,7 @@ HDR = \
 	FlatContainer.h \
 	GeometryUtils.h \
 	GoochShader.h \
+	Image.h \
 	ImageTracer.h \
 	Lights.h \
 	Material.h \
@@ -53,6 +54,7 @@ OBJ = \
 	FlatContainer.o \
 	GeometryUtils.o \
 	GoochShader.o \
+	Image.o \
 	ImageTracer.o \
     Lights.o \
 	Material.o \

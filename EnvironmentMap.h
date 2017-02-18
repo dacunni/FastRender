@@ -17,17 +17,30 @@
 
 #include "Transform.h"
 #include "Ray.h"
+#include "Image.h"
+#include "Material.h"
+#include "DistributionSamplers.h"
 
-class Material;
 class Ray; 
 class RayIntersection;
+class RandomNumberGenerator;
 
 class EnvironmentMap {
 public:
 	EnvironmentMap() {}
     virtual ~EnvironmentMap() {}
-	
+
+	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 	virtual RGBRadianceSample sample( const Ray & ray ) const = 0;
+
+    struct ImportanceSample {
+        Ray ray;
+        float pdf;
+    };
+	
+    virtual ImportanceSample importanceSample( RandomNumberGenerator & rng,
+                                               const RayIntersection & intersection );
+    virtual bool canImportanceSample() { return false; }
 };
 
 // Test pattern environment map
@@ -77,14 +90,13 @@ public:
 	
 	virtual RGBRadianceSample sample( const Ray & ray ) const;
 
+    virtual ImportanceSample importanceSample( RandomNumberGenerator & rng,
+                                               const RayIntersection & intersection );
+    virtual bool canImportanceSample() { return true; }
+
 protected:
-    void loadDataFromFile( const std::string & filename,
-                           unsigned int w, unsigned int h);
-
-    std::vector<float> data;
-    unsigned int width;
-    unsigned int height;
-
+    HDRImage image;
+    std::unique_ptr<DistributionSampler2D> sampler;
 };
 
 

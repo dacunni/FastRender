@@ -67,12 +67,11 @@ bool Scene::intersect( const Ray & ray, RayIntersection & intersection ) const
         hit =  true;
 	}
 
-	if( !hit && env_map ) {
-        intersection.sample = env_map->sample( ray );
-        intersection.ray = ray;
-        intersection.distance = FLT_MAX;
-        hit = true;
+#if 0
+    if( !hit && env_map ) {
+        hit = env_map->intersect( ray, intersection );
     }
+#endif
 
     logIntersect( ray, intersection, hit );
 
@@ -94,6 +93,11 @@ bool Scene::intersectsAny( const Ray & ray, float min_distance ) const
     }
 
     return false;
+}
+
+bool Scene::intersectEnvMap( const Ray & ray, RayIntersection & intersection ) const
+{
+    return env_map && env_map->intersect( ray, intersection );
 }
 
 void Scene::buildLightList()

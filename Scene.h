@@ -28,6 +28,7 @@ public:
 
 	bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 	bool intersectsAny( const Ray & ray, float min_distance ) const;
+	bool intersectEnvMap( const Ray & ray, RayIntersection & intersection ) const;
 
     void addPointLight( const PointLight & light ) { point_lights.push_back(light); }
 

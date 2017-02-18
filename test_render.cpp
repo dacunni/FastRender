@@ -1526,6 +1526,9 @@ void testMesh1()
 
 	scene->root = container;
     scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
+    //scene->env_map = std::make_shared<HDRImageEnvironmentMap>("light_probes/debevec/stpeters_probe.float",
+    //                                                          1500,
+    //                                                          1500);
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -2524,7 +2527,7 @@ END_SCENE()
 // ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(RoomSceneWithSpheresAnimLight, RoomScene)
 SETUP_SCENE(
-    image_width = image_height = 128;
+    image_width = image_height = 512;
     rays_per_pixel = 10;
     anim_frames = 32;
     RoomScene::setup();
@@ -2708,12 +2711,12 @@ int main (int argc, char * const argv[])
 #else
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
-    RoomSceneWithSpheresAnimLight::run();
+    //RoomSceneWithSpheresAnimLight::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
     //GridRoomSceneWithBunny::run();
     //testLogicalAND();
-    //testMesh1();         // Stanford Bunny and Dragon
+    testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testAnimTransforms3(); // 3 Spinning Mirror Cubes
     //testRefraction2();  // Mesh bunnies with varying IoR

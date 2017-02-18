@@ -14,6 +14,7 @@
 #include "FlatContainer.h"
 #include "GeometryUtils.h"
 #include "GoochShader.h"
+#include "Image.h"
 #include "ImageTracer.h"
 #include "Lights.h"
 #include "Material.h"

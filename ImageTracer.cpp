@@ -185,6 +185,10 @@ void ImageTracer::tracePixelRay( unsigned int row, unsigned int col,
     RayIntersection intersection = RayIntersection();
     bool hit = scene->intersect( ray, intersection );
 
+    if( !hit ) {
+        hit = scene->intersectEnvMap( ray, intersection );
+    }
+
     if( hit ) {
         num_hits++;
 

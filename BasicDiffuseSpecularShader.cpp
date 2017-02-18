@@ -7,6 +7,7 @@
 #include "BasicDiffuseSpecularShader.h"
 #include "RandomNumberGenerator.h"
 #include "AxisAlignedSlab.h"
+#include "EnvironmentMap.h"
 
 
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
@@ -96,12 +97,47 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         // TODO: use actual material parameters properly so we can get specular here, too
         direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
     }
+    // Environment map
+    if( scene.env_map && scene.env_map->canImportanceSample() ) {
+        EnvironmentMap::ImportanceSample isamp;
 
-    // TODO - How best should we choose between diffuse and specular?
+        // Find a sample in the direction of the normal
+        float s_dot_n = -1.0;
+        const unsigned int max_tries = 100;
+        for( unsigned int tries = 0; tries < max_tries && s_dot_n < 0.0f; tries++ ) {
+            isamp = scene.env_map->importanceSample( rng, intersection );
+            s_dot_n = dot( isamp.ray.direction, intersection.normal);
+        }
+
+        // Shoot a ray toward the light to see if we are in shadow
+        Ray shadow_ray = isamp.ray;
+        RayIntersection shadow_isect;
+        shadow_isect.min_distance = EPSILON;
+        if( s_dot_n > 0.0f &&
+            !scene.intersect( shadow_ray, shadow_isect ) ) {
+            // Not in shadow
+            auto sample = scene.env_map->sample(isamp.ray);
+            float cos_r_n = fabsf( dot( isamp.ray.direction, intersection.normal ) ); 
+            auto color = sample.color;
+            color.scale(1.0f / isamp.pdf);
+            color.scale(cos_r_n);
+            //color.scale(0.01f); // TEMP
+            //color.scale(4.0f); // TEMP - brightening it to see better
+            //color.scale(2.0f*M_PI); // FIXME: Is this right?
+            //color.scale(M_PI); // FIXME: Is this right?
+            direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
+        }
+    }
+
+    // TODO: How best should we choose between diffuse and specular?
     // FIXME: Should I scale by the cosine for a perfect reflector?
+    // TODO: Generalize BRDF sampling
+    // TODO: Generalize BRDF importance sampling
+    // TODO: Generalize environment map intersection / sampling to generic BRDF
 
     if( intersection.ray.depth < max_depth ) {
-        const float diffuse_chance = 0.9;
+        //const float diffuse_chance = 0.9; // FIXME: HACKHACK
+        const float diffuse_chance = 1.0f; // FIXME: HACKHACK
         float diff_spec_select = rng.uniform01();
 
         if( intersection.material->perfect_reflector
@@ -116,20 +152,32 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 }
                 specular_contrib.accum( new_intersection.sample.color );
             }
+            else if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
+                specular_contrib.accum( new_intersection.sample.color );
+            }
         }
-        else if( diff_spec_select < diffuse_chance ) {
+        else if( diff_spec_select <= diffuse_chance ) {
             // Diffuse
             rng.uniformSurfaceUnitHalfSphere( intersection.normal, new_ray.direction );
             new_ray.direction.makeDirection();
 
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX
-                    && !(sample_area_lights && new_intersection.traceable->isAreaLight())
-                  ) {
+                    && !(sample_area_lights && new_intersection.traceable->isAreaLight()) )
+                {
                     shade( scene, rng, new_intersection );
                 }
                 float cos_r_n = dot( new_ray.direction, intersection.normal ); 
                 new_intersection.sample.color.scale( cos_r_n );
+                diffuse_contrib.accum( new_intersection.sample.color );
+            }
+            else if( scene.env_map && !scene.env_map->canImportanceSample()
+                     && scene.intersectEnvMap( new_ray, new_intersection ) )
+            {
+                // FIXME: Make this match importance sampled version
+                float cos_r_n = dot( new_ray.direction, intersection.normal ); 
+                new_intersection.sample.color.scale( cos_r_n );
+                //new_intersection.sample.color.scale( M_PI );
                 diffuse_contrib.accum( new_intersection.sample.color );
             }
         }
@@ -148,6 +196,10 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 }
                 float cos_r_n = dot( new_ray.direction, intersection.normal ); 
                 new_intersection.sample.color.scale( cos_r_n );
+                specular_contrib.accum( new_intersection.sample.color );
+            }
+            else if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
+                // FIXME
                 specular_contrib.accum( new_intersection.sample.color );
             }
         }
