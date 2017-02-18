@@ -490,22 +490,37 @@ void testSimpleCamera()
 // ------------------------------------------------------------ 
 // Timing
 // ------------------------------------------------------------ 
-void testRayObjectTiming(Traceable & traceable, const char * name, bool test_any = false)
+void makeRayPool(std::vector<Ray> & rays, unsigned int pool_size)
 {
-    std::vector<Ray> rays;
-    int ray_pool_size = 1000;
-    int num_rays = 100000000;
-    //int num_rays = 10000;
-    double timer_cutoff = 5.0;
-    
-    for( int i = 0; i < ray_pool_size; i++ ) {
-        Ray ray;
+    Ray ray;
+    for( int i = 0; i < pool_size; i++ ) {
         float x = rng.uniformRange( -1.0, 1.0 );
         float y = rng.uniformRange( -1.0, 1.0 );
         ray.origin = Vector4( x, y, -10 );
         ray.direction = Vector4( 0, 0, 1, 0 );
         rays.push_back( ray );
     }
+}
+
+void makeRayIntersectionPool(std::vector<RayIntersection> & intersections,
+                             unsigned int pool_size)
+{
+    RayIntersection ri;
+    for( int i = 0; i < pool_size; i++ ) {
+        rng.uniformSurfaceUnitSphere(ri.normal);
+        ri.normal.makeDirection();
+        intersections.push_back( ri );
+    }
+}
+
+void testRayObjectTiming(Traceable & traceable, const char * name, bool test_any = false)
+{
+    double timer_cutoff = 5.0;
+    int num_rays = 100000000;
+    //int num_rays = 10000;
+    unsigned int pool_size = 1000;
+    std::vector<Ray> rays;
+    makeRayPool(rays, pool_size);
 
     RayIntersection isect;
     bool hit;
@@ -513,7 +528,7 @@ void testRayObjectTiming(Traceable & traceable, const char * name, bool test_any
     Timer timer;
     timer.start();
     for( int i = 0; i < num_rays; i++ ) {
-        int j = i % ray_pool_size;
+        int j = i % pool_size;
         if( test_any ) {
             hit = traceable.intersectsAny( rays[j], EPSILON );
         }
@@ -545,6 +560,40 @@ void testRayAxisAlignedSlabTiming()
     AxisAlignedSlab slab( -1, -1, -1, 1, 1, 1 );
     testRayObjectTiming( slab, "AxisAlignedSlab", false );
     testRayObjectTiming( slab, "AxisAlignedSlab", true );
+}
+
+void testEnvironmentMapImportanceSamplingTiming()
+{
+    double timer_cutoff = 5.0;
+    int num_samples = 100000000;
+    std::string env_map_filename = "light_probes/debevec/stpeters_probe.float";
+    unsigned int env_map_width = 1500;
+    unsigned int env_map_height = 1500;
+    auto env_map = std::make_shared<HDRImageEnvironmentMap>(env_map_filename, env_map_width, env_map_height);
+    assert(env_map->canImportanceSample());
+
+    unsigned int pool_size = 1000;
+    std::vector<RayIntersection> intersections;
+    makeRayIntersectionPool(intersections, pool_size);
+
+    Timer timer;
+    timer.start();
+    for( int i = 0; i < num_samples; i++ ) {
+        int j = i % pool_size;
+        auto isamp = env_map->importanceSample( rng, intersections[j] );
+
+        if( i % 1000 == 0
+            && timer.elapsed() > timer_cutoff ) {
+            num_samples = i + 1;
+            break;
+        }
+    }
+    timer.stop();
+    float elapsed = timer.elapsed();
+    float samples_per_second = (float) num_samples / elapsed;
+    const char * name = "HDR EnvMap Imp Sampling";
+    printf("%s : %d samples in %f seconds = %.2f rays / sec\n",
+           name, num_samples, elapsed, samples_per_second);
 }
 
 void testRayMeshBunnyTiming()
@@ -777,13 +826,15 @@ int main (int argc, char * const argv[])
     testRayAxisAlignedSlabTiming();
     testRayMeshBunnyTiming();
     testRayMeshOctreeBunnyTiming();
+    testEnvironmentMapImportanceSamplingTiming();
 #else
     //testVectorTiming();
     //testMatrixTiming();
-    //testRaySphereTiming();
+    testRaySphereTiming();
     //testRayAxisAlignedSlabTiming();
-    testRayMeshBunnyTiming();
-    testRayMeshOctreeBunnyTiming();
+    //testRayMeshBunnyTiming();
+    //testRayMeshOctreeBunnyTiming();
+    testEnvironmentMapImportanceSamplingTiming();
 #endif
     
     total_run_timer.stop();
