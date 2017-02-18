@@ -103,6 +103,9 @@ HDRImageEnvironmentMap::HDRImageEnvironmentMap( const std::string & filename,
     : image(filename, w, h)
 {
     std::vector<float> pdf;
+    // Mask out pixels outside of the valid range (a circle centered in
+    // the image)
+    image.maskUV([](float u, float v) { u -= 0.5f; v -= 0.5f; float r = 0.5f; return u*u + v*v <= r*r; });
     image.toGray(pdf);
     sampler.reset(new DistributionSampler2D(temp_rng, &pdf[0], w, h));
 }
