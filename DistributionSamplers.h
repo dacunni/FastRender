@@ -48,18 +48,21 @@ public:
     };
 
     void setPDF( float * p, unsigned int w, unsigned int h );
-    inline float pdfAt( int u, int v ) { return pdf[uvToIndex(u, v)]; }
-    inline float cdfAt( int u, int v ) { return cdf_v_given_u[uvToIndex(u, v)]; }
-    inline float cdfAt( int u ) { return cdf_u[u]; }
-    Sample sample();
+    inline float pdfAt( int u, int v ) const { return pdf[uvToIndex(u, v)]; }
+    inline float cdfAt( int u, int v ) const { return cdf_u_given_v[uvToIndex(u, v)]; }
+    inline float cdfAt( int v ) const { return cdf_v[v]; }
+    Sample sample() const;
 	
 private:
-    inline int uvToIndex( int u, int v ) { return v * width + u; }
+    // Raster is row major
+    // CDF(v) is used to pick row, then CDF(u|v) is used to
+    // pick column within row
+    inline int uvToIndex( int u, int v ) const { return v * width + u; }
 
     RandomNumberGenerator & rng;
     std::vector<float> pdf;
-    std::vector<float> cdf_v_given_u;
-    std::vector<float> cdf_u;
+    std::vector<float> cdf_u_given_v;
+    std::vector<float> cdf_v;
     unsigned int width;
     unsigned int height;
 };

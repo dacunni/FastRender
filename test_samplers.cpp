@@ -92,8 +92,10 @@ void testSamplePDF2D()
     std::unique_ptr<Magick::Image> pdf_image( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     pdf_image->magick( "png" ); // set the output file type
     Magick::PixelPacket * pdf_cache = pdf_image->setPixels( 0, 0, width, height );
-    std::unique_ptr<Magick::Image> cdf_image( new Magick::Image( Magick::Geometry( width, height + 2 ), "black" ) );
+    //std::unique_ptr<Magick::Image> cdf_image( new Magick::Image( Magick::Geometry( width + 2, height ), "black" ) );
+    std::unique_ptr<Magick::Image> cdf_image( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     cdf_image->magick( "png" ); // set the output file type
+    //Magick::PixelPacket * cdf_cache = cdf_image->setPixels( 0, 0, width + 2, height );
     Magick::PixelPacket * cdf_cache = cdf_image->setPixels( 0, 0, width, height );
 
     printf("Outputting PDF, CDF plots\n");
@@ -113,12 +115,17 @@ void testSamplePDF2D()
             cdf_cache[ v * width + u ].green = f;
             cdf_cache[ v * width + u ].blue  = f;
         }
-        f = sampler.cdfAt( u ) * pixel_max;
-        f = std::min(f, (float)pixel_max);
-        cdf_cache[ (height+1) * width + u ].red   = f;
-        cdf_cache[ (height+1) * width + u ].green = f;
-        cdf_cache[ (height+1) * width + u ].blue  = f;
     }
+#if 0
+    // FIXME
+    for( unsigned int v = 0; v < height; v++ ) {
+        f = sampler.cdfAt( v ) * pixel_max;
+        f = std::min(f, (float)pixel_max);
+        cdf_cache[ v * (width+1) + width + 1 ].red   = f;
+        cdf_cache[ v * (width+1) + width + 1 ].green = f;
+        cdf_cache[ v * (width+1) + width + 1 ].blue  = f;
+    }
+#endif
 
     pdf_image->write( output_path + "/sample_pdf_2d.png" );
     cdf_image->write( output_path + "/sample_cdf_2d.png" );

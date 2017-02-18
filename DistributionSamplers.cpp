@@ -78,69 +78,60 @@ void DistributionSampler2D::setPDF( float * p, unsigned int w, unsigned int h )
     float sum = std::accumulate(pdf.begin(), pdf.end(), 0.0f);
     std::transform(pdf.begin(), pdf.end(), pdf.begin(),
                    [sum](float x){ return x / sum; });
-    cdf_v_given_u.resize(w * h);
-    cdf_u.resize(w);
+    cdf_u_given_v.resize(w * h);
+    cdf_v.resize(w);
 
-    float sum_along_u = 0.0f;
-    for( unsigned int u = 0; u < w; u++ ) {
-        // Create cumulative sums along v
-        float sum_along_v = 0.0f;
-        for( unsigned int v = 0; v < h; v++ ) {
+    float sum_along_v = 0.0f;
+    for( unsigned int v = 0; v < h; v++ ) {
+        // Create cumulative sums along u
+        float sum_along_u = 0.0f;
+        for( unsigned int u = 0; u < w; u++ ) {
             auto index = uvToIndex(u, v);
-            sum_along_v += pdf[index];
-            cdf_v_given_u[index] = sum_along_v;
+            sum_along_u += pdf[index];
+            cdf_u_given_v[index] = sum_along_u;
         }
         // Normalize cumulative sums to [0, 1]
-        for( unsigned int v = 0; v < h; v++ ) {
-            auto index = uvToIndex(u, v);
-            cdf_v_given_u[index] /= sum_along_v;
-        }
-        sum_along_u += sum_along_v;
-        // Create cumulative sum along u
-        cdf_u[u] = sum_along_u;
+        auto row_start = cdf_u_given_v.begin() + uvToIndex(0, v);
+        auto row_end   = cdf_u_given_v.begin() + uvToIndex(width, v);
+        std::transform(row_start, row_end, row_start,
+                       [sum_along_u](float x){ return x / sum_along_u; });
+
+        sum_along_v += sum_along_u;
+        // Create cumulative sum along v
+        cdf_v[v] = sum_along_v;
     }
     // Normalize cumulative sum along u to [0, 1]
-    for( unsigned int u = 0; u < w; u++ ) {
-        cdf_u[u] /= sum_along_u;
-    }
+    std::transform(cdf_v.begin(), cdf_v.end(), cdf_v.begin(),
+                   [sum_along_v](float x){ return x / sum_along_v; });
 
     // TEMP >>>
 #if 0
     float psum = std::accumulate(pdf.begin(), pdf.end(), 0.0f);
     float pmax = *std::max_element(pdf.begin(), pdf.end());
-    float csum = std::accumulate(cdf_u.begin(), cdf_u.end(), 0.0f);
-    float cmax = *std::max_element(cdf_u.begin(), cdf_u.end());
-    printf("psum=%f pmax=%f csum=%f cmax=%f sum_along_u=%f\n",
-           psum, pmax, csum, cmax, sum_along_u);
+    float csum = std::accumulate(cdf_v.begin(), cdf_v.end(), 0.0f);
+    float cmax = *std::max_element(cdf_v.begin(), cdf_v.end());
+    printf("psum=%f pmax=%f csum=%f cmax=%f sum_along_v=%f\n",
+           psum, pmax, csum, cmax, sum_along_v);
 #endif
     // TEMP <<<
 }
 
-DistributionSampler2D::Sample DistributionSampler2D::sample()
+DistributionSampler2D::Sample DistributionSampler2D::sample() const
 {
     float e1 = rng.uniform01();
     float e2 = rng.uniform01();
 
-    // TODO: Binary search or something faster
     // TODO: Interpolate
 
-    unsigned int u, v;
+    // Find v using CDF(v) -> CDF(v) > e1
+    auto vi = std::upper_bound(cdf_v.begin(), cdf_v.end(), e1);
+    unsigned int v = (vi == cdf_v.end() ? height - 1 : vi - cdf_v.begin());
 
-    // Find u using CDF(u)
-    for( u = 0; u < width; ++u ) {
-        if( cdf_u[u] > e1 ) {
-            break;
-        }
-    }
-    if( u == width ) u = width - 1;
-
-    // Find v using CDF(v|u)
-    for( v = 0; v < height; ++v ) {
-        if( cdf_v_given_u[uvToIndex(u, v)] > e2 ) {
-            break;
-        }
-    }
-    if( v == height ) v = height - 1;
+    // Find u using CDF(u|v) -> CDF(u|v) > e2
+    auto row_start = cdf_u_given_v.begin() + uvToIndex(0, v);
+    auto row_end   = cdf_u_given_v.begin() + uvToIndex(width, v);
+    auto ui = std::upper_bound(row_start, row_end, e2);
+    unsigned int u = (ui == row_end ? width - 1 : ui - row_start);
     
     return {
         .u = (float) u / (width - 1),
