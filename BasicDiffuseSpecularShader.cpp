@@ -160,6 +160,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             // Diffuse
             rng.uniformSurfaceUnitHalfSphere( intersection.normal, new_ray.direction );
             new_ray.direction.makeDirection();
+            const float pdf = 1.0f / (2.0f * M_PI);
 
             if( scene.intersect( new_ray, new_intersection ) ) {
                 if( new_intersection.distance != FLT_MAX
@@ -176,8 +177,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
             {
                 // FIXME: Make this match importance sampled version
                 float cos_r_n = dot( new_ray.direction, intersection.normal ); 
+                new_intersection.sample.color.scale( 1.0f / pdf );
                 new_intersection.sample.color.scale( cos_r_n );
-                //new_intersection.sample.color.scale( M_PI );
                 diffuse_contrib.accum( new_intersection.sample.color );
             }
         }

@@ -70,13 +70,14 @@ ArcLightEnvironmentMap::ArcLightEnvironmentMap( const Vector4 & d, float r )
 
 void ArcLightEnvironmentMap::recalculateRadiance()
 {
-    float cap_area = sphericalCapSurfaceArea( angular_radius );
+    cap_solid_angle = sphericalCapSurfaceArea( angular_radius );
 
     // TODO[DAC]: Check this for correctness
-    radiance_per_sample = power / cap_area / M_PI;
+    radiance_per_sample = power / cap_solid_angle / M_PI;
 
-    // printf( "power               = %f\n", power );
-    // printf( "radiance_per_sample = %f\n", radiance_per_sample );
+    printf( "cap_solid_angle     = %f\n", cap_solid_angle );
+    printf( "power               = %f\n", power );
+    printf( "radiance_per_sample = %f\n", radiance_per_sample );
 }
 
 RGBRadianceSample ArcLightEnvironmentMap::sample( const Ray & ray ) const
@@ -93,6 +94,17 @@ RGBRadianceSample ArcLightEnvironmentMap::sample( const Ray & ray ) const
     }
 
     return s;
+}
+
+EnvironmentMap::ImportanceSample
+ArcLightEnvironmentMap::importanceSample( RandomNumberGenerator & rng,
+                                          const RayIntersection & intersection )
+{
+    ImportanceSample mapSample;
+    mapSample.pdf = 1.0f / cap_solid_angle;
+    mapSample.ray.origin = intersection.position;
+    rng.uniformConeDirection( light_dir, angular_radius, mapSample.ray.direction );
+    return mapSample;
 }
 
 // FIXME: We should pass the a RNG in somewhere

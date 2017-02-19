@@ -714,7 +714,6 @@ void testLogicalAND()
 
     //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI * 0.4 );
     auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(1, 1, 0), M_PI * 0.4 );
-    env_map->setPower( 30.0f );
     scene->env_map = env_map;
 
     tracer.render();
@@ -771,7 +770,6 @@ void testLogicalANDMesh()
     //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI * 0.4 );
     auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0.2, 1, 0), M_PI * 0.4 );
     //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(1, 1, 0), M_PI * 0.4 );
-    env_map->setPower( 25.0f );
     scene->env_map = env_map;
 
     tracer.render();
@@ -872,7 +870,6 @@ BUILD_SCENE(
     container->add( cube );
 
     //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(1, 1, 1), M_PI * 0.4 );
-    //env_map->setPower( 30.0f );
     //scene->env_map = env_map;
     scene->env_map = std::make_shared<TestPatternEnvironmentMap>();
 );
@@ -1737,7 +1734,6 @@ void testMeshDabrovicSponza()
 	scene->root = container;
     tracer.scene = scene;
     //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 4.0 );
-    //env_map->setPower( 1000.0f );
     //scene->env_map = env_map;
 
 
@@ -2054,7 +2050,7 @@ void testAreaLight1()
     container->add( cube );
 
     auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
-    env_map->setPower( 10.0f );
+    env_map->setPower( 1.0f );
     scene->env_map = env_map;
 
 	scene->root = container;
@@ -2134,7 +2130,6 @@ void testAreaLight2()
     container->add( cube );
 
     //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
-    //env_map->setPower( 10.0f );
     //scene->env_map = env_map;
 
 	scene->root = container;
@@ -2582,7 +2577,6 @@ BUILD_SCENE(
     container->add( light );
 #else // Arc light environment map
     auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
-    env_map->setPower( 50.0f );
     scene->env_map = env_map;
 #endif
 
@@ -2716,12 +2710,12 @@ int main (int argc, char * const argv[])
     //GridRoomSceneWithSpheres::run();
     //GridRoomSceneWithBunny::run();
     //testLogicalAND();
-    testMesh1();         // Stanford Bunny and Dragon
+    //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testAnimTransforms3(); // 3 Spinning Mirror Cubes
     //testRefraction2();  // Mesh bunnies with varying IoR
     //testRefraction3();  // Spheres of varying IoR
-    //testAO5(); // Stanford Bunny
+    testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
     //testCircleAreaLight2();   // Area light proximity test
     //testRectangleAreaLight1();   // Cube with rectangle area light

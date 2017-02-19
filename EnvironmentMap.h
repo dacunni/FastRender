@@ -40,7 +40,7 @@ public:
 	
     virtual ImportanceSample importanceSample( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection );
-    virtual bool canImportanceSample() { return false; }
+    virtual bool canImportanceSample() const { return false; }
 };
 
 // Test pattern environment map
@@ -66,6 +66,10 @@ public:
     void setAngularRadius( float r ) { angular_radius = r; recalculateRadiance(); }
     void setPower( float p ) { power = p; recalculateRadiance(); }
 
+    virtual ImportanceSample importanceSample( RandomNumberGenerator & rng,
+                                               const RayIntersection & intersection );
+    virtual bool canImportanceSample() const { return true; }
+
 protected:
     void recalculateRadiance();
 
@@ -74,12 +78,13 @@ protected:
     // Angle between center axis and outer edge of cap
     float angular_radius = M_PI / 4.0f;
     // Power in Watts across a unit spherical cap
-    float power = 20.0f;
+    float power = 2.5f;
 
     // Cache of radiance per sample. Should be cached when parameters change
     // by calling recalculateRadiance()
     // TODO[DAC]: Colored light!
     float radiance_per_sample = 0.0f;
+    float cap_solid_angle;
 };
 
 class HDRImageEnvironmentMap : public EnvironmentMap {
@@ -92,7 +97,7 @@ public:
 
     virtual ImportanceSample importanceSample( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection );
-    virtual bool canImportanceSample() { return true; }
+    virtual bool canImportanceSample() const { return true; }
 
 protected:
     HDRImage image;
