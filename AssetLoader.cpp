@@ -21,6 +21,72 @@
 #include "FlatContainer.h"
 #include "BoundingVolumeHierarchy.h"
 
+void AssetLoader::loadTriangleArray( const std::string & filename,
+                                     TriangleMeshArray & array ) throw(AssetFileNotFoundException)
+{
+    Assimp::Importer importer;
+    const aiScene * scene = nullptr;
+    
+    // note: scene is destroyed automatically when importer is destroyed
+    scene = importer.ReadFile( filename,
+                               aiProcess_Triangulate
+                               | aiProcess_FindInvalidData
+                               | aiProcess_GenSmoothNormals
+                               //| aiProcess_GenNormals
+                               | aiProcess_FixInfacingNormals
+                               );
+    
+    if( !scene ) {
+        fprintf( stderr, "Failed to load %s\n", filename.c_str() );
+        throw AssetFileNotFoundException();
+    }
+    
+    printf( "Loaded %s\n", filename.c_str() );
+    printf( " - # meshes -> %u\n", scene->mNumMeshes );
+
+    aiMesh ** meshes = scene->mMeshes;
+
+    for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index ) {
+        aiMesh * mesh = meshes[mesh_index];
+
+        printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d Bones=%d\n", mesh_index, 
+                (int) mesh->HasPositions(), mesh->mNumVertices,
+                (int) mesh->HasFaces(), mesh->mNumFaces,
+                (int) mesh->HasNormals(),
+                (int) mesh->HasBones() );
+
+        auto trimesh = std::make_shared<TriangleMesh>();
+
+        trimesh->vertices.resize( mesh->mNumVertices );
+        trimesh->normals.resize( mesh->mNumVertices );
+        trimesh->triangles.resize( mesh->mNumFaces );
+
+        for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
+            const auto v = mesh->mVertices[vi];
+            auto n = mesh->mNormals[vi];
+
+            // TEMP
+            // FIXME[DAC]: This is a hacky fix, especially since normal vectors
+            //             should never be zero length. The bug is probably in assimp.
+            if( isnan(n.x) ) {
+                n.x = n.y = n.z = 0.0f;
+            }
+
+            trimesh->vertices[vi].set( v.x, v.y, v.z );
+            trimesh->normals[vi].set( n.x, n.y, n.z );
+        }
+
+        for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {
+            const auto t = mesh->mFaces[ti];
+            trimesh->triangles[ti].vi[0] = t.mIndices[0];
+            trimesh->triangles[ti].vi[1] = t.mIndices[1];
+            trimesh->triangles[ti].vi[2] = t.mIndices[2];
+        }
+
+       array.push_back( trimesh );
+    }
+}
+
 std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
                                                  bool build_accelerator ) throw(AssetFileNotFoundException)
 {
@@ -103,68 +169,13 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
 std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filename,
                                                        bool build_accelerator ) throw(AssetFileNotFoundException)
 {
-    Assimp::Importer importer;
-    const aiScene * scene = nullptr;
-    
-    // note: scene is destroyed automatically when importer is destroyed
-    scene = importer.ReadFile( filename,
-                               aiProcess_Triangulate
-                               | aiProcess_FindInvalidData
-                               | aiProcess_GenSmoothNormals
-                               //| aiProcess_GenNormals
-                               | aiProcess_FixInfacingNormals
-                               );
-    
-    if( !scene ) {
-        fprintf( stderr, "Failed to load %s\n", filename.c_str() );
-        throw AssetFileNotFoundException();
-    }
-    
-    printf( "Loaded %s\n", filename.c_str() );
-    printf( " - # meshes -> %u\n", scene->mNumMeshes );
+    TriangleMeshArray array;
+    loadTriangleArray( filename, array );
 
     auto container = std::make_shared<FlatContainer>();
     
-    aiMesh ** meshes = scene->mMeshes;
-
-    for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index )
+    for( auto trimesh : array )
     {
-        aiMesh * mesh = meshes[mesh_index];
-
-        printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d Bones=%d\n", mesh_index, 
-                (int) mesh->HasPositions(), mesh->mNumVertices,
-                (int) mesh->HasFaces(), mesh->mNumFaces,
-                (int) mesh->HasNormals(),
-                (int) mesh->HasBones() );
-
-        auto trimesh = std::make_shared<TriangleMesh>();
-
-        trimesh->vertices.resize( mesh->mNumVertices );
-        trimesh->normals.resize( mesh->mNumVertices );
-        trimesh->triangles.resize( mesh->mNumFaces );
-
-        for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
-            const auto v = mesh->mVertices[vi];
-            auto n = mesh->mNormals[vi];
-
-            // TEMP
-            // FIXME[DAC]: This is a hacky fix, especially since normal vectors
-            //             should never be zero length. The bug is probably in assimp.
-            if( isnan(n.x) ) {
-                n.x = n.y = n.z = 0.0f;
-            }
-
-            trimesh->vertices[vi].set( v.x, v.y, v.z );
-            trimesh->normals[vi].set( n.x, n.y, n.z );
-        }
-
-        for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {
-            const auto t = mesh->mFaces[ti];
-            trimesh->triangles[ti].vi[0] = t.mIndices[0];
-            trimesh->triangles[ti].vi[1] = t.mIndices[1];
-            trimesh->triangles[ti].vi[2] = t.mIndices[2];
-        }
-
         if( build_accelerator ) {
             TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );
             trimesh_octree->build();
@@ -207,18 +218,15 @@ std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filen
 std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::string & filename,
                                                                 bool build_accelerator ) throw(AssetFileNotFoundException)
 {
-    auto container = loadMultiPart( filename );
-
-    if( !container )
-        return nullptr;
+    TriangleMeshArray array;
+    loadTriangleArray( filename, array );
 
     unsigned int num_vertices = 0;
     unsigned int num_normals = 0;
     unsigned int num_triangles = 0;
 
     // Find out how much we need to allocate
-    for( int i = 0; i < container->size(); i++ ) {
-        auto mesh = std::dynamic_pointer_cast<TriangleMesh>(container->at(i));
+    for( auto mesh : array ) {
         num_vertices += mesh->vertices.size();
         num_normals += mesh->normals.size();
         num_triangles += mesh->triangles.size();
@@ -238,9 +246,7 @@ std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::strin
     unsigned int normal_index = 0;
     unsigned int triangle_index = 0;
 
-    for( int i = 0; i < container->size(); i++ ) {
-        auto mesh = std::dynamic_pointer_cast<TriangleMesh>(container->at(i));
-
+    for( auto mesh : array ) {
         unsigned int part_vertex_start = vertex_index;
 
         for( unsigned int vi = 0; vi < mesh->vertices.size(); vi++, vertex_index++ ) {

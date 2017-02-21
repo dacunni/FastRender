@@ -11,6 +11,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 class Container;
 class Traceable;
@@ -29,6 +30,12 @@ public:
                                                  bool build_accelerator = true ) throw(AssetFileNotFoundException);
     std::shared_ptr<TriangleMesh> loadMultiPartMerged( const std::string & filename,
                                                        bool build_accelerator = true ) throw(AssetFileNotFoundException);
+
+protected:
+    typedef std::vector<std::shared_ptr<TriangleMesh>> TriangleMeshArray;
+    void loadTriangleArray( const std::string & filename,
+                            TriangleMeshArray & array ) throw(AssetFileNotFoundException);
+
 
 };
 

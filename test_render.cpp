@@ -2638,6 +2638,33 @@ BUILD_SCENE(
     container->add( mesh );
 );
 END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithTieFighter, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
+
+    //auto mesh = loader.loadMultiPartMerged( modelBasePath + "/clara.io/star-wars-vader-tie-fighter.obj" );
+    //auto mesh = loader.loadMultiPart( modelBasePath + "/clara.io/star-wars-vader-tie-fighter.obj" );
+    std::shared_ptr<Container> mesh = loader.loadMultiPart( modelBasePath + "/clara.io/star-wars-vader-tie-fighter.obj" );
+    mesh->print();
+    //auto bounds = mesh->getAxisAlignedBounds();
+    //mesh->material = mirror_material;
+    //mesh->material = refractive_material;
+    //mesh->material = white_material;
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 0.35 ),
+                                //makeRotation( M_PI * 0.25, Vector4( 0, 1, 0 ) ),
+                                makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ) );
+    container->add( mesh );
+);
+END_SCENE()
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -2709,13 +2736,14 @@ int main (int argc, char * const argv[])
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
     //GridRoomSceneWithBunny::run();
+    GridRoomSceneWithTieFighter::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testAnimTransforms3(); // 3 Spinning Mirror Cubes
     //testRefraction2();  // Mesh bunnies with varying IoR
     //testRefraction3();  // Spheres of varying IoR
-    testAO5(); // Stanford Bunny
+    //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
     //testCircleAreaLight2();   // Area light proximity test
     //testRectangleAreaLight1();   // Cube with rectangle area light

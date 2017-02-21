@@ -40,6 +40,7 @@ public:
 
     virtual bool isAreaLight() const { return false; }
 
+    std::string className() const;
     virtual void print( FILE * file = stdout ) const;
     virtual std::string toJSON() const;
 

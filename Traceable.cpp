@@ -102,11 +102,16 @@ bool Traceable::intersectsAnyTransformed( const Ray & ray, float min_distance ) 
     }
 }
 
-void Traceable::print( FILE * file ) const
+std::string Traceable::className() const
 {
     // FIXME - can we demangle this name?
+    return typeid(*this).name();
+}
+
+void Traceable::print( FILE * file ) const
+{
     fprintf( file, "Traceable (%s) has_xform: %s\n",
-             typeid(*this).name(),
+             className().c_str(),
              transform ? "yes" : "no" );
 }
 
