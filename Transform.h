@@ -55,6 +55,8 @@ public:
 Transform compose( const Transform & t1, const Transform & t2 );
 Transform compose( const Transform & t1, const Transform & t2, const Transform & t3 );
 Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4 );
+Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4, const Transform & t5 );
+Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4, const Transform & t5, const Transform & t6 );
 
 // Builds a rotation Transform from an axis and angle
 Transform makeRotation( float angle, const Vector4 & axis );
