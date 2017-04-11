@@ -202,7 +202,7 @@ tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_materialsOBJ_IN_
 #
 PYTHON_BINDING_OBJ = FastRender_wrap.o $(OBJ)
 PYTHON_BINDING_OBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(PYTHON_BINDING_OBJ))
-FastRender_wrap.cpp: FastRender.i
+FastRender_wrap.cpp: FastRender.i $(HDR)
 	swig -python -c++ -o FastRender_wrap.cpp FastRender.i 
 $(OBJDIR)/FastRender_wrap.o: FastRender_wrap.cpp
 	g++ -o $(OBJDIR)/FastRender_wrap.o -c FastRender_wrap.cpp `python-config --includes`
