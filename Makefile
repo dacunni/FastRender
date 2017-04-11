@@ -143,7 +143,7 @@ test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr frui tests
-all: fr tests
+all: fr tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
@@ -187,6 +187,9 @@ fr: $(frOBJ_IN_DIR)
 #frui: $(fruiOBJ_IN_DIR)
 #	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
 
+#
+# Tests
+#
 tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_materialsOBJ_IN_DIR) $(test_ray_traceOBJ_IN_DIR) $(test_samplersOBJ_IN_DIR)
 	g++ -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
 	g++ -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
@@ -194,9 +197,24 @@ tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_materialsOBJ_IN_
 	g++ -o test_ray_trace $(test_ray_traceOBJ_IN_DIR) $(test_ray_traceLDXXFLAGS)
 	g++ -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
 
+#
+# Python Bindings
+#
+PYTHON_BINDING_OBJ = FastRender_wrap.o $(OBJ)
+PYTHON_BINDING_OBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(PYTHON_BINDING_OBJ))
+FastRender_wrap.cpp: FastRender.i
+	swig -python -c++ -o FastRender_wrap.cpp FastRender.i 
+$(OBJDIR)/FastRender_wrap.o: FastRender_wrap.cpp
+	g++ -o $(OBJDIR)/FastRender_wrap.o -c FastRender_wrap.cpp `python-config --includes`
+_FastRender.so: $(PYTHON_BINDING_OBJ_IN_DIR)
+	g++ -dynamiclib -o _FastRender.so $(PYTHON_BINDING_OBJ_IN_DIR) `python-config --ldflags --libs` $(LDXXFLAGS)
+python_bindings: _FastRender.so
+
+
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
 	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui test_random test_render test_materials test_ray_trace test_samplers
+	rm -rf _FastRender.so FastRender_wrap.cpp $(OBJDIR)/FastRender_wrap.o FastRender.py
 

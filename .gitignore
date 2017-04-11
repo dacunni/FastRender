@@ -11,8 +11,13 @@ test_render
 test_materials
 test_ray_trace
 *.o
+*.so
 .*.swp
 *.xcodeproj
 tags
 *.trace
 *.bak
+FastRender_wrap.cpp
+FastRender.py
+*.pyc
+
