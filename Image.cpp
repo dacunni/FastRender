@@ -14,11 +14,41 @@
 #include "Image.h"
 #include "Color.h"
 
-HDRImage::HDRImage( const std::string & filename, unsigned int w, unsigned int h)
+Image::Image()
     : width(0),
       height(0)
 {
+
+}
+
+Image::Image( unsigned int w, unsigned int h )
+    : width(w),
+      height(h)
+{
+    data.resize(w * h);
+}
+
+Image::~Image()
+{
+
+}
+
+// ----------------------------------------------------------------
+
+HDRImage::HDRImage( unsigned int w, unsigned int h )
+    : Image(w, h)
+{
+
+}
+
+HDRImage::HDRImage( const std::string & filename, unsigned int w, unsigned int h)
+{
     loadDataFromFile(filename, w, h);
+}
+
+HDRImage::~HDRImage()
+{
+
 }
 
 void HDRImage::loadDataFromFile( const std::string & filename,

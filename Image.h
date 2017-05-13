@@ -14,27 +14,35 @@
 
 #include "Ray.h"
 
-class HDRImage {
-public:
-	HDRImage( const std::string & filename, unsigned int w, unsigned int h);
-    virtual ~HDRImage() {}
-	
-    // [u,v] in [0, 1], u increasing to the right, v increasing down
-	virtual RGBRadianceSample sampleRGB( float u, float v ) const;
+class Image {
+    public:
+        Image();
+        Image( unsigned int w, unsigned int h );
+        virtual ~Image();
 
-    // TODO: Clean this up and make a grayscale image type
-    void toGray( std::vector<float> & grayData ) const;
+        std::vector<float> data;
+        unsigned int width;
+        unsigned int height;
+};
 
-    // Clear values using the mask
-    void maskUV( const std::function<bool(float,float)> & mask );
+class HDRImage : public Image {
+    public:
+        HDRImage( unsigned int w, unsigned int h );
+        HDRImage( const std::string & filename, unsigned int w, unsigned int h );
+        virtual ~HDRImage();
 
-//protected:
-    void loadDataFromFile( const std::string & filename,
-                           unsigned int w, unsigned int h);
+        // [u,v] in [0, 1], u increasing to the right, v increasing down
+        virtual RGBRadianceSample sampleRGB( float u, float v ) const;
 
-    std::vector<float> data;
-    unsigned int width;
-    unsigned int height;
+        // TODO: Clean this up and make a grayscale image type
+        void toGray( std::vector<float> & grayData ) const;
+
+        // Clear values using the mask
+        void maskUV( const std::function<bool(float,float)> & mask );
+
+        //protected:
+        void loadDataFromFile( const std::string & filename,
+                               unsigned int w, unsigned int h);
 };
 
 
