@@ -17,7 +17,7 @@
 
 #include "Transform.h"
 #include "Ray.h"
-#include "Image.h"
+#include "HDRImage.h"
 #include "Material.h"
 #include "DistributionSamplers.h"
 
