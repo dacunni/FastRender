@@ -241,10 +241,22 @@ inline void TriangleMesh::populateIntersection( const Ray & ray,
     intersection.normal = add( add( scale( normals[tri.vi[0]], bary.u ),
                                     scale( normals[tri.vi[1]], bary.v ) ),
                                scale( normals[tri.vi[2]], bary.w ) ).normalized();
+    if( textureUVCoords.size() > 0 ) {
+        intersection.u = textureUVCoords[tri.vi[0]].u * bary.u
+                       + textureUVCoords[tri.vi[1]].u * bary.v
+                       + textureUVCoords[tri.vi[2]].u * bary.w;
+        intersection.v = textureUVCoords[tri.vi[0]].v * bary.u
+                       + textureUVCoords[tri.vi[1]].v * bary.v
+                       + textureUVCoords[tri.vi[2]].v * bary.w;
+    }
 #else
     // compute surface normal
     // TODO - make sure this normal agrees with front/back sense above
     intersection.normal = cross( e1, e2 ).normalized();
+    if( textureUVCoords.size() > 0 ) {
+        intersection.u = textureUVCoords[tri.vi[0]].u;
+        intersection.v = textureUVCoords[tri.vi[0]].v;
+    }
 #endif
 
     if( !intersection.normal.isUnity() ) {

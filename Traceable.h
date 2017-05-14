@@ -30,7 +30,6 @@ public:
 	
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const = 0;
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
-
 	virtual bool intersectTransformed( const Ray & ray, RayIntersection & intersection ) const;
 	virtual bool intersectsAnyTransformed( const Ray & ray, float min_distance ) const;
 

@@ -422,6 +422,13 @@ std::shared_ptr<TriangleMesh> loadMaterialTestModel( AssetLoader & loader )
     //auto mesh = loader.load( modelBasePath + "/dacunni/material_test1.obj" );
     //auto mesh = loader.load( modelBasePath + "/dacunni/material_test1.stl" );
     auto mesh = loader.load( modelBasePath + "/tf3dm.com/soccerball/untitled.ply" );
+    //auto mesh = loader.load( modelBasePath + "/test_objects/mori/testObj.obj" );
+#if 0
+    auto mesh = loader.loadMultiPartMerged( modelBasePath + "/test_objects/mitsuba/mitsuba.obj" ); // FIXME
+    mesh->makeCanonical();
+    mesh->accelerator = new TMOctreeAccelerator( *mesh );
+    mesh->accelerator->build();
+#endif
     return mesh;
 }
 

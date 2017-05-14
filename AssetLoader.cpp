@@ -49,10 +49,13 @@ void AssetLoader::loadTriangleArray( const std::string & filename,
     for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index ) {
         aiMesh * mesh = meshes[mesh_index];
 
-        printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d Bones=%d\n", mesh_index, 
+        bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
+
+        printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d TexCoords=%d Bones=%d\n", mesh_index, 
                 (int) mesh->HasPositions(), mesh->mNumVertices,
                 (int) mesh->HasFaces(), mesh->mNumFaces,
                 (int) mesh->HasNormals(),
+                (int) has_uv,
                 (int) mesh->HasBones() );
 
         auto trimesh = std::make_shared<TriangleMesh>();
@@ -60,6 +63,9 @@ void AssetLoader::loadTriangleArray( const std::string & filename,
         trimesh->vertices.resize( mesh->mNumVertices );
         trimesh->normals.resize( mesh->mNumVertices );
         trimesh->triangles.resize( mesh->mNumFaces );
+        if( has_uv ) {
+            trimesh->textureUVCoords.resize( mesh->mNumVertices );
+        }
 
         for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
             const auto v = mesh->mVertices[vi];
@@ -74,6 +80,10 @@ void AssetLoader::loadTriangleArray( const std::string & filename,
 
             trimesh->vertices[vi].set( v.x, v.y, v.z );
             trimesh->normals[vi].set( n.x, n.y, n.z );
+            if( has_uv ) {
+                const auto tc = mesh->mTextureCoords[0][vi];
+                trimesh->textureUVCoords[vi] = { tc.x, tc.y };
+            }
         }
 
         for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {
@@ -115,10 +125,13 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
     
     aiMesh * mesh = meshes[mesh_index];
 
-    printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d Bones=%d\n", mesh_index, 
+    bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
+
+    printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d UV=%d Bones=%d\n", mesh_index, 
             (int) mesh->HasPositions(), mesh->mNumVertices,
             (int) mesh->HasFaces(), mesh->mNumFaces,
             (int) mesh->HasNormals(),
+            (int) has_uv,
             (int) mesh->HasBones() );
     
     auto trimesh = std::make_shared<TriangleMesh>();
@@ -126,6 +139,9 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
     trimesh->vertices.resize( mesh->mNumVertices );
     trimesh->normals.resize( mesh->mNumVertices );
     trimesh->triangles.resize( mesh->mNumFaces );
+    if( has_uv ) {
+        trimesh->textureUVCoords.resize( mesh->mNumVertices );
+    }
  
     for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
         const auto v = mesh->mVertices[vi];
@@ -140,6 +156,10 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
 
         trimesh->vertices[vi].set( v.x, v.y, v.z );
         trimesh->normals[vi].set( n.x, n.y, n.z );
+        if( has_uv ) {
+            const auto tc = mesh->mTextureCoords[0][vi];
+            trimesh->textureUVCoords[vi] = { tc.x, tc.y };
+        }
     }
 
     for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {

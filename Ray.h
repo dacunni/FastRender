@@ -61,6 +61,7 @@ public:
     Vector4 normal;
     RGBRadianceSample sample;
     std::shared_ptr<Material> material;
+    float u, v;
     const Traceable * traceable; // For debugging
     float distance;
     float min_distance;

@@ -27,11 +27,16 @@ public:
         unsigned int vi[3];
     };
 
-    typedef std::vector< Vector4 >      VertexArray;
-    typedef std::vector< Vector4 >      NormalArray;
+    struct TextureUV {
+        float u, v;
+    };
+
+    typedef std::vector< Vector4 >       VertexArray;
+    typedef std::vector< Vector4 >       NormalArray;
     typedef std::vector< IndexTriangle > IndexTriangleArray;
     // List of indices into the IndexTriangleArray
-    typedef std::vector< unsigned int > TriangleIndexArray;
+    typedef std::vector< unsigned int >  TriangleIndexArray;
+    typedef std::vector< TextureUV >     TextureUVArray;
     
     TriangleMesh();
     virtual ~TriangleMesh();
@@ -61,6 +66,7 @@ public:
     VertexArray                     vertices;
     NormalArray                     normals;
     IndexTriangleArray              triangles;
+    TextureUVArray                  textureUVCoords;
 
     TriangleMeshAccelerator       * accelerator;        // Intersetion acceleration object (null if none)
     

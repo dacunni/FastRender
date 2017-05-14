@@ -2409,6 +2409,104 @@ void testAnimLights1()
     tracer.render();
 }
 
+// Triangle mesh with UV coordinates
+void testUVMesh()
+{
+    int imageSize = 320;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 5 );
+    Scene * scene = new Scene();
+	auto container = std::make_shared<FlatContainer>();
+
+    // Ground plane at y=0
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0, +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    std::string modelPath = modelBasePath;
+    auto mesh = loader.load( modelPath + "/uvsphere.ply" );
+    //auto mesh = loader.load( modelPath + "/uvmonkey.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    //mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    mesh->material = std::make_shared<DiffuseUVMaterial>();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
+    container->add( mesh );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    tracer.shader = new AmbientOcclusionShader();
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_uv_mesh_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.2, 10.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.render();
+}
+
+// Triangle mesh with UV coordinates with a texture applied
+void testTexturedMesh()
+{
+    int imageSize = 1000;
+    int imageWidth = imageSize, imageHeight = imageSize;
+    ImageTracer tracer( imageWidth, imageHeight, 1, 20 );
+    Scene * scene = new Scene();
+	auto container = std::make_shared<FlatContainer>();
+
+    // Ground plane at y=0
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0, +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    std::string modelPath = modelBasePath;
+    //auto mesh = loader.load( modelPath + "/uvsphere.ply" );
+    auto mesh = loader.load( modelPath + "/uvmonkey.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    //mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    //mesh->material = std::make_shared<DiffuseUVMaterial>();
+    //auto texture = std::make_shared<SurfaceTexture>( "color_test.gif" );
+    auto texture = std::make_shared<SurfaceTexture>( "uvgrid.jpg" );
+    mesh->material = std::make_shared<DiffuseTextureMaterial>(texture);
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
+    container->add( mesh );
+
+	scene->root = container;
+    tracer.scene = scene;
+
+    //tracer.shader = new AmbientOcclusionShader();
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
+    //scene->env_map = env_map;
+    auto light = std::make_shared<CircleAreaLight>( 2.0, RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.0 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * 0.25, Vector4(1, 0, 1).normalized() ),
+                                 makeTranslation( Vector4( 0, 10.0, 0 ) ) );
+    container->add( light );
+    //scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );
+    //scene->addPointLight( PointLight( Vector4( 13.0, 15.0, 20.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );
+    //scene->addPointLight( PointLight( Vector4( 0.0, 20.0, 15.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );
+    tracer.shader = new BasicDiffuseSpecularShader();
+
+
+    tracer.artifacts.output_path = output_path;
+    tracer.artifacts.file_prefix = "test_textured_mesh_";
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 16, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.2, 10.0 );
+    tracer.setCameraTransform( compose( rotation, translation ) );
+
+    tracer.scene->buildLightList();
+    tracer.render();
+}
+
 // ------------------------------------------------------------ 
 BEGIN_SCENE(SimpleCube)
 SETUP_SCENE( TestScene::setup(); );
@@ -2627,9 +2725,9 @@ BUILD_SCENE(
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
-    mesh->material = mirror_material;
+    //mesh->material = mirror_material;
     //mesh->material = refractive_material;
-    //mesh->material = white_material;
+    mesh->material = white_material;
 
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 1.0 ),
@@ -2667,6 +2765,31 @@ BUILD_SCENE(
 END_SCENE()
 
 // ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithTexturedMonkey, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
+
+    auto mesh = loader.load( modelBasePath + "/uvmonkey.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    auto texture = std::make_shared<SurfaceTexture>( "uvgrid.jpg" );
+    mesh->material = std::make_shared<DiffuseTextureMaterial>(texture);
+    mesh->print();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                //makeRotation( M_PI * 0.25, Vector4( 0, 1, 0 ) ),
+                                makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ) );
+    container->add( mesh );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
 // Test runner
 // ------------------------------------------------------------ 
 int main (int argc, char * const argv[]) 
@@ -2680,7 +2803,7 @@ int main (int argc, char * const argv[])
     total_run_timer.start();
 
     rng.seedCurrentTime();
-    
+
     // Tests
 #if 0
     // Ambient occlusion
@@ -2729,6 +2852,8 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensFlintGlass::run();
     RoomScene::run();
     RoomSceneWithSpheres::run();
+    testUVMesh();
+    testTexturedMesh();
 #else
     //RoomScene::run();
     //RoomSceneWithSpheres::run();
@@ -2736,7 +2861,8 @@ int main (int argc, char * const argv[])
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
     //GridRoomSceneWithBunny::run();
-    GridRoomSceneWithTieFighter::run();
+    //GridRoomSceneWithTieFighter::run();
+    //GridRoomSceneWithTexturedMonkey::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
@@ -2750,6 +2876,10 @@ int main (int argc, char * const argv[])
     //testAnimLights1();
     //testLogicalANDLensFocusLight();
     //testMeshDabrovicSponza();
+
+    //testUVMesh();
+    testTexturedMesh();
+    //GridRoomSceneWithTexturedMonkey::run();
 
 #endif
     

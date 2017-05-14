@@ -14,6 +14,7 @@
 #include <math.h>
 #include "Color.h"
 #include "Ray.h"
+#include "SurfaceTexture.h"
 
 class RandomNumberGenerator;
 
@@ -122,6 +123,27 @@ class DiffuseCheckerBoardMaterial : public Material
                                                const RayIntersection & intersection );
 
         float gridSize = 0.2;
+};
+
+// Special material to visualize the UV map
+class DiffuseUVMaterial : public DiffuseMaterial 
+{
+    public:
+        DiffuseUVMaterial() : DiffuseMaterial() {}
+        virtual ~DiffuseUVMaterial() {}
+        
+        virtual RGBColor diffuse( RayIntersection & isect );
+};
+
+class DiffuseTextureMaterial : public DiffuseMaterial
+{
+    public:
+        DiffuseTextureMaterial( std::shared_ptr<SurfaceTexture> & tex ) : DiffuseMaterial(), texture(tex) {}
+        virtual ~DiffuseTextureMaterial() {}
+        
+        virtual RGBColor diffuse( RayIntersection & isect );
+
+        std::shared_ptr<SurfaceTexture> texture;
 };
 
 class MirrorMaterial : public Material 

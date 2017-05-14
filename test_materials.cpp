@@ -31,7 +31,6 @@ SETUP_SCENE(
 );
 std::shared_ptr<TriangleMesh> mesh;
 BUILD_SCENE(
-    float size = 1.0;
     auto floor = std::make_shared<AxisAlignedSlab>( -10, -1, -10,
                                                      10, 0, 10 );
     floor->transform = std::make_shared<Transform>();

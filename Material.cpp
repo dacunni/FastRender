@@ -43,6 +43,24 @@ DiffuseCheckerBoardMaterial::diffuse( RayIntersection & isect ) {
         //: RGBColor(0.0f, 1.0f, 0.0f);
 }
 
+RGBColor
+DiffuseUVMaterial::diffuse( RayIntersection & isect )
+{
+    // TODO: Add clamp() function
+    float u = std::max(0.0f, std::min(isect.u, 1.0f));
+    float v = std::max(0.0f, std::min(isect.v, 1.0f));
+    return RGBColor(u, v, 0.0f);
+}
+
+RGBColor
+DiffuseTextureMaterial::diffuse( RayIntersection & isect )
+{
+    // TODO: Add clamp() function
+    float u = std::max(0.0f, std::min(isect.u, 1.0f));
+    float v = std::max(0.0f, std::min(isect.v, 1.0f));
+    return texture->image.sampleRGB(u, v);
+}
+
 DistributionSample
 DiffuseCheckerBoardMaterial::sampleBxDF( RandomNumberGenerator & rng,
                              const RayIntersection & intersection )

@@ -26,10 +26,12 @@ HDR = \
 	Quaternion.h \
 	RandomNumberGenerator.h \
 	Ray.h \
+    RGBImage.h \
 	Scene.h \
 	SimpleCamera.h \
 	Shader.h \
 	Sphere.h \
+    SurfaceTexture.h \
 	TMOctreeAccelerator.h \
 	TestScenes.h \
 	Timer.h \
@@ -65,9 +67,11 @@ OBJ = \
 	Quaternion.o \
 	RandomNumberGenerator.o \
 	Ray.o \
+    RGBImage.o \
 	Scene.o \
 	SimpleCamera.o \
 	Sphere.o \
+    SurfaceTexture.o \
 	TestScenes.o \
 	TMOctreeAccelerator.o \
 	Timer.o \
