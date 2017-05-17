@@ -29,7 +29,6 @@ Artifacts::~Artifacts()
         fclose( intersections_file );
 }
 
-// TODO - clean this up
 void Artifacts::startNewFrame() 
 {
     flush();
@@ -69,12 +68,14 @@ void Artifacts::flush()
     Magick::PixelPacket * depth_cache = depth_image->setPixels( 0, 0, width, height );
     Magick::PixelPacket * stddev_cache = stddev_image->setPixels( 0, 0, width, height );
 
+    // Largest representable channel value in the output images
     unsigned short pixel_max = (1 << MAGICKCORE_QUANTUM_DEPTH) - 1;
 
     for( int row = 0; row < height; row++ ) {
         for( int col = 0; col < width; col++ ) {
-            auto color = pixel_color_accum[ row * width + col ];
-            auto nsamples = pixel_color_num_samples[ row * width + col ];
+            auto pindex = row * width + col;
+            auto color = pixel_color_accum[pindex];
+            auto nsamples = pixel_color_num_samples[pindex];
             if( nsamples > 0 ) {
                 color.r /= nsamples;
                 color.g /= nsamples;
@@ -83,11 +84,11 @@ void Artifacts::flush()
             color.r = std::min( color.r, 1.0f );
             color.g = std::min( color.g, 1.0f );
             color.b = std::min( color.b, 1.0f );
-            color_cache[ row * width + col ].red   = color.r * pixel_max;
-            color_cache[ row * width + col ].green = color.g * pixel_max;
-            color_cache[ row * width + col ].blue  = color.b * pixel_max;
+            color_cache[pindex].red   = color.r * pixel_max;
+            color_cache[pindex].green = color.g * pixel_max;
+            color_cache[pindex].blue  = color.b * pixel_max;
 
-            auto color_sq = pixel_color_sq_accum[ row * width + col ];
+            auto color_sq = pixel_color_sq_accum[pindex];
             if( nsamples > 0 ) {
                 color_sq.r /= nsamples;
                 color_sq.g /= nsamples;
@@ -100,19 +101,19 @@ void Artifacts::flush()
             stddev.r = std::min( stddev.r * scale, 1.0f );
             stddev.g = std::min( stddev.g * scale, 1.0f );
             stddev.b = std::min( stddev.b * scale, 1.0f );
-            stddev_cache[ row * width + col ].red   = stddev.r * pixel_max;
-            stddev_cache[ row * width + col ].green = stddev.g * pixel_max;
-            stddev_cache[ row * width + col ].blue  = stddev.b * pixel_max;
+            stddev_cache[pindex].red   = stddev.r * pixel_max;
+            stddev_cache[pindex].green = stddev.g * pixel_max;
+            stddev_cache[pindex].blue  = stddev.b * pixel_max;
 
-            auto normal = pixel_normal[ row * width + col ];
-            normal_cache[ row * width + col ].red   = normal.x * pixel_max;
-            normal_cache[ row * width + col ].green = normal.y * pixel_max;
-            normal_cache[ row * width + col ].blue  = normal.z * pixel_max;
+            auto normal = pixel_normal[pindex];
+            normal_cache[pindex].red   = normal.x * pixel_max;
+            normal_cache[pindex].green = normal.y * pixel_max;
+            normal_cache[pindex].blue  = normal.z * pixel_max;
 
-            auto depth = pixel_depth[ row * width + col ];
-            depth_cache[ row * width + col ].red   = depth * pixel_max;
-            depth_cache[ row * width + col ].green = depth * pixel_max;
-            depth_cache[ row * width + col ].blue  = depth * pixel_max;
+            auto depth = pixel_depth[pindex];
+            depth_cache[pindex].red   = depth * pixel_max;
+            depth_cache[pindex].green = depth * pixel_max;
+            depth_cache[pindex].blue  = depth * pixel_max;
         }
     }
 
@@ -158,49 +159,55 @@ void Artifacts::flush()
 
 void Artifacts::accumPixelColorMono( unsigned int row, unsigned int col, float value )
 {
-    pixel_color_accum[ row * width + col ][0] += value;
-    pixel_color_accum[ row * width + col ][1] += value;
-    pixel_color_accum[ row * width + col ][2] += value;
-    pixel_color_sq_accum[ row * width + col ][0] += value * value;
-    pixel_color_sq_accum[ row * width + col ][1] += value * value;
-    pixel_color_sq_accum[ row * width + col ][2] += value * value;
-    pixel_color_num_samples[ row * width + col ]++;
+    auto pindex = row * width + col;
+    pixel_color_accum[pindex][0] += value;
+    pixel_color_accum[pindex][1] += value;
+    pixel_color_accum[pindex][2] += value;
+    pixel_color_sq_accum[pindex][0] += value * value;
+    pixel_color_sq_accum[pindex][1] += value * value;
+    pixel_color_sq_accum[pindex][2] += value * value;
+    pixel_color_num_samples[pindex]++;
 }
 
 void Artifacts::accumPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b )
 {
-    pixel_color_accum[ row * width + col ][0] += r;
-    pixel_color_accum[ row * width + col ][1] += g;
-    pixel_color_accum[ row * width + col ][2] += b;
-    pixel_color_sq_accum[ row * width + col ][0] += r * r;
-    pixel_color_sq_accum[ row * width + col ][1] += g * g;
-    pixel_color_sq_accum[ row * width + col ][2] += b * b;
-    pixel_color_num_samples[ row * width + col ]++;
+    auto pindex = row * width + col;
+    pixel_color_accum[pindex][0] += r;
+    pixel_color_accum[pindex][1] += g;
+    pixel_color_accum[pindex][2] += b;
+    pixel_color_sq_accum[pindex][0] += r * r;
+    pixel_color_sq_accum[pindex][1] += g * g;
+    pixel_color_sq_accum[pindex][2] += b * b;
+    pixel_color_num_samples[pindex]++;
 }
 
 void Artifacts::setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n )
 {
-    pixel_normal[ row * width + col ][0] = n.x * 0.5 + 0.5;
-    pixel_normal[ row * width + col ][1] = n.y * 0.5 + 0.5;
-    pixel_normal[ row * width + col ][2] = n.z * 0.5 + 0.5;
+    auto pindex = row * width + col;
+    pixel_normal[pindex][0] = n.x * 0.5 + 0.5;
+    pixel_normal[pindex][1] = n.y * 0.5 + 0.5;
+    pixel_normal[pindex][2] = n.z * 0.5 + 0.5;
 }
 
 void Artifacts::setPixelDepth( unsigned int row, unsigned int col, float depth )
 {
+    auto pindex = row * width + col;
     depth = (1.0 - (depth - 3.0) / 20.0);
     depth = std::min( std::max( depth, 0.0f ), 1.0f );
 
-    pixel_depth[ row * width + col ] = depth;
+    pixel_depth[pindex] = depth;
 }
 
 void Artifacts::accumPixelTime( unsigned int row, unsigned int col, float value )
 {
-    time_unnormalized_image[ row * width + col ] += value;
+    auto pindex = row * width + col;
+    time_unnormalized_image[pindex] += value;
 }
 
 void Artifacts::setPixelTime( unsigned int row, unsigned int col, float value )
 {
-    time_unnormalized_image[ row * width + col ] = value;
+    auto pindex = row * width + col;
+    time_unnormalized_image[pindex] = value;
 }
 
 
