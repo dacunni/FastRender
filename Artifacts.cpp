@@ -27,8 +27,11 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
     depth_image->magick( "png" ); // set the output file type
     time_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
     time_image->magick( "png" ); // set the output file type
+    stddev_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
+    stddev_image->magick( "png" ); // set the output file type
 
     pixel_color_accum.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
+    pixel_color_sq_accum.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
     pixel_color_num_samples.assign( imageWidth * imageHeight, 0 );
     pixel_normal.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
     pixel_depth.assign( imageWidth * imageHeight, 0.0f );
@@ -56,7 +59,10 @@ void Artifacts::startNewFrame()
     depth_image->magick( "png" ); // set the output file type
     time_image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     time_image->magick( "png" ); // set the output file type
+    stddev_image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
+    stddev_image->magick( "png" ); // set the output file type
     pixel_color_accum.assign( pixel_color_accum.size(), float3(0.0, 0.0, 0.0) );
+    pixel_color_sq_accum.assign( pixel_color_sq_accum.size(), float3(0.0, 0.0, 0.0) );
     pixel_color_num_samples.assign( pixel_color_num_samples.size(), 0 );
     pixel_normal.assign( pixel_normal.size(), float3(0.0, 0.0, 0.0) );
     pixel_depth.assign( pixel_depth.size(), 0.0f );
@@ -73,6 +79,7 @@ void Artifacts::flush()
     Magick::PixelPacket * color_cache = image->setPixels( 0, 0, width, height );
     Magick::PixelPacket * normal_cache = normal_image->setPixels( 0, 0, width, height );
     Magick::PixelPacket * depth_cache = depth_image->setPixels( 0, 0, width, height );
+    Magick::PixelPacket * stddev_cache = stddev_image->setPixels( 0, 0, width, height );
 
     unsigned short pixel_max = (1 << MAGICKCORE_QUANTUM_DEPTH) - 1;
 
@@ -92,6 +99,23 @@ void Artifacts::flush()
             color_cache[ row * width + col ].green = color.g * pixel_max;
             color_cache[ row * width + col ].blue  = color.b * pixel_max;
 
+            auto color_sq = pixel_color_sq_accum[ row * width + col ];
+            if( nsamples > 0 ) {
+                color_sq.r /= nsamples;
+                color_sq.g /= nsamples;
+                color_sq.b /= nsamples;
+            }
+            auto stddev = float3(sqrtf(color_sq.r - sq(color.r)),
+                                 sqrtf(color_sq.g - sq(color.g)),
+                                 sqrtf(color_sq.b - sq(color.b)));
+            float scale = 1.0f; // arbitrary scale to brighten images as necessary
+            stddev.r = std::min( stddev.r * scale, 1.0f );
+            stddev.g = std::min( stddev.g * scale, 1.0f );
+            stddev.b = std::min( stddev.b * scale, 1.0f );
+            stddev_cache[ row * width + col ].red   = stddev.r * pixel_max;
+            stddev_cache[ row * width + col ].green = stddev.g * pixel_max;
+            stddev_cache[ row * width + col ].blue  = stddev.b * pixel_max;
+
             auto normal = pixel_normal[ row * width + col ];
             normal_cache[ row * width + col ].red   = normal.x * pixel_max;
             normal_cache[ row * width + col ].green = normal.y * pixel_max;
@@ -107,6 +131,7 @@ void Artifacts::flush()
     image->write( output_path + "/" + file_prefix + "framebuffer_" + sindex + ".png" );
     normal_image->write( output_path + "/" + file_prefix + "normals.png" );
     depth_image->write( output_path + "/" + file_prefix + "depth.png" );
+    stddev_image->write( output_path + "/" + file_prefix + "stddev.png" );
 
     // Find the maximum time taken to render a pixel
     double min_value = 0.0, max_value = 0.0;
@@ -148,6 +173,9 @@ void Artifacts::accumPixelColorMono( unsigned int row, unsigned int col, float v
     pixel_color_accum[ row * width + col ][0] += value;
     pixel_color_accum[ row * width + col ][1] += value;
     pixel_color_accum[ row * width + col ][2] += value;
+    pixel_color_sq_accum[ row * width + col ][0] += value * value;
+    pixel_color_sq_accum[ row * width + col ][1] += value * value;
+    pixel_color_sq_accum[ row * width + col ][2] += value * value;
     pixel_color_num_samples[ row * width + col ]++;
 }
 
@@ -156,6 +184,9 @@ void Artifacts::accumPixelColorRGB( unsigned int row, unsigned int col, float r,
     pixel_color_accum[ row * width + col ][0] += r;
     pixel_color_accum[ row * width + col ][1] += g;
     pixel_color_accum[ row * width + col ][2] += b;
+    pixel_color_sq_accum[ row * width + col ][0] += r * r;
+    pixel_color_sq_accum[ row * width + col ][1] += g * g;
+    pixel_color_sq_accum[ row * width + col ][2] += b * b;
     pixel_color_num_samples[ row * width + col ]++;
 }
 

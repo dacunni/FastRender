@@ -42,7 +42,9 @@ public:
     ImagePtr normal_image = nullptr;
     ImagePtr depth_image = nullptr;
     ImagePtr time_image = nullptr;
+    ImagePtr stddev_image = nullptr;
     std::vector<float3> pixel_color_accum;
+    std::vector<float3> pixel_color_sq_accum; // squares of pixel values for variance calculation
     std::vector<unsigned long> pixel_color_num_samples;
     std::vector<float3> pixel_normal;
     std::vector<float> pixel_depth;

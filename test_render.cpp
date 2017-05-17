@@ -2453,9 +2453,9 @@ void testUVMesh()
 // Triangle mesh with UV coordinates with a texture applied
 void testTexturedMesh()
 {
-    int imageSize = 1000;
+    int imageSize = 300;
     int imageWidth = imageSize, imageHeight = imageSize;
-    ImageTracer tracer( imageWidth, imageHeight, 1, 20 );
+    ImageTracer tracer( imageWidth, imageHeight, 1, 50 );
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
 
@@ -2470,7 +2470,9 @@ void testTexturedMesh()
     //mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     //mesh->material = std::make_shared<DiffuseUVMaterial>();
     //auto texture = std::make_shared<SurfaceTexture>( "color_test.gif" );
-    auto texture = std::make_shared<SurfaceTexture>( "uvgrid.jpg" );
+    //auto texture = std::make_shared<SurfaceTexture>( "uvgrid.jpg" );
+    //auto texture = std::make_shared<SurfaceTexture>( "textures/Rust_Paint_03_UV_H_CM_1.jpg" );
+    auto texture = std::make_shared<SurfaceTexture>( "textures/Dog_Hair_UV_H_CM_1.jpg" );
     mesh->material = std::make_shared<DiffuseTextureMaterial>(texture);
 
     mesh->transform = std::make_shared<Transform>();
