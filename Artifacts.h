@@ -27,6 +27,7 @@ public:
     virtual ~Artifacts();
     
     void startNewFrame();
+    void resetImages();
     void accumPixelColorMono( unsigned int row, unsigned int col, float value );
     void accumPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );

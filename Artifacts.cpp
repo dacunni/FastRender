@@ -19,24 +19,7 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
     height( imageHeight ),
     frame_number( 1 )
 {
-    image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
-    image->magick( "png" ); // set the output file type
-    normal_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
-    normal_image->magick( "png" ); // set the output file type
-    depth_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), Magick::ColorRGB(0.0f, 0.0f, 0.0f) ) );
-    depth_image->magick( "png" ); // set the output file type
-    time_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
-    time_image->magick( "png" ); // set the output file type
-    stddev_image.reset( new Magick::Image( Magick::Geometry( imageWidth, imageHeight ), "black" ) );
-    stddev_image->magick( "png" ); // set the output file type
-
-    pixel_color_accum.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
-    pixel_color_sq_accum.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
-    pixel_color_num_samples.assign( imageWidth * imageHeight, 0 );
-    pixel_normal.assign( imageWidth * imageHeight, float3(0.0, 0.0, 0.0) );
-    pixel_depth.assign( imageWidth * imageHeight, 0.0f );
-    time_unnormalized_image.assign( imageWidth * imageHeight, 0.0 );
-
+    resetImages();
     intersections_file = fopen( (output_path + file_prefix + "/intersections.txt").c_str(), "w" );
 }
 
@@ -50,7 +33,12 @@ Artifacts::~Artifacts()
 void Artifacts::startNewFrame() 
 {
     flush();
+    resetImages();
+    frame_number++;
+}
 
+void Artifacts::resetImages()
+{
     image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     image->magick( "png" ); // set the output file type
     normal_image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
@@ -61,13 +49,13 @@ void Artifacts::startNewFrame()
     time_image->magick( "png" ); // set the output file type
     stddev_image.reset( new Magick::Image( Magick::Geometry( width, height ), "black" ) );
     stddev_image->magick( "png" ); // set the output file type
-    pixel_color_accum.assign( pixel_color_accum.size(), float3(0.0, 0.0, 0.0) );
-    pixel_color_sq_accum.assign( pixel_color_sq_accum.size(), float3(0.0, 0.0, 0.0) );
-    pixel_color_num_samples.assign( pixel_color_num_samples.size(), 0 );
-    pixel_normal.assign( pixel_normal.size(), float3(0.0, 0.0, 0.0) );
-    pixel_depth.assign( pixel_depth.size(), 0.0f );
-    time_unnormalized_image.assign( time_unnormalized_image.size(), 0.0 );
-    frame_number++;
+
+    pixel_color_accum.assign( width * height, float3(0.0, 0.0, 0.0) );
+    pixel_color_sq_accum.assign( width * height, float3(0.0, 0.0, 0.0) );
+    pixel_color_num_samples.assign( width * height, 0 );
+    pixel_normal.assign( width * height, float3(0.0, 0.0, 0.0) );
+    pixel_depth.assign( width * height, 0.0f );
+    time_unnormalized_image.assign( width * height, 0.0 );
 }
 
 void Artifacts::flush()
