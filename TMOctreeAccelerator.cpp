@@ -141,9 +141,9 @@ void TMOctreeAccelerator::buildNode( Node * node )
         // Add triangle to child nodes based on which bits were set
         unsigned char xb, yb, zb, perm;
         for( unsigned int ci = 0; ci < 8; ci++ ) {
-            xb = (ci & 0x1) ? XHIGH : XLOW;
-            yb = (ci & 0x2) ? YHIGH : YLOW;
-            zb = (ci & 0x4) ? ZHIGH : ZLOW;
+            xb = (ci & XBIT) ? XHIGH : XLOW;
+            yb = (ci & YBIT) ? YHIGH : YLOW;
+            zb = (ci & ZBIT) ? ZHIGH : ZLOW;
             perm = xb | yb | zb;
             if( !((bins & perm) ^ perm) ) {
 #if 0
@@ -222,18 +222,12 @@ void TMOctreeAccelerator::buildNode( Node * node )
             Node * child = node->children[ci];
             // Set the bounding box for the child node
             child->bounds = node->bounds;
-            if( ci & 0x1 )
-                child->bounds.xmin = xsplit;
-            else
-                child->bounds.xmax = xsplit;
-            if( ci & 0x2 )
-                child->bounds.ymin = ysplit;
-            else
-                child->bounds.ymax = ysplit;
-            if( ci & 0x4 )
-                child->bounds.zmin = zsplit;
-            else
-                child->bounds.zmax = zsplit;
+            if( ci & XBIT ) child->bounds.xmin = xsplit;
+            else            child->bounds.xmax = xsplit;
+            if( ci & YBIT ) child->bounds.ymin = ysplit;
+            else            child->bounds.ymax = ysplit;
+            if( ci & ZBIT ) child->bounds.zmin = zsplit;
+            else            child->bounds.zmax = zsplit;
 
             // Recursively build child
             buildNode( child );
@@ -274,11 +268,11 @@ void TMOctreeAccelerator::childOrderForDirection( const Vector4 & d, unsigned in
     for( unsigned int ci = 0; ci < 8; ci++ ) {
         indices[ci] = 0;
         if( ((ci / xstep) & 0x1) == xsense )
-            indices[ci] |= 0x1;
+            indices[ci] |= XBIT;
         if( ((ci / ystep) & 0x1) == ysense )
-            indices[ci] |= 0x2;
+            indices[ci] |= YBIT;
         if( ((ci / zstep) & 0x1) == zsense )
-            indices[ci] |= 0x4;
+            indices[ci] |= ZBIT;
     }
 }
 
@@ -370,9 +364,9 @@ void TMOctreeAccelerator::Node::print( FILE * file, unsigned int level )
         for( unsigned int ci = 0; ci < 8; ci++ ) {
             if( children[ci] ) {
                 fprintf( file, "%s children[ %u ] (%s, %s, %s):\n", prefix.c_str(), ci,
-                         ((ci & 0x1) ? "XH" : "XL"),
-                         ((ci & 0x2) ? "YH" : "YL"),
-                         ((ci & 0x4) ? "ZH" : "ZL") );
+                         ((ci & XBIT) ? "XH" : "XL"),
+                         ((ci & YBIT) ? "YH" : "YL"),
+                         ((ci & ZBIT) ? "ZH" : "ZL") );
                 children[ci]->print( file, level + 1 );
             }
         }

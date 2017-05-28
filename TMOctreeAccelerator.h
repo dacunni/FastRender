@@ -17,6 +17,8 @@ class TMOctreeAccelerator : public TriangleMeshAccelerator
 public:
     TMOctreeAccelerator( TriangleMesh & m );
     virtual ~TMOctreeAccelerator();
+
+    enum { XBIT = 0x1, YBIT = 0x2, ZBIT = 0x4 };
     
     class Node
     {
