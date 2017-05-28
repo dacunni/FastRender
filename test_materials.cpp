@@ -41,8 +41,14 @@ BUILD_SCENE(
     auto bounds = mesh->getAxisAlignedBounds();
 
     mesh->transform = std::make_shared<Transform>();
+#if 1
     *mesh->transform = compose( makeScaling( 1.0 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+#else // Mori test object
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ),
+                                makeRotation( M_PI * 0.85, Vector4( 0.0, 1.0, 0.0 ) ) );
+#endif
     container->add( mesh );
 );
 END_SCENE()
