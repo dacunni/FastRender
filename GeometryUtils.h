@@ -9,6 +9,12 @@
 #ifndef _GEOMETRY_UTILS_H_
 #define _GEOMETRY_UTILS_H_
 
+template <typename T>
+inline T clamp( T value, const T low, const T high ) {
+    return std::max(low, std::min(value, high));
+}
+inline float clamp01( float value ) { return clamp( value, 0.0f, 1.0f ); }
+inline double clamp01( double value ) { return clamp( value, 0.0, 1.0 ); }
 
 // Calculate the area of a spherical cap given by the half angle
 // subtended by the sphere about its center axis

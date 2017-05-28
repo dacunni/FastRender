@@ -1,6 +1,7 @@
 
 #include "Material.h"
 #include "RandomNumberGenerator.h"
+#include "GeometryUtils.h"
 
 std::shared_ptr<Material> DEFAULT_MATERIAL = std::make_shared<DiffuseMaterial>();
 
@@ -46,18 +47,16 @@ DiffuseCheckerBoardMaterial::diffuse( RayIntersection & isect ) {
 RGBColor
 DiffuseUVMaterial::diffuse( RayIntersection & isect )
 {
-    // TODO: Add clamp() function
-    float u = std::max(0.0f, std::min(isect.u, 1.0f));
-    float v = std::max(0.0f, std::min(isect.v, 1.0f));
+    float u = clamp01(isect.u);
+    float v = clamp01(isect.v);
     return RGBColor(u, v, 0.0f);
 }
 
 RGBColor
 DiffuseTextureMaterial::diffuse( RayIntersection & isect )
 {
-    // TODO: Add clamp() function
-    float u = std::max(0.0f, std::min(isect.u, 1.0f));
-    float v = std::max(0.0f, std::min(isect.v, 1.0f));
+    float u = clamp01(isect.u);
+    float v = clamp01(isect.v);
     return texture->image.sampleRGB(u, v);
 }
 
