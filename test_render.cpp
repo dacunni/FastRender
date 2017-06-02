@@ -1204,10 +1204,7 @@ void testRefraction2()
     int rays_per_pixel = 30;
     //int rays_per_pixel = 100;
     ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
-    tracer.camera.xmin = -0.45;
-    tracer.camera.xmax = 0.45;
-    tracer.camera.ymin = -0.15;
-    tracer.camera.ymax = 0.15;
+    tracer.camera.setFocalPlaneDimensions( -0.45, 0.45, -0.15, 0.15 );
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
 
@@ -1351,10 +1348,7 @@ void testRefraction3()
     //int imageSize = 1024;
     int imageWidth = imageSize * 4, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 100 );
-    tracer.camera.xmin = -0.45;
-    tracer.camera.xmax = 0.45;
-    tracer.camera.ymin = -0.15;
-    tracer.camera.ymax = 0.15;
+    tracer.camera.setFocalPlaneDimensions( -0.45, 0.45, -0.15, 0.15 );
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
 
@@ -1483,10 +1477,7 @@ void testMesh1()
     //int imageSize = 1024;
     int imageWidth = imageSize * 2, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 25 );
-    tracer.camera.xmin = -0.3;
-    tracer.camera.xmax = 0.3;
-    tracer.camera.ymin = -0.15;
-    tracer.camera.ymax = 0.15;
+    tracer.camera.setFocalPlaneDimensions( -0.3, 0.3, -0.15, 0.15 );
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
 
@@ -1690,10 +1681,7 @@ void testMeshDabrovicSponza()
     ImageTracer tracer( imageWidth, imageHeight, 1, 10 );
     //ImageTracer tracer( imageWidth, imageHeight, 1, 3 );
     //ImageTracer tracer( imageWidth, imageHeight, 1, 1 );
-    tracer.camera.xmin = -0.45;
-    tracer.camera.xmax = 0.45;
-    tracer.camera.ymin = -0.45;
-    tracer.camera.ymax = 0.45;
+    tracer.camera.setFocalPlaneDimensions( -0.45, 0.45, -0.45, 0.45 );
     //tracer.min_flush_period_seconds = 100000.0;
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
@@ -2590,10 +2578,7 @@ BUILD_SCENE(
     tracer->setCameraTransform( makeTranslation( 0.0, 0.0, 1.5 ) );
     tracer->rays_per_pixel = 30;
     float focal_plane_span = 0.5;
-    tracer->camera.xmin = -focal_plane_span;
-    tracer->camera.xmax = +focal_plane_span;
-    tracer->camera.ymin = -focal_plane_span;
-    tracer->camera.ymax = +focal_plane_span;
+    tracer->camera.setFocalPlaneDimensions( -focal_plane_span, focal_plane_span, -focal_plane_span, focal_plane_span );
 
     tracer->shader = new BasicDiffuseSpecularShader();
 );
@@ -2690,10 +2675,7 @@ BUILD_SCENE(
     tracer->rays_per_pixel = 30;
     //tracer->rays_per_pixel = 100;
     float focal_plane_span = 0.5;
-    tracer->camera.xmin = -focal_plane_span;
-    tracer->camera.xmax = +focal_plane_span;
-    tracer->camera.ymin = -focal_plane_span;
-    tracer->camera.ymax = +focal_plane_span;
+    tracer->camera.setFocalPlaneDimensions( -focal_plane_span, focal_plane_span, -focal_plane_span, focal_plane_span );
 
     tracer->shader = new BasicDiffuseSpecularShader();
 );

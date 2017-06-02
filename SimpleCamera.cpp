@@ -15,15 +15,24 @@ SimpleCamera::SimpleCamera( RandomNumberGenerator & rng,
                             float xmin, float xmax, float ymin, float ymax,
                             int image_width, int image_height )
     : rng(rng),
-      xmin(xmin),
-      xmax(xmax),
-      ymin(ymin),
-      ymax(ymax),
       image_width(image_width),
       image_height(image_height),
       jitter_rays(true)
 {
+    setFocalPlaneDimensions( xmin, xmax, ymin, ymax );
+}
 
+void SimpleCamera::setFocalPlaneDimensions( float xmin, float xmax,
+                                            float ymin, float ymax )
+{
+    this->xmin = xmin;
+    this->xmax = xmax;
+    this->ymin = ymin;
+    this->ymax = ymax;
+    pixel_x_size = (xmax - xmin) / (float) image_width;
+    pixel_y_size = (ymax - ymin) / (float) image_height;
+    x_jitter_range = 0.5f * pixel_x_size;
+    y_jitter_range = 0.5f * pixel_y_size;
 }
 
 Ray SimpleCamera::rayThrough( int row, int col )
@@ -32,7 +41,7 @@ Ray SimpleCamera::rayThrough( int row, int col )
 
     ray.origin = mult( transform.fwd, Vector4( 0.0, 0.0, 0.0) );
     ray.direction = mult( transform.fwd, vectorThrough( row, col ) );
-    ray.direction.normalize();
+    ray.direction.assertIsUnity();
 
     return ray;
 }
@@ -41,19 +50,16 @@ Vector4 SimpleCamera::vectorThrough( int row, int col )
 {
     Vector4 direction;
 
-    float x_jitter = rng.uniformRange( -0.5 * (xmax - xmin) / (float) image_width,
-                                       0.5 * (xmax - xmin) / (float) image_width );
-    float y_jitter = rng.uniformRange( -0.5 * (ymax - ymin) / (float) image_height,
-                                       0.5 * (ymax - ymin) / (float) image_height );
-
-    direction[0] = (float) col / image_width * (xmax - xmin) + xmin;
-    direction[1] = (float) (image_height - row - 1) / image_height * (ymax - ymin) + ymin;
+    direction.x = (float) col * pixel_x_size + xmin;
+    direction.y = (float) (image_height - row - 1) * pixel_y_size + ymin;
     if( jitter_rays ) {
-        direction[0] += x_jitter;
-        direction[1] += y_jitter;
+        float x_jitter = rng.uniformRange( -0.5f * x_jitter_range, 0.5f * x_jitter_range );
+        float y_jitter = rng.uniformRange( -0.5f * y_jitter_range, 0.5f * y_jitter_range );
+        direction.x += x_jitter;
+        direction.y += y_jitter;
     }
-    direction[2] = -1.0f; // assume film is sitting at z = -1
-    direction[3] = 0.0f;
+    direction.z = -1.0f; // assume film is sitting at z = -1
+    direction.makeDirection();
     direction.normalize();
 
     return direction;

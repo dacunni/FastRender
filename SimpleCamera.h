@@ -23,15 +23,24 @@ public:
                   float xmin, float xmax, float ymin, float ymax,
                   int image_width, int image_height );
 
+    void setFocalPlaneDimensions( float xmin, float xmax,
+                                  float ymin, float ymax );
+    void jitterRays( bool jitter ) { jitter_rays = jitter; }
+
     Vector4 vectorThrough( int row, int col );
     Ray rayThrough( int row, int col );
 	
     Transform transform;
+protected:
     RandomNumberGenerator & rng;
     float xmin, xmax;
     float ymin, ymax;
     int image_width, image_height;
     bool jitter_rays;
+    float x_jitter_range;
+    float y_jitter_range;
+    float pixel_x_size;
+    float pixel_y_size;
 };
 
 #endif

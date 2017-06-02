@@ -455,7 +455,7 @@ void testSimpleCameraNoJitter()
     SimpleCamera camera( rng,
                          -1.0, 1.0, -1.0, 1.0,
                          w, h );
-    camera.jitter_rays = false;
+    camera.jitterRays( false );
 
     Vector4 points[h*w];
     for( int ri = 0; ri < h; ri++ ) {
@@ -475,7 +475,7 @@ void testSimpleCamera()
     SimpleCamera camera( rng,
                          -1.0, 1.0, -1.0, 1.0,
                          w, h );
-    camera.jitter_rays = true;
+    camera.jitterRays( true );
 
     Vector4 points[h*w];
     for( int ri = 0; ri < h; ri++ ) {
@@ -833,8 +833,8 @@ int main (int argc, char * const argv[])
     //testRaySphereTiming();
     //testRayAxisAlignedSlabTiming();
     //testRayMeshBunnyTiming();
-    //testRayMeshOctreeBunnyTiming();
-    testEnvironmentMapImportanceSamplingTiming();
+    testRayMeshOctreeBunnyTiming();
+    //testEnvironmentMapImportanceSamplingTiming();
 #endif
     
     total_run_timer.stop();
