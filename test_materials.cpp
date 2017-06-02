@@ -68,6 +68,20 @@ BUILD_SCENE(
 END_SCENE()
 
 // ------------------------------------------------------------ 
+//                      Gooch
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestGooch, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+    tracer->shader = new GoochShader();
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
 //                     Point Light
 // ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestPointLight, MaterialTestBase)
