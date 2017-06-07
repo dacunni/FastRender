@@ -109,6 +109,8 @@ INC += -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
+#CXXFLAGS += -O3
+#CXXFLAGS += -ffast-math
 # Uncomment to enable symbols
 CXXFLAGS += -g
 # Uncomment to disable asserts

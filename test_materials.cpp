@@ -337,7 +337,13 @@ int main (int argc, char * const argv[])
     // Tests
 #if 1
     if( argc > 1 ) {
-        runTest(atoi(argv[1]));
+        if( std::string(argv[1]) == "list" ) {
+            printTests();
+            exit(EXIT_SUCCESS);
+        }
+        else {
+            runTest(atoi(argv[1]));
+        }
     }
     else {
         // Run all tests
