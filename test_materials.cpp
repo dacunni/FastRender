@@ -12,30 +12,54 @@
 RandomNumberGenerator rng;
 std::string output_path = "testoutput";
 
+bool animateMaterialTests = false;
+
 // ------------------------------------------------------------ 
 //                   Material Test Base
 // ------------------------------------------------------------ 
 BEGIN_SCENE(MaterialTestBase)
 SETUP_SCENE(
+    // TEMP >>> Small images for fast testing
+    //image_width = image_height = 16;
+    //image_width = image_height = 64;
+    //image_width = image_height = 100;
+    // TEMP <<<
     TestScene::setup();
     tracer->rays_per_pixel = 1;
+
+    if( animateMaterialTests ) {
+        tracer->num_frames = 32;
+        tracer->loopable_animations = true;
+        tracer->setCameraTransform(
+                [](float anim_progress) { return compose(
+                        // move up a bit
+                        makeTranslation( 0.0, 0.5, 0.0 ),
+                        //makeRotation( M_PI / 8.0f * sinf(2.0f*M_PI*anim_progress), Vector4(0, 1, 0) ), // wiggle
+                        makeRotation( 2.0f * M_PI * anim_progress, Vector4(0, 1, 0) ), // orbit
+                        // rotate so we are looking down
+                        makeRotation( -0.2, Vector4(1, 0, 0) ),
+                        // back away from the origin
+                        makeTranslation( 0.0, 0.0, 5.0 )
+                    );});
+    }
+    else {
+        tracer->setCameraTransform( compose(
+            // move up a bit
+            makeTranslation( 0.0, 0.5, 0.0 ),
+            // rotate so we are looking down
+            makeRotation( -0.2, Vector4(1, 0, 0) ),
+            // back away from the origin
+            makeTranslation( 0.0, 0.0, 5.0 )
+            ) );
+    }
     tracer->shader = new BasicDiffuseSpecularShader();
-    tracer->setCameraTransform( compose(
-        // move up a bit
-        makeTranslation( 0.0, 0.5, 0.0 ),
-        // rotate so we are looking down
-        makeRotation( -0.2, Vector4(1, 0, 0) ),
-        // back away from the origin
-        makeTranslation( 0.0, 0.0, 5.0 )
-        ) );
 );
 std::shared_ptr<TriangleMesh> mesh;
 BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10, -1, -10,
                                                      10, 0, 10 );
-    floor->transform = std::make_shared<Transform>();
-    *floor->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
-    container->add( floor );
+    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    container->add( floor, checkerboard_material );
 
     mesh = loadMaterialTestModel( loader );
     auto bounds = mesh->getAxisAlignedBounds();
@@ -73,7 +97,7 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(MaterialTestGooch, MaterialTestBase)
 SETUP_SCENE(
     MaterialTestBase::setup();
-    tracer->rays_per_pixel = 10;
+    tracer->rays_per_pixel = 5;
     tracer->shader = new GoochShader();
 );
 BUILD_SCENE(
@@ -342,6 +366,9 @@ int main (int argc, char * const argv[])
             exit(EXIT_SUCCESS);
         }
         else {
+            if( argc > 2 && std::string(argv[2]) == "animate" ) {
+                animateMaterialTests = true;
+            }
             runTest(atoi(argv[1]));
         }
     }
