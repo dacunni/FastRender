@@ -181,6 +181,18 @@ void Artifacts::accumPixelColorRGB( unsigned int row, unsigned int col, float r,
     pixel_color_num_samples[pindex]++;
 }
 
+void Artifacts::resetPixelColor( unsigned int row, unsigned int col )
+{
+    auto pindex = row * width + col;
+    pixel_color_accum[pindex][0] = 0.0f;
+    pixel_color_accum[pindex][1] = 0.0f;
+    pixel_color_accum[pindex][2] = 0.0f;
+    pixel_color_sq_accum[pindex][0] = 0.0f;
+    pixel_color_sq_accum[pindex][1] = 0.0f;
+    pixel_color_sq_accum[pindex][2] = 0.0f;
+    pixel_color_num_samples[pindex] = 0;
+}
+
 void Artifacts::setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n )
 {
     auto pindex = row * width + col;
@@ -210,4 +222,22 @@ void Artifacts::setPixelTime( unsigned int row, unsigned int col, float value )
     time_unnormalized_image[pindex] = value;
 }
 
+float Artifacts::pixelMaxChannelVariance( unsigned int row, unsigned int col )
+{
+    auto pindex = row * width + col;
+    auto nsamples = pixel_color_num_samples[pindex];
+    auto color = pixel_color_accum[pindex];
+    auto color_sq = pixel_color_sq_accum[pindex];
+    if( nsamples > 0 ) {
+        color.r /= nsamples;
+        color.g /= nsamples;
+        color.b /= nsamples;
+        color_sq.r /= nsamples;
+        color_sq.g /= nsamples;
+        color_sq.b /= nsamples;
+    }
+    return std::max(std::max(color_sq.r - sq(color.r),
+                             color_sq.g - sq(color.g)),
+                    color_sq.b - sq(color.b));
+}
 

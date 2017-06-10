@@ -2852,7 +2852,7 @@ int main (int argc, char * const argv[])
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testAnimTransforms3(); // 3 Spinning Mirror Cubes
     //testRefraction2();  // Mesh bunnies with varying IoR
-    //testRefraction3();  // Spheres of varying IoR
+    testRefraction3();  // Spheres of varying IoR
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
     //testCircleAreaLight2();   // Area light proximity test
@@ -2862,7 +2862,7 @@ int main (int argc, char * const argv[])
     //testMeshDabrovicSponza();
 
     //testUVMesh();
-    testTexturedMesh();
+    //testTexturedMesh();
     //GridRoomSceneWithTexturedMonkey::run();
 
 #endif

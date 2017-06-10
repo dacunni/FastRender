@@ -6,6 +6,7 @@
  *  Copyright 2016 __MyCompanyName__. All rights reserved.
  *
  */
+#include <iostream>
 
 #include "ImageTracer.h"
 
@@ -14,6 +15,7 @@
 #include "Sphere.h"
 #include "TriangleMesh.h"
 
+#define SUPPRESS_FIREFLIES 1
 
 ImageTracer::ImageTracer( unsigned int w, unsigned int h,
                           unsigned int nframes,
@@ -151,9 +153,27 @@ void ImageTracer::renderPixel( unsigned int row, unsigned int col, unsigned int 
 {
     beginRenderPixel( row, col );
     for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
+        pixel_color.setRGB( 0.0, 0.0, 0.0 );
         tracePixelRay( row, col, ray_index );
+        artifacts.accumPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
     }
     endRenderPixel( row, col );
+    // FIXME: HACK - Trying to deal with fireflies by retrying if we see a lot of variance
+#if SUPPRESS_FIREFLIES
+    const float variance_threhshold = 5.0f;
+    float pixel_variance = artifacts.pixelMaxChannelVariance( row, col );
+    if( pixel_variance > variance_threhshold ) {
+        //printf("Variance exceeded (%f > %f) at (%u, %u), retrying\n", pixel_variance, variance_threhshold, row, col);
+        artifacts.resetPixelColor( row, col );
+        beginRenderPixel( row, col );
+        for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
+            pixel_color.setRGB( 0.0, 0.0, 0.0 );
+            tracePixelRay( row, col, ray_index );
+            artifacts.accumPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
+        }
+        endRenderPixel( row, col );
+    }
+#endif // SUPPRESS_FIREFLIES
 }
 
 void ImageTracer::beginRenderPixel( unsigned int row, unsigned int col )
@@ -172,7 +192,6 @@ void ImageTracer::endRenderPixel( unsigned int row, unsigned int col )
     if( traversal_nesting == PositionSample ) {
         pixel_color.scale( 1.0f / rays_per_pixel );
     }
-    artifacts.accumPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
     artifacts.setPixelNormal( row, col, pixel_normal );
     artifacts.setPixelDepth( row, col, pixel_distance );
 }

@@ -28,6 +28,7 @@ public:
     
     void startNewFrame();
     void resetImages();
+    void resetPixelColor( unsigned int row, unsigned int col );
     void accumPixelColorMono( unsigned int row, unsigned int col, float value );
     void accumPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );
@@ -35,6 +36,8 @@ public:
     void accumPixelTime( unsigned int row, unsigned int col, float value );
     void setPixelTime( unsigned int row, unsigned int col, float value );
     void flush();
+
+    float pixelMaxChannelVariance( unsigned int row, unsigned int col );
 
     typedef std::unique_ptr<Magick::Image> ImagePtr;
     

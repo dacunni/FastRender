@@ -54,8 +54,9 @@ class ImageTracer
         enum TraversalOrder { TopToBottom, Randomized };
         TraversalOrder traversal_order = TopToBottom;
         enum TraversalNesting { PositionSample, SamplePosition };
-        //TraversalNesting traversal_nesting = PositionSample;
-        TraversalNesting traversal_nesting = SamplePosition;
+        TraversalNesting traversal_nesting = PositionSample;
+        // FIXME: It seems we aren't accumulating pixels correctly in SamplePosition traversal order
+        //TraversalNesting traversal_nesting = SamplePosition;
 
         float min_flush_period_seconds = 5.0;
 
