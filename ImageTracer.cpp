@@ -70,9 +70,10 @@ void ImageTracer::render()
             for( unsigned int sample_index = 0; sample_index < rays_per_pixel; sample_index++ ) {
                 for( unsigned int row = 0; row < image_height; ++row ) {
                     if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
-                        printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %%)\n",
+                        printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
                                (float) (image_height * sample_index + row) / (image_height * rays_per_pixel) * 100.0f,
-                               num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f);
+                               num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                               image_flush_timer.elapsed());
                         artifacts.flush();
                         image_flush_timer.start(); // reset timer
                     }
@@ -92,7 +93,10 @@ void ImageTracer::render()
         else { // PositionSample
             for( unsigned int row = 0; row < image_height; ++row ) {
                 if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
-                    printf("Flushing artifacts\n");
+                    printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
+                           (float) row / image_height * 100.0f,
+                           num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                           image_flush_timer.elapsed());
                     artifacts.flush();
                     image_flush_timer.start(); // reset timer
                 }

@@ -34,6 +34,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     intersection.normal.assertIsDirection();
 
     const bool sample_area_lights = true;
+    const bool sample_env_maps = true;
 
     // Direct lighting
     //
@@ -98,7 +99,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
     }
     // Environment map
-    if( scene.env_map && scene.env_map->canImportanceSample() ) {
+    if( sample_env_maps
+        && scene.env_map && scene.env_map->canImportanceSample() ) {
         EnvironmentMap::ImportanceSample isamp;
 
         // Find a sample in the direction of the normal
@@ -172,14 +174,18 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 new_intersection.sample.color.scale( cos_r_n );
                 diffuse_contrib.accum( new_intersection.sample.color );
             }
-            else if( scene.env_map && !scene.env_map->canImportanceSample()
-                     && scene.intersectEnvMap( new_ray, new_intersection ) )
+            else if( !sample_env_maps
+                     || (scene.env_map && !scene.env_map->canImportanceSample()) )
             {
-                // FIXME: Make this match importance sampled version
-                float cos_r_n = dot( new_ray.direction, intersection.normal ); 
-                new_intersection.sample.color.scale( 1.0f / sample.pdf_sample );
-                new_intersection.sample.color.scale( cos_r_n );
-                diffuse_contrib.accum( new_intersection.sample.color );
+#if 1
+                if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
+                    // FIXME: Make this match importance sampled version
+                    float cos_r_n = dot( new_ray.direction, intersection.normal ); 
+                    //new_intersection.sample.color.scale( 1.0f / sample.pdf_sample );
+                    new_intersection.sample.color.scale( cos_r_n );
+                    diffuse_contrib.accum( new_intersection.sample.color );
+                }
+#endif
             }
         }
         else {

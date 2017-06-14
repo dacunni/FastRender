@@ -1195,14 +1195,14 @@ void testRefraction1()
 void testRefraction2()
 {
     //int imageSize = 64;
-    int imageSize = 256;
+    //int imageSize = 256;
     //int imageSize = 320;
-    //int imageSize = 512;
+    int imageSize = 512;
     //int imageSize = 1024;
     int imageWidth = imageSize * 4, imageHeight = imageSize;
     //int rays_per_pixel = 10;
-    int rays_per_pixel = 30;
-    //int rays_per_pixel = 100;
+    //int rays_per_pixel = 30;
+    int rays_per_pixel = 100;
     ImageTracer tracer( imageWidth, imageHeight, 1, rays_per_pixel );
     tracer.camera.setFocalPlaneDimensions( -0.45, 0.45, -0.15, 0.15 );
     Scene * scene = new Scene();
@@ -1223,6 +1223,7 @@ void testRefraction2()
     // low res
     //std::string model = "models/stanford/bunny/reconstruction/bun_zipper_res4.ply";
 
+    float yoffset = 0.4;
     {
         mesh = loader.load( model );
         auto bounds = mesh->getAxisAlignedBounds();
@@ -1230,7 +1231,7 @@ void testRefraction2()
         mesh->material = std::make_shared<RefractiveMaterial>(N_AIR);
 
         mesh->transform = std::make_shared<Transform>();
-        *mesh->transform = compose( makeTranslation( Vector4( -2.0 * spacing, 0.1, 2.0 ) ),
+        *mesh->transform = compose( makeTranslation( Vector4( -2.0 * spacing, yoffset, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -1244,7 +1245,7 @@ void testRefraction2()
         mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
 
         mesh->transform = std::make_shared<Transform>();
-        *mesh->transform = compose( makeTranslation( Vector4( -1.0 * spacing, 0.1, 2.0 ) ),
+        *mesh->transform = compose( makeTranslation( Vector4( -1.0 * spacing, yoffset, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -1258,7 +1259,7 @@ void testRefraction2()
         mesh->material = std::make_shared<RefractiveMaterial>(N_PLEXIGLAS);
 
         mesh->transform = std::make_shared<Transform>();
-        *mesh->transform = compose( makeTranslation( Vector4( 0.0, 0.1, 2.0 ) ),
+        *mesh->transform = compose( makeTranslation( Vector4( 0.0, yoffset, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -1272,7 +1273,7 @@ void testRefraction2()
         mesh->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
 
         mesh->transform = std::make_shared<Transform>();
-        *mesh->transform = compose( makeTranslation( Vector4( 1.0 * spacing, 0.1, 2.0 ) ),
+        *mesh->transform = compose( makeTranslation( Vector4( 1.0 * spacing, yoffset, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -1286,7 +1287,7 @@ void testRefraction2()
         mesh->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
 
         mesh->transform = std::make_shared<Transform>();
-        *mesh->transform = compose( makeTranslation( Vector4( 2.0 * spacing, 0.1, 2.0 ) ),
+        *mesh->transform = compose( makeTranslation( Vector4( 2.0 * spacing, yoffset, 2.0 ) ),
                                     makeScaling( 3, 3, 3 ),
                                     rotation,
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
@@ -1319,7 +1320,9 @@ void testRefraction2()
 	scene->root = container;
 
 	scene->root = container;
-    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
+    auto arc_light = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI * 0.1 );
+    arc_light->setPower( 3.0f );
+    scene->env_map = arc_light;
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -1341,8 +1344,8 @@ void testRefraction2()
 
 void testRefraction3()
 {
-    //int imageSize = 64;
-    int imageSize = 256;
+    int imageSize = 64;
+    //int imageSize = 256;
     //int imageSize = 320;
     //int imageSize = 512;
     //int imageSize = 1024;
@@ -1398,7 +1401,10 @@ void testRefraction3()
 	scene->root = container;
 
 	scene->root = container;
-    scene->env_map = std::make_shared<ArcLightEnvironmentMap>(Vector4(0, 1, 0), M_PI * 0.25);
+    //auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI * 0.25 );
+    auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI * 0.1 );
+    env_map->setPower( 3.0f );
+    scene->env_map = env_map;
     tracer.scene = scene;
 
     tracer.shader = new BasicDiffuseSpecularShader();
@@ -2851,8 +2857,8 @@ int main (int argc, char * const argv[])
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testAnimTransforms3(); // 3 Spinning Mirror Cubes
-    //testRefraction2();  // Mesh bunnies with varying IoR
-    testRefraction3();  // Spheres of varying IoR
+    testRefraction2();  // Mesh bunnies with varying IoR
+    //testRefraction3();  // Spheres of varying IoR
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
     //testCircleAreaLight2();   // Area light proximity test
