@@ -2778,6 +2778,60 @@ BUILD_SCENE(
     container->add( mesh );
 );
 END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_SCENE(RefractProfile)
+SETUP_SCENE(
+    image_width = image_height = 200;
+    rays_per_pixel = 1;
+    rays_per_pixel = 100;
+    TestScene::setup();
+    tracer->shader = new GoochShader();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    float size = 1.0;
+    float half_size = size / 2.0;
+    auto cube = std::make_shared<AxisAlignedSlab>( -2.0, -0.5, -0.5,
+                                                    2.0, 0.5, 0.0 );
+    //container->add( cube );
+
+#if 1
+    auto thingy = std::make_shared<AxisAlignedSlab>( -2.0, -0.5, -0.5,
+                                                    2.0, 0.5, 0.0 );
+    thingy->transform = std::make_shared<Transform>();
+    *thingy->transform = compose( makeTranslation( -0.5, 0.0, 0.0 ),
+                                  makeRotation( 0.4 * M_PI, Vector4(0, 1, 0) ) );
+    container->add( thingy );
+#endif
+
+#if 1
+    float thickness = 0.4;
+    //float lens_radius = 0.5;
+    //  0.5 * th = rc * (1 - cos(a))
+    //  rl = sin(a) * rc
+    //float radius_of_curvature = lens_radius / 
+    float radius_of_curvature = 0.5;
+    auto obj1 = std::make_shared<Sphere>( -radius_of_curvature + 0.5 * thickness, 0.0, 0.0, radius_of_curvature );
+    auto obj2 = std::make_shared<Sphere>( radius_of_curvature - 0.5 * thickness, 0.0, 0.0, radius_of_curvature );
+    auto lens = std::make_shared<CSGAnd>( obj1, obj2 );
+#else
+    auto lens = std::make_shared<Sphere>( 0.0, 0.0, 0.0, 0.25 );
+#endif
+    //lens->material = std::make_shared<RefractiveMaterial>(N_ICE);
+    lens->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
+    //lens->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
+    //lens->material = std::make_shared<RefractiveMaterial>(4.0);
+    container->add( lens );
+
+    // Area Light
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 4.0 );
+    auto light = std::make_shared<CircleAreaLight>( 0.5, light_color );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( -0.5 * M_PI, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, 1.25, 0 ) ) );
+    container->add( light );
+);
+END_SCENE()
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -2857,8 +2911,9 @@ int main (int argc, char * const argv[])
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes
     //testAnimTransforms3(); // 3 Spinning Mirror Cubes
-    testRefraction2();  // Mesh bunnies with varying IoR
+    //testRefraction2();  // Mesh bunnies with varying IoR
     //testRefraction3();  // Spheres of varying IoR
+    RefractProfile::run();
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
     //testCircleAreaLight2();   // Area light proximity test
