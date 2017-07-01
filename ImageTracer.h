@@ -9,12 +9,15 @@
 #ifndef _IMAGE_TRACER_H_
 #define _IMAGE_TRACER_H_
 
+#include <thread>
+
 #include "RandomNumberGenerator.h"
 #include "SimpleCamera.h"
 #include "Artifacts.h"
 #include "Scene.h"
 #include "Shader.h"
 #include "Timer.h"
+#include "PreviewWindow.h"
 
 class ImageTracer
 {
@@ -58,7 +61,10 @@ class ImageTracer
         // FIXME: It seems we aren't accumulating pixels correctly in SamplePosition traversal order
         //TraversalNesting traversal_nesting = SamplePosition;
 
-        float min_flush_period_seconds = 5.0;
+        //float min_flush_period_seconds = 5.0;
+        float min_flush_period_seconds = 60.0;
+
+        bool show_preview_window = true;
 
     protected:
         // Frame rendering
@@ -72,6 +78,11 @@ class ImageTracer
         Vector4 pixel_normal;
         float pixel_distance;
         unsigned int num_hits;
+
+        void renderThread();
+        std::thread render_thread;
+
+        PreviewWindow preview_window;
 };
 
 

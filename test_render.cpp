@@ -2900,7 +2900,7 @@ int main (int argc, char * const argv[])
     testTexturedMesh();
 #else
     //RoomScene::run();
-    //RoomSceneWithSpheres::run();
+    RoomSceneWithSpheres::run();
     //RoomSceneWithSpheresAnimLight::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
@@ -2913,7 +2913,7 @@ int main (int argc, char * const argv[])
     //testAnimTransforms3(); // 3 Spinning Mirror Cubes
     //testRefraction2();  // Mesh bunnies with varying IoR
     //testRefraction3();  // Spheres of varying IoR
-    RefractProfile::run();
+    //RefractProfile::run();
     //testAO5(); // Stanford Bunny
     //testCircleAreaLight1();   // Cube with circular area light
     //testCircleAreaLight2();   // Area light proximity test

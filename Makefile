@@ -22,7 +22,9 @@ HDR = \
 	Lights.h \
 	Material.h \
 	Matrix.h \
+    OpenGLUtil.h \
 	Plot2D.h \
+	PreviewWindow.h \
 	Quaternion.h \
 	RandomNumberGenerator.h \
 	Ray.h \
@@ -63,7 +65,9 @@ OBJ = \
     Lights.o \
 	Material.o \
 	Matrix.o \
+    OpenGLUtil.o \
 	Plot2D.o \
+	PreviewWindow.o \
 	Quaternion.o \
 	RandomNumberGenerator.o \
 	Ray.o \
@@ -126,6 +130,7 @@ endif
 #
 LDXXFLAGS += -L/usr/local/lib
 #LDXXFLAGS += -e _main -lassimp -lm -lc
+LDXXFLAGS += -framework GLUT -framework OpenGL
 ifeq ($(UNAME_S),Linux)
     # FIXME: HACKHACK
     LDXXFLAGS += -L/usr/lib/gcc/x86_64-amazon-linux/4.8.3/
@@ -142,7 +147,7 @@ endif
 #LDXXFLAGS += -lstdc++
 #LDXXFLAGS += -lgcc_s
 #LDXXFLAGS += -v
-frLDXXFLAGS = $(LDXXFLAGS)
+frLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 test_randomLDXXFLAGS = $(LDXXFLAGS)
 test_samplersLDXXFLAGS = $(LDXXFLAGS)

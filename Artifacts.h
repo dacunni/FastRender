@@ -18,6 +18,7 @@
 #include <Magick++.h>
 
 #include "Types.h"
+#include "PreviewWindow.h"
 
 class Vector4;
 
@@ -49,11 +50,14 @@ public:
     ImagePtr stddev_image = nullptr;
     std::vector<float3> pixel_color_accum;
     std::vector<float3> pixel_color_sq_accum; // squares of pixel values for variance calculation
-    std::vector<unsigned long> pixel_color_num_samples;
+    std::vector<unsigned int> pixel_color_num_samples;
     std::vector<float3> pixel_normal;
     std::vector<float> pixel_depth;
     std::vector<double> time_unnormalized_image;
     FILE * intersections_file;
+
+    bool show_preview_window = false;
+    PreviewWindow preview_window;
 
     unsigned int width;
     unsigned int height;

@@ -26,7 +26,8 @@ ImageTracer::ImageTracer( unsigned int w, unsigned int h,
       camera( rng, -0.15, 0.15, -0.15, 0.15, w, h ),
       artifacts( w, h ),
       rays_per_pixel( rayspp ),
-      num_frames( nframes )
+      num_frames( nframes ),
+      preview_window( artifacts )
 {
 
 }
@@ -37,6 +38,23 @@ ImageTracer::~ImageTracer()
 }
 
 void ImageTracer::render()
+{
+#if 1
+    render_thread = std::thread(&ImageTracer::renderThread, this);
+    if( show_preview_window ) {
+        preview_window.init();
+    }
+    // Probably never get here when preview window takes over the main thread
+    render_thread.join();
+#elif 1
+    render_thread = std::thread(&ImageTracer::renderThread, this);
+    render_thread.join();
+#else
+    renderThread();
+#endif
+}
+
+void ImageTracer::renderThread()
 {
     Timer image_flush_timer;
 
@@ -55,6 +73,8 @@ void ImageTracer::render()
             std::swap(randomized_indices[i], randomized_indices[j]);
         }
     }
+
+    artifacts.startNewFrame();
 
     printf("ImageTracer: Tracing scene\n"
            "  image_width = %u  image_height = %u\n"
@@ -117,7 +137,7 @@ void ImageTracer::render()
 
     artifacts.flush();
     
-    printf( "Intersection tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu\n",
+    printf( "Intersection Complete, tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu\n",
            AxisAlignedSlab::intersection_test_count,
            Sphere::intersection_test_count,
            TriangleMesh::intersection_test_count
