@@ -23,7 +23,9 @@ public:
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
-    std::function<float(const Vector4&)> valueFunction;
+    typedef std::function<float(const Vector4&)> ValueFunctionType;
+
+    ValueFunctionType valueFunction;
 
     inline bool walkRay( const Ray & ray,
                          float tInit,
@@ -38,7 +40,9 @@ public:
                                       RayIntersection & intersection ) const;
 };
 
-
+// Common SDF shapes
+SignedDistanceFunction::ValueFunctionType makeSDFSphere( const Vector4 & center, float radius );
+SignedDistanceFunction::ValueFunctionType makeSDFBox( const Vector4 & center, const Vector4 & dims );
 
 
 #endif

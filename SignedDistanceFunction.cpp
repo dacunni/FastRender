@@ -7,7 +7,7 @@ const float hitDistance = 0.01;
 // Distance to step when computing partial derivatives for estimating the normal
 const float normalDelta = 0.001;
 // Maximum number of steps to make tracing a SDF
-const unsigned int maxSteps = 10;
+const unsigned int maxSteps = 15;
 
 bool SignedDistanceFunction::intersectsAny( const Ray & ray, float min_distance ) const
 { 
@@ -90,3 +90,20 @@ inline void SignedDistanceFunction::populateIntersection( const Ray & ray,
     intersection.material = material;
     intersection.traceable = this;
 }
+
+SignedDistanceFunction::ValueFunctionType makeSDFSphere( const Vector4 & center, float radius ) {
+    return [center, radius](const Vector4 & v) { return subtract( v, center ).magnitude() - radius; };
+}
+
+SignedDistanceFunction::ValueFunctionType makeSDFBox( const Vector4 & center, const Vector4 & dims ) {
+    using std::min;
+    using std::max;
+
+    return [center, dims](const Vector4 & v) {
+        Vector4 p = subtract( v, center );
+        Vector4 d = subtract( Vector4( fabs(p.x), fabs(p.y), fabs(p.z) ), scale( dims, 0.5 ) );
+        Vector4 dc( max(d.x, 0.0f), max(d.y, 0.0f), max(d.z, 0.0f) );
+        return (float) min(max(d.x, max(d.y, d.z)), 0.0f) + dc.magnitude();
+    };
+}
+
