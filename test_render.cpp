@@ -2779,13 +2779,35 @@ BUILD_SCENE(
 );
 END_SCENE()
 // ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithSignedDistanceFunction, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    //tracer->rays_per_pixel = 4; // TEMP
+    //tracer->shader = new GoochShader(); // TEMP
+    auto red_material = std::make_shared<DiffuseMaterial>( 1.0, 0.3, 0.3 );
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
+    //auto refractive_material = std::make_shared<RefractiveMaterial>( N_WATER );
+    auto sdf = std::make_shared<SignedDistanceFunction>();
+    float radius = 0.5;
+    sdf->valueFunction = [radius](const Vector4 & v) { return subtract( v, Vector4(0, 0.5, 0) ).magnitude() - radius; };
+    container->add( sdf, refractive_material );
+    // Reference
+    //container->add( std::make_shared<Sphere>( 0, 0.5, 0, radius ), refractive_material );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
 BEGIN_SCENE(RefractProfile)
 SETUP_SCENE(
     image_width = image_height = 200;
     rays_per_pixel = 1;
     rays_per_pixel = 100;
     TestScene::setup();
-    tracer->shader = new GoochShader();
+    //tracer->shader = new GoochShader();
     tracer->shader = new BasicDiffuseSpecularShader();
 );
 BUILD_SCENE(
@@ -2896,17 +2918,25 @@ int main (int argc, char * const argv[])
     CSGLogicalANDLensFlintGlass::run();
     RoomScene::run();
     RoomSceneWithSpheres::run();
+    RoomSceneWithSpheresAnimLight::run();
+    GridRoomScene::run();
+    GridRoomSceneWithSpheres::run();
+    GridRoomSceneWithBunny::run();
+    GridRoomSceneWithTieFighter::run();
+    GridRoomSceneWithTexturedMonkey::run();
+    GridRoomSceneWithSignedDistanceFunction::run();
     testUVMesh();
     testTexturedMesh();
 #else
     //RoomScene::run();
-    RoomSceneWithSpheres::run();
+    //RoomSceneWithSpheres::run();
     //RoomSceneWithSpheresAnimLight::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
     //GridRoomSceneWithBunny::run();
     //GridRoomSceneWithTieFighter::run();
     //GridRoomSceneWithTexturedMonkey::run();
+    GridRoomSceneWithSignedDistanceFunction::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
     //testAnimTransforms1(); // Mirror Bunny and simple shapes

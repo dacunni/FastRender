@@ -43,7 +43,7 @@ void PreviewWindow::init()
                          );
     glutInitWindowSize( window_width, window_height );
     glutInitWindowPosition( 0, 0 );
-    glutCreateWindow("FastRender UI");
+    glutCreateWindow("FastRender");
     
     // Create shaders
     // TODO: Clean up shader compilation

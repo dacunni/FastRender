@@ -30,6 +30,7 @@ HDR = \
 	Ray.h \
     RGBImage.h \
 	Scene.h \
+	SignedDistanceFunction.h \
 	SimpleCamera.h \
 	Shader.h \
 	Sphere.h \
@@ -73,6 +74,7 @@ OBJ = \
 	Ray.o \
     RGBImage.o \
 	Scene.o \
+	SignedDistanceFunction.o \
 	SimpleCamera.o \
 	Sphere.o \
     SurfaceTexture.o \
@@ -156,7 +158,8 @@ test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr frui tests
-all: fr tests python_bindings
+#all: fr tests python_bindings
+all: fr tests
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them

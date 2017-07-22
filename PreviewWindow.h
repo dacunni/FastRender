@@ -52,7 +52,7 @@ private:
     GLuint pixelAccumTex = 0;
     GLuint pixelCountTex = 0;
 
-    float update_rate_sec = 0.1;
+    float update_rate_sec = 0.3;
 };
 
 #endif /* defined(__FastRender__PreviewWindow__) */

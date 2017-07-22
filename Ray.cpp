@@ -10,6 +10,7 @@
 #include <typeinfo>
 
 #include "Ray.h"
+#include "Material.h"
 #include "Scene.h"
 
 
@@ -43,7 +44,7 @@ void RayIntersection::print()
     printf("Ray Intersection :\n");
     printf("pos          : "); position.print();
     printf("normal       : "); normal.print();
-    printf("material     : %s\n", (material ? typeid(material).name() : "null"));
+    printf("material     : %s\n", (material ? typeid(*material).name() : "null"));
     printf("sample       : "); sample.color.print();
     printf("distance     : %f\n", distance);
     printf("min_distance : %f\n", min_distance);
