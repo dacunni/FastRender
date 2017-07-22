@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "Vector.h"
 #include "Artifacts.h"
+#include "GeometryUtils.h"
 
 Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
 : output_path( "output" ), // TEMP
@@ -63,6 +64,15 @@ void Artifacts::resetImages()
     time_unnormalized_image.assign( width * height, 0.0 );
 }
 
+// Scale, clamp, and assign a color to an ImageMagick pixel
+void set( Magick::PixelPacket & packet, const float3 & color )
+{
+    const unsigned short pixel_max = (1 << MAGICKCORE_QUANTUM_DEPTH) - 1;
+    packet.red   = clamp01(color.r) * pixel_max;
+    packet.green = clamp01(color.g) * pixel_max;
+    packet.blue  = clamp01(color.b) * pixel_max;
+}
+
 void Artifacts::flush()
 {
     char sindex[32];
@@ -87,12 +97,7 @@ void Artifacts::flush()
                 color.g /= nsamples;
                 color.b /= nsamples;
             }
-            color.r = std::min( color.r, 1.0f );
-            color.g = std::min( color.g, 1.0f );
-            color.b = std::min( color.b, 1.0f );
-            color_cache[pindex].red   = color.r * pixel_max;
-            color_cache[pindex].green = color.g * pixel_max;
-            color_cache[pindex].blue  = color.b * pixel_max;
+            set( color_cache[pindex], color );
 
             auto color_sq = pixel_color_sq_accum[pindex];
             if( nsamples > 0 ) {
@@ -103,23 +108,16 @@ void Artifacts::flush()
             auto stddev = float3(sqrtf(color_sq.r - sq(color.r)),
                                  sqrtf(color_sq.g - sq(color.g)),
                                  sqrtf(color_sq.b - sq(color.b)));
-            float scale = 1.0f; // arbitrary scale to brighten images as necessary
-            stddev.r = std::min( stddev.r * scale, 1.0f );
-            stddev.g = std::min( stddev.g * scale, 1.0f );
-            stddev.b = std::min( stddev.b * scale, 1.0f );
-            stddev_cache[pindex].red   = stddev.r * pixel_max;
-            stddev_cache[pindex].green = stddev.g * pixel_max;
-            stddev_cache[pindex].blue  = stddev.b * pixel_max;
+            //float scale = 1.0f; // arbitrary scale to brighten images as necessary
+            //stddev.r *= scale;
+            //stddev.g *= scale;
+            //stddev.b *= scale;
+            set( stddev_cache[pindex], stddev );
 
-            auto normal = pixel_normal[pindex];
-            normal_cache[pindex].red   = normal.x * pixel_max;
-            normal_cache[pindex].green = normal.y * pixel_max;
-            normal_cache[pindex].blue  = normal.z * pixel_max;
+            set( normal_cache[pindex], pixel_normal[pindex] );
 
             auto depth = pixel_depth[pindex];
-            depth_cache[pindex].red   = depth * pixel_max;
-            depth_cache[pindex].green = depth * pixel_max;
-            depth_cache[pindex].blue  = depth * pixel_max;
+            set( depth_cache[pindex], float3(depth, depth, depth) );
         }
     }
 
@@ -152,11 +150,7 @@ void Artifacts::flush()
     Magick::PixelPacket * time_cache = time_image->setPixels( 0, 0, width, height );
     for( int i = 0; i < width * height; i++ ) {
         double value = (time_unnormalized_image[i] - min_value) / max_value;
-        value = std::max( value, 0.0 );
-        value = std::min( value, 1.0 );
-        time_cache[ i ].red   = value * pixel_max;
-        time_cache[ i ].green = value * pixel_max;
-        time_cache[ i ].blue  = value * pixel_max;
+        set( time_cache[ i ], float3(value, value, value) );
     }
 
     time_image->write( output_path + "/" + file_prefix + "time.png" );

@@ -2810,8 +2810,8 @@ BUILD_SCENE(
     //                           makeRotation( 0.25 * M_PI, Vector4(1, 1, 0) ),
     //                           makeTranslation( 0.0, -0.5, 0.0 ) );
     //container->add( sdf, white_material );
-    container->add( sdf, red_material );
-    //container->add( sdf, refractive_material );
+    //container->add( sdf, red_material );
+    container->add( sdf, refractive_material );
     // Reference
     //container->add( std::make_shared<Sphere>( 0, 0.5, 0, radius ), refractive_material );
 );
