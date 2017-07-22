@@ -2796,7 +2796,15 @@ BUILD_SCENE(
     //sdf->valueFunction = makeSDFSphere( Vector4(0, 0.5, 0), 0.5 );
     //sdf->valueFunction = makeSDFBox( Vector4(0, 0.5, 0), Vector4(0.5, 0.5, 0.5) );
     //sdf->valueFunction = makeSDFTorus( 0.5, 0.05 );
-    sdf->valueFunction = makeSDFCylinder( 0.3 );
+    //sdf->valueFunction = makeSDFCylinder( 0.3 );
+
+    //sdf->valueFunction = sdfUnion( makeSDFSphere( Vector4(0, 0.5, 0.0), 0.25 ),
+    //                               makeSDFSphere( Vector4(0, 0.5, 0.3), 0.25 ) );
+    //sdf->valueFunction = sdfDiff( makeSDFSphere( Vector4(0, 0.5, 0.0), 0.25 ),
+    //                              makeSDFSphere( Vector4(0, 0.5, 0.3), 0.25 ) );
+    sdf->valueFunction = sdfIntersection( makeSDFSphere( Vector4(0, 0.5, 0.0), 0.25 ),
+                                          makeSDFSphere( Vector4(0, 0.5, 0.3), 0.25 ) );
+
     //sdf->transform = std::make_shared<Transform>();
     //*sdf->transform = compose( makeTranslation( 0.0, 0.5, 0.0 ),
     //                           makeRotation( 0.25 * M_PI, Vector4(1, 1, 0) ),

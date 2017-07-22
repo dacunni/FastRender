@@ -3,6 +3,9 @@
 #include "SignedDistanceFunction.h"
 #include "Types.h"
 
+using std::min;
+using std::max;
+
 // Distance from the level set considered a hit
 const float hitDistance = 0.01;
 // Distance to step when computing partial derivatives for estimating the normal
@@ -97,9 +100,6 @@ SignedDistanceFunction::ValueFunctionType makeSDFSphere( const Vector4 & center,
 }
 
 SignedDistanceFunction::ValueFunctionType makeSDFBox( const Vector4 & center, const Vector4 & dims ) {
-    using std::min;
-    using std::max;
-
     return [center, dims](const Vector4 & v) {
         Vector4 p = subtract( v, center );
         Vector4 d = subtract( Vector4( fabs(p.x), fabs(p.y), fabs(p.z) ), scale( dims, 0.5 ) );
@@ -123,5 +123,33 @@ SignedDistanceFunction::ValueFunctionType makeSDFCylinder( float radius )
         return sqrtf( sq(v.x) + sq(v.z) ) - radius;
     };
 }
+
+
+SignedDistanceFunction::ValueFunctionType sdfUnion( const SignedDistanceFunction::ValueFunctionType & a,
+                                                    const SignedDistanceFunction::ValueFunctionType & b )
+{
+    return [a, b](const Vector4 & v) {
+        return min(a(v), b(v));
+    };
+}
+
+
+SignedDistanceFunction::ValueFunctionType sdfDiff( const SignedDistanceFunction::ValueFunctionType & a,
+                                                   const SignedDistanceFunction::ValueFunctionType & b )
+{
+    return [a, b](const Vector4 & v) {
+        return max(a(v), -b(v));
+    };
+}
+
+
+SignedDistanceFunction::ValueFunctionType sdfIntersection( const SignedDistanceFunction::ValueFunctionType & a,
+                                                           const SignedDistanceFunction::ValueFunctionType & b )
+{
+    return [a, b](const Vector4 & v) {
+        return max(a(v), b(v));
+    };
+}
+
 
 

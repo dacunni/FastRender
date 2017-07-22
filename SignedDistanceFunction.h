@@ -46,5 +46,12 @@ SignedDistanceFunction::ValueFunctionType makeSDFBox( const Vector4 & center, co
 SignedDistanceFunction::ValueFunctionType makeSDFTorus( float mainRadius, float tubeRadius );
 SignedDistanceFunction::ValueFunctionType makeSDFCylinder( float radius );
 
+// SDF constructive solid geometry operators
+SignedDistanceFunction::ValueFunctionType sdfUnion( const SignedDistanceFunction::ValueFunctionType & a,
+                                                    const SignedDistanceFunction::ValueFunctionType & b );
+SignedDistanceFunction::ValueFunctionType sdfDiff( const SignedDistanceFunction::ValueFunctionType & a,
+                                                   const SignedDistanceFunction::ValueFunctionType & b );
+SignedDistanceFunction::ValueFunctionType sdfIntersection( const SignedDistanceFunction::ValueFunctionType & a,
+                                                           const SignedDistanceFunction::ValueFunctionType & b );
 
 #endif
