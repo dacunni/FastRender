@@ -2794,10 +2794,11 @@ BUILD_SCENE(
     //auto refractive_material = std::make_shared<RefractiveMaterial>( N_WATER );
     auto sdf = std::make_shared<SignedDistanceFunction>();
     //sdf->valueFunction = makeSDFSphere( Vector4(0, 0.5, 0), 0.5 );
-    sdf->valueFunction = makeSDFBox( Vector4(0, 0.5, 0), Vector4(0.5, 0.5, 0.5) );
+    //sdf->valueFunction = makeSDFBox( Vector4(0, 0.5, 0), Vector4(0.5, 0.5, 0.5) );
+    sdf->valueFunction = makeSDFTorus( 0.5, 0.05 );
     //sdf->transform = std::make_shared<Transform>();
     //*sdf->transform = compose( makeTranslation( 0.0, 0.5, 0.0 ),
-    //                           makeRotation( 0.1 * M_PI, Vector4(1, 1, 0) ),
+    //                           makeRotation( 0.25 * M_PI, Vector4(1, 1, 0) ),
     //                           makeTranslation( 0.0, -0.5, 0.0 ) );
     container->add( sdf, white_material );
     //container->add( sdf, red_material );

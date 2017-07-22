@@ -1,6 +1,7 @@
 
 #include <algorithm>
 #include "SignedDistanceFunction.h"
+#include "Types.h"
 
 // Distance from the level set considered a hit
 const float hitDistance = 0.01;
@@ -104,6 +105,14 @@ SignedDistanceFunction::ValueFunctionType makeSDFBox( const Vector4 & center, co
         Vector4 d = subtract( Vector4( fabs(p.x), fabs(p.y), fabs(p.z) ), scale( dims, 0.5 ) );
         Vector4 dc( max(d.x, 0.0f), max(d.y, 0.0f), max(d.z, 0.0f) );
         return (float) min(max(d.x, max(d.y, d.z)), 0.0f) + dc.magnitude();
+    };
+}
+
+SignedDistanceFunction::ValueFunctionType makeSDFTorus( float mainRadius, float tubeRadius )
+{
+    return [mainRadius, tubeRadius](const Vector4 & v) {
+        float2 q( sqrtf(v.x * v.x + v.z * v.z) - mainRadius, v.y );
+        return sqrtf( q.x * q.x + q.y * q.y ) - tubeRadius;
     };
 }
 

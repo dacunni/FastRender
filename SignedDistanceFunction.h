@@ -43,6 +43,7 @@ public:
 // Common SDF shapes
 SignedDistanceFunction::ValueFunctionType makeSDFSphere( const Vector4 & center, float radius );
 SignedDistanceFunction::ValueFunctionType makeSDFBox( const Vector4 & center, const Vector4 & dims );
+SignedDistanceFunction::ValueFunctionType makeSDFTorus( float mainRadius, float tubeRadius );
 
 
 #endif
