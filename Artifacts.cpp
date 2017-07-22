@@ -210,7 +210,12 @@ void Artifacts::setPixelNormal( unsigned int row, unsigned int col, const Vector
 void Artifacts::setPixelDepth( unsigned int row, unsigned int col, float depth )
 {
     auto pindex = row * width + col;
+
+#if 1
+    depth = log2f(depth);
+#else
     depth = (1.0 - (depth - 3.0) / 20.0);
+#endif
     depth = std::min( std::max( depth, 0.0f ), 1.0f );
 
     pixel_depth[pindex] = depth;

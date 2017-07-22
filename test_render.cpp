@@ -2663,7 +2663,7 @@ BUILD_SCENE(
     float light_distance = 2.0 * dim;
     auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.2 ) );
     light->transform = std::make_shared<Transform>();
-    *light->transform = compose( makeRotation( M_PI * -0.0, Vector4(0, 0, 1) ),
+    *light->transform = compose( makeRotation( M_PI * -0.2, Vector4(0, 0, 1) ),
                                  makeTranslation( Vector4( 0, light_distance, 0 ) ) );
     container->add( light );
 #else // Arc light environment map
@@ -2795,13 +2795,14 @@ BUILD_SCENE(
     auto sdf = std::make_shared<SignedDistanceFunction>();
     //sdf->valueFunction = makeSDFSphere( Vector4(0, 0.5, 0), 0.5 );
     //sdf->valueFunction = makeSDFBox( Vector4(0, 0.5, 0), Vector4(0.5, 0.5, 0.5) );
-    sdf->valueFunction = makeSDFTorus( 0.5, 0.05 );
+    //sdf->valueFunction = makeSDFTorus( 0.5, 0.05 );
+    sdf->valueFunction = makeSDFCylinder( 0.3 );
     //sdf->transform = std::make_shared<Transform>();
     //*sdf->transform = compose( makeTranslation( 0.0, 0.5, 0.0 ),
     //                           makeRotation( 0.25 * M_PI, Vector4(1, 1, 0) ),
     //                           makeTranslation( 0.0, -0.5, 0.0 ) );
-    container->add( sdf, white_material );
-    //container->add( sdf, red_material );
+    //container->add( sdf, white_material );
+    container->add( sdf, red_material );
     //container->add( sdf, refractive_material );
     // Reference
     //container->add( std::make_shared<Sphere>( 0, 0.5, 0, radius ), refractive_material );

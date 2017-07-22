@@ -111,8 +111,17 @@ SignedDistanceFunction::ValueFunctionType makeSDFBox( const Vector4 & center, co
 SignedDistanceFunction::ValueFunctionType makeSDFTorus( float mainRadius, float tubeRadius )
 {
     return [mainRadius, tubeRadius](const Vector4 & v) {
-        float2 q( sqrtf(v.x * v.x + v.z * v.z) - mainRadius, v.y );
-        return sqrtf( q.x * q.x + q.y * q.y ) - tubeRadius;
+        float2 q( sqrtf( sq(v.x) + sq(v.z) ) - mainRadius, v.y );
+        return sqrtf( sq(q.x) + sq(q.y) ) - tubeRadius;
     };
 }
+
+
+SignedDistanceFunction::ValueFunctionType makeSDFCylinder( float radius )
+{
+    return [radius](const Vector4 & v) {
+        return sqrtf( sq(v.x) + sq(v.z) ) - radius;
+    };
+}
+
 
