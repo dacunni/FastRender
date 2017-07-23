@@ -169,6 +169,45 @@ void testSamplePDF2D()
 #endif
 }
 
+void validateBxDF(const Material & material)
+{
+    const unsigned int numThetaSteps = 100;
+    const unsigned int numPhiSteps = 400;
+    const float dtheta = M_PI * 0.5 / (float) numThetaSteps;
+    const float dphi = 2.0 * M_PI / (float) numPhiSteps;
+
+    RayIntersection isect;
+    isect.position = Vector4(0, 0, 0);
+    isect.normal = Vector4(0, 0, 1);
+
+    float areaSum = 0.0;
+    float integral = 0.0;
+
+    for(unsigned int thetaIndex = 0; thetaIndex < numThetaSteps; thetaIndex++) {
+        float theta = ((float) thetaIndex + 0.5) / numThetaSteps * M_PI * 0.5;
+        float dArea = dtheta * dphi * sinf(theta);
+        for(unsigned int phiIndex = 0; phiIndex < numPhiSteps; phiIndex++) {
+            float phi = ((float) phiIndex + 0.5) / numPhiSteps * 2.0 * M_PI;
+            float x = cosf(phi) * sinf(theta);
+            float y = sinf(phi) * sinf(theta);
+            float z = cosf(theta);
+            float dAreaProj = dArea * cosf(theta);
+
+            Vector4 fromDirection(x, y, z);
+            isect.ray.origin = fromDirection;
+            isect.ray.direction = fromDirection.negated();
+
+            float bxdfValue = material.BxDF(isect);
+            integral += bxdfValue * dAreaProj;
+
+            areaSum += dArea;
+        }
+    }
+
+    std::string name = typeid(material).name();
+    printf("%s integral(BxDF*dAreaProj) = %f\n", name.c_str(), integral);
+}
+
 int main (int argc, char * const argv[]) 
 {
     printf("RNG Tests\n");
@@ -181,9 +220,13 @@ int main (int argc, char * const argv[])
 
     rng.seedCurrentTime();
 
+    // PDF Sampling
     testSamplePDF1D();
     testSamplePDF2D();
-    
+
+    // BRDF Validation
+    validateBxDF(DiffuseMaterial(1.0, 1.0, 1.0));
+
     total_run_timer.stop();
     printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());
     fflush(stdout);

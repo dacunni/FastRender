@@ -5,12 +5,16 @@
 
 std::shared_ptr<Material> DEFAULT_MATERIAL = std::make_shared<DiffuseMaterial>();
 
-// FIXME - Should sampleBxDF account for the cosine term?
-//
+float
+Material::BxDF( const RayIntersection & intersection ) const
+{
+    printf("BxDF is not overridden!!!\n");
+    return 1.0f; // Perfectly diffuse
+}
 
 DistributionSample
 Material::sampleBxDF( RandomNumberGenerator & rng,
-                      const RayIntersection & intersection )
+                      const RayIntersection & intersection ) const
 {
     // Perfectly diffuse surface
     DistributionSample sample;
@@ -22,7 +26,7 @@ Material::sampleBxDF( RandomNumberGenerator & rng,
 
 DistributionSample
 DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
-                             const RayIntersection & intersection )
+                             const RayIntersection & intersection ) const
 {
     // Perfectly diffuse surface
     DistributionSample sample;
@@ -30,6 +34,12 @@ DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
     sample.direction.makeDirection();
     sample.pdf_sample = 1.0f / (2.0f * M_PI);
     return sample;
+}
+
+float
+DiffuseMaterial::BxDF( const RayIntersection & intersection ) const
+{
+    return 1.0f; // Perfectly diffuse
 }
 
 RGBColor
@@ -62,7 +72,7 @@ DiffuseTextureMaterial::diffuse( RayIntersection & isect )
 
 DistributionSample
 DiffuseCheckerBoardMaterial::sampleBxDF( RandomNumberGenerator & rng,
-                             const RayIntersection & intersection )
+                             const RayIntersection & intersection ) const
 {
     // Perfectly diffuse surface
     DistributionSample sample;
@@ -74,7 +84,7 @@ DiffuseCheckerBoardMaterial::sampleBxDF( RandomNumberGenerator & rng,
 
 DistributionSample
 MirrorMaterial::sampleBxDF( RandomNumberGenerator & rng,
-                            const RayIntersection & intersection )
+                            const RayIntersection & intersection ) const
 {
     // Perfect mirror - PDF if a Dirac delta function
     DistributionSample sample;
@@ -86,7 +96,7 @@ MirrorMaterial::sampleBxDF( RandomNumberGenerator & rng,
 
 DistributionSample
 RefractiveMaterial::sampleBxDF( RandomNumberGenerator & rng,
-                                const RayIntersection & intersection )
+                                const RayIntersection & intersection ) const
 {
     // Perfect Fresnel refractor
     DistributionSample sample;

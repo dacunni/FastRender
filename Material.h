@@ -47,14 +47,18 @@ class DistributionSample
         float new_index_of_refraction;
 };
 
+// TODO: Implement BxDF in all materials
+// TODO: Use BxDF in shaders
+
 class Material 
 {
     public:
         Material() {}
         virtual ~Material() {}
 
+        virtual float BxDF( const RayIntersection & intersection ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
-                                               const RayIntersection & intersection );
+                                               const RayIntersection & intersection ) const;
 
         // FIXME - stopgap
         virtual bool isEmitter() { return emittance.r > 0.0 || emittance.g > 0.0 || emittance.b > 0.0; }
@@ -91,8 +95,9 @@ class DiffuseMaterial : public Material
         }
         virtual ~DiffuseMaterial() {}
 
+        virtual float BxDF( const RayIntersection & intersection ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
-                                               const RayIntersection & intersection );
+                                               const RayIntersection & intersection ) const;
 };
 
 class DiffuseEmitterMaterial : public DiffuseMaterial
@@ -120,7 +125,7 @@ class DiffuseCheckerBoardMaterial : public Material
         virtual RGBColor diffuse( RayIntersection & isect );
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
-                                               const RayIntersection & intersection );
+                                               const RayIntersection & intersection ) const;
 
         float gridSize = 0.2;
 };
@@ -172,7 +177,7 @@ class MirrorMaterial : public Material
         virtual ~MirrorMaterial() {}
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
-                                               const RayIntersection & intersection );
+                                               const RayIntersection & intersection ) const;
 };
 
 class RefractiveMaterial : public Material 
@@ -208,7 +213,7 @@ class RefractiveMaterial : public Material
         virtual ~RefractiveMaterial() {}
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
-                                               const RayIntersection & intersection );
+                                               const RayIntersection & intersection ) const;
 };
 
 
