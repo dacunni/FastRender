@@ -110,7 +110,38 @@ void ImageTracer::renderThread()
                 }
             }
         }
-        else { // PositionSample
+        else if( traversal_nesting == PositionSample ) {
+            unsigned int tileSize = 8;
+            unsigned int numGridRows = (image_height + tileSize - 1) / tileSize;
+            unsigned int numGridCols = (image_width + tileSize - 1) / tileSize;
+
+            for( unsigned int gridRow = 0; gridRow < numGridRows; ++gridRow ) {
+                unsigned int numTileRows = (gridRow == numGridRows - 1 && image_height % tileSize != 0)
+                    ? image_height % tileSize : tileSize;
+                for( unsigned int gridCol = 0; gridCol < numGridCols; ++gridCol ) {
+                    unsigned int numTileCols = (gridCol == numGridCols - 1 && image_width % tileSize != 0)
+                        ? image_width % tileSize : tileSize;
+
+                    if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
+                        printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
+                               (float) gridRow / numGridRows * 100.0f,
+                               num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                               image_flush_timer.elapsed());
+                        artifacts.flush();
+                        image_flush_timer.start(); // reset timer
+                    }
+
+                    for( unsigned int tileRow = 0; tileRow < numTileRows; tileRow++ ) {
+                        for( unsigned int tileCol = 0; tileCol < numTileCols; tileCol++ ) {
+                            unsigned int row = gridRow * tileSize + tileRow;
+                            unsigned int col = gridCol * tileSize + tileCol;
+                            renderPixel( row, col, rays_per_pixel );
+                        }
+                    }
+                }
+            }
+        }
+        else if( traversal_nesting == TilePositionSample ) {
             for( unsigned int row = 0; row < image_height; ++row ) {
                 if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
                     printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
@@ -131,6 +162,9 @@ void ImageTracer::renderThread()
                     }
                 }
             }
+        }
+        else {
+            fprintf(stderr, "ERROR: Unknown traversal nesting %d\n", (int) traversal_nesting);
         }
         endFrame( frame );
     }

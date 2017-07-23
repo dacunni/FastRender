@@ -56,8 +56,8 @@ class ImageTracer
 
         enum TraversalOrder { TopToBottom, Randomized };
         TraversalOrder traversal_order = TopToBottom;
-        enum TraversalNesting { PositionSample, SamplePosition };
-        TraversalNesting traversal_nesting = PositionSample;
+        enum TraversalNesting { PositionSample, SamplePosition, TilePositionSample };
+        TraversalNesting traversal_nesting = TilePositionSample;
         // FIXME: It seems we aren't accumulating pixels correctly in SamplePosition traversal order
         //TraversalNesting traversal_nesting = SamplePosition;
 
