@@ -44,7 +44,12 @@ void RayIntersection::print()
     printf("Ray Intersection :\n");
     printf("pos          : "); position.print();
     printf("normal       : "); normal.print();
-    printf("material     : %s\n", (material ? typeid(*material).name() : "null"));
+    if(material) {
+        printf("material     : %s\n", material->name().c_str());
+    }
+    else {
+        printf("material     : null\n");
+    }
     printf("sample       : "); sample.color.print();
     printf("distance     : %f\n", distance);
     printf("min_distance : %f\n", min_distance);

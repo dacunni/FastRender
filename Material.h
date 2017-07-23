@@ -56,6 +56,8 @@ class Material
         Material() {}
         virtual ~Material() {}
 
+        std::string name() { return typeid(*this).name(); }
+
         virtual float BxDF( const RayIntersection & intersection ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
