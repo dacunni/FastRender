@@ -21,13 +21,12 @@
 #include "FlatContainer.h"
 #include "BoundingVolumeHierarchy.h"
 
-void AssetLoader::loadTriangleArray( const std::string & filename,
-                                     TriangleMeshArray & array ) throw(AssetFileNotFoundException)
+const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string filename )
+    throw(AssetFileNotFoundException)
 {
-    Assimp::Importer importer;
     const aiScene * scene = nullptr;
     
-    // note: scene is destroyed automatically when importer is destroyed
+    // NOTE: Scene is destroyed automatically when importer is destroyed!
     scene = importer.ReadFile( filename,
                                aiProcess_Triangulate
                                | aiProcess_FindInvalidData
@@ -35,7 +34,8 @@ void AssetLoader::loadTriangleArray( const std::string & filename,
                                //| aiProcess_GenNormals
                                | aiProcess_FixInfacingNormals
                                );
-    
+    importer.ApplyPostProcessing( aiProcess_CalcTangentSpace );
+
     if( !scene ) {
         fprintf( stderr, "Failed to load %s\n", filename.c_str() );
         throw AssetFileNotFoundException();
@@ -44,20 +44,30 @@ void AssetLoader::loadTriangleArray( const std::string & filename,
     printf( "Loaded %s\n", filename.c_str() );
     printf( " - # meshes -> %u\n", scene->mNumMeshes );
 
+    for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index ) {
+        aiMesh * mesh = scene->mMeshes[mesh_index];
+        bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
+        printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d Tangents=%d UV=%d Bones=%d\n", mesh_index, 
+                (int) mesh->HasPositions(), mesh->mNumVertices,
+                (int) mesh->HasFaces(), mesh->mNumFaces,
+                (int) mesh->HasNormals(),
+                (int) mesh->HasTangentsAndBitangents(),
+                (int) has_uv,
+                (int) mesh->HasBones() );
+    }
+    return scene;
+}
+
+void AssetLoader::loadTriangleArray( const std::string & filename,
+                                     TriangleMeshArray & array ) throw(AssetFileNotFoundException)
+{
+    Assimp::Importer importer;
+    const aiScene * scene = loadAssimpScene( importer, filename );
     aiMesh ** meshes = scene->mMeshes;
 
     for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index ) {
         aiMesh * mesh = meshes[mesh_index];
-
         bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
-
-        printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d TexCoords=%d Bones=%d\n", mesh_index, 
-                (int) mesh->HasPositions(), mesh->mNumVertices,
-                (int) mesh->HasFaces(), mesh->mNumFaces,
-                (int) mesh->HasNormals(),
-                (int) has_uv,
-                (int) mesh->HasBones() );
-
         auto trimesh = std::make_shared<TriangleMesh>();
 
         trimesh->vertices.resize( mesh->mNumVertices );
@@ -101,39 +111,13 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
                                                  bool build_accelerator ) throw(AssetFileNotFoundException)
 {
     Assimp::Importer importer;
-    const aiScene * scene = nullptr;
-    
-    scene = importer.ReadFile( filename,
-                               aiProcess_Triangulate
-                               | aiProcess_FindInvalidData
-                               | aiProcess_GenSmoothNormals
-                               //| aiProcess_GenNormals
-                               | aiProcess_FixInfacingNormals
-                               );
-    
-    if( !scene ) {
-        fprintf( stderr, "Failed to load %s : %s\n", filename.c_str(), importer.GetErrorString() );
-        throw AssetFileNotFoundException();
-    }
-    
-    printf( "Loaded %s\n", filename.c_str() );
-    printf( " - # meshes -> %u\n", scene->mNumMeshes );
-    
+    const aiScene * scene = loadAssimpScene( importer, filename );
     aiMesh ** meshes = scene->mMeshes;
     // FIXME - just getting the first mesh for now
     unsigned int mesh_index = 0;
     
     aiMesh * mesh = meshes[mesh_index];
-
     bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
-
-    printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d UV=%d Bones=%d\n", mesh_index, 
-            (int) mesh->HasPositions(), mesh->mNumVertices,
-            (int) mesh->HasFaces(), mesh->mNumFaces,
-            (int) mesh->HasNormals(),
-            (int) has_uv,
-            (int) mesh->HasBones() );
-    
     auto trimesh = std::make_shared<TriangleMesh>();
     
     trimesh->vertices.resize( mesh->mNumVertices );

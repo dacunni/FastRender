@@ -2949,9 +2949,9 @@ int main (int argc, char * const argv[])
     //RoomSceneWithSpheresAnimLight::run();
     //GridRoomScene::run();
     //GridRoomSceneWithSpheres::run();
-    GridRoomSceneWithBunny::run();
+    //GridRoomSceneWithBunny::run();
     //GridRoomSceneWithTieFighter::run();
-    //GridRoomSceneWithTexturedMonkey::run();
+    GridRoomSceneWithTexturedMonkey::run();
     //GridRoomSceneWithSignedDistanceFunction::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
