@@ -42,6 +42,11 @@ private:
     static void sMouseMotionWhileButtonPressed( int x, int y );
     static void sAnimTimer( int value );
 
+    enum ImageArtifact {
+        FramebufferImage = 0, NormalsImage, DepthImage,
+        NumImageArtifacts
+    };
+    ImageArtifact activeImage = FramebufferImage;
     Artifacts & artifacts;
 
     GLuint img_shader_program = 0;

@@ -91,11 +91,23 @@ void PreviewWindow::init()
         
         uniform sampler2D pixelAccum;
         uniform usampler2D pixelCount;
+        uniform bool divideByCount;
+        uniform bool grayInRed;
          
         void main()
         {
-            // Divide pixel accumulation buffer by sample count to get pixel color
-            color = texture( pixelAccum, vUV ) / texture( pixelCount, vUV ).r;
+            if( grayInRed ) {
+                float gray = texture( pixelAccum, vUV ).r;
+                color.rgb = vec3( gray, gray, gray );
+            }
+            else {
+                color = texture( pixelAccum, vUV );
+            }
+
+            if( divideByCount ) {
+                // Divide pixel accumulation buffer by sample count to get pixel color
+                color = color / texture( pixelCount, vUV ).r;
+            }
             color.a = 1.0;
         }
     )glsl";
@@ -213,18 +225,43 @@ void PreviewWindow::repaintViewport()
     // Update texture with pixel accumulation buffer
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, pixelAccumTex );
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, artifacts.width, artifacts.height,
-                  0, GL_RGB, GL_FLOAT,
-                  &artifacts.pixel_color_accum[0] );
+    switch( activeImage ) {
+        case FramebufferImage:
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, artifacts.width, artifacts.height,
+                          0, GL_RGB, GL_FLOAT, &artifacts.pixel_color_accum[0] );
+            break;
+        case NormalsImage:
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, artifacts.width, artifacts.height,
+                          0, GL_RGB, GL_FLOAT, &artifacts.pixel_normal[0] );
+            break;
+        case DepthImage:
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, artifacts.width, artifacts.height,
+                          0, GL_RED, GL_FLOAT, &artifacts.pixel_depth[0] );
+            break;
+        default: ;
+    }
     GL_WARN_IF_ERROR();
 
     // Update texture with pixel sample count. The divide is done
     // in the shader to get the pixel's rendered value.
     glActiveTexture( GL_TEXTURE1 );
     glBindTexture( GL_TEXTURE_2D, pixelCountTex );
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_R32UI, artifacts.width, artifacts.height,
-                  0, GL_RED_INTEGER, GL_UNSIGNED_INT,
-                  &artifacts.pixel_color_num_samples[0] );
+    if( activeImage == FramebufferImage ) {
+        glTexImage2D( GL_TEXTURE_2D, 0, GL_R32UI, artifacts.width, artifacts.height,
+                      0, GL_RED_INTEGER, GL_UNSIGNED_INT,
+                      &artifacts.pixel_color_num_samples[0] );
+        glUniform1i( glGetUniformLocation( img_shader_program, "divideByCount" ), 1 );
+    }
+    else {
+        glUniform1i( glGetUniformLocation( img_shader_program, "divideByCount" ), 0 );
+    }
+    GL_WARN_IF_ERROR();
+    if( activeImage == DepthImage ) {
+        glUniform1i( glGetUniformLocation( img_shader_program, "grayInRed" ), 1 );
+    }
+    else {
+        glUniform1i( glGetUniformLocation( img_shader_program, "grayInRed" ), 0 );
+    }
     GL_WARN_IF_ERROR();
 
     glClearColor( 0.2, 0.2, 0.3, 1.0 );
@@ -243,7 +280,10 @@ void PreviewWindow::repaintViewport()
 
 void PreviewWindow::keyPressed( unsigned char key, int x, int y )
 {
-
+    if( key == ' ' ) {
+        activeImage = (ImageArtifact) ((int) (activeImage + 1) % NumImageArtifacts);
+        glutPostRedisplay();
+    }
 }
 
 void PreviewWindow::mouseButton( int button, int state, int x, int y )
