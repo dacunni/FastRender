@@ -238,9 +238,8 @@ inline void TriangleMesh::populateIntersection( const Ray & ray,
                                                                 vertices[tri.vi[1]],
                                                                 vertices[tri.vi[2]] );
     // Interpolate vertex normals
-    intersection.normal = add( add( scale( normals[tri.vi[0]], bary.u ),
-                                    scale( normals[tri.vi[1]], bary.v ) ),
-                               scale( normals[tri.vi[2]], bary.w ) ).normalized();
+    intersection.normal = interpolate( normals[tri.vi[0]], normals[tri.vi[1]], normals[tri.vi[2]], bary );
+
     if( textureUVCoords.size() > 0 ) {
         intersection.u = textureUVCoords[tri.vi[0]].u * bary.u
                        + textureUVCoords[tri.vi[1]].u * bary.v

@@ -62,6 +62,16 @@ BarycentricCoordinate barycentricForPointInTriangle( const Vector4 & P,
                                   triangleArea( tC, tA, P ) / tArea );
 }
 
+Vector4 interpolate( const Vector4 & v0,
+                     const Vector4 & v1,
+                     const Vector4 & v2,
+                     const BarycentricCoordinate & bary )
+{
+    return add( add( scale( v0, bary.u ),
+                     scale( v1, bary.v ) ),
+                scale( v2, bary.w ) ).normalized();
+}
+
 // -----------------------------------------------------------------------------
 // Fresnel Equations
 //

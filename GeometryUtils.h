@@ -37,6 +37,10 @@ struct BarycentricCoordinate
 // is inside the triangle (in the same plane).
 BarycentricCoordinate barycentricForPointInTriangle( const Vector4 & P,
                                                      const Vector4 & tA, const Vector4 & tB, const Vector4 & tC );
+Vector4 interpolate( const Vector4 & v0,
+                     const Vector4 & v1,
+                     const Vector4 & v2,
+                     const BarycentricCoordinate & bary );
 
 // -----------------------------------------------------------------------------
 // Fresnel Equations
