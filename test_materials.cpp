@@ -106,6 +106,57 @@ BUILD_SCENE(
 END_SCENE()
 
 // ------------------------------------------------------------ 
+//                    Inspection
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspection, MaterialTestBase)
+InspectionShader * shader;
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 5;
+    shader = new InspectionShader();
+    tracer->shader = shader;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    //mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
+    mesh->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
+    //mesh->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionFresnelDialectric, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::FresnelDialectric;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionFresnelConductor, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::FresnelConductor;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionNormal, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::Normal;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionIndexOfRefraction, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::IndexOfRefraction;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
 //                     Point Light
 // ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestPointLight, MaterialTestBase)
@@ -358,14 +409,13 @@ int main (int argc, char * const argv[])
 
     rng.seedCurrentTime();
 
-    // Tests
-#if 1
     if( argc > 1 ) {
         if( std::string(argv[1]) == "list" ) {
             printTests();
             exit(EXIT_SUCCESS);
         }
         else {
+            // Run a specific test
             if( argc > 2 && std::string(argv[2]) == "animate" ) {
                 animateMaterialTests = true;
             }
@@ -377,29 +427,6 @@ int main (int argc, char * const argv[])
         printTests();
         runTests();
     }
-#elif 0
-    //MaterialTestBase::run();
-    //MaterialTestPointLight::run();
-    //MaterialTestArcLight::run();
-    MaterialTestAmbientOcclusion::run();
-    MaterialTestDiffuseWhitePointLight::run();
-    MaterialTestMirrorPointLight::run();
-    MaterialTestRefractPointLight::run();
-    MaterialTestDiffuseWhiteArcLight::run();
-    MaterialTestMirrorArcLight::run();
-    MaterialTestRefractWaterArcLight::run();
-    MaterialTestRefractDiamondArcLight::run();
-    MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
-    MaterialTestMirrorHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
-#else
-    //MaterialTestRefractWaterArcLight::run();
-    //MaterialTestDiffuseWhiteArcLight::run();
-    //MaterialTestDiffuseWhiteHDREnvironmentMap::run(); // TODO - Needs work, probably importance sampling
-    MaterialTestAreaLight::run();
-    MaterialTestDiffuseWhiteAreaLight::run();
-    MaterialTestMirrorAreaLight::run();
-    MaterialTestRefractAreaLight::run();
-#endif
     
     total_run_timer.stop();
     printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());

@@ -19,6 +19,7 @@ HDR = \
     HDRImage.h \
 	Image.h \
 	ImageTracer.h \
+	InspectionShader.h \
 	Lights.h \
 	Material.h \
 	Matrix.h \
@@ -63,6 +64,7 @@ OBJ = \
     HDRImage.o \
 	Image.o \
 	ImageTracer.o \
+	InspectionShader.o \
     Lights.o \
 	Material.o \
 	Matrix.o \

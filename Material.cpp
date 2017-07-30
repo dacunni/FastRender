@@ -39,7 +39,7 @@ DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
 float
 DiffuseMaterial::BxDF( const RayIntersection & intersection ) const
 {
-    return 1.0f; // Perfectly diffuse
+    return 1.0f / M_PI; // Perfectly diffuse
 }
 
 RGBColor

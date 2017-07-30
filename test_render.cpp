@@ -2951,7 +2951,7 @@ int main (int argc, char * const argv[])
     //GridRoomSceneWithSpheres::run();
     //GridRoomSceneWithBunny::run();
     //GridRoomSceneWithTieFighter::run();
-    GridRoomSceneWithTexturedMonkey::run();
+    //GridRoomSceneWithTexturedMonkey::run();
     //GridRoomSceneWithSignedDistanceFunction::run();
     //testLogicalAND();
     //testMesh1();         // Stanford Bunny and Dragon
@@ -2961,7 +2961,7 @@ int main (int argc, char * const argv[])
     //testRefraction3();  // Spheres of varying IoR
     //RefractProfile::run();
     //testAO5(); // Stanford Bunny
-    //testCircleAreaLight1();   // Cube with circular area light
+    testCircleAreaLight1();   // Cube with circular area light
     //testCircleAreaLight2();   // Area light proximity test
     //testRectangleAreaLight1();   // Cube with rectangle area light
     //testAnimLights1();

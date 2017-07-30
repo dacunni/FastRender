@@ -156,15 +156,10 @@ class DiffuseTextureMaterial : public DiffuseMaterial
 class MirrorMaterial : public Material 
 {
     public:
-        MirrorMaterial()
-            : Material()
-        { 
+        MirrorMaterial() : Material() { 
             init( 1.0f, 1.0f, 1.0f ); 
         }
-
-        MirrorMaterial( float r, float g, float b )
-            : Material()
-        { 
+        MirrorMaterial( float r, float g, float b ) : Material() { 
             init( r, g, b );
         }
 
@@ -185,22 +180,14 @@ class MirrorMaterial : public Material
 class RefractiveMaterial : public Material 
 {
     public:
-        RefractiveMaterial()
-            : Material()
-        { 
+        RefractiveMaterial() : Material() { 
             init( 1.0f, 1.0f, 1.0f ); 
         }
-
-        RefractiveMaterial( float index )
-            : Material()
-        { 
+        RefractiveMaterial( float index ) : Material() { 
             init( 1.0f, 1.0f, 1.0f ); 
             index_of_refraction = index;
         }
-
-        RefractiveMaterial( float r, float g, float b )
-            : Material()
-        { 
+        RefractiveMaterial( float r, float g, float b ) : Material() { 
             init( r, g, b );
         }
 

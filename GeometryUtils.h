@@ -52,7 +52,7 @@ float fresnelDialectricSnell( float cos_i, float n_i, float n_t );
 float fresnelDialectricParallelSnell( float cos_i, float n_i, float n_t );
 float fresnelDialectricPerpendicularSnell( float cos_i, float n_i, float n_t );
 
-float fresnelConductor( float cos_i, float cos_t, float n_i, float n_t );
+float fresnelConductor( float cos_i, float n, float k );
 
 // -----------------------------------------------------------------------------
 // Snell's Law
