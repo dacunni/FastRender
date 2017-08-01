@@ -95,16 +95,11 @@ frOBJ = $(OBJ) \
 fruiOBJ = $(OBJ) \
 	ui.o
 
-test_randomOBJ = $(OBJ) \
-	test_random.o
-test_renderOBJ = $(OBJ) \
-	test_render.o
-test_materialsOBJ = $(OBJ) \
-	test_materials.o
-test_ray_traceOBJ = $(OBJ) \
-	test_ray_trace.o
-test_samplersOBJ = $(OBJ) \
-	test_samplers.o
+test_randomOBJ = $(OBJ) test_random.o
+test_renderOBJ = $(OBJ) test_render.o
+test_materialsOBJ = $(OBJ) test_materials.o
+test_ray_traceOBJ = $(OBJ) test_ray_trace.o
+test_samplersOBJ = $(OBJ) test_samplers.o
 
 UNAME_S := $(shell uname -s)
 
@@ -208,12 +203,20 @@ fr: $(frOBJ_IN_DIR)
 #
 # Tests
 #
-tests: $(test_randomOBJ_IN_DIR) $(test_renderOBJ_IN_DIR) $(test_materialsOBJ_IN_DIR) $(test_ray_traceOBJ_IN_DIR) $(test_samplersOBJ_IN_DIR)
-	g++ -o test_random $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
-	g++ -o test_render $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
-	g++ -o test_materials $(test_materialsOBJ_IN_DIR) $(test_materialsLDXXFLAGS)
-	g++ -o test_ray_trace $(test_ray_traceOBJ_IN_DIR) $(test_ray_traceLDXXFLAGS)
-	g++ -o test_samplers $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
+test_random: $(test_randomOBJ_IN_DIR)
+	g++ -o $@ $(test_randomOBJ_IN_DIR) $(test_randomLDXXFLAGS)
+test_ray_trace: $(test_ray_traceOBJ_IN_DIR)
+	g++ -o $@ $(test_ray_traceOBJ_IN_DIR) $(test_ray_traceLDXXFLAGS)
+test_samplers: $(test_samplersOBJ_IN_DIR)
+	g++ -o $@ $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
+test_materials: $(test_materialsOBJ_IN_DIR)
+	g++ -o $@ $(test_materialsOBJ_IN_DIR) $(test_materialsLDXXFLAGS)
+test_render: $(test_renderOBJ_IN_DIR)
+	g++ -o $@ $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
+
+TESTS = test_random test_ray_trace test_samplers test_materials test_render
+
+tests: $(TESTS)
 
 #
 # Python Bindings
@@ -233,6 +236,6 @@ $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
-	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui test_random test_render test_materials test_ray_trace test_samplers
+	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui $(TESTS)
 	rm -rf _FastRender.so FastRender_wrap.cpp $(OBJDIR)/FastRender_wrap.o FastRender.py
 
