@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <memory>
 #include <string>
+#include <iostream>
 
 #include "Transform.h"
 
@@ -20,6 +21,7 @@ class Material;
 class Ray; 
 class RayIntersection;
 class AxisAlignedSlab;
+class TraceableVisitor;
 
 class Traceable {
 public:
@@ -42,6 +44,7 @@ public:
     std::string className() const;
     virtual void print( FILE * file = stdout ) const;
     virtual std::string toJSON() const;
+    virtual void visit( TraceableVisitor & visitor );
 
     // FIXME - we probably don't want all traceables to get a material, or we'll just end up wasting memory
     std::shared_ptr<Material> material;
@@ -49,7 +52,6 @@ public:
     // Transform to apply to the object relative to any containing objects, or the scene if at the root
     std::shared_ptr<Transform> transform;
 };
-
 
 
 #endif

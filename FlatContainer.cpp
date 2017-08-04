@@ -11,6 +11,7 @@
 
 #include "FlatContainer.h"
 #include "Ray.h"
+#include "TraceableVisitor.h"
 
 FlatContainer::FlatContainer()
 {
@@ -90,5 +91,10 @@ std::string FlatContainer::toJSON() const
         << "}";
 
     return ss.str();
+}
+
+void FlatContainer::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
 }
 

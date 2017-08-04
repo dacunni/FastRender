@@ -12,6 +12,7 @@
 
 #include "Material.h"
 #include "Traceable.h"
+#include "TraceableVisitor.h"
 #include "Ray.h"
 
 Traceable::Traceable()
@@ -118,6 +119,11 @@ void Traceable::print( FILE * file ) const
 std::string Traceable::toJSON() const
 {
     return "{\"type\":none}";
+}
+
+void Traceable::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
 }
 
 

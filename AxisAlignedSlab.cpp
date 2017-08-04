@@ -13,6 +13,7 @@
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
 #include "Types.h"
+#include "TraceableVisitor.h"
 
 unsigned long AxisAlignedSlab::intersection_test_count = 0;
 
@@ -277,6 +278,10 @@ std::string AxisAlignedSlab::toJSON() const
     return ss.str();
 }
 
+void AxisAlignedSlab::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Non-class functions

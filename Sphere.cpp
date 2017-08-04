@@ -11,6 +11,7 @@
 #include <sstream>
 
 #include "Sphere.h"
+#include "TraceableVisitor.h"
 
 unsigned long Sphere::intersection_test_count = 0;
 
@@ -91,5 +92,10 @@ std::string Sphere::toJSON() const
         << "}";
 
     return ss.str();
+}
+
+void Sphere::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
 }
 

@@ -27,6 +27,7 @@ public:
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 
     virtual std::string toJSON() const;
+    virtual void visit( TraceableVisitor & visitor );
 	
 	std::vector<std::shared_ptr<Traceable> > objects;
 };

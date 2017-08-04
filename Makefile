@@ -12,6 +12,7 @@ HDR = \
 	Container.h \
 	CSG.h \
 	DistributionSamplers.h \
+    EditorSceneGraph.h \
 	EnvironmentMap.h \
 	FlatContainer.h \
 	GeometryUtils.h \
@@ -40,6 +41,7 @@ HDR = \
 	TestScenes.h \
 	Timer.h \
 	Traceable.h \
+	TraceableVisitor.h \
 	TraceLog.h \
 	Transform.h \
 	TriangleMesh.h \
@@ -57,6 +59,7 @@ OBJ = \
 	Container.o \
 	CSG.o \
 	DistributionSamplers.o \
+    EditorSceneGraph.o \
 	EnvironmentMap.o \
 	FlatContainer.o \
 	GeometryUtils.o \
@@ -84,6 +87,7 @@ OBJ = \
 	TMOctreeAccelerator.o \
 	Timer.o \
 	Traceable.o \
+	TraceableVisitor.o \
 	TraceLog.o \
 	Transform.o \
 	TriangleMesh.o \

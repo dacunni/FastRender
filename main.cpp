@@ -42,15 +42,17 @@ Scene * buildScene()
     //*mesh->transform = makeTranslation( Vector4( 0.0, 0.3, 0.0 ) );
     //container->add( mesh );
 
+    auto cubeContainer = std::make_shared<FlatContainer>();
     // Cubes for reference
     auto cube1 = std::make_shared<AxisAlignedSlab>( 1.0, -0.5, -3.0, 0.5 );
     cube1->material = std::make_shared<DiffuseMaterial>( 0.0, 0.0, 1.0 );
     cube1->transform = std::make_shared<Transform>();
     *cube1->transform = makeTranslation( Vector4( 0.1, 0.5, -0.5 ) );
-    container->add( cube1 );
+    cubeContainer->add( cube1 );
     auto cube2 = std::make_shared<AxisAlignedSlab>( 1.0, -0.5+1.0, -3.0, 0.5 );
     cube2->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.0 );
-    container->add( cube2 );
+    cubeContainer->add( cube2 );
+    container->add( cubeContainer );
 
     //addMirrors( container );
 
@@ -103,6 +105,19 @@ void testScene()
     };
     tracer.setCameraTransform( xform_lambda );
     tracer.num_frames = 20;
+#endif
+
+#if 1
+    // TEMP >>> testing visitor for building an editor scene graph
+    printf("--------\n");
+    //TraceableVisitor visitor;
+    //visitor.walk( *tracer.scene->root );
+    EditorSceneGraph editorScene;
+    editorScene.build( *tracer.scene );
+    editorScene.print();
+    printf("--------\n");
+    //exit(0);
+    // TEMP <<<
 #endif
 
 //#define DO_LOGGING

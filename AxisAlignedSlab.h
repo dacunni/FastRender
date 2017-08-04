@@ -40,6 +40,7 @@ public:
                                                         // objects of this class
     virtual void print( FILE * file = stdout ) const;
     virtual std::string toJSON() const;
+    virtual void visit( TraceableVisitor & visitor );
 
 private:
     inline bool intersectHelper( const Ray & ray, RayIntersection & intersection, bool any_test ) const;

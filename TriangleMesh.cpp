@@ -12,6 +12,7 @@
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
 #include "GeometryUtils.h"
+#include "TraceableVisitor.h"
 
 unsigned long TriangleMesh::intersection_test_count = 0;
 
@@ -393,5 +394,10 @@ std::string TriangleMesh::toJSON() const
     ss << "}";
 
     return ss.str();
+}
+
+void TriangleMesh::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
 }
 
