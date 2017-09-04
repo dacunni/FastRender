@@ -1,0 +1,90 @@
+
+BEGIN_SCENE( LogicalBase )
+SETUP_SCENE(
+    image_width = image_height = 200;
+    TestScene::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->rays_per_pixel = 30;
+);
+std::shared_ptr<TriangleMesh> mesh;
+BUILD_SCENE(
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(1, 1, 0), M_PI * 0.4 );
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform translation_up = makeTranslation( 0.0, 1.0, 0.0 );
+    Transform rotation = makeRotation( -M_PI / 32, Vector4(1, 0, 0) );
+    Transform translation_back = makeTranslation( 0.0, 0.0, 10.0 );
+    tracer->setCameraTransform( compose( translation_up, rotation, translation_back ) );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(LogicalANDSpheres, LogicalBase)
+SETUP_SCENE(
+    LogicalBase::setup();
+);
+BUILD_SCENE(
+    LogicalBase::buildScene();
+
+    auto obj1 = std::make_shared<Sphere>( -0.5, 1.00, 0, 1.00 );
+    auto obj2 = std::make_shared<Sphere>( +0.5, 1.00, 0, 1.00 );
+    auto logical = std::make_shared<CSGAnd>( obj1, obj2 );
+    logical->material = std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 );
+    container->add( logical );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(LogicalANDMeshes, LogicalBase)
+SETUP_SCENE(
+    LogicalBase::setup();
+);
+BUILD_SCENE(
+    LogicalBase::buildScene();
+
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    mesh->transform = std::make_shared<Transform>();
+    auto bounds = mesh->getAxisAlignedBounds();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+
+    auto obj1 = mesh;
+    auto obj2 = std::make_shared<Sphere>( +0.25, 1.00, 0, 1.00 );
+
+    auto logical = std::make_shared<CSGAnd>( obj1, obj2 );
+    //logical->material = std::make_shared<MirrorMaterial>();
+    logical->material = std::make_shared<DiffuseMaterial>( 0.9, 0.9, 1.0 );
+    //logical->material = std::make_shared<RefractiveMaterial>(1.5);
+    container->add( logical );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(LogicalANDLensFocusLight, LogicalBase)
+SETUP_SCENE(
+    LogicalBase::setup();
+);
+BUILD_SCENE(
+    LogicalBase::buildScene();
+
+    float lens_thickness = 0.35;
+    auto obj1 = std::make_shared<Sphere>( -2.0 + lens_thickness * 0.5, 1.00, 0, 2.00 );
+    auto obj2 = std::make_shared<Sphere>( +2.0 - lens_thickness * 0.5, 1.00, 0, 2.00 );
+    auto logical = std::make_shared<CSGAnd>( obj1, obj2 );
+    logical->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
+    container->add( logical );
+
+    auto cube = std::make_shared<AxisAlignedSlab>( -2.0, 0.0, -2.0,
+                                                   -1.0, 2.0, 2.0 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    container->add( cube );
+
+    addSphereLight( container,
+                    Vector4( 15.0, 1.0, 0.0 ), 4.5,
+                    RGBColor( 1.0, 1.0, 1.0 ), 10.0 );
+
+);
+END_SCENE()
+

@@ -1,0 +1,92 @@
+
+BEGIN_SCENE( RoomScene )
+    std::shared_ptr<Traceable> main_light = nullptr;;
+SETUP_SCENE( TestScene::setup(); );
+BUILD_SCENE(
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto red_material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
+    auto blue_material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
+
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, -0.5 * 1.1, +0.5 ), white_material );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, +0.5, -0.5, 0.5, +0.5 * 1.1, +0.5 ), white_material );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, -0.5 * 1.1, +0.5, +0.5 ), red_material );
+    container->add( std::make_shared<AxisAlignedSlab>( +0.5, -0.5, -0.5, +0.5 * 1.1, +0.5, +0.5 ), blue_material );
+    container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, -0.5, 0.5, +0.5, -0.5 * 1.1 ), white_material );
+    //container->add( std::make_shared<AxisAlignedSlab>( -0.5, -0.5, +0.5, 0.5, +0.5, +0.5 * 1.1 ), white_material );
+
+#if 0 // Point light
+    scene->addPointLight( PointLight( Vector4( 0.2, 0.2, 0.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(0.15) ) );
+#elif 1 // Area light
+    auto light = std::make_shared<CircleAreaLight>( 0.2, RGBColor( 1.0, 1.0, 1.0 ).scaled( 0.75 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = makeTranslation( Vector4( 0, 0.45, 0 ) );
+    container->add( light );
+#else // Emitting object
+    auto box_light = std::make_shared<AxisAlignedSlab>( -0.2, 0.5, -0.2, 0.2, 0.5 * 0.95, +0.2 );
+    box_light->material = std::make_shared<Material>();
+    box_light->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
+    box_light->material->emittance.scale( 30.0 );
+    container->add( box_light );
+#endif
+
+    main_light = light;
+
+    tracer->setCameraTransform( makeTranslation( 0.0, 0.0, 1.5 ) );
+    tracer->rays_per_pixel = 30;
+    float focal_plane_span = 0.5;
+    tracer->camera.setFocalPlaneDimensions( -focal_plane_span, focal_plane_span, -focal_plane_span, focal_plane_span );
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(RoomSceneWithSpheres, RoomScene)
+SETUP_SCENE(
+    RoomScene::setup();
+    tracer->rays_per_pixel = 10;
+);
+BUILD_SCENE(
+    RoomScene::buildScene();
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
+#if 1
+    container->add( std::make_shared<Sphere>( -0.3, -0.3, -0.3, 0.2 ), mirror_material );
+    container->add( std::make_shared<Sphere>( +0.3, -0.3, +0.3, 0.2 ), refractive_material );
+#else
+    container->add( std::make_shared<Sphere>( -0.25, -0.40, 0, 0.1 ), white_material );
+    container->add( std::make_shared<Sphere>( 0.0, -0.40, 0, 0.1 ), mirror_material );
+    container->add( std::make_shared<Sphere>( +0.25, -0.40, 0, 0.1 ), refractive_material );
+#endif
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(RoomSceneWithSpheresAnimLight, RoomScene)
+SETUP_SCENE(
+    image_width = image_height = 512;
+    rays_per_pixel = 10;
+    anim_frames = 32;
+    RoomScene::setup();
+    tracer->loopable_animations = true;
+);
+BUILD_SCENE(
+    RoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_DIAMOND );
+    container->add( std::make_shared<Sphere>( -0.3, -0.3, -0.3, 0.2 ), mirror_material );
+    container->add( std::make_shared<Sphere>( +0.3, -0.3, +0.2, 0.2 ), refractive_material );
+    container->add( std::make_shared<Sphere>( -0.3, -0.0, +0.1, 0.1 ), white_material );
+    main_light->transform = std::make_shared<TimeVaryingTransform>(
+        [](float anim_progress) {
+            float phase = anim_progress * 2.0 * M_PI;
+            const float rot_per_cycle = 2.0;
+            float rot_phase = anim_progress * 2.0 * M_PI * rot_per_cycle;
+            return compose( 
+                            makeTranslation( Vector4( 0.3 * sin(phase), 0.35, 0.3 * cos(phase) ) ),
+                            makeRotation( rot_phase, Vector4(0, 1, 0) )//,
+                            //makeRotation( M_PI * 0.5, Vector4(1, 0, 0) ) // party time
+                            );
+        });
+);
+END_SCENE()

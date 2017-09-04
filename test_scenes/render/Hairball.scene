@@ -1,0 +1,32 @@
+BEGIN_SCENE( Hairball )
+SETUP_SCENE(
+    image_width = image_height = 512;
+    TestScene::setup();
+    tracer->rays_per_pixel = 10;
+    tracer->camera.setFocalPlaneDimensions( -0.45, 0.45, -0.45, 0.45 );
+);
+BUILD_SCENE(
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    auto mesh = loader.load( "models/hairball.obj" );
+    auto bounds = mesh->getAxisAlignedBounds();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    container->add( mesh );
+
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>(Vector4(1,1,0), M_PI / 4.0f);
+
+    tracer->shader = new AmbientOcclusionShader();
+    //tracer->shader = new BasicDiffuseSpecularShader();
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 1.0, 10.0 );
+    tracer->setCameraTransform( compose( rotation, translation ) );
+);
+END_SCENE()
+

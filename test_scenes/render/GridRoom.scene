@@ -1,0 +1,175 @@
+
+BEGIN_SCENE( GridRoomScene )
+SETUP_SCENE(
+    //image_width = image_height = 512;
+    TestScene::setup();
+);
+BUILD_SCENE(
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+
+    float dim = 1.0;
+    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, -0.1, dim ), checkerboard_material ); // floor
+    //container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, -dim * 1.1, dim * 2.0, dim ), white_material ); // left wall
+    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, -dim * 1.1, dim * 2.0, dim ), checkerboard_material ); // left wall
+    //container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, dim * 2.0, -dim * 1.1 ), white_material ); // back wall
+    container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, dim * 2.0, -dim * 1.1 ), checkerboard_material ); // back wall
+
+#if 1 // Area light
+    float light_radius = dim;
+    float light_distance = 2.0 * dim;
+    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.2 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * -0.2, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, light_distance, 0 ) ) );
+    container->add( light );
+#else // Arc light environment map
+    auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
+    scene->env_map = env_map;
+#endif
+
+    //container->add( std::make_shared<Sphere>( -0.0, 0.2, 0.0, 0.2 ), white_material ); // TEMP
+
+    tracer->setCameraTransform( compose( makeRotation( M_PI / 4, Vector4(0, 1, 0) ),
+                                        makeTranslation( 0.0, 0.5, 0.0 ),
+                                        makeRotation( -M_PI / 8, Vector4(1, 0, 0) ),
+                                        makeTranslation( 0.0, 0.0, 1.5 ))
+                              );
+    tracer->rays_per_pixel = 30;
+    //tracer->rays_per_pixel = 100;
+    float focal_plane_span = 0.5;
+    tracer->camera.setFocalPlaneDimensions( -focal_plane_span, focal_plane_span, -focal_plane_span, focal_plane_span );
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithSpheres, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
+    container->add( std::make_shared<Sphere>( -0.3, 0.2, -0.3, 0.2 ), mirror_material );
+    container->add( std::make_shared<Sphere>( -0.3, 0.2, 0.3, 0.2 ), refractive_material );
+    container->add( std::make_shared<Sphere>( 0.3, 0.2, -0.3, 0.2 ), white_material );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithBunny, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
+
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    //mesh->material = mirror_material;
+    //mesh->material = refractive_material;
+    mesh->material = white_material;
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                makeRotation( M_PI * 0.25, Vector4( 0, 1, 0 ) ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    container->add( mesh );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithTieFighter, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
+
+    //auto mesh = loader.loadMultiPartMerged( modelBasePath + "/clara.io/star-wars-vader-tie-fighter.obj" );
+    //auto mesh = loader.loadMultiPart( modelBasePath + "/clara.io/star-wars-vader-tie-fighter.obj" );
+    std::shared_ptr<Container> mesh = loader.loadMultiPart( modelBasePath + "/clara.io/star-wars-vader-tie-fighter.obj" );
+    mesh->print();
+    //auto bounds = mesh->getAxisAlignedBounds();
+    //mesh->material = mirror_material;
+    //mesh->material = refractive_material;
+    //mesh->material = white_material;
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 0.35 ),
+                                //makeRotation( M_PI * 0.25, Vector4( 0, 1, 0 ) ),
+                                makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ) );
+    container->add( mesh );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithTexturedMonkey, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
+
+    auto mesh = loader.load( modelBasePath + "/uvmonkey.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    auto texture = std::make_shared<SurfaceTexture>( "uvgrid.jpg" );
+    mesh->material = std::make_shared<DiffuseTextureMaterial>(texture);
+    mesh->print();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                //makeRotation( M_PI * 0.25, Vector4( 0, 1, 0 ) ),
+                                makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ) );
+    container->add( mesh );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithSignedDistanceFunction, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    //tracer->rays_per_pixel = 4; // TEMP
+    //tracer->shader = new GoochShader(); // TEMP
+    auto red_material = std::make_shared<DiffuseMaterial>( 1.0, 0.3, 0.3 );
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
+    //auto refractive_material = std::make_shared<RefractiveMaterial>( N_WATER );
+    auto sdf = std::make_shared<SignedDistanceFunction>();
+    //sdf->valueFunction = makeSDFSphere( Vector4(0, 0.5, 0), 0.5 );
+    //sdf->valueFunction = makeSDFBox( Vector4(0, 0.5, 0), Vector4(0.5, 0.5, 0.5) );
+    //sdf->valueFunction = makeSDFTorus( 0.5, 0.05 );
+    //sdf->valueFunction = makeSDFCylinder( 0.3 );
+
+    //sdf->valueFunction = sdfUnion( makeSDFSphere( Vector4(0, 0.5, 0.0), 0.25 ),
+    //                               makeSDFSphere( Vector4(0, 0.5, 0.3), 0.25 ) );
+    //sdf->valueFunction = sdfDiff( makeSDFSphere( Vector4(0, 0.5, 0.0), 0.25 ),
+    //                              makeSDFSphere( Vector4(0, 0.5, 0.3), 0.25 ) );
+    sdf->valueFunction = sdfIntersection( makeSDFSphere( Vector4(0, 0.5, 0.0), 0.25 ),
+                                          makeSDFSphere( Vector4(0, 0.5, 0.3), 0.25 ) );
+
+    //sdf->transform = std::make_shared<Transform>();
+    //*sdf->transform = compose( makeTranslation( 0.0, 0.5, 0.0 ),
+    //                           makeRotation( 0.25 * M_PI, Vector4(1, 1, 0) ),
+    //                           makeTranslation( 0.0, -0.5, 0.0 ) );
+    //container->add( sdf, white_material );
+    //container->add( sdf, red_material );
+    container->add( sdf, refractive_material );
+    // Reference
+    //container->add( std::make_shared<Sphere>( 0, 0.5, 0, radius ), refractive_material );
+);
+END_SCENE()

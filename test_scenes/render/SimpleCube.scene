@@ -1,0 +1,17 @@
+
+BEGIN_SCENE(SimpleCube)
+SETUP_SCENE( TestScene::setup(); );
+BUILD_SCENE(
+    float size = 1.0;
+    float half_size = size / 2.0;
+    auto cube = std::make_shared<AxisAlignedSlab>( -half_size, 0.0, -half_size,
+                                     half_size, size, half_size );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    scene->addPointLight( PointLight( Vector4( -3.0, 3.0, 3.0 ),
+                                      RGBColor( 1.0, 1.0, 1.0 ).scaled(20.0) ) );
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+END_SCENE()

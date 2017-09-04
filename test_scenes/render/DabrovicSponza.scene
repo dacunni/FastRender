@@ -1,0 +1,56 @@
+BEGIN_SCENE( DabrovicSponza )
+SETUP_SCENE(
+    image_width = image_height = 100;
+    TestScene::setup();
+    tracer->rays_per_pixel = 10;
+    tracer->camera.setFocalPlaneDimensions( -0.45, 0.45, -0.45, 0.45 );
+);
+BUILD_SCENE(
+    auto mesh = loader.loadMultiPart( "models/dabrovic-sponza/sponza.obj" );
+    if( !mesh ) { fprintf( stderr, "Error loading meshes\n" ); return; }
+    //auto bounds = mesh->getAxisAlignedBounds();
+    mesh->transform = std::make_shared<Transform>();
+    float scale = 1.0;
+    *mesh->transform = compose( makeScaling( scale, scale, scale ),
+                                makeRotation( M_PI / 2, Vector4( 0.0, 1.0, 0.0 ) ) );
+    container->add( mesh );
+
+#if 1
+    auto light = std::make_shared<CircleAreaLight>( 2.0, RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.0 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * 0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, 10.0, 0 ) ) );
+    container->add( light );
+#else
+    scene->addPointLight( PointLight( Vector4( 3.0, 1.0, 0.0 ),
+                                      RGBColor( 1.0, 0.5, 0.3 ).scaled(20.0) ) );
+#endif
+
+#if 0
+    //addSphereLight( container,
+    //                Vector4( 0.0, 10.0, 0.0 ), 1.5,
+    //                RGBColor( 0.5, 0.5, 1.0 ), 5.0 );
+    auto emitter = std::make_shared<AxisAlignedSlab>( -1.5, 15.0, -20.0,
+                                                       1.5, 16.0,  20.0 );
+    emitter->material = std::make_shared<Material>();
+    emitter->material->emittance = RGBColor( 0.5, 0.5, 1.0 );
+    emitter->material->emittance.scale( 5.0 );
+    container->add( emitter );
+#endif
+
+    //tracer->shader = new BasicDiffuseSpecularShader();
+    //tracer->shader = new AmbientOcclusionShader();
+    tracer->shader = new GoochShader();
+
+#if 1
+    tracer->setCameraTransform( compose( makeTranslation( 0.0, 5.0, 10.0 ),
+                                        makeRotation( 0.0 * M_PI, Vector4(1, 0, 0) ),
+                                        makeTranslation( 0.0, 0.0, 0.0 ) ) );
+#else
+    tracer->setCameraTransform( compose( makeTranslation( 0.0, -10.0, -50.0 ),
+                                        makeRotation( -0.11 * M_PI, Vector4(1, 0, 0) ),
+                                        makeTranslation( 0.0, 0.0, 50.0 ) ) );
+#endif
+);
+END_SCENE()
+

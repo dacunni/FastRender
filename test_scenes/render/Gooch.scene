@@ -1,0 +1,28 @@
+
+BEGIN_SCENE(Gooch)
+SETUP_SCENE(
+    TestScene::setup();
+    tracer->rays_per_pixel = 4;
+    tracer->shader = new GoochShader();
+);
+BUILD_SCENE(
+    float size = 1.0;
+    float half_size = size / 2.0;
+    auto cube = std::make_shared<AxisAlignedSlab>( -half_size, 0.0, -half_size,
+                                                    half_size, size, half_size );
+    cube->transform = std::make_shared<Transform>();
+    *cube->transform = makeTranslation( Vector4( -1.0, 0.0, 0.0 ) );
+    container->add( cube );
+
+    auto sphere = std::make_shared<Sphere>( 1.0, half_size, 0.0, half_size );
+    container->add( sphere );
+
+    auto mesh = loader.load( modelBasePath + "/stanford/happy/reconstruction/happy_vrip_res4.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+
+    mesh->transform = std::make_shared<Transform>();
+    //*mesh->transform = makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) );
+    *mesh->transform = makeScaling( 3.0 );
+    container->add( mesh );
+);
+END_SCENE()

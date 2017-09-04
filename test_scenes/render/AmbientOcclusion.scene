@@ -1,0 +1,117 @@
+
+BEGIN_SCENE( AmbientOcclusionBase )
+SETUP_SCENE(
+    image_width = image_height = 200;
+    TestScene::setup();
+    tracer->rays_per_pixel = 30;
+    tracer->shader = new AmbientOcclusionShader();
+);
+BUILD_SCENE(
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
+                                                    +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer->setCameraTransform( compose( rotation, translation ) );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(AmbientOcclusionSpheres, AmbientOcclusionBase)
+SETUP_SCENE( AmbientOcclusionBase::setup(););
+BUILD_SCENE(
+    AmbientOcclusionBase::buildScene();
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+    container->add( std::make_shared<Sphere>( -1, 0.50, 0, 0.50 ) );
+    container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(AmbientOcclusionCubes, AmbientOcclusionBase)
+SETUP_SCENE( AmbientOcclusionBase::setup(););
+BUILD_SCENE(
+    AmbientOcclusionBase::buildScene();
+    container->add( std::make_shared<AxisAlignedSlab>( +1.75, 0, 0, 1.25 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( +0.0, 0, 0, 1.00 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -1.5, 0, 0, 0.75 ) );
+    container->add( std::make_shared<AxisAlignedSlab>( -2.5, 0, 0, 0.50 ) );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(AmbientOcclusionColoredCubes, AmbientOcclusionBase)
+SETUP_SCENE( AmbientOcclusionBase::setup(););
+BUILD_SCENE(
+    AmbientOcclusionBase::buildScene();
+    container->add( std::make_shared<AxisAlignedSlab>( +1.75, 0, 0, 1.25 ),
+                    std::make_shared<DiffuseMaterial>( 1.0, 1.0, 0.5 ) );
+
+    container->add( std::make_shared<AxisAlignedSlab>( +0.0, 0, 0, 1.00 ),
+                    std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 ) );
+
+    container->add( std::make_shared<AxisAlignedSlab>( -1.5, 0, 0, 0.75 ),
+                    std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 ) );
+
+    container->add( std::make_shared<AxisAlignedSlab>( -2.5, 0, 0, 0.50 ),
+                    std::make_shared<DiffuseMaterial>( 0.5, 1.0, 0.5 ) );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(AmbientOcclusionStanfordBunny, AmbientOcclusionBase)
+SETUP_SCENE( AmbientOcclusionBase::setup(););
+BUILD_SCENE(
+    AmbientOcclusionBase::buildScene();
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
+    container->add( mesh );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(AmbientOcclusionStanfordDragon, AmbientOcclusionBase)
+SETUP_SCENE( AmbientOcclusionBase::setup(););
+BUILD_SCENE(
+    AmbientOcclusionBase::buildScene();
+    std::string modelPath = modelBasePath + "/stanford/dragon/reconstruction";
+    auto mesh = loader.load( modelPath + "/dragon_vrip_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
+    container->add( mesh );
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 10.0 );
+    tracer->setCameraTransform( compose( rotation, translation ) );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(AmbientOcclusionStanfordHappyBuddha, AmbientOcclusionBase)
+SETUP_SCENE( AmbientOcclusionBase::setup(););
+BUILD_SCENE(
+    AmbientOcclusionBase::buildScene();
+    std::string modelPath = modelBasePath + "/stanford/happy/reconstruction";
+    auto mesh = loader.load( modelPath + "/happy_vrip_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 4, 4, 4 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.5 ) ) );
+    container->add( mesh );
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer->setCameraTransform( compose( rotation, translation ) );
+);
+END_SCENE()
+

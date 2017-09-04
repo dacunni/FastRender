@@ -1,0 +1,50 @@
+
+BEGIN_SCENE( UVMesh )
+SETUP_SCENE(
+    image_width = image_height = 200;
+    TestScene::setup();
+    tracer->rays_per_pixel = 5;
+);
+std::shared_ptr<TriangleMesh> mesh;
+BUILD_SCENE(
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0, +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    std::string modelPath = modelBasePath;
+    mesh = loader.load( modelPath + "/uvsphere.ply" );
+    //auto mesh = loader.load( modelPath + "/uvmonkey.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    //mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    mesh->material = std::make_shared<DiffuseUVMaterial>();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 1.0 ) ) );
+    container->add( mesh );
+
+    tracer->setCameraTransform( compose( makeRotation( -M_PI / 8, Vector4(1, 0, 0) ),
+                                         makeTranslation( 0.0, 0.2, 10.0 )));
+
+    tracer->shader = new AmbientOcclusionShader();
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(TexturedMesh, UVMesh)
+SETUP_SCENE(
+    UVMesh::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    UVMesh::buildScene();
+
+    auto texture = std::make_shared<SurfaceTexture>( "textures/Dog_Hair_UV_H_CM_1.jpg" );
+    mesh->material = std::make_shared<DiffuseTextureMaterial>(texture);
+
+    auto light = std::make_shared<CircleAreaLight>( 2.0, RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.0 ) );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * 0.25, Vector4(1, 0, 1).normalized() ),
+                                 makeTranslation( Vector4( 0, 10.0, 0 ) ) );
+    container->add( light );
+);
+END_SCENE()
+
