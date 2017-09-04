@@ -213,8 +213,16 @@ test_ray_trace: $(test_ray_traceOBJ_IN_DIR)
 	g++ -o $@ $(test_ray_traceOBJ_IN_DIR) $(test_ray_traceLDXXFLAGS)
 test_samplers: $(test_samplersOBJ_IN_DIR)
 	g++ -o $@ $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
+
+MATERIAL_SCENES = $(wildcard test_scenes/materials/*.scene)
+# FIXME: scene dependency not working
+test_materials.o: $(MATERIAL_SCENES)
 test_materials: $(test_materialsOBJ_IN_DIR)
 	g++ -o $@ $(test_materialsOBJ_IN_DIR) $(test_materialsLDXXFLAGS)
+
+RENDER_SCENES = $(wildcard test_scenes/render/*.scene)
+# FIXME: scene dependency not working
+test_render.o: $(RENDER_SCENES)
 test_render: $(test_renderOBJ_IN_DIR)
 	g++ -o $@ $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
 

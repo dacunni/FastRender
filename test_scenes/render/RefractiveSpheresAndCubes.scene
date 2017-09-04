@@ -1,0 +1,84 @@
+BEGIN_SCENE( RefractiveSpheresAndCubes )
+SETUP_SCENE(
+    image_width = image_height = 320;
+    TestScene::setup();
+    tracer->rays_per_pixel = 100;
+);
+BUILD_SCENE(
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    std::shared_ptr<Sphere> sphere;
+
+    //sphere = std::make_shared<Sphere>( -2, 0.25, 0.5, 0.25 );
+    //sphere->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.5 );
+    //container->add( sphere );
+
+    sphere = std::make_shared<Sphere>( 0, 0.50, 1.5, 0.50 );
+    sphere->material = std::make_shared<RefractiveMaterial>(1.2);
+    //sphere->material = std::make_shared<RefractiveMaterial>(1.5);
+    container->add( sphere );
+
+    sphere = std::make_shared<Sphere>( -1, 1.50, 10.0, 0.50 );
+    //sphere->material = std::make_shared<RefractiveMaterial>(1.2);
+    sphere->material = std::make_shared<RefractiveMaterial>(1.5);
+    container->add( sphere );
+
+    sphere = std::make_shared<Sphere>( -1, 0.75, 0, 0.75  );
+    sphere->material = std::make_shared<MirrorMaterial>();
+    container->add( sphere );
+
+    //sphere = std::make_shared<Sphere>( +1, 1.00, 0, 1.00 );
+    //sphere->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
+    //container->add( sphere );
+
+    auto cube = std::make_shared<AxisAlignedSlab>( -0.75, -0.75, -0.75, 1.5 );
+    cube->material = std::make_shared<RefractiveMaterial>(1.2);
+    container->add( cube );
+    cube->transform = std::make_shared<TimeVaryingTransform>(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( 1.75, 1.2, 2.75 ) ),
+                            //makeRotation( anim_progress * 0.5 * M_PI + 0.6, Vector4(0, 1, 0) ) );
+                            makeRotation( anim_progress * 0.5 * M_PI, Vector4(0, 1, 0) ) );
+                            
+        });
+
+#if 0
+    cube = std::make_shared<AxisAlignedSlab>( -0.50, -0.50, -0.50, 1.0 );
+    cube->material = std::make_shared<RefractiveMaterial>(1.2);
+    container->add( cube );
+    cube->transform = std::make_shared<TimeVaryingTransform>(
+        [](float anim_progress) {
+            return compose( makeTranslation( Vector4( -1.50, 1.00, 6.50 ) ),
+                            makeRotation( anim_progress * 0.5 * M_PI, Vector4(1, 0, 0) ) );
+                            
+        });
+#endif
+
+    // Colored strips to show refraction from background objects
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -2.0,
+                                +10.0, 0.15, -2.15 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
+    container->add( cube );
+
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -0.0,
+                                +10.0, 0.15, -0.15 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.5, 0.0 );
+    container->add( cube );
+
+    cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, 2.0,
+                                +10.0, 0.15, 2.15 );
+    cube->material = std::make_shared<DiffuseMaterial>( 0.0, 1.0, 0.5 );
+    container->add( cube );
+
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>(Vector4(0, 1, 0), 0.25 * M_PI);
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -0.2, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer->setCameraTransform( compose( rotation, translation ) );
+);
+END_SCENE()

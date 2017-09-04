@@ -27,6 +27,7 @@ const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string 
     const aiScene * scene = nullptr;
     
     // NOTE: Scene is destroyed automatically when importer is destroyed!
+    printf("Assimp::Importer::ReadFile\n");
     scene = importer.ReadFile( filename,
                                aiProcess_Triangulate
                                | aiProcess_FindInvalidData
@@ -34,15 +35,16 @@ const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string 
                                //| aiProcess_GenNormals
                                | aiProcess_FixInfacingNormals
                                );
+    printf("Assimp::Importer::ReadFile DONE\n");
     importer.ApplyPostProcessing( aiProcess_CalcTangentSpace );
+    printf("Assimp::Importer::ApplyPostProcessing DONE\n");
 
     if( !scene ) {
         fprintf( stderr, "Failed to load %s\n", filename.c_str() );
         throw AssetFileNotFoundException();
     }
     
-    printf( "Loaded %s\n", filename.c_str() );
-    printf( " - # meshes -> %u\n", scene->mNumMeshes );
+    printf( "Loaded '%s' - # meshes -> %u\n", filename.c_str(), scene->mNumMeshes );
 
     for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index ) {
         aiMesh * mesh = scene->mMeshes[mesh_index];
@@ -61,11 +63,13 @@ const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string 
 void AssetLoader::loadTriangleArray( const std::string & filename,
                                      TriangleMeshArray & array ) throw(AssetFileNotFoundException)
 {
+    printf("Loading triangle mesh array\n");
     Assimp::Importer importer;
     const aiScene * scene = loadAssimpScene( importer, filename );
     aiMesh ** meshes = scene->mMeshes;
 
     for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index ) {
+        printf("%u / %u\n", mesh_index, scene->mNumMeshes);
         aiMesh * mesh = meshes[mesh_index];
         bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
         auto trimesh = std::make_shared<TriangleMesh>();

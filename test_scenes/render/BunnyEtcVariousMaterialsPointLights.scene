@@ -1,0 +1,54 @@
+BEGIN_SCENE( BunnyEtcVariousMaterialsPointLights )
+SETUP_SCENE(
+    image_width = image_height = 512;
+    TestScene::setup();
+);
+BUILD_SCENE(
+    auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
+                                                   +10.0, -1.0, -10.0 );
+    container->add( floor );
+
+    std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
+    auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
+    auto bounds = mesh->getAxisAlignedBounds();
+
+    mesh->material = std::make_shared<MirrorMaterial>();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 2, 2, 2 ),
+                                makeRotation( 0.25 * M_PI, Vector4(0, 1, 0) ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    container->add( mesh );
+
+    container->add( std::make_shared<Sphere>( -2, 0.25, 0, 0.25 ) );
+
+    // colored balls to see if we are gettingn proper reflections
+    auto s = std::make_shared<Sphere>( -1.25, 0.25, 0.75, 0.25 );
+    s->material = std::make_shared<DiffuseMaterial>(1, 1, 0);
+    container->add( s );
+    s = std::make_shared<Sphere>( 1.25, 0.25, 0.75, 0.25 );
+    s->material = std::make_shared<DiffuseMaterial>(0, 1, 0);
+    container->add( s );
+    s = std::make_shared<Sphere>( 0.0, 0.25, 3.0, 0.25 );
+    s->material = std::make_shared<DiffuseMaterial>(0, 1, 1);
+    container->add( s );
+
+    auto cube = std::make_shared<AxisAlignedSlab>( 0.8, 0, 2.0, 0.5 );
+    cube->material = std::make_shared<DiffuseMaterial>( 1.0, 0.2, 0.2 );
+    container->add( cube );
+
+    scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ),
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );
+    scene->addPointLight( PointLight( Vector4( 13.0, 15.0, 20.0 ),
+        RGBColor( 1.0, 0.4, 0.4 ).scaled(150.0) ) );
+    scene->addPointLight( PointLight( Vector4( 0.0, 20.0, 15.0 ),
+        RGBColor( 0.4, 0.4, 1.0 ).scaled(150.0) ) );
+
+    tracer->shader = new BasicDiffuseSpecularShader();
+
+    // Camera back and rotated a bit around x so we're looking slightly down
+    Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
+    Transform translation = makeTranslation( 0.0, 0.0, 18.0 );
+    tracer->setCameraTransform( compose( rotation, translation ) );
+);
+END_SCENE()
