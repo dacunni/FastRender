@@ -1,0 +1,66 @@
+
+BEGIN_DERIVED_SCENE(MaterialTestHDREnvironmentMap, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+    //tracer->rays_per_pixel = 100;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    scene->env_map = std::make_shared<HDRImageEnvironmentMap>(env_map_filename, env_map_width, env_map_height);
+);
+#if 1
+    std::string env_map_filename = "light_probes/debevec/stpeters_probe.float";
+    unsigned int env_map_width = 1500;
+    unsigned int env_map_height = 1500;
+#elif 1
+    std::string env_map_filename = "light_probes/debevec/rnl_probe.float";
+    unsigned int env_map_width = 900;
+    unsigned int env_map_height = 900;
+#elif 1
+    std::string env_map_filename = "light_probes/debevec/uffizi_probe.float";
+    unsigned int env_map_width = 1500;
+    unsigned int env_map_height = 1500;
+#else
+    std::string env_map_filename = "light_probes/debevec/grace_probe.float";
+    unsigned int env_map_width = 1000;
+    unsigned int env_map_height = 1000;
+#endif
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteHDREnvironmentMap, MaterialTestHDREnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHDREnvironmentMap::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestHDREnvironmentMap::buildScene();
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestMirrorHDREnvironmentMap, MaterialTestHDREnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHDREnvironmentMap::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestHDREnvironmentMap::buildScene();
+    mesh->material = std::make_shared<MirrorMaterial>();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractHDREnvironmentMap, MaterialTestHDREnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHDREnvironmentMap::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestHDREnvironmentMap::buildScene();
+    mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
+);
+END_SCENE()
+

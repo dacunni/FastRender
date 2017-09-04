@@ -1,0 +1,51 @@
+BEGIN_DERIVED_SCENE(MaterialTestPointLight, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 10;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    scene->addPointLight( PointLight( Vector4( -5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 1.0, 1.0 ).scaled(30.0) ) );
+    scene->addPointLight( PointLight( Vector4( 5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 1.0, 1.0 ).scaled(30.0) ) );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhitePointLight, MaterialTestPointLight)
+SETUP_SCENE(
+    MaterialTestPointLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestPointLight::buildScene();
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestMirrorPointLight, MaterialTestPointLight)
+SETUP_SCENE(
+    MaterialTestPointLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestPointLight::buildScene();
+    mesh->material = std::make_shared<MirrorMaterial>();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractPointLight, MaterialTestPointLight)
+SETUP_SCENE(
+    MaterialTestPointLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestPointLight::buildScene();
+    mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
+);
+END_SCENE()
+
+

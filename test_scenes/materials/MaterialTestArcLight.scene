@@ -1,0 +1,60 @@
+
+BEGIN_DERIVED_SCENE(MaterialTestArcLight, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    scene->env_map = std::make_shared<ArcLightEnvironmentMap>();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteArcLight, MaterialTestArcLight)
+SETUP_SCENE(
+    MaterialTestArcLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestArcLight::buildScene();
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestMirrorArcLight, MaterialTestArcLight)
+SETUP_SCENE(
+    MaterialTestArcLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestArcLight::buildScene();
+    mesh->material = std::make_shared<MirrorMaterial>();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractWaterArcLight, MaterialTestArcLight)
+SETUP_SCENE(
+    MaterialTestArcLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestArcLight::buildScene();
+    mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractDiamondArcLight, MaterialTestArcLight)
+SETUP_SCENE(
+    MaterialTestArcLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestArcLight::buildScene();
+    mesh->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
+);
+END_SCENE()
+

@@ -1,0 +1,49 @@
+
+BEGIN_DERIVED_SCENE(MaterialTestInspection, MaterialTestBase)
+InspectionShader * shader;
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->rays_per_pixel = 5;
+    shader = new InspectionShader();
+    tracer->shader = shader;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    //mesh->material = std::make_shared<RefractiveMaterial>(N_WATER);
+    mesh->material = std::make_shared<RefractiveMaterial>(N_FLINT_GLASS);
+    //mesh->material = std::make_shared<RefractiveMaterial>(N_DIAMOND);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionFresnelDialectric, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::FresnelDialectric;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionFresnelConductor, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::FresnelConductor;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionNormal, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::Normal;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionIndexOfRefraction, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::IndexOfRefraction;
+);
+END_SCENE()
+

@@ -165,7 +165,7 @@ void PreviewWindow::init()
 
     GL_WARN_IF_ERROR();
 
-    // TODO: Create texture object for image
+    // Create texture object for image
     glGenTextures( 1, &pixelAccumTex );
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, pixelAccumTex );
