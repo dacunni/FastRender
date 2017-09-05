@@ -96,8 +96,8 @@ OBJ = \
 frOBJ = $(OBJ) \
 	main.o
 
-fruiOBJ = $(OBJ) \
-	ui.o
+freditOBJ = $(OBJ) \
+	editor.o
 
 test_randomOBJ = $(OBJ) test_random.o
 test_renderOBJ = $(OBJ) test_render.o
@@ -151,16 +151,16 @@ endif
 #LDXXFLAGS += -lgcc_s
 #LDXXFLAGS += -v
 frLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
-fruiLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
+freditLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 test_randomLDXXFLAGS = $(LDXXFLAGS)
 test_samplersLDXXFLAGS = $(LDXXFLAGS)
 test_renderLDXXFLAGS = $(LDXXFLAGS)
 test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
-all: fr frui tests
-#all: fr tests python_bindings
 #all: fr tests
+all: fr fredit tests
+#all: fr fredit tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
@@ -169,8 +169,8 @@ OBJDIR = objs
 frOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(frOBJ))
 $(frOBJ_IN_DIR): | $(OBJDIR)
 
-fruiOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(fruiOBJ))
-$(fruiOBJ_IN_DIR): | $(OBJDIR)
+freditOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(freditOBJ))
+$(freditOBJ_IN_DIR): | $(OBJDIR)
 
 test_randomOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(test_randomOBJ))
 $(test_randomOBJ_IN_DIR): | $(OBJDIR)
@@ -200,8 +200,8 @@ $(OBJDIR):
 fr: $(frOBJ_IN_DIR)
 	g++ -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
 
-frui: $(fruiOBJ_IN_DIR)
-	g++ -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
+fredit: $(freditOBJ_IN_DIR)
+	g++ -o fredit $(freditOBJ_IN_DIR) $(freditLDXXFLAGS)
 
 #
 # Tests
@@ -247,6 +247,6 @@ $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
 
 clean:
-	rm -rf $(frOBJ_IN_DIR) $(fruiOBJ_IN_DIR) $(testOBJ_IN_DIR) fr frui $(TESTS)
+	rm -rf $(frOBJ_IN_DIR) $(freditOBJ_IN_DIR) $(testOBJ_IN_DIR) fr fredit $(TESTS)
 	rm -rf _FastRender.so FastRender_wrap.cpp $(OBJDIR)/FastRender_wrap.o FastRender.py
 
