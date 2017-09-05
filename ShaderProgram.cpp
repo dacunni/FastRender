@@ -56,8 +56,7 @@ void ShaderStage::loadSource( GLuint type, const std::string & src )
         glGetShaderInfoLog( id, len, &len, &log[0] );
         printf( "Compiler Error Message:\n%s", (char *) &log[0] );
         glDeleteShader( id );
-        exit(EXIT_FAILURE); // FIXME - return error
-        return;
+        id = 0;
     }
 }
 
@@ -87,17 +86,39 @@ void ShaderProgram::link()
         glGetProgramInfoLog( id, len, &len, &log[0] );
         printf( "Linker Error Message:\n%s", (char *) &log[0] );
         glDeleteProgram( id );
-        exit(EXIT_FAILURE); // FIXME - return error
+        id = 0;
     }
 }
 
+void ShaderProgram::use()
+{
+    glUseProgram(id);
+    GL_WARN_IF_ERROR();
+}
+
 void ShaderProgram::fromVertexFragment( ShaderStage & vertexShader,
-                                  ShaderStage & fragmentShader )
+                                        ShaderStage & fragmentShader )
 {
     create();
     attach(vertexShader);
     attach(fragmentShader);
     link();
+}
+
+void ShaderProgram::loadSourceVertexFragment( const std::string & vertexSource,
+                                              const std::string & fragmentSource )
+{
+    ShaderStage vertexShader, fragmentShader;
+
+    vertexShader.loadSource(GL_VERTEX_SHADER, vertexSource);
+    if(!vertexShader.id)
+        return;
+
+    fragmentShader.loadSource(GL_FRAGMENT_SHADER, fragmentSource);
+    if(!fragmentShader.id)
+        return;
+
+    fromVertexFragment(vertexShader, fragmentShader);
 }
 
 void ShaderProgram::loadFilesVertexFragment( const std::string & vertexFileName,

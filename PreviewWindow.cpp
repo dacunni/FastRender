@@ -46,56 +46,27 @@ void PreviewWindow::init()
     glutCreateWindow("FastRender");
     
     // Create shaders
-    // TODO: Clean up shader compilation
-    GLint status;
-    img_vertex_shader = glCreateShader( GL_VERTEX_SHADER );
-    img_fragment_shader = glCreateShader( GL_FRAGMENT_SHADER );;
-    img_shader_program = glCreateProgram();
-
-    // Vertex Shader
-    const char * vs = R"glsl(
+    std::string vertexShader = R"glsl(
         #version 410
-        
         layout (location=0) in vec4 position;
         layout (location=1) in vec2 uv;
-
         out vec2 vUV;
         
-        void main()
-        {
+        void main() {
             gl_Position = position;
             vUV = uv;
         }
     )glsl";
-    const char * vs_srcs[] = { vs };
-    glShaderSource( img_vertex_shader, 1, vs_srcs, NULL );
-    glCompileShader( img_vertex_shader );
-    glGetShaderiv( img_vertex_shader, GL_COMPILE_STATUS, &status );
-    printf( "Vertex Shader Compile status: %s\n", status ? "OK" : "ERROR" );
-    if( !status ) {
-        GLint len = 0;
-        glGetShaderiv( img_vertex_shader, GL_INFO_LOG_LENGTH, &len );
-        std::vector<GLchar> log( len );
-        glGetShaderInfoLog( img_vertex_shader, len, &len, &log[0] );
-        printf( "Compiler Error Message:\n%s", (char *) &log[0] );
-        glDeleteShader( img_vertex_shader );
-        exit(EXIT_FAILURE); // FIXME - return error
-    }
-
-    // Fragment Shader
-    const char * fs = R"glsl(
+    std::string fragmentShader = R"glsl(
         #version 410
-        
-        in vec2 vUV;
-        out vec4 color;
-        
         uniform sampler2D pixelAccum;
         uniform usampler2D pixelCount;
         uniform bool divideByCount;
         uniform bool grayInRed;
+        in vec2 vUV;
+        out vec4 color;
          
-        void main()
-        {
+        void main() {
             if( grayInRed ) {
                 float gray = texture( pixelAccum, vUV ).r;
                 color.rgb = vec3( gray, gray, gray );
@@ -111,36 +82,10 @@ void PreviewWindow::init()
             color.a = 1.0;
         }
     )glsl";
-    const char * fs_srcs[] = { fs };
-    glShaderSource( img_fragment_shader, 1, fs_srcs, NULL );
-    glCompileShader( img_fragment_shader );
-    glGetShaderiv( img_fragment_shader, GL_COMPILE_STATUS, &status );
-    printf( "Fragment Shader Compile status: %s\n", status ? "OK" : "ERROR" );
-    if( !status ) {
-        GLint len = 0;
-        glGetShaderiv( img_fragment_shader, GL_INFO_LOG_LENGTH, &len );
-        std::vector<GLchar> log( len );
-        glGetShaderInfoLog( img_fragment_shader, len, &len, &log[0] );
-        printf( "Compiler Error Message:\n%s", (char *) &log[0] );
-        glDeleteShader( img_fragment_shader );
-        exit(EXIT_FAILURE); // FIXME - return error
-    }
 
-    glAttachShader( img_shader_program, img_vertex_shader );
-    glAttachShader( img_shader_program, img_fragment_shader );
-    glLinkProgram( img_shader_program );
-    glGetProgramiv( img_shader_program, GL_LINK_STATUS, &status ); 
-    printf( "Link status: %s\n", status ? "OK" : "ERROR" );
-    if( !status ) {
-        GLint len = 0;
-        glGetProgramiv( img_shader_program, GL_INFO_LOG_LENGTH, &len );
-        std::vector<GLchar> log( len );
-        glGetProgramInfoLog( img_shader_program, len, &len, &log[0] );
-        printf( "Linker Error Message:\n%s", (char *) &log[0] );
-        glDeleteProgram( img_shader_program );
-        exit(EXIT_FAILURE); // FIXME - return error
-    }
-    glUseProgram( img_shader_program );
+    imgShaderProgram.loadSourceVertexFragment(vertexShader, fragmentShader);
+
+    imgShaderProgram.use();
 
     float quad[20] = {
         // x, y, z, u, v
@@ -155,8 +100,8 @@ void PreviewWindow::init()
     glGenBuffers( 1, &img_vbo );
     glBindBuffer( GL_ARRAY_BUFFER, img_vbo );
 
-    auto position_loc = glGetAttribLocation( img_shader_program, "position" );
-    auto uv_loc = glGetAttribLocation( img_shader_program, "uv" );
+    auto position_loc = glGetAttribLocation( imgShaderProgram.id, "position" );
+    auto uv_loc = glGetAttribLocation( imgShaderProgram.id, "uv" );
     glBufferData( GL_ARRAY_BUFFER, sizeof(quad), &quad[0], GL_STATIC_DRAW );
     glVertexAttribPointer( position_loc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), NULL );
     glEnableVertexAttribArray( position_loc );
@@ -169,7 +114,7 @@ void PreviewWindow::init()
     glGenTextures( 1, &pixelAccumTex );
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, pixelAccumTex );
-    GLint pixelAccumLoc = glGetUniformLocation(img_shader_program, "pixelAccum");
+    GLint pixelAccumLoc = glGetUniformLocation(imgShaderProgram.id, "pixelAccum");
     glUniform1i(pixelAccumLoc, 0);
     GL_WARN_IF_ERROR();
 
@@ -181,7 +126,7 @@ void PreviewWindow::init()
     glGenTextures( 1, &pixelCountTex );
     glActiveTexture( GL_TEXTURE1 );
     glBindTexture( GL_TEXTURE_2D, pixelCountTex );
-    GLint pixelCountLoc = glGetUniformLocation(img_shader_program, "pixelCount");
+    GLint pixelCountLoc = glGetUniformLocation(imgShaderProgram.id, "pixelCount");
     glUniform1i(pixelCountLoc, 1);
     GL_WARN_IF_ERROR();
 
@@ -250,17 +195,17 @@ void PreviewWindow::repaintViewport()
         glTexImage2D( GL_TEXTURE_2D, 0, GL_R32UI, artifacts.width, artifacts.height,
                       0, GL_RED_INTEGER, GL_UNSIGNED_INT,
                       &artifacts.pixel_color_num_samples[0] );
-        glUniform1i( glGetUniformLocation( img_shader_program, "divideByCount" ), 1 );
+        glUniform1i( glGetUniformLocation( imgShaderProgram.id, "divideByCount" ), 1 );
     }
     else {
-        glUniform1i( glGetUniformLocation( img_shader_program, "divideByCount" ), 0 );
+        glUniform1i( glGetUniformLocation( imgShaderProgram.id, "divideByCount" ), 0 );
     }
     GL_WARN_IF_ERROR();
     if( activeImage == DepthImage ) {
-        glUniform1i( glGetUniformLocation( img_shader_program, "grayInRed" ), 1 );
+        glUniform1i( glGetUniformLocation( imgShaderProgram.id, "grayInRed" ), 1 );
     }
     else {
-        glUniform1i( glGetUniformLocation( img_shader_program, "grayInRed" ), 0 );
+        glUniform1i( glGetUniformLocation( imgShaderProgram.id, "grayInRed" ), 0 );
     }
     GL_WARN_IF_ERROR();
 
@@ -270,7 +215,7 @@ void PreviewWindow::repaintViewport()
     
     glBindVertexArray( img_vao );
     glBindBuffer( GL_ARRAY_BUFFER, img_vbo );
-    glUseProgram( img_shader_program );
+    imgShaderProgram.use();
     glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
     GL_WARN_IF_ERROR();
 

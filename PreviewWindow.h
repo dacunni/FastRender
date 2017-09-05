@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "OpenGLUtil.h"
+#include "ShaderProgram.h"
 
 class Artifacts;
 
@@ -49,9 +50,8 @@ private:
     ImageArtifact activeImage = FramebufferImage;
     Artifacts & artifacts;
 
-    GLuint img_shader_program = 0;
-    GLuint img_vertex_shader = 0;
-    GLuint img_fragment_shader = 0;
+    ShaderProgram imgShaderProgram;
+
     GLuint img_vao = 0;
     GLuint img_vbo = 0;
     GLuint pixelAccumTex = 0;

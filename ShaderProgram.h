@@ -26,9 +26,12 @@ class ShaderProgram {
         void create();
         void attach( ShaderStage & shader );
         void link();
+        void use();
 
         void fromVertexFragment( ShaderStage & vertexShader,
                                  ShaderStage & fragmentShader );
+        void loadSourceVertexFragment( const std::string & vertexSource,
+                                       const std::string & fragmentSource );
         void loadFilesVertexFragment( const std::string & vertexFileName,
                                       const std::string & fragmentFileName );
 
