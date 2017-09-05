@@ -43,7 +43,4 @@ public:
     EditorSceneGraphNode * root;
 };
 
-
-
 #endif
-

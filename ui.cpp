@@ -4,28 +4,11 @@
 #include <string>
 #include <sstream>
 
-#ifdef __APPLE__
-#include <GLUT/glut.h>      // GLUT + OpenGL
-#include <OpenGL/gl3.h>     // Core OpenGL 3.x+
-#else
-#include <GL/glut.h>
-#include <GL/gl.h>
-#endif
-
-#include "AssetLoader.h"
-#include "TriangleMesh.h"
+#include "FastRender.h"
 #include "OpenGLUtil.h"
-#include "GPUMesh.h"
-#include "GPUPointCloud.h"
-#include "RandomNumberGenerator.h"
-#include "BoundingVolume.h"
 
 int window_width = 350;
 int window_height = 350;
-
-TriangleMesh * mesh = nullptr;
-GPUMesh gpu_mesh;
-GPUPointCloud gpu_point_cloud;
 
 GLuint mesh_shader_program = 0;
 GLuint point_cloud_shader_program = 0;
@@ -39,39 +22,6 @@ void viewportReshaped( int width, int height )
     GL_WARN_IF_ERROR();
 }
 
-void drawMesh( TriangleMesh & mesh ) 
-{
-    for( int tri = 0; tri < mesh.triangles.size(); tri++ ) {
-        TriangleMesh::IndexTriangle vert_indices = mesh.triangles[tri];
-
-        for( int vi = 0; vi < 3; vi++ ) {
-            glVertex3f( mesh.vertices[ vert_indices.vi[vi] ].x,
-                        mesh.vertices[ vert_indices.vi[vi] ].y,
-                        mesh.vertices[ vert_indices.vi[vi] ].z );
-
-        }
-    }
-}
-
-void buildPointCloud( void ) 
-{
-    // Make some random points
-    std::vector<Vector4> points;
-    RandomNumberGenerator rng;
-    rng.seedCurrentTime();
-    int num_points = 100000;
-    Vector4 p;
-    Vector4 dir( 1.0, 1.0, 0 );
-    dir.normalize();
-    for( int i = 0; i < num_points; i++ ) {
-        rng.uniformSurfaceUnitSphere( p );     
-        //rng.uniformSurfaceUnitHalfSphere( dir, p );     
-        points.push_back( p );
-    }
-    gpu_point_cloud.setPointSize( 1 );
-    gpu_point_cloud.upload( points );
-}
-
 void repaintViewport( void ) 
 {
     //printf("repaint\n");
@@ -79,37 +29,7 @@ void repaintViewport( void )
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glEnable( GL_DEPTH_TEST );
 
-    if( mesh ) {
-        if( mesh_shader_program != 0 ) {
-            glUseProgram( mesh_shader_program );
-        }
-
-        if( !gpu_mesh.uploaded() ) {
-            gpu_mesh.upload( *mesh );
-        }
-
-        if( gpu_mesh.uploaded() ) {
-            //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
-            //glFrontFace( GL_CCW );
-            //glEnable(GL_CULL_FACE);
-            gpu_mesh.bind();
-            gpu_mesh.draw();
-        }
-    }
-
-    if( point_cloud_shader_program != 0 ) {
-        glUseProgram( point_cloud_shader_program );
-    }
-
-    if( !gpu_point_cloud.uploaded() ) {
-        buildPointCloud();
-    }
-
-    if( gpu_point_cloud.uploaded() ) {
-        //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
-        gpu_point_cloud.bind();
-        //gpu_point_cloud.draw();
-    }
+    // TODO
 
     glDisable( GL_DEPTH_TEST );
     glutSwapBuffers();
@@ -201,12 +121,8 @@ GLuint createShaders( const char * vs, const char * fs )
 
 int main (int argc, char * const argv[]) 
 {
-    printf("FastRender UI\n");
     glutInit( &argc, const_cast<char **>(argv) );
-    glutInitDisplayMode( GLUT_DOUBLE              // Double buffered
-                         | GLUT_RGBA | GLUT_DEPTH
-                         | GLUT_3_2_CORE_PROFILE  // Core profile context
-                         );
+    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE );
     glutInitWindowSize( window_width, window_height );
     glutInitWindowPosition( 0, 0 );
     glutCreateWindow("FastRender UI");
@@ -215,38 +131,13 @@ int main (int argc, char * const argv[])
     printf( "GL Version: %s\n", glGetString( GL_VERSION ) );
     printf( "GLSL Version: %s\n", glGetString( GL_SHADING_LANGUAGE_VERSION ) );
 
-    mesh_shader_program = createShaders( "basic.vs", "basic.fs" );
-    point_cloud_shader_program = createShaders( "points.vs", "points.fs" );
+    //mesh_shader_program = createShaders( "basic.vs", "basic.fs" );
+    //point_cloud_shader_program = createShaders( "points.vs", "points.fs" );
 
     glutReshapeFunc( viewportReshaped );
     glutDisplayFunc( repaintViewport );
 
-    AssetLoader loader;
-    std::string modelPath = "models";
-
-    // dragon
-    std::string dragonPath = modelPath + "/stanford/dragon/reconstruction";
-    //mesh = loader.load( dragonPath + "/dragon_vrip_res4.ply" );
-    //mesh = loader.load( dragonPath + "/dragon_vrip_res3.ply" );
-    //mesh = loader.load( dragonPath + "/dragon_vrip_res2.ply" );
-    //mesh = loader.load( dragonPath + "/dragon_vrip.ply" );
-
-    // bunnies
-    std::string bunnyPath = modelPath + "/stanford/bunny/reconstruction";
-    //mesh = loader.load( bunnyPath + "/bun_zipper_res4.ply" );
-    //mesh = loader.load( bunnyPath + "/bun_zipper_res3.ply" );
-    //mesh = loader.load( bunnyPath + "/bun_zipper_res2.ply" );
-    mesh = loader.load( bunnyPath + "/bun_zipper.ply" );
-
-    if( !mesh ) {
-        fprintf( stderr, "Error loading mesh\n" );
-        return EXIT_FAILURE;
-    }
-
-    BoundingVolume * meshBB = new BoundingVolume();
-    meshBB->buildAxisAligned( mesh );
-    meshBB->print();
-    delete meshBB;
+    // TODO
 
     GL_WARN_IF_ERROR();
     glutMainLoop();

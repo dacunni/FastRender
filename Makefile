@@ -158,9 +158,9 @@ test_renderLDXXFLAGS = $(LDXXFLAGS)
 test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
-#all: fr frui tests
+all: fr frui tests
 #all: fr tests python_bindings
-all: fr tests
+#all: fr tests
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
@@ -199,10 +199,9 @@ $(OBJDIR):
 
 fr: $(frOBJ_IN_DIR)
 	g++ -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
-#ld -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
 
-#frui: $(fruiOBJ_IN_DIR)
-#	ld -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
+frui: $(fruiOBJ_IN_DIR)
+	g++ -o frui $(fruiOBJ_IN_DIR) $(fruiLDXXFLAGS)
 
 #
 # Tests
