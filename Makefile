@@ -35,6 +35,7 @@ HDR = \
 	SignedDistanceFunction.h \
 	SimpleCamera.h \
 	Shader.h \
+    ShaderProgram.h \
 	Sphere.h \
     SurfaceTexture.h \
 	TMOctreeAccelerator.h \
@@ -79,6 +80,7 @@ OBJ = \
 	Ray.o \
     RGBImage.o \
 	Scene.o \
+    ShaderProgram.o \
 	SignedDistanceFunction.o \
 	SimpleCamera.o \
 	Sphere.o \

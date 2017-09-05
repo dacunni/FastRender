@@ -1,12 +1,3 @@
-/*
- *  Shader.h
- *  FastRender
- *
- *  Created by David Cunningham on 2/22/14
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
 #ifndef _SHADER_H_
 #define _SHADER_H_
 

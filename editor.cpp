@@ -34,90 +34,6 @@ void repaintViewport( void )
     glutSwapBuffers();
 }
 
-const char * shaderTypeAsString( GLuint type )
-{
-    switch( type ) {
-        case GL_VERTEX_SHADER:
-            return "VERTEX SHADER";
-        case GL_FRAGMENT_SHADER:
-            return "FRAGMENT SHADER";
-        default:
-            return "UNKNOWN SHADER";
-    }
-}
-
-GLuint loadShader( GLuint type, const std::string & filename )
-{
-    const char * type_string = shaderTypeAsString( type );
-    int status = 0;
-
-    std::ifstream ifs( filename );
-    std::stringstream ss;
-    ss << ifs.rdbuf();
-    std::string src = ss.str();
-    // FIXME - add error handling
-
-    printf( ">>>> %s >>>>\n%s<<<< %s <<<<\n", type_string, src.c_str(), type_string );
-    GLuint shader = glCreateShader( type );    
-
-    // Make an array of pointers for GL
-    const char * srcs[] = { src.c_str() };
-    glShaderSource( shader, 1, srcs, NULL );
-
-    // Compile shader
-    glCompileShader( shader );
-    glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
-
-    printf( "Shader Compile status: %d\n", status );
-
-    if( !status ) {
-        GLint len = 0;
-        glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &len );
-        std::vector<GLchar> log( len );
-        glGetShaderInfoLog( shader, len, &len, &log[0] );
-        printf( "Compiler Error Message:\n%s", (char *) &log[0] );
-        glDeleteShader( shader );
-        return 0;
-    }
-
-    // FIXME - add error handling
-
-    return shader;
-}
-
-GLuint createShaders( const char * vs, const char * fs ) 
-{
-    GLint program_status = 0;
-
-    GLuint vertex_shader = loadShader( GL_VERTEX_SHADER, vs );
-    GLuint fragment_shader = loadShader( GL_FRAGMENT_SHADER, fs );
-
-    GLuint shader_program = glCreateProgram();
-    if( vertex_shader != 0 )
-        glAttachShader( shader_program, vertex_shader );
-    if( fragment_shader != 0 ) 
-        glAttachShader( shader_program, fragment_shader );
-    glBindAttribLocation( shader_program, 0, "position" );
-    glBindAttribLocation( shader_program, 1, "normal" );
-    glLinkProgram( shader_program );
-
-    glGetProgramiv( shader_program, GL_LINK_STATUS, &program_status ); 
-    printf( "Link status: %d\n", program_status );
-
-    if( !program_status ) {
-        GLint len = 0;
-        glGetProgramiv( shader_program, GL_INFO_LOG_LENGTH, &len );
-        std::vector<GLchar> log( len );
-        glGetProgramInfoLog( shader_program, len, &len, &log[0] );
-        printf( "Compiler Error Message:\n%s", (char *) &log[0] );
-        glDeleteProgram( shader_program );
-        return 0; 
-    }
-    // FIXME - add error handling
-
-    return shader_program;
-}
-
 // TEMP - A test scene for developing the UI
 std::shared_ptr<Scene> buildScene()
 {
@@ -191,6 +107,13 @@ int main (int argc, char * const argv[])
     EditorSceneGraph editorScene;
     editorScene.build( *scene );
     editorScene.print();
+
+    std::string shaderPath = "shaders/";
+    std::string defaultVertexShader = shaderPath + "basic.vs";
+    std::string defaultFragmentShader = shaderPath + "basic.fs";
+
+    ShaderProgram program;
+    program.loadFilesVertexFragment(defaultVertexShader, defaultFragmentShader);
 
     // TODO
 

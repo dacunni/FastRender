@@ -32,6 +32,7 @@
 #include "Ray.h"
 #include "Scene.h"
 #include "Shader.h"
+#include "ShaderProgram.h"
 #include "SignedDistanceFunction.h"
 #include "SimpleCamera.h"
 #include "Sphere.h"
