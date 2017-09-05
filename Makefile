@@ -12,6 +12,7 @@ HDR = \
 	Container.h \
 	CSG.h \
 	DistributionSamplers.h \
+    Editor.h \
     EditorSceneGraph.h \
 	EnvironmentMap.h \
 	FlatContainer.h \
@@ -60,6 +61,7 @@ OBJ = \
 	Container.o \
 	CSG.o \
 	DistributionSamplers.o \
+    Editor.o \
     EditorSceneGraph.o \
 	EnvironmentMap.o \
 	FlatContainer.o \
@@ -99,7 +101,7 @@ frOBJ = $(OBJ) \
 	main.o
 
 freditOBJ = $(OBJ) \
-	editor.o
+	editormain.o
 
 test_randomOBJ = $(OBJ) test_random.o
 test_renderOBJ = $(OBJ) test_render.o

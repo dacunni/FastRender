@@ -9,9 +9,6 @@
 int window_width = 350;
 int window_height = 350;
 
-GLuint mesh_shader_program = 0;
-GLuint point_cloud_shader_program = 0;
-
 void viewportReshaped( int width, int height ) 
 {
     //printf("reshape: %d x %d\n", width, height);
@@ -43,15 +40,9 @@ std::shared_ptr<Scene> buildScene()
     build_scene_timer.start();
 	auto container = std::make_shared<FlatContainer>();
 	
-    //addLightingTest2( container );
-    //addSlabGrid( container );
     addOffsetCubes( container );
-    //addLitBunny( container );
     addBunny( container );
-    //addRandomSpheres( container, rng, 20 );
     addGroundPlane( container );
-    //addTransformedCubes( container );
-    //addLightingTest4( container );
 
     auto sphere = std::make_shared<Sphere>( Vector4( -3.0, 1.0, -7.0 ), 1.0 );
     sphere->material = std::make_shared<MirrorMaterial>();
@@ -84,41 +75,14 @@ std::shared_ptr<Scene> buildScene()
 
 int main (int argc, char * const argv[]) 
 {
-    glutInit( &argc, const_cast<char **>(argv) );
-    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE );
-    glutInitWindowSize( window_width, window_height );
-    glutInitWindowPosition( 0, 0 );
-    glutCreateWindow("FastRender UI");
+    Editor editor;
 
-    printf( "Renderer: %s\n", glGetString( GL_RENDERER ) );
-    printf( "GL Version: %s\n", glGetString( GL_VERSION ) );
-    printf( "GLSL Version: %s\n", glGetString( GL_SHADING_LANGUAGE_VERSION ) );
+    editor.scene = buildScene();
+    editor.editorScene.build(*editor.scene);
+    editor.editorScene.print();
 
-    //mesh_shader_program = createShaders( "basic.vs", "basic.fs" );
-    //point_cloud_shader_program = createShaders( "points.vs", "points.fs" );
+    editor.start();
 
-    glutReshapeFunc( viewportReshaped );
-    glutDisplayFunc( repaintViewport );
-
-    printf("Building scene\n");
-    auto scene = buildScene();
-
-    printf("Building editor scene graph\n");
-    EditorSceneGraph editorScene;
-    editorScene.build( *scene );
-    editorScene.print();
-
-    std::string shaderPath = "shaders/";
-    std::string defaultVertexShader = shaderPath + "basic.vs";
-    std::string defaultFragmentShader = shaderPath + "basic.fs";
-
-    ShaderProgram program;
-    program.loadFilesVertexFragment(defaultVertexShader, defaultFragmentShader);
-
-    // TODO
-
-    GL_WARN_IF_ERROR();
-    glutMainLoop();
     return EXIT_SUCCESS;
 }
 

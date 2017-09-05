@@ -10,6 +10,7 @@
 #include "Color.h"
 #include "Container.h"
 #include "DistributionSamplers.h"
+#include "Editor.h"
 #include "EditorSceneGraph.h"
 #include "EnvironmentMap.h"
 #include "FlatContainer.h"
