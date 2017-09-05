@@ -96,6 +96,13 @@ void ShaderProgram::use()
     GL_WARN_IF_ERROR();
 }
 
+GLint ShaderProgram::attribLocation( const std::string & name )
+{
+    GLint loc = glGetAttribLocation(id, name.c_str());
+    std::cout << "ATTRIB " << name << " @ " << loc << std::endl;
+    return loc;
+}
+
 void ShaderProgram::fromVertexFragment( ShaderStage & vertexShader,
                                         ShaderStage & fragmentShader )
 {

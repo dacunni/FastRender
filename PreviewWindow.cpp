@@ -100,8 +100,8 @@ void PreviewWindow::init()
     glGenBuffers( 1, &img_vbo );
     glBindBuffer( GL_ARRAY_BUFFER, img_vbo );
 
-    auto position_loc = glGetAttribLocation( imgShaderProgram.id, "position" );
-    auto uv_loc = glGetAttribLocation( imgShaderProgram.id, "uv" );
+    auto position_loc = imgShaderProgram.attribLocation("position");
+    auto uv_loc       = imgShaderProgram.attribLocation("uv");
     glBufferData( GL_ARRAY_BUFFER, sizeof(quad), &quad[0], GL_STATIC_DRAW );
     glVertexAttribPointer( position_loc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), NULL );
     glEnableVertexAttribArray( position_loc );

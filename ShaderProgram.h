@@ -35,6 +35,8 @@ class ShaderProgram {
         void loadFilesVertexFragment( const std::string & vertexFileName,
                                       const std::string & fragmentFileName );
 
+        GLint attribLocation( const std::string & name );
+
         GLuint id;
 };
 
