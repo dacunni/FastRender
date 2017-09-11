@@ -41,6 +41,11 @@ public:
     
 	void identity();
 	
+    void glProjectionSymmetric( float width, float height, float near, float far );
+    void glProjection( float left, float right, 
+                       float bottom, float top, 
+                       float near, float far );
+
 	void print() const;
     std::string toJSON() const;
 	
