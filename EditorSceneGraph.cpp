@@ -80,7 +80,6 @@ class SphereEditor : public ObjectEditor {
         {
             glGenVertexArrays(1, &vertexArray);
             glGenBuffers(1, &vertexBuffer);
-            //glGenBuffers(1, &indexBuffer);
             glBindVertexArray(vertexArray);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
@@ -164,6 +163,53 @@ class AxisAlignedSlabEditor : public ObjectEditor {
 
         virtual std::string label() { return "Box"; }
         virtual Traceable & object() const { return obj; }
+
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram)
+        {
+            glGenVertexArrays(1, &vertexArray);
+            glGenBuffers(1, &vertexBuffer);
+            glGenBuffers(1, &indexBuffer);
+            glBindVertexArray(vertexArray);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+            struct Vertex { float x, y, z; };
+
+            std::vector<Vertex> vertices;
+            vertices.reserve(8);
+
+            vertices.push_back( { .x = obj.xmin, .y = obj.ymin, .z = obj.zmin } );
+            vertices.push_back( { .x = obj.xmax, .y = obj.ymin, .z = obj.zmin } );
+            vertices.push_back( { .x = obj.xmin, .y = obj.ymax, .z = obj.zmin } );
+            vertices.push_back( { .x = obj.xmax, .y = obj.ymax, .z = obj.zmin } );
+            vertices.push_back( { .x = obj.xmin, .y = obj.ymin, .z = obj.zmax } );
+            vertices.push_back( { .x = obj.xmax, .y = obj.ymin, .z = obj.zmax } );
+            vertices.push_back( { .x = obj.xmin, .y = obj.ymax, .z = obj.zmax } );
+            vertices.push_back( { .x = obj.xmax, .y = obj.ymax, .z = obj.zmax } );
+            numVertices = vertices.size();
+
+            uint32_t indices[] = { // side
+                0, 1, 2, 1, 3, 2,  // zmin
+                0, 1, 4, 1, 5, 4,  // ymin
+                2, 3, 6, 3, 7, 6,  // ymax
+                4, 5, 6, 5, 7, 6,  // zmax
+                2, 0, 6, 0, 4, 6,  // xmin
+                1, 3, 5, 3, 7, 5,  // xmax
+            };
+            numIndices = sizeof(indices) / sizeof(indices[0]);
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+
+            glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
+            glEnableVertexAttribArray(positionLoc);
+            GL_WARN_IF_ERROR();
+
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
+            GL_WARN_IF_ERROR();
+
+            glBindVertexArray(0);
+        }
 
         AxisAlignedSlab & obj;
 };
