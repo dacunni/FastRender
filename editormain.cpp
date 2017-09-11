@@ -77,9 +77,13 @@ int main (int argc, char * const argv[])
 {
     Editor editor;
 
+    editor.init();
+
     editor.scene = buildScene();
     editor.editorScene.build(*editor.scene);
     editor.editorScene.print();
+
+    editor.buildGpuBuffers();
 
     editor.start();
 

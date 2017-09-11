@@ -11,6 +11,8 @@ public:
     Editor();
     virtual ~Editor();
     
+    void init();
+    void buildGpuBuffers();
     void start();
 
     void viewportReshaped( int w, int h );

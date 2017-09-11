@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "ShaderProgram.h"
-
+#include "Matrix.h"
 
 const char * shaderTypeAsString( GLuint type )
 {
@@ -101,6 +101,19 @@ GLint ShaderProgram::attribLocation( const std::string & name )
     GLint loc = glGetAttribLocation(id, name.c_str());
     std::cout << "ATTRIB " << name << " @ " << loc << std::endl;
     return loc;
+}
+
+GLint ShaderProgram::uniformLocation( const std::string & name )
+{
+    GLint loc = glGetUniformLocation(id, name.c_str());
+    std::cout << "UNIFORM " << name << " @ " << loc << std::endl;
+    return loc;
+}
+
+void ShaderProgram::setUniform( const std::string & name, const Matrix4x4 & mat )
+{
+    glUniformMatrix4fv(uniformLocation(name), 1, GL_TRUE, mat.data);
+    GL_WARN_IF_ERROR();
 }
 
 void ShaderProgram::fromVertexFragment( ShaderStage & vertexShader,

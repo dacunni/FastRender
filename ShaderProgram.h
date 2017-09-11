@@ -5,6 +5,8 @@
 
 #include "OpenGLUtil.h"
 
+class Matrix4x4;
+
 const char * shaderTypeAsString( GLuint type );
 
 class ShaderStage {
@@ -36,11 +38,11 @@ class ShaderProgram {
                                       const std::string & fragmentFileName );
 
         GLint attribLocation( const std::string & name );
+        GLint uniformLocation( const std::string & name );
+
+        void setUniform( const std::string & name, const Matrix4x4 & mat );
 
         GLuint id;
 };
-
-
-
 
 #endif

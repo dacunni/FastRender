@@ -20,6 +20,9 @@ void main()
     vWorldPosition = world * position;
     vPosition = projection * view * vWorldPosition;
     gl_Position = vPosition;
+//    gl_Position = position; // TEMP
+//    gl_Position = vec4(vec3(0.2), 1.0) * position; // TEMP
+//    gl_Position = vec4(vec3(0.2), 1.0) * gl_Position; // TEMP
 
     // Transform normal
     vNormal = vec4(normal.xyz, 0.0); // fix up the w component just in case
