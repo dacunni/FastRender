@@ -107,7 +107,6 @@ class SphereEditor : public ObjectEditor {
                     vertices.push_back( { .x = center.x + radius * cosf(lat + dlat) * cosf(lon),
                                           .y = center.y + radius * cosf(lat + dlat) * sinf(lon),
                                           .z = center.z + radius * sinf(lat + dlat) } );
-
                     vertices.push_back( { .x = center.x + radius * cosf(lat + dlat) * cosf(lon),
                                           .y = center.y + radius * cosf(lat + dlat) * sinf(lon),
                                           .z = center.z + radius * sinf(lat + dlat) } );
@@ -152,6 +151,49 @@ class TriangleMeshEditor : public ObjectEditor {
 
         virtual std::string label() { return "Triangle Mesh"; }
         virtual Traceable & object() const { return obj; }
+
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram)
+        {
+            glGenVertexArrays(1, &vertexArray);
+            glGenBuffers(1, &vertexBuffer);
+            glGenBuffers(1, &indexBuffer);
+            glBindVertexArray(vertexArray);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+            struct Vertex { float x, y, z; };
+
+            std::vector<Vertex> vertices;
+            std::vector<uint32_t> indices;
+            vertices.reserve(obj.vertices.size());
+            indices.reserve(obj.triangles.size() * 3);
+
+            for( const auto & vertex : obj.vertices ) {
+                vertices.push_back( { .x = vertex.x,
+                                      .y = vertex.y,
+                                      .z = vertex.z } );
+            }
+            numVertices = vertices.size();
+
+            for( const auto & tri : obj.triangles ) {
+                indices.push_back(tri.vi[0]);
+                indices.push_back(tri.vi[1]);
+                indices.push_back(tri.vi[2]);
+            }
+            numIndices = indices.size();
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+
+            glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
+            glEnableVertexAttribArray(positionLoc);
+            GL_WARN_IF_ERROR();
+
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
+            GL_WARN_IF_ERROR();
+
+            glBindVertexArray(0);
+        }
 
         TriangleMesh & obj;
 };

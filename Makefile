@@ -95,7 +95,7 @@ OBJ = \
 	TraceLog.o \
 	Transform.o \
 	TriangleMesh.o \
-	Vector.o \
+	Vector.o
 
 frOBJ = $(OBJ) \
 	main.o
