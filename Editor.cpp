@@ -36,7 +36,8 @@ void Editor::init()
     
     std::string shaderPath = "shaders/";
     std::string defaultVertexShader = shaderPath + "basic.vs";
-    std::string defaultFragmentShader = shaderPath + "basic.fs";
+    //std::string defaultFragmentShader = shaderPath + "basic.fs";
+    std::string defaultFragmentShader = shaderPath + "normals.fs";
 
     defaultShaderProgram.loadFilesVertexFragment(defaultVertexShader, defaultFragmentShader);
 
@@ -113,9 +114,10 @@ void Editor::repaintViewport()
 {
     glClearColor( 0.2, 0.2, 0.3, 1.0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glEnable( GL_DEPTH_TEST );
 
-    //bool drawWireframes = false;
-    bool drawWireframes = true;
+    bool drawWireframes = false;
+    //bool drawWireframes = true;
 
     if(drawWireframes)
         glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
@@ -144,6 +146,7 @@ void Editor::repaintViewport()
     if(drawWireframes)
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );  // Draw polygons filled
 
+    glDisable( GL_DEPTH_TEST );
     glutSwapBuffers();
 }
 

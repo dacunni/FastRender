@@ -40,9 +40,9 @@ void ObjectEditor::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
     view = camera.transform.rev;
     projection.glProjectionSymmetric(0.2, 0.2, 0.25, 200.0); // TODO - real camera projection
 
-    printf("WORLD TRANSFORM:\n"); world.print();
-    printf("VIEW:\n"); view.print();
-    printf("PROJECTION:\n"); projection.print();
+    //printf("WORLD TRANSFORM:\n"); world.print();
+    //printf("VIEW:\n"); view.print();
+    //printf("PROJECTION:\n"); projection.print();
 
     glUniformMatrix4fv(worldLoc, 1, GL_TRUE, world.data);
     glUniformMatrix4fv(viewLoc, 1, GL_TRUE, view.data);
@@ -76,6 +76,23 @@ class SphereEditor : public ObjectEditor {
         virtual std::string label() { return "Sphere"; }
         virtual Traceable & object() const { return obj; }
 
+        Vertex makeSphereVertex( const Vector4 & center, float radius,
+                                 float lat, float lon )
+        {
+            Vertex v;
+
+            float xunit = cosf(lat) * cosf(lon);
+            float yunit = cosf(lat) * sinf(lon);
+            float zunit = sinf(lat);
+
+            v.position = { .x = center.x + radius * xunit,
+                           .y = center.y + radius * yunit,
+                           .z = center.z + radius * zunit };
+            v.normal = { .x = xunit, .y = yunit, .z = zunit };
+
+            return v;
+        }
+
         virtual void buildGpuBuffers(ShaderProgram & shaderProgram)
         {
             glGenVertexArrays(1, &vertexArray);
@@ -83,14 +100,12 @@ class SphereEditor : public ObjectEditor {
             glBindVertexArray(vertexArray);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
-            struct Vertex { float x, y, z; };
-
             unsigned int numSlices = 10;
             unsigned int numSteps = 20;
             std::vector<Vertex> vertices;
             vertices.reserve(numSlices * numSteps);
 
-            Vertex center = { .x = obj.center.x, .y = obj.center.y, .z = obj.center.z };
+            auto const & center = obj.center;
             float radius = obj.radius;
             float dlat = (float) 1.0 / numSlices * M_PI;
             float dlon = (float) 1.0 / numSteps * 2.0 * M_PI;
@@ -98,33 +113,26 @@ class SphereEditor : public ObjectEditor {
             for(unsigned int slice = 0; slice < numSlices; slice++, lat += dlat) {
                 float lon = 0.0;
                 for(unsigned int step = 0; step < numSteps; step++, lon += dlon) {
-                    vertices.push_back( { .x = center.x + radius * cosf(lat) * cosf(lon),
-                                          .y = center.y + radius * cosf(lat) * sinf(lon),
-                                          .z = center.z + radius * sinf(lat) } );
-                    vertices.push_back( { .x = center.x + radius * cosf(lat) * cosf(lon + dlon),
-                                          .y = center.y + radius * cosf(lat) * sinf(lon + dlon),
-                                          .z = center.z + radius * sinf(lat) } );
-                    vertices.push_back( { .x = center.x + radius * cosf(lat + dlat) * cosf(lon),
-                                          .y = center.y + radius * cosf(lat + dlat) * sinf(lon),
-                                          .z = center.z + radius * sinf(lat + dlat) } );
-                    vertices.push_back( { .x = center.x + radius * cosf(lat + dlat) * cosf(lon),
-                                          .y = center.y + radius * cosf(lat + dlat) * sinf(lon),
-                                          .z = center.z + radius * sinf(lat + dlat) } );
-                    vertices.push_back( { .x = center.x + radius * cosf(lat + dlat) * cosf(lon),
-                                          .y = center.y + radius * cosf(lat + dlat) * sinf(lon),
-                                          .z = center.z + radius * sinf(lat + dlat) } );
-                    vertices.push_back( { .x = center.x + radius * cosf(lat + dlat) * cosf(lon + dlon),
-                                          .y = center.y + radius * cosf(lat + dlat) * sinf(lon + dlon),
-                                          .z = center.z + radius * sinf(lat + dlat) } );
+                    vertices.push_back( makeSphereVertex(center, radius, lat,        lon) );
+                    vertices.push_back( makeSphereVertex(center, radius, lat,        lon + dlon) );
+                    vertices.push_back( makeSphereVertex(center, radius, lat + dlat, lon) );
+                    vertices.push_back( makeSphereVertex(center, radius, lat + dlat, lon) );
+                    vertices.push_back( makeSphereVertex(center, radius, lat + dlat, lon + dlon) );
+                    vertices.push_back( makeSphereVertex(center, radius, lat,        lon + dlon) );
                 }
             }
             numVertices = vertices.size();
 
-            auto positionLoc = shaderProgram.attribLocation("position");
-
             glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, position));
             glEnableVertexAttribArray(positionLoc);
+            GL_WARN_IF_ERROR();
+
+            auto normalLoc = shaderProgram.attribLocation("normal");
+            glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
+            glEnableVertexAttribArray(normalLoc);
             GL_WARN_IF_ERROR();
 
             glBindVertexArray(0);
@@ -161,17 +169,21 @@ class TriangleMeshEditor : public ObjectEditor {
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-            struct Vertex { float x, y, z; };
-
             std::vector<Vertex> vertices;
             std::vector<uint32_t> indices;
             vertices.reserve(obj.vertices.size());
             indices.reserve(obj.triangles.size() * 3);
 
-            for( const auto & vertex : obj.vertices ) {
-                vertices.push_back( { .x = vertex.x,
-                                      .y = vertex.y,
-                                      .z = vertex.z } );
+            for( unsigned int index = 0; index < obj.vertices.size(); index++ ) {
+                const auto & vertex = obj.vertices[index];
+                const auto & normal = obj.normals[index];
+                vertices.push_back( {
+                    .position = { .x = vertex.x,
+                                  .y = vertex.y,
+                                  .z = vertex.z },
+                    .normal = { .x = normal.x,
+                                .y = normal.y,
+                                .z = normal.z } } );
             }
             numVertices = vertices.size();
 
@@ -182,11 +194,16 @@ class TriangleMeshEditor : public ObjectEditor {
             }
             numIndices = indices.size();
 
-            auto positionLoc = shaderProgram.attribLocation("position");
-
             glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, position));
             glEnableVertexAttribArray(positionLoc);
+            GL_WARN_IF_ERROR();
+
+            auto normalLoc = shaderProgram.attribLocation("normal");
+            glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
+            glEnableVertexAttribArray(normalLoc);
             GL_WARN_IF_ERROR();
 
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
@@ -210,25 +227,21 @@ class AxisAlignedSlabEditor : public ObjectEditor {
         {
             glGenVertexArrays(1, &vertexArray);
             glGenBuffers(1, &vertexBuffer);
-            glGenBuffers(1, &indexBuffer);
             glBindVertexArray(vertexArray);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-            struct Vertex { float x, y, z; };
 
             std::vector<Vertex> vertices;
-            vertices.reserve(8);
+            vertices.reserve(6 * 6);
 
-            vertices.push_back( { .x = obj.xmin, .y = obj.ymin, .z = obj.zmin } );
-            vertices.push_back( { .x = obj.xmax, .y = obj.ymin, .z = obj.zmin } );
-            vertices.push_back( { .x = obj.xmin, .y = obj.ymax, .z = obj.zmin } );
-            vertices.push_back( { .x = obj.xmax, .y = obj.ymax, .z = obj.zmin } );
-            vertices.push_back( { .x = obj.xmin, .y = obj.ymin, .z = obj.zmax } );
-            vertices.push_back( { .x = obj.xmax, .y = obj.ymin, .z = obj.zmax } );
-            vertices.push_back( { .x = obj.xmin, .y = obj.ymax, .z = obj.zmax } );
-            vertices.push_back( { .x = obj.xmax, .y = obj.ymax, .z = obj.zmax } );
-            numVertices = vertices.size();
+            std::vector<Vertex::Position> corners;
+            corners.push_back( { .x = obj.xmin, .y = obj.ymin, .z = obj.zmin } );
+            corners.push_back( { .x = obj.xmax, .y = obj.ymin, .z = obj.zmin } );
+            corners.push_back( { .x = obj.xmin, .y = obj.ymax, .z = obj.zmin } );
+            corners.push_back( { .x = obj.xmax, .y = obj.ymax, .z = obj.zmin } );
+            corners.push_back( { .x = obj.xmin, .y = obj.ymin, .z = obj.zmax } );
+            corners.push_back( { .x = obj.xmax, .y = obj.ymin, .z = obj.zmax } );
+            corners.push_back( { .x = obj.xmin, .y = obj.ymax, .z = obj.zmax } );
+            corners.push_back( { .x = obj.xmax, .y = obj.ymax, .z = obj.zmax } );
 
             uint32_t indices[] = { // side
                 0, 1, 2, 1, 3, 2,  // zmin
@@ -238,16 +251,36 @@ class AxisAlignedSlabEditor : public ObjectEditor {
                 2, 0, 6, 0, 4, 6,  // xmin
                 1, 3, 5, 3, 7, 5,  // xmax
             };
-            numIndices = sizeof(indices) / sizeof(indices[0]);
 
-            auto positionLoc = shaderProgram.attribLocation("position");
+            std::vector<Vertex::Normal> faceNormals;
+            faceNormals.push_back( { .x =  0, .y =  0, .z = -1 } );
+            faceNormals.push_back( { .x =  0, .y = -1, .z =  0 } );
+            faceNormals.push_back( { .x =  0, .y = +1, .z =  0 } );
+            faceNormals.push_back( { .x =  0, .y =  0, .z = +1 } );
+            faceNormals.push_back( { .x = -1, .y =  0, .z =  0 } );
+            faceNormals.push_back( { .x = +1, .y =  0, .z =  0 } );
+
+            unsigned int cornerIndex = 0;
+            for(unsigned int face = 0; face < 6; face++) {
+                for(unsigned int vertIndex = 0; vertIndex < 6; vertIndex++) {
+                    vertices.push_back( { .position = corners[indices[cornerIndex]],
+                                          .normal = faceNormals[face] } );
+                    cornerIndex++;
+                }
+            }
+
+            numVertices = vertices.size();
 
             glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), NULL);
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, position));
             glEnableVertexAttribArray(positionLoc);
             GL_WARN_IF_ERROR();
 
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
+            auto normalLoc = shaderProgram.attribLocation("normal");
+            glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
+            glEnableVertexAttribArray(normalLoc);
             GL_WARN_IF_ERROR();
 
             glBindVertexArray(0);

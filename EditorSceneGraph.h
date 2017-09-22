@@ -14,6 +14,12 @@ class ObjectEditor {
         ObjectEditor();
         ~ObjectEditor();
 
+        // Shader data structures
+        struct Vertex {
+            struct Position { float x, y, z; } position;
+            struct Normal { float x, y, z; } normal;
+        };
+
         virtual std::string label();
         virtual void draw(SimpleCamera & camera, ShaderProgram & shaderProgram);
 
