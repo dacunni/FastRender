@@ -47,3 +47,11 @@ SETUP_SCENE(
 );
 END_SCENE()
 
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestInspectionTextureUVCoordinate, MaterialTestInspection)
+SETUP_SCENE(
+    MaterialTestInspection::setup();
+    shader->property = InspectionShader::TextureUVCoordinate;
+);
+END_SCENE()
+

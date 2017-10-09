@@ -47,6 +47,11 @@ void InspectionShader::shade( Scene & scene, RandomNumberGenerator & rng, RayInt
                 color = RGBColor( v, v, v );
             }
             break;
+        case TextureUVCoordinate:
+            {
+                color = RGBColor( intersection.u, intersection.v, 0.0 );
+            }
+            break;
         default:
             ;
     }

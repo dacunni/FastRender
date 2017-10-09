@@ -18,6 +18,7 @@ class InspectionShader : public Shader
             FresnelConductor,
             Normal,
             IndexOfRefraction,
+            TextureUVCoordinate,
             NumProperties
         };
 
