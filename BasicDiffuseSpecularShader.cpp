@@ -9,6 +9,43 @@
 #include "AxisAlignedSlab.h"
 #include "EnvironmentMap.h"
 
+RGBColor BasicDiffuseSpecularShader::samplePointLight( const Scene & scene,
+                                                       const RayIntersection & intersection,
+                                                       const PointLight & light )
+{
+    Vector4 to_light = subtract( light.position, intersection.position );
+    float dist_sq_to_light = to_light.magnitude_sq();
+    Vector4 direction = to_light.normalized();
+    direction.makeDirection();
+
+    // Shoot a ray toward the light to see if we are in shadow
+    Ray shadow_ray( intersection.position, direction );
+    RayIntersection shadow_isect;
+    shadow_isect.min_distance = EPSILON;
+    if( scene.intersect( shadow_ray, shadow_isect )
+        && sq(shadow_isect.distance) < dist_sq_to_light ) {
+        return RGBColor(0.0f, 0.0f, 0.0f);
+    }
+
+    // Not in shadow
+    float cos_r_n = fabsf( dot( direction, intersection.normal ) ); 
+    RGBColor color = light.band_power;
+    color.scale(cos_r_n);
+    color.scale(1.0f / to_light.magnitude_sq()); // distance falloff
+
+    return color;
+}
+
+RGBColor BasicDiffuseSpecularShader::samplePointLights( const Scene & scene,
+                                                        const RayIntersection & intersection )
+{
+    RGBColor totalColor;
+    for( const PointLight & light : scene.point_lights ) {
+        const RGBColor color = samplePointLight( scene, intersection, light );
+        totalColor.accum( mult( color, intersection.material->diffuse(intersection) ) );
+    }
+    return totalColor;
+}
 
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
@@ -75,29 +112,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         }
     }
     // Point lights
-    for( const PointLight & light : scene.point_lights ) {
-        Vector4 to_light = subtract( light.position, intersection.position );
-        float dist_sq_to_light = to_light.magnitude_sq();
-        Vector4 direction = to_light.normalized();
-        direction.makeDirection();
-
-        // Shoot a ray toward the light to see if we are in shadow
-        Ray shadow_ray( intersection.position, direction );
-        RayIntersection shadow_isect;
-        shadow_isect.min_distance = EPSILON;
-        if( scene.intersect( shadow_ray, shadow_isect )
-            && sq(shadow_isect.distance) < dist_sq_to_light ) {
-            continue;
-        }
-
-        // Not in shadow
-        float cos_r_n = fabsf( dot( direction, intersection.normal ) ); 
-        RGBColor color = light.band_power;
-        color.scale(cos_r_n);
-        color.scale(1.0f / to_light.magnitude_sq()); // distance falloff
-        // TODO: use actual material parameters properly so we can get specular here, too
-        direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
-    }
+    direct_contrib.accum( samplePointLights( scene, intersection ) );
     // Environment map
     if( sample_env_maps
         && scene.env_map && scene.env_map->canImportanceSample() ) {

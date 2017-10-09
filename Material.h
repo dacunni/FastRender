@@ -65,8 +65,8 @@ class Material
         // FIXME - stopgap
         virtual bool isEmitter() { return emittance.r > 0.0 || emittance.g > 0.0 || emittance.b > 0.0; }
 
-        virtual RGBColor diffuse( RayIntersection & isect ) { return diffuseColor; }
-        virtual RGBColor specular( RayIntersection & isect ) { return specularColor; }
+        virtual RGBColor diffuse( const RayIntersection & isect ) { return diffuseColor; }
+        virtual RGBColor specular( const RayIntersection & isect ) { return specularColor; }
 
         // Reflectances
         // FIXME - not realistic. need a more generic, physically-based reflection model. gotta start somewhere, though
@@ -124,7 +124,7 @@ class DiffuseCheckerBoardMaterial : public Material
         }
         virtual ~DiffuseCheckerBoardMaterial() {}
         
-        virtual RGBColor diffuse( RayIntersection & isect );
+        virtual RGBColor diffuse( const RayIntersection & isect );
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
@@ -139,7 +139,7 @@ class DiffuseUVMaterial : public DiffuseMaterial
         DiffuseUVMaterial() : DiffuseMaterial() {}
         virtual ~DiffuseUVMaterial() {}
         
-        virtual RGBColor diffuse( RayIntersection & isect );
+        virtual RGBColor diffuse( const RayIntersection & isect );
 };
 
 class DiffuseTextureMaterial : public DiffuseMaterial
@@ -148,7 +148,7 @@ class DiffuseTextureMaterial : public DiffuseMaterial
         DiffuseTextureMaterial( std::shared_ptr<SurfaceTexture> & tex ) : DiffuseMaterial(), texture(tex) {}
         virtual ~DiffuseTextureMaterial() {}
         
-        virtual RGBColor diffuse( RayIntersection & isect );
+        virtual RGBColor diffuse( const RayIntersection & isect );
 
         std::shared_ptr<SurfaceTexture> texture;
 };

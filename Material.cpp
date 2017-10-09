@@ -43,7 +43,7 @@ DiffuseMaterial::BxDF( const RayIntersection & intersection ) const
 }
 
 RGBColor
-DiffuseCheckerBoardMaterial::diffuse( RayIntersection & isect ) {
+DiffuseCheckerBoardMaterial::diffuse( const RayIntersection & isect ) {
     return (bool(int(floorf(isect.position.x / gridSize)) % 2) ^
             bool(int(floorf(isect.position.y / gridSize)) % 2) ^
             bool(int(floorf(isect.position.z / gridSize)) % 2)
@@ -55,7 +55,7 @@ DiffuseCheckerBoardMaterial::diffuse( RayIntersection & isect ) {
 }
 
 RGBColor
-DiffuseUVMaterial::diffuse( RayIntersection & isect )
+DiffuseUVMaterial::diffuse( const RayIntersection & isect )
 {
     float u = clamp01(isect.u);
     float v = clamp01(isect.v);
@@ -63,7 +63,7 @@ DiffuseUVMaterial::diffuse( RayIntersection & isect )
 }
 
 RGBColor
-DiffuseTextureMaterial::diffuse( RayIntersection & isect )
+DiffuseTextureMaterial::diffuse( const RayIntersection & isect )
 {
     float u = clamp01(isect.u);
     float v = clamp01(isect.v);
