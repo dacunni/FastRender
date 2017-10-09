@@ -15,6 +15,7 @@
 class PointLight;
 class AreaLight;
 class RGBColor;
+class EnvironmentMap;
 
 // Super basic traditional diffuse + specular shader
 class BasicDiffuseSpecularShader : public Shader
@@ -39,6 +40,10 @@ class BasicDiffuseSpecularShader : public Shader
         inline RGBColor sampleAreaLights( const Scene & scene,
                                           const RayIntersection & intersection,
                                           RandomNumberGenerator & rng );
+
+        inline RGBColor sampleEnvironmentMap( const Scene & scene,
+                                              const RayIntersection & intersection,
+                                              RandomNumberGenerator & rng );
     
 };
 

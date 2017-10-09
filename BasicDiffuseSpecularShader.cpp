@@ -98,6 +98,47 @@ RGBColor BasicDiffuseSpecularShader::sampleAreaLights( const Scene & scene,
     return totalColor;
 }
 
+RGBColor BasicDiffuseSpecularShader::sampleEnvironmentMap( const Scene & scene,
+                                                           const RayIntersection & intersection,
+                                                           RandomNumberGenerator & rng )
+{
+    if( !scene.env_map || !scene.env_map->canImportanceSample() )
+        return RGBColor(0.0f, 0.0, 0.0f);
+
+    auto & envmap = *scene.env_map;
+
+    EnvironmentMap::ImportanceSample isamp;
+
+    // Find a sample in the direction of the normal
+    float s_dot_n = -1.0;
+    const unsigned int max_tries = 100;
+    for( unsigned int tries = 0; tries < max_tries && s_dot_n < 0.0f; tries++ ) {
+        isamp = envmap.importanceSample( rng, intersection );
+        s_dot_n = dot( isamp.ray.direction, intersection.normal);
+    }
+
+    // Shoot a ray toward the light to see if we are in shadow
+    Ray shadow_ray = isamp.ray;
+    RayIntersection shadow_isect;
+    shadow_isect.min_distance = EPSILON;
+    if( s_dot_n > 0.0f &&
+        !scene.intersect( shadow_ray, shadow_isect ) ) {
+        // Not in shadow
+        auto sample = envmap.sample(isamp.ray);
+        float cos_r_n = fabsf( dot( isamp.ray.direction, intersection.normal ) ); 
+        auto color = sample.color;
+        color.scale(1.0f / isamp.pdf);
+        color.scale(cos_r_n);
+        //color.scale(0.01f); // TEMP
+        //color.scale(4.0f); // TEMP - brightening it to see better
+        //color.scale(2.0f*M_PI); // FIXME: Is this right?
+        //color.scale(M_PI); // FIXME: Is this right?
+        return mult( color, intersection.material->diffuse(intersection) );
+    }
+
+    return RGBColor(0.0f, 0.0f, 0.0f);
+}
+
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
     RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
@@ -130,39 +171,13 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     if( sample_area_lights ) {
         direct_contrib.accum( sampleAreaLights( scene, intersection, rng ) );
     }
+
     // Point lights
     direct_contrib.accum( samplePointLights( scene, intersection ) );
+
     // Environment map
-    if( sample_env_maps
-        && scene.env_map && scene.env_map->canImportanceSample() ) {
-        EnvironmentMap::ImportanceSample isamp;
-
-        // Find a sample in the direction of the normal
-        float s_dot_n = -1.0;
-        const unsigned int max_tries = 100;
-        for( unsigned int tries = 0; tries < max_tries && s_dot_n < 0.0f; tries++ ) {
-            isamp = scene.env_map->importanceSample( rng, intersection );
-            s_dot_n = dot( isamp.ray.direction, intersection.normal);
-        }
-
-        // Shoot a ray toward the light to see if we are in shadow
-        Ray shadow_ray = isamp.ray;
-        RayIntersection shadow_isect;
-        shadow_isect.min_distance = EPSILON;
-        if( s_dot_n > 0.0f &&
-            !scene.intersect( shadow_ray, shadow_isect ) ) {
-            // Not in shadow
-            auto sample = scene.env_map->sample(isamp.ray);
-            float cos_r_n = fabsf( dot( isamp.ray.direction, intersection.normal ) ); 
-            auto color = sample.color;
-            color.scale(1.0f / isamp.pdf);
-            color.scale(cos_r_n);
-            //color.scale(0.01f); // TEMP
-            //color.scale(4.0f); // TEMP - brightening it to see better
-            //color.scale(2.0f*M_PI); // FIXME: Is this right?
-            //color.scale(M_PI); // FIXME: Is this right?
-            direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
-        }
+    if( sample_env_maps ) {
+        direct_contrib.accum( sampleEnvironmentMap( scene, intersection, rng ) );
     }
 
     // TODO: How best should we choose between diffuse and specular?
