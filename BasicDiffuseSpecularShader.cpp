@@ -47,6 +47,57 @@ RGBColor BasicDiffuseSpecularShader::samplePointLights( const Scene & scene,
     return totalColor;
 }
 
+RGBColor BasicDiffuseSpecularShader::sampleAreaLight( const Scene & scene,
+                                                      const RayIntersection & intersection,
+                                                      RandomNumberGenerator & rng,
+                                                      const AreaLight & light )
+{
+
+    auto sample = light.sampleSurfaceTransformed( rng );
+    auto to_light = subtract( sample.position, intersection.position );
+
+    if( dot( to_light, intersection.normal ) <= 0.0 ) {
+        return RGBColor(0.0f, 0.0, 0.0f);
+    }
+
+    float dist_sq_to_light = to_light.magnitude_sq();
+    auto direction = to_light.normalized();
+    direction.makeDirection();
+
+    // Shoot a ray toward the light to see if we are in shadow
+    Ray shadow_ray( intersection.position, direction );
+    RayIntersection shadow_isect;
+    shadow_isect.min_distance = EPSILON;
+    if( scene.intersect( shadow_ray, shadow_isect ) ) {
+        float dist_sq_to_isect = sq(shadow_isect.distance + shadow_isect.min_distance);
+        if( dist_sq_to_isect < dist_sq_to_light) {
+            return RGBColor(0.0f, 0.0, 0.0f);
+        }
+    }
+
+    // Not in shadow
+    float cos_r_n = fabsf( dot( direction, intersection.normal ) ); 
+    RGBColor color = light.material->emittance;
+    color.scale( cos_r_n );
+    color.scale( fabsf( dot( sample.normal, direction.negated() ) ) ); // account for projected area of the light
+    // FIXME - Should there be a distance falloff? Things seem too bright for objects close to lights if we do
+    //color.scale( 1.0f / dist_sq_to_light ); // distance falloff
+    return color;
+}
+
+RGBColor BasicDiffuseSpecularShader::sampleAreaLights( const Scene & scene,
+                                                       const RayIntersection & intersection,
+                                                       RandomNumberGenerator & rng )
+{
+    RGBColor totalColor;
+    for( const auto & light : scene.area_lights ) {
+        const RGBColor color = sampleAreaLight( scene, intersection, rng, *light );
+        // TODO: use actual material parameters properly so we can get specular here, too
+        totalColor.accum( mult( color, intersection.material->diffuse(intersection) ) );
+    }
+    return totalColor;
+}
+
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
     RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
@@ -74,42 +125,10 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     const bool sample_env_maps = true;
 
     // Direct lighting
-    //
+    
     // Area lights
     if( sample_area_lights ) {
-        for( const auto light : scene.area_lights ) {
-            auto sample = light->sampleSurfaceTransformed( rng );
-            auto to_light = subtract( sample.position, intersection.position );
-
-            if( dot( to_light, intersection.normal ) <= 0.0 ) {
-                continue;
-            }
-            
-            float dist_sq_to_light = to_light.magnitude_sq();
-            auto direction = to_light.normalized();
-            direction.makeDirection();
-
-            // Shoot a ray toward the light to see if we are in shadow
-            Ray shadow_ray( intersection.position, direction );
-            RayIntersection shadow_isect;
-            shadow_isect.min_distance = EPSILON;
-            if( scene.intersect( shadow_ray, shadow_isect ) ) {
-                float dist_sq_to_isect = sq(shadow_isect.distance + shadow_isect.min_distance);
-                if( dist_sq_to_isect < dist_sq_to_light) {
-                    continue;
-                }
-            }
-
-            // Not in shadow
-            float cos_r_n = fabsf( dot( direction, intersection.normal ) ); 
-            RGBColor color = light->material->emittance;
-            color.scale( cos_r_n );
-            color.scale( fabsf( dot( sample.normal, direction.negated() ) ) ); // account for projected area of the light
-            // FIXME - Should there be a distance falloff? Things seem too bright for objects close to lights if we do
-            //color.scale( 1.0f / dist_sq_to_light ); // distance falloff
-            // TODO: use actual material parameters properly so we can get specular here, too
-            direct_contrib.accum( mult( color, intersection.material->diffuse(intersection) ) );
-        }
+        direct_contrib.accum( sampleAreaLights( scene, intersection, rng ) );
     }
     // Point lights
     direct_contrib.accum( samplePointLights( scene, intersection ) );
