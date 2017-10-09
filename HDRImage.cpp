@@ -80,7 +80,6 @@ void HDRImage::maskUV( const std::function<bool(float,float)> & mask )
 RGBRadianceSample HDRImage::sampleRGB( float u, float v ) const
 {
     RGBRadianceSample s;
-    s.mask = RGB_BITS;
 
     if( width == 0 || height == 0 ) {
         return s;

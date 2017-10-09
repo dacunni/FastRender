@@ -34,7 +34,6 @@ EnvironmentMap::importanceSample( RandomNumberGenerator & rng,
 RGBRadianceSample TestPatternEnvironmentMap::sample( const Ray & ray ) const
 {
     RGBRadianceSample s;
-    s.mask = RGB_BITS;
 
     float el = 90.0f * asinf( ray.direction.z ) / (M_PI / 2.0f);
     float az = 90.0f * atanf( ray.direction.y / ray.direction.x ) / (M_PI / 2.0f);
@@ -83,7 +82,6 @@ void ArcLightEnvironmentMap::recalculateRadiance()
 RGBRadianceSample ArcLightEnvironmentMap::sample( const Ray & ray ) const
 {
     RGBRadianceSample s;
-    s.mask = RGB_BITS;
 
     if( acos( dot( ray.direction, light_dir ) ) < angular_radius ) {
         // TODO: Make a power parameter and adjust for size of lit region

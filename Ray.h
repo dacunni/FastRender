@@ -37,11 +37,10 @@ public:
 
 class RGBRadianceSample {
 public:
-    RGBRadianceSample() : color(0.0f, 0.0f, 0.0f), mask(0x0) {}
+    RGBRadianceSample() : color(0.0f, 0.0f, 0.0f) {}
     ~RGBRadianceSample() {}
 
     RGBColor color;
-    RGBColorMask mask;     // Which wavelength(s) are we sampling {RED_BIT, GREEN_BIT, BLUE_BIT}
 };
 
 class RayIntersection {
