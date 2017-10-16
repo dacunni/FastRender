@@ -8,6 +8,7 @@ class PointLight;
 class AreaLight;
 class RGBColor;
 class EnvironmentMap;
+class Vector4;
 
 class Shader 
 {
@@ -17,6 +18,11 @@ class Shader
 
         // Shade an intersection point
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection ) = 0;
+
+        bool inShadow( Scene & scene,
+                       RayIntersection & intersection,
+                       Vector4 & toLight // Relative position of light (unnormalized)
+                     );
     
         RGBColor samplePointLight( const Scene & scene,
                                    const RayIntersection & intersection,

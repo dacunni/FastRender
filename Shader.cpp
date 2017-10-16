@@ -2,6 +2,23 @@
 #include "Lights.h"
 #include "EnvironmentMap.h"
 #include "Scene.h"
+#include "Vector.h"
+
+bool Shader::inShadow( Scene & scene,
+                       RayIntersection & intersection,
+                       Vector4 & toLight )
+{
+    float dist_sq_to_light = toLight.magnitude_sq();
+    Vector4 direction = toLight.normalized();
+    direction.makeDirection();
+
+    // Shoot a ray toward the light to see if we are in shadow
+    Ray shadow_ray( intersection.position, direction );
+    RayIntersection shadow_isect;
+    shadow_isect.min_distance = EPSILON;
+    return scene.intersect( shadow_ray, shadow_isect )
+        && sq(shadow_isect.distance) < dist_sq_to_light;
+}
 
 RGBColor Shader::samplePointLight( const Scene & scene,
                                    const RayIntersection & intersection,
