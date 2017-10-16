@@ -12,11 +12,6 @@
 
 #include "Shader.h"
 
-class PointLight;
-class AreaLight;
-class RGBColor;
-class EnvironmentMap;
-
 // Super basic traditional diffuse + specular shader
 class BasicDiffuseSpecularShader : public Shader
 {
@@ -27,24 +22,6 @@ class BasicDiffuseSpecularShader : public Shader
         // Shade an intersection point
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
 
-        inline RGBColor samplePointLight( const Scene & scene,
-                                          const RayIntersection & intersection,
-                                          const PointLight & light );
-        inline RGBColor samplePointLights( const Scene & scene,
-                                           const RayIntersection & intersection );
-
-        inline RGBColor sampleAreaLight( const Scene & scene,
-                                         const RayIntersection & intersection,
-                                         RandomNumberGenerator & rng,
-                                         const AreaLight & light );
-        inline RGBColor sampleAreaLights( const Scene & scene,
-                                          const RayIntersection & intersection,
-                                          RandomNumberGenerator & rng );
-
-        inline RGBColor sampleEnvironmentMap( const Scene & scene,
-                                              const RayIntersection & intersection,
-                                              RandomNumberGenerator & rng );
-    
 };
 
 

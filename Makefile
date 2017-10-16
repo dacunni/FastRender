@@ -82,6 +82,7 @@ OBJ = \
 	Ray.o \
     RGBImage.o \
 	Scene.o \
+    Shader.o \
     ShaderProgram.o \
 	SignedDistanceFunction.o \
 	SimpleCamera.o \
