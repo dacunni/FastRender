@@ -89,8 +89,9 @@ protected:
 
 class HDRImageEnvironmentMap : public EnvironmentMap {
 public:
+	HDRImageEnvironmentMap( unsigned int w, unsigned int h );
 	HDRImageEnvironmentMap( const std::string & filename,
-                            unsigned int w, unsigned int h);
+                            unsigned int w, unsigned int h );
     virtual ~HDRImageEnvironmentMap() {}
 	
 	virtual RGBRadianceSample sample( const Ray & ray ) const;
@@ -102,9 +103,10 @@ public:
 protected:
     HDRImage image;
     std::unique_ptr<DistributionSampler2D> sampler;
+
+    void updateStateFromImage();
+    void maskInscribedCircle();
 };
-
-
 
 
 

@@ -17,10 +17,6 @@
 #define BLUE_BIT  0x4
 #define RGB_BITS (RED_BIT | GREEN_BIT | BLUE_BIT)
 
-// Mask indicating which wavelength(s) are we sampling {RED_BIT, GREEN_BIT, BLUE_BIT}
-// Used by radiance sampling
-typedef unsigned char RGBColorMask;
-
 class RGBColor {
     public:
     RGBColor( float red, float green, float blue ) : r(red), g(green), b(blue) {}
