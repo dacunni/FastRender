@@ -78,6 +78,17 @@ static void Vector4Mirror(benchmark::State& state) {
 }
 BENCHMARK(Vector4Mirror);
 
+static void Vector4Refract(benchmark::State& state) {
+    Vector4 a(0.2, 0.2, 0.3), n(0, 1, 0), r;
+    benchmark::DoNotOptimize(a);
+    benchmark::DoNotOptimize(n);
+    for (auto _ : state) {
+        r = refract(a, n, 1.0, 1.3);
+        benchmark::DoNotOptimize(r);
+    }
+}
+BENCHMARK(Vector4Refract);
+
 static void Matrix4x4Mult(benchmark::State& state) {
     Transform xf1 = makeRotation(0.3, Vector4(0.2, 0.3, 0.4));
     Transform xf2 = makeRotation(0.6, Vector4(0.9, 0.2, 0.1));
