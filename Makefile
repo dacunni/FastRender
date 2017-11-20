@@ -133,6 +133,8 @@ CXXFLAGS += -DNDEBUG
 
 ifeq ($(UNAME_S),Darwin)
     CXXFLAGS += -mmacosx-version-min=10.10
+    # Silence "gl.h and gl3.h are both included.  Compiler will not invoke errors if using removed OpenGL functionality."
+    CXXFLAGS += -D__gl_h_ -DGL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 endif
 #CXXFLAGS += -v
 
@@ -246,16 +248,16 @@ tests: $(TESTS)
 
 benchmarks: benchmarks/vector benchmarks/transform benchmarks/intersect benchmarks/random
 
-BENCHMARK_LDXXFLAGS = $(LDXXFLAGS) -L/usr/local/lib -lbenchmark
+BENCHMARK_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lbenchmark
 
-benchmarks/vector: benchmarks/vector.cpp
-	g++ -o $@ $< $(FAST_RENDER_LIB_OBJ_IN_DIR) $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
-benchmarks/transform: benchmarks/transform.cpp
-	g++ -o $@ $< $(FAST_RENDER_LIB_OBJ_IN_DIR) $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
-benchmarks/intersect: benchmarks/intersect.cpp
-	g++ -o $@ $< $(FAST_RENDER_LIB_OBJ_IN_DIR) $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
-benchmarks/random: benchmarks/random.cpp
-	g++ -o $@ $< $(FAST_RENDER_LIB_OBJ_IN_DIR) $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/vector: benchmarks/vector.cpp $(HDR)
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/transform: benchmarks/transform.cpp $(HDR)
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/intersect: benchmarks/intersect.cpp $(HDR)
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/random: benchmarks/random.cpp $(HDR)
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
 
 # TODO: Add 'clean' target for benchmarks
 
