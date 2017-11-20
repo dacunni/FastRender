@@ -117,7 +117,8 @@ UNAME_S := $(shell uname -s)
 #
 # Compiler flags
 #
-INC = -I/usr/local/include
+INC = -I.
+INC += -I/usr/local/include
 INC += -I/usr/include/ImageMagick
 INC += -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
@@ -166,7 +167,7 @@ test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr tests
-all: fr fredit tests libFastRender.so
+all: fr fredit tests libFastRender.so benchmarks
 #all: fr fredit tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 
@@ -241,6 +242,23 @@ TESTS = test_random test_ray_trace test_samplers test_materials test_render
 
 tests: $(TESTS)
 
+.PHONY: benchmarks
+
+benchmarks: benchmarks/vector benchmarks/transform benchmarks/intersect benchmarks/random
+
+BENCHMARK_LDXXFLAGS = $(LDXXFLAGS) -L/usr/local/lib -lbenchmark
+
+benchmarks/vector: benchmarks/vector.cpp
+	g++ -o $@ $< $(FAST_RENDER_LIB_OBJ_IN_DIR) $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/transform: benchmarks/transform.cpp
+	g++ -o $@ $< $(FAST_RENDER_LIB_OBJ_IN_DIR) $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/intersect: benchmarks/intersect.cpp
+	g++ -o $@ $< $(FAST_RENDER_LIB_OBJ_IN_DIR) $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/random: benchmarks/random.cpp
+	g++ -o $@ $< $(FAST_RENDER_LIB_OBJ_IN_DIR) $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+
+# TODO: Add 'clean' target for benchmarks
+
 #
 # Python Bindings
 #
@@ -254,9 +272,9 @@ _FastRender.so: $(PYTHON_BINDING_OBJ_IN_DIR)
 	g++ -dynamiclib -o _FastRender.so $(PYTHON_BINDING_OBJ_IN_DIR) `python-config --ldflags --libs` $(LDXXFLAGS)
 python_bindings: _FastRender.so
 
-
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
+
 
 clean:
 	rm -rf $(frOBJ_IN_DIR) $(freditOBJ_IN_DIR) $(testOBJ_IN_DIR) fr fredit $(TESTS)
