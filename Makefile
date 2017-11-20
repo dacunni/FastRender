@@ -98,6 +98,8 @@ OBJ = \
 	TriangleMesh.o \
 	Vector.o
 
+FAST_RENDER_LIB_OBJ = $(OBJ)
+
 frOBJ = $(OBJ) \
 	main.o
 
@@ -164,12 +166,14 @@ test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr tests
-all: fr fredit tests
+all: fr fredit tests libFastRender.so
 #all: fr fredit tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
 OBJDIR = objs
+
+FAST_RENDER_LIB_OBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(FAST_RENDER_LIB_OBJ))
 
 frOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(frOBJ))
 $(frOBJ_IN_DIR): | $(OBJDIR)
@@ -201,6 +205,9 @@ testOBJ_IN_DIR = \
 
 $(OBJDIR):
 	mkdir $(OBJDIR)
+
+libFastRender.so: $(FAST_RENDER_LIB_OBJ_IN_DIR)
+	clang++ -shared -undefined dynamic_lookup -o libFastRender.so $(FAST_RENDER_LIB_OBJ_IN_DIR)
 
 fr: $(frOBJ_IN_DIR)
 	g++ -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
