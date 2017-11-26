@@ -212,7 +212,7 @@ $(OBJDIR):
 	mkdir $(OBJDIR)
 
 libFastRender.so: $(FAST_RENDER_LIB_OBJ_IN_DIR)
-	clang++ -shared -undefined dynamic_lookup -o libFastRender.so $(FAST_RENDER_LIB_OBJ_IN_DIR)
+	g++ -shared -undefined dynamic_lookup -o libFastRender.so $(FAST_RENDER_LIB_OBJ_IN_DIR)
 
 fr: $(frOBJ_IN_DIR)
 	g++ -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
