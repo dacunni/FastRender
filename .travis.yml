@@ -3,6 +3,8 @@ compiler:
     - clang
 os:
     - linux
+before_install:
+    - travis/install-imagemagick.sh
 script:
     - make
 
