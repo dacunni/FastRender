@@ -261,11 +261,13 @@ benchmarks/intersect: benchmarks/intersect.cpp $(HDR) libFastRender.so
 benchmarks/random: benchmarks/random.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
 
-unittests: unittests/vector
+unittests: unittests/vector unittests/transform
 
 UNITTEST_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lgtest
 
 unittests/vector: unittests/vector.cpp $(HDR) libFastRender.so
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
+unittests/transform: unittests/transform.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
 
 
