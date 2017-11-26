@@ -59,10 +59,12 @@ public:
 //   Includes in-place and algebraic forms for convenience
 inline void    dot( const Vector4 & a, const Vector4 & b, float & r );
 inline float   dot( const Vector4 & a, const Vector4 & b );
+inline float   clampedDot( const Vector4 & a, const Vector4 & b );
 inline void    cross( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 cross( const Vector4 & a, const Vector4 & b );
 inline void    add( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 add( const Vector4 & a, const Vector4 & b );
+inline Vector4 operator+( const Vector4 & a, const Vector4 & b ) { return add(a, b); }
 inline void    subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 subtract( const Vector4 & a, const Vector4 & b );
 inline void    scale( const Vector4 & a, float s, Vector4 & r );

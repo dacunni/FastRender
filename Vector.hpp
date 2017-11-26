@@ -117,6 +117,11 @@ inline float dot( const Vector4 & a, const Vector4 & b )
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
+inline float clampedDot( const Vector4 & a, const Vector4 & b )
+{
+    return std::max(dot(a, b), 0.0f);
+}
+
 // TODO - Decide whether to normalize by 1/w before doing this
 inline void cross( const Vector4 & a, const Vector4 & b, Vector4 & r )
 {
