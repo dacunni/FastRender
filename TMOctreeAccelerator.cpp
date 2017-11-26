@@ -139,13 +139,18 @@ void TMOctreeAccelerator::buildNode( Node * node )
         }
         
         // Add triangle to child nodes based on which bits were set
-        unsigned char xb, yb, zb, perm;
+        const unsigned char perms[8] = {
+            XLOW  | YLOW  | ZLOW,
+            XHIGH | YLOW  | ZLOW,
+            XLOW  | YHIGH | ZLOW,
+            XHIGH | YHIGH | ZLOW,
+            XLOW  | YLOW  | ZHIGH,
+            XHIGH | YLOW  | ZHIGH,
+            XLOW  | YHIGH | ZHIGH,
+            XHIGH | YHIGH | ZHIGH
+        };
         for( unsigned int ci = 0; ci < 8; ci++ ) {
-            xb = (ci & XBIT) ? XHIGH : XLOW;
-            yb = (ci & YBIT) ? YHIGH : YLOW;
-            zb = (ci & ZBIT) ? ZHIGH : ZLOW;
-            perm = xb | yb | zb;
-            if( !((bins & perm) ^ perm) ) {
+            if( !((bins & perms[ci]) ^ perms[ci]) ) {
 #if 0
 #ifdef DEBUG_BUILD_TREE
                 printf("ti=%u ci=%u perm=0x%X\n", ti, ci, perm);

@@ -100,6 +100,8 @@ OBJ = \
 	TriangleMesh.o \
 	Vector.o
 
+FAST_RENDER_LIB_OBJ = $(OBJ)
+
 frOBJ = $(OBJ) \
 	main.o
 
@@ -117,7 +119,8 @@ UNAME_S := $(shell uname -s)
 #
 # Compiler flags
 #
-INC = -I/usr/local/include
+INC = -I.
+INC += -I/usr/local/include
 INC += -I/usr/include/ImageMagick
 INC += -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
@@ -132,6 +135,8 @@ CXXFLAGS += -DNDEBUG
 
 ifeq ($(UNAME_S),Darwin)
     CXXFLAGS += -mmacosx-version-min=10.10
+    # Silence "gl.h and gl3.h are both included.  Compiler will not invoke errors if using removed OpenGL functionality."
+    CXXFLAGS += -D__gl_h_ -DGL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 endif
 #CXXFLAGS += -v
 
@@ -166,12 +171,14 @@ test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr tests
-all: fr fredit tests
+all: fr fredit tests libFastRender.so benchmarks
 #all: fr fredit tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
 OBJDIR = objs
+
+FAST_RENDER_LIB_OBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(FAST_RENDER_LIB_OBJ))
 
 frOBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(frOBJ))
 $(frOBJ_IN_DIR): | $(OBJDIR)
@@ -203,6 +210,9 @@ testOBJ_IN_DIR = \
 
 $(OBJDIR):
 	mkdir $(OBJDIR)
+
+libFastRender.so: $(FAST_RENDER_LIB_OBJ_IN_DIR)
+	clang++ -shared -undefined dynamic_lookup -o libFastRender.so $(FAST_RENDER_LIB_OBJ_IN_DIR)
 
 fr: $(frOBJ_IN_DIR)
 	g++ -o fr $(frOBJ_IN_DIR) $(frLDXXFLAGS)
@@ -236,6 +246,23 @@ TESTS = test_random test_ray_trace test_samplers test_materials test_render
 
 tests: $(TESTS)
 
+.PHONY: benchmarks
+
+benchmarks: benchmarks/vector benchmarks/transform benchmarks/intersect benchmarks/random
+
+BENCHMARK_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lbenchmark
+
+benchmarks/vector: benchmarks/vector.cpp $(HDR)
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/transform: benchmarks/transform.cpp $(HDR)
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/intersect: benchmarks/intersect.cpp $(HDR)
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+benchmarks/random: benchmarks/random.cpp $(HDR)
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+
+# TODO: Add 'clean' target for benchmarks
+
 #
 # Python Bindings
 #
@@ -249,9 +276,9 @@ _FastRender.so: $(PYTHON_BINDING_OBJ_IN_DIR)
 	g++ -dynamiclib -o _FastRender.so $(PYTHON_BINDING_OBJ_IN_DIR) `python-config --ldflags --libs` $(LDXXFLAGS)
 python_bindings: _FastRender.so
 
-
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
+
 
 clean:
 	rm -rf $(frOBJ_IN_DIR) $(freditOBJ_IN_DIR) $(testOBJ_IN_DIR) fr fredit $(TESTS)

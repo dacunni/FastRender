@@ -5,6 +5,7 @@ models
 gallery
 fr
 frui
+fredit
 test_random
 test_samplers
 test_render
@@ -20,4 +21,9 @@ tags
 FastRender_wrap.cpp
 FastRender.py
 *.pyc
+benchmarks/*.dSYM
+benchmarks/intersect
+benchmarks/random
+benchmarks/transform
+benchmarks/vector
 
