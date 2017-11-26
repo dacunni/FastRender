@@ -171,7 +171,7 @@ test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr tests
-all: fr fredit tests libFastRender.so benchmarks
+all: fr fredit tests libFastRender.so benchmarks unittests
 #all: fr fredit tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 
@@ -252,14 +252,22 @@ benchmarks: benchmarks/vector benchmarks/transform benchmarks/intersect benchmar
 
 BENCHMARK_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lbenchmark
 
-benchmarks/vector: benchmarks/vector.cpp $(HDR)
+benchmarks/vector: benchmarks/vector.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
-benchmarks/transform: benchmarks/transform.cpp $(HDR)
+benchmarks/transform: benchmarks/transform.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
-benchmarks/intersect: benchmarks/intersect.cpp $(HDR)
+benchmarks/intersect: benchmarks/intersect.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
-benchmarks/random: benchmarks/random.cpp $(HDR)
+benchmarks/random: benchmarks/random.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
+
+unittests: unittests/vector
+
+UNITTEST_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lgtest
+
+unittests/vector: unittests/vector.cpp $(HDR) libFastRender.so
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
+
 
 # TODO: Add 'clean' target for benchmarks
 

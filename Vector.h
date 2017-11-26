@@ -10,6 +10,7 @@
 #define _VECTOR_H_
 
 #include <fstream>
+#include <ostream>
 #include <cassert>
 #include <stdio.h>
 
@@ -25,6 +26,11 @@ public:
 	
 	inline float & operator[]( int i );
 	inline const float & operator[]( int i ) const;
+
+    inline bool operator==( const Vector4 & o ) const {
+        return (w == 0.0f && x == o.x && y == o.y && z == o.z) ||
+               (x/w == o.x/o.w && y/w == o.y/o.w && z/w == o.z/o.w);
+    }
 	
     inline void set( float x, float y, float z, float w = 1.0f );
     
@@ -55,6 +61,8 @@ public:
     };
 };
 
+std::ostream & operator<<( std::ostream & os, const Vector4 & v );
+
 // Vector math functions
 //   Includes in-place and algebraic forms for convenience
 inline void    dot( const Vector4 & a, const Vector4 & b, float & r );
@@ -67,6 +75,7 @@ inline Vector4 add( const Vector4 & a, const Vector4 & b );
 inline Vector4 operator+( const Vector4 & a, const Vector4 & b ) { return add(a, b); }
 inline void    subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 subtract( const Vector4 & a, const Vector4 & b );
+inline Vector4 operator-( const Vector4 & a, const Vector4 & b ) { return subtract(a, b); }
 inline void    scale( const Vector4 & a, float s, Vector4 & r );
 inline Vector4 scale( const Vector4 & a, float s );
 inline Vector4 blend( const Vector4 & a, float s, const Vector4 & b, float t );

@@ -13,6 +13,11 @@
 
 #include "Vector.h"
 
+std::ostream & operator<<( std::ostream & os, const Vector4 & v )
+{
+    return os << "<" << v.x << "," << v.y << "," << v.z << "," << v.w << ">";
+}
+
 void Vector4::print() const
 {
 	printf( "V4( %f %f %f %f )\n", data[0], data[1], data[2], data[3] );
