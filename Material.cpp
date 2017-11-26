@@ -12,6 +12,15 @@ Material::BxDF( const RayIntersection & intersection ) const
     return 1.0f; // Perfectly diffuse
 }
 
+float
+Material::BxDF( const Vector4 & normal,
+                const Vector4 & wi,
+                const Vector4 & wo )
+{
+    printf("BxDF is not overridden!!!\n");
+    return 1.0f / M_PI; // Perfectly diffuse
+}
+
 DistributionSample
 Material::sampleBxDF( RandomNumberGenerator & rng,
                       const RayIntersection & intersection ) const
@@ -42,6 +51,14 @@ DiffuseMaterial::BxDF( const RayIntersection & intersection ) const
     return 1.0f / M_PI; // Perfectly diffuse
 }
 
+float
+DiffuseMaterial::BxDF( const Vector4 & normal,
+                       const Vector4 & wi,
+                       const Vector4 & wo )
+{
+    return 1.0f / M_PI; // Perfectly diffuse
+}
+
 RGBColor
 DiffuseCheckerBoardMaterial::diffuse( const RayIntersection & isect ) {
     return (bool(int(floorf(isect.position.x / gridSize)) % 2) ^
@@ -52,6 +69,20 @@ DiffuseCheckerBoardMaterial::diffuse( const RayIntersection & isect ) {
         : RGBColor(0.0f, 0.0f, 0.0f);
         //?  RGBColor(1.0f, 0.0f, 0.0f)
         //: RGBColor(0.0f, 1.0f, 0.0f);
+}
+
+float
+DiffuseCheckerBoardMaterial::BxDF( const RayIntersection & intersection ) const
+{
+    return 1.0f / M_PI; // Perfectly diffuse
+}
+
+float
+DiffuseCheckerBoardMaterial::BxDF( const Vector4 & normal,
+                                   const Vector4 & wi,
+                                   const Vector4 & wo )
+{
+    return 1.0f / M_PI; // Perfectly diffuse
 }
 
 RGBColor
@@ -144,9 +175,43 @@ RefractiveMaterial::sampleBxDF( RandomNumberGenerator & rng,
     return sample;
 }
 
+float
+CookTorranceMaterial::BxDF( const RayIntersection & intersection ) const
+{
+    // TODO
+    return 1.0f / M_PI; // Perfectly diffuse
+}
 
+float
+CookTorranceMaterial::BxDF( const Vector4 & normal,
+                            const Vector4 & wi,
+                            const Vector4 & wo )
+{
+    const auto H = (wi + wo).normalized();
 
+    const float NdH = clampedDot(normal, H);
+    const float NdV = clampedDot(normal, wi);
+    const float NdL = clampedDot(normal, wo);
+    const float VdH = clampedDot(wi, H);
+    const float LdH = clampedDot(wo, H);
 
+    // Fresnel: Fraction of light reflected
+    // TODO: Derive F0 from the indices of refraction
+    float F0 = 0.25;
+    float F = F0 + (1.0 - F0) * pow(1.0 - VdH, 5);
 
+    // Geometric attenuation according to Blinn
+    float G1 = 2.0 * NdH * NdV / VdH;
+    float G2 = 2.0 * NdH * NdL / LdH;
+    float G = std::min(1.0f, std::min(G1, G2));
 
+    // Beckman microfacet distribution function
+    const float & m = roughness;
+    float D = 1.0 / (M_PI * m * m * NdH * NdH * NdH * NdH)
+        * exp((NdH * NdH - 1) / (m * m * NdH * NdH));
+
+    float denom = 4.0f * dot(wi, normal) * dot(wo, normal);
+
+    return F * G * D / denom;
+}
 

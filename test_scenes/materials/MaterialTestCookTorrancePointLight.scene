@@ -1,0 +1,74 @@
+BEGIN_DERIVED_SCENE(MaterialTestCookTorrancePointLight, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    //tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->shader = new DirectPointLightShader();
+    tracer->rays_per_pixel = 10;
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+#if 1
+    scene->addPointLight( PointLight( Vector4( 5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 1.0, 1.0 ).scaled(600.0) ) );
+#else
+    scene->addPointLight( PointLight( Vector4( -5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 0.3, 0.8 ).scaled(300.0) ) );
+    scene->addPointLight( PointLight( Vector4( 3.0, 3.0, 5.0 ),
+                          RGBColor( 0.3, 0.3, 1.0 ).scaled(600.0) ) );
+#endif
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceDefaultsWhitePointLight, MaterialTestCookTorrancePointLight)
+SETUP_SCENE(
+    MaterialTestCookTorrancePointLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorrancePointLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.5, 0.5 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness00WhitePointLight, MaterialTestCookTorrancePointLight)
+SETUP_SCENE(
+    MaterialTestCookTorrancePointLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorrancePointLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 0.01 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness01WhitePointLight, MaterialTestCookTorrancePointLight)
+SETUP_SCENE(
+    MaterialTestCookTorrancePointLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorrancePointLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 0.1 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness05WhitePointLight, MaterialTestCookTorrancePointLight)
+SETUP_SCENE(
+    MaterialTestCookTorrancePointLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorrancePointLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 0.5 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness10WhitePointLight, MaterialTestCookTorrancePointLight)
+SETUP_SCENE(
+    MaterialTestCookTorrancePointLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorrancePointLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 1.0 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+
+

@@ -9,6 +9,7 @@
 #include "CSG.h"
 #include "Color.h"
 #include "Container.h"
+#include "DirectPointLightShader.h"
 #include "DistributionSamplers.h"
 #include "Editor.h"
 #include "EditorSceneGraph.h"

@@ -58,7 +58,14 @@ class Material
 
         std::string name() { return typeid(*this).name(); }
 
+        // NEW
+        virtual float BxDF( const Vector4 & normal,
+                            const Vector4 & wi,
+                            const Vector4 & wo );
+        // FIXME: Deprecate this form?
+        // OLD
         virtual float BxDF( const RayIntersection & intersection ) const;
+
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 
@@ -97,6 +104,11 @@ class DiffuseMaterial : public Material
         }
         virtual ~DiffuseMaterial() {}
 
+        // NEW
+        virtual float BxDF( const Vector4 & normal,
+                            const Vector4 & wi,
+                            const Vector4 & wo );
+        // OLD
         virtual float BxDF( const RayIntersection & intersection ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
@@ -126,6 +138,12 @@ class DiffuseCheckerBoardMaterial : public Material
         
         virtual RGBColor diffuse( const RayIntersection & isect );
 
+        // NEW
+        virtual float BxDF( const Vector4 & normal,
+                            const Vector4 & wi,
+                            const Vector4 & wo );
+        // OLD
+        virtual float BxDF( const RayIntersection & intersection ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 
@@ -203,6 +221,40 @@ class RefractiveMaterial : public Material
 
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
+};
+
+class CookTorranceMaterial : public Material
+{
+    public:
+        CookTorranceMaterial() : Material() {
+            diffuseColor.setRGB( 1.0f, 1.0f, 1.0f );
+            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            emittance.setRGB( 0.0f, 0.0f, 0.0f );
+        }
+        CookTorranceMaterial( float r, float g, float b ) : Material() { 
+            diffuseColor.setRGB( r, g, b ); 
+            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            emittance.setRGB( 0.0f, 0.0f, 0.0f );
+        }
+        CookTorranceMaterial( float r, float g, float b, float roughness ) : Material() { 
+            diffuseColor.setRGB( r, g, b ); 
+            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            emittance.setRGB( 0.0f, 0.0f, 0.0f );
+            this->roughness = roughness;
+        }
+        virtual ~CookTorranceMaterial() {}
+
+        // NEW
+        virtual float BxDF( const Vector4 & normal,
+                            const Vector4 & wi,
+                            const Vector4 & wo );
+        // OLD
+        virtual float BxDF( const RayIntersection & intersection ) const;
+        // TODO
+        //virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
+        //                                       const RayIntersection & intersection ) const;
+
+        float roughness = 0.1; // [0, 1]
 };
 
 

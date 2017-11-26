@@ -11,6 +11,7 @@ HDR = \
 	Color.h \
 	Container.h \
 	CSG.h \
+    DirectPointLightShader.h \
 	DistributionSamplers.h \
     Editor.h \
     EditorSceneGraph.h \
@@ -60,6 +61,7 @@ OBJ = \
 	BoundingVolumeHierarchy.o \
 	Container.o \
 	CSG.o \
+    DirectPointLightShader.o \
 	DistributionSamplers.o \
     Editor.o \
     EditorSceneGraph.o \
