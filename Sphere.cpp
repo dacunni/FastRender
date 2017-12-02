@@ -15,23 +15,28 @@
 
 unsigned long Sphere::intersection_test_count = 0;
 
-bool Sphere::intersectsAny( const Ray & ray, float min_distance ) const
+bool Sphere::intersectHelper( const Ray & ray, float & dist1, float & dist2 ) const
 {
-	Vector4 dst;
-	float b = 0, c = 0, d = 0;
-	
-	subtract( ray.origin, center, dst );
-	dot( dst, ray.direction, b );
-	dot( dst, dst, c );
-	c -= sq( radius );
-	d = sq( b ) - c;
+	auto dst = subtract( ray.origin, center );
+	float b = dot( dst, ray.direction );
+	float c = dot( dst, dst ) - sq( radius );
+	float d = sq( b ) - c;
     
     if( d < 0.0f )
-        return false;
+        return false; // not hit
 
     float sqrtd = sqrtf(d);
-    float dist1 = -b - sqrtd;
-    float dist2 = -b + sqrtd;
+    dist1 = -b - sqrtd;
+    dist2 = -b + sqrtd;
+
+    return true;
+}
+
+bool Sphere::intersectsAny( const Ray & ray, float min_distance ) const
+{
+    float dist1, dist2;
+    if( !intersectHelper( ray, dist1, dist2 ) )
+        return false;
 
     return dist1 >= min_distance ||
            dist2 >= min_distance;
@@ -39,44 +44,28 @@ bool Sphere::intersectsAny( const Ray & ray, float min_distance ) const
 
 bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
-	Vector4 dst;
-	float b = 0, c = 0, d = 0;
-	
     intersection_test_count++;
-    
-	subtract( ray.origin, center, dst );
-	dot( dst, ray.direction, b );
-	dot( dst, dst, c );
-	c -= sq( radius );
-	d = sq( b ) - c;
-    
-    if( d < 0.0f )
+
+    float dist1, dist2;
+    if( !intersectHelper( ray, dist1, dist2 ) )
         return false;
 
-    float sqrtd = sqrtf(d);
-    float dist1 = -b - sqrtd;
-    float dist2 = -b + sqrtd;
-    
     if( dist2 < dist1 )
         std::swap( dist1, dist2 );  // TODO - is this necessary?
     
+    if( dist2 < intersection.min_distance ) {
+        return false;
+    }
     if( dist1 < intersection.min_distance ) {
-        if( dist2 < intersection.min_distance ) {
-            return false;
-        }
-        else {
-            dist1 = dist2;
-        }
+        dist1 = dist2;
     }
     
     intersection.ray = ray;
     intersection.distance = dist1;
     // compute intersection position
-    scale( ray.direction, intersection.distance, intersection.position );
-    add( intersection.position, ray.origin, intersection.position );
+    intersection.position = add( ray.origin, scale( ray.direction, intersection.distance ) );
     // compute surface normal
-    subtract( intersection.position, center, intersection.normal );
-    intersection.normal.normalize();
+    intersection.normal = subtract( intersection.position, center ).normalized();
     intersection.material = material;
     intersection.traceable = this;
     return true;
