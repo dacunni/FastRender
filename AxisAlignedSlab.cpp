@@ -191,34 +191,28 @@ inline bool AxisAlignedSlab::intersectHelper( const Ray & ray, RayIntersection &
     printf("tnx=%f tfx=%f tny=%f tfy=%f tnz=%f tfz=%f | ", tnx, tfx, tny, tfy, tnz, tfz );
     printf("tn=%f tf=%f\n", tn, tf);
 #endif
-        
-    if( tn > intersection.min_distance ) {
-        if( !any_test ) {
-            intersection.normal = boxNormals[ nin ];
-            intersection.distance = tn;
-            intersection.ray = ray;
-            scale( ray.direction, intersection.distance, intersection.position );
-            add( intersection.position, ray.origin, intersection.position );
-            intersection.material = material;
-            intersection.traceable = this;
-        }
-        return true;
-    }
-    else if( tf > intersection.min_distance ) {
-        if( !any_test ) {
-            intersection.normal = boxNormals[ nif ];
-            intersection.distance = tf;
-            intersection.ray = ray;
-            scale( ray.direction, intersection.distance, intersection.position );
-            add( intersection.position, ray.origin, intersection.position );
-            intersection.material = material;
-            intersection.traceable = this;
-        }
-        return true;
-    }
-    else {
+
+    if( tf < intersection.min_distance ) {
         return false;
     }
+    if( any_test ) {
+        return true;
+    }
+        
+    if( tn > intersection.min_distance ) {
+        intersection.normal = boxNormals[ nin ];
+        intersection.distance = tn;
+    }
+    else {
+        intersection.normal = boxNormals[ nif ];
+        intersection.distance = tf;
+    }
+    intersection.ray = ray;
+    scale( ray.direction, intersection.distance, intersection.position );
+    add( intersection.position, ray.origin, intersection.position );
+    intersection.material = material;
+    intersection.traceable = this;
+    return true;
 }
 
 bool AxisAlignedSlab::intersect( const Ray & ray, RayIntersection & intersection ) const
