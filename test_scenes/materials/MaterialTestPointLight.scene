@@ -48,4 +48,23 @@ BUILD_SCENE(
 );
 END_SCENE()
 
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestRefractPointLightSweepIOR, MaterialTestMontageBase)
+SETUP_SCENE(
+    MaterialTestMontageBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->rays_per_pixel = 10;
+);
+BUILD_SCENE(
+    MaterialTestMontageBase::buildScene();
+    float min_ior = 1.0; float max_ior = 1.1;
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        float ior = (float) mesh_index / (num_meshes - 1) * (max_ior - min_ior) + min_ior;
+        meshes[mesh_index]->material = std::make_shared<RefractiveMaterial>(ior);
+    }
+    scene->addPointLight( PointLight( Vector4( -5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 1.0, 1.0 ).scaled(100.0) ) );
+);
+END_SCENE()
+
 
