@@ -67,24 +67,36 @@ std::ostream & operator<<( std::ostream & os, const Vector4 & v );
 //   Includes in-place and algebraic forms for convenience
 inline void    dot( const Vector4 & a, const Vector4 & b, float & r );
 inline float   dot( const Vector4 & a, const Vector4 & b );
+
 inline float   clampedDot( const Vector4 & a, const Vector4 & b );
+
 inline void    cross( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 cross( const Vector4 & a, const Vector4 & b );
+
 inline void    add( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 add( const Vector4 & a, const Vector4 & b );
 inline Vector4 operator+( const Vector4 & a, const Vector4 & b ) { return add(a, b); }
+
 inline void    subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 subtract( const Vector4 & a, const Vector4 & b );
 inline Vector4 operator-( const Vector4 & a, const Vector4 & b ) { return subtract(a, b); }
+
 inline void    scale( const Vector4 & a, float s, Vector4 & r );
 inline Vector4 scale( const Vector4 & a, float s );
+inline Vector4 operator*( const Vector4 & a, float s ) { return scale(a, s); }
+inline Vector4 operator*( float s, const Vector4 & a ) { return scale(a, s); }
+
 inline Vector4 blend( const Vector4 & a, float s, const Vector4 & b, float t );
+
 inline void    perspective_scale( const Vector4 & a, Vector4 & r );
 inline Vector4 perspective_scale( const Vector4 & a );
+
 inline void    mirror( const Vector4 & a, const Vector4 & n, Vector4 & r );
 inline Vector4 mirror( const Vector4 & a, const Vector4 & n );
+
 inline void    refract( const Vector4 & a, const Vector4 & n, float n1, float n2, Vector4 & r );
 inline Vector4 refract( const Vector4 & a, const Vector4 & n, float n1, float n2 );
+
 inline void    interp( const Vector4 & a, const Vector4 & b, const float alpha, Vector4 & r);
 inline Vector4 interp( const Vector4 & a, const Vector4 & b, const float alpha );
 
