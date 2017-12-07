@@ -1,0 +1,79 @@
+BEGIN_SCENE(MaterialTestMontageBase)
+SETUP_SCENE(
+    int image_size = 128;
+    float aspect_ratio = 8;
+    image_width = image_size * aspect_ratio;
+    image_height = image_size;
+    TestScene::setup();
+    tracer->rays_per_pixel = 5;
+    float half_fov_y = 0.05;
+    float half_fov_x = aspect_ratio * half_fov_y;
+    tracer->camera.setFocalPlaneDimensions( -half_fov_x, half_fov_x, -half_fov_y, half_fov_y );
+
+    // Don't show the preview window, because we currently have no way to
+    // make it close when complete. It will therefor force the first test
+    // to hang indefinitely when complete.
+    tracer->show_preview_window = false;
+
+    if( animateMaterialTests ) {
+        tracer->num_frames = 32;
+        tracer->loopable_animations = true;
+        tracer->setCameraTransform(
+                [](float anim_progress) { return compose(
+                        // move up a bit
+                        makeTranslation( 0.0, 0.5, 0.0 ),
+                        //makeRotation( M_PI / 8.0f * sinf(2.0f*M_PI*anim_progress), Vector4(0, 1, 0) ), // wiggle
+                        makeRotation( 2.0f * M_PI * anim_progress, Vector4(0, 1, 0) ), // orbit
+                        // rotate so we are looking down
+                        makeRotation( -0.2, Vector4(1, 0, 0) ),
+                        // back away from the origin
+                        makeTranslation( 0.0, 0.0, 5.0 )
+                    );});
+    }
+    else {
+        tracer->setCameraTransform( compose(
+            // move up a bit
+            makeTranslation( 0.0, 0.5, 0.0 ),
+            // rotate so we are looking down
+            makeRotation( -0.2, Vector4(1, 0, 0) ),
+            // back away from the origin
+            makeTranslation( 0.0, 0.0, 15.0 )
+            ) );
+    }
+    //tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->shader = new AmbientOcclusionShader();
+);
+static const int num_meshes = 10;
+std::shared_ptr<TriangleMesh> meshes[num_meshes];
+BUILD_SCENE(
+    auto floor = std::make_shared<AxisAlignedSlab>( -10, -1, -10,
+                                                     10, 0, 10 );
+    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    container->add( floor, checkerboard_material );
+
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        auto mesh = loadMaterialTestModel( loader );
+        auto bounds = mesh->getAxisAlignedBounds();
+
+        mesh->transform = std::make_shared<Transform>();
+
+        const float extents = 5.0;
+        const float xmin = -extents;
+        const float xmax = +extents;
+        auto mesh_shift = makeTranslation( (float) mesh_index / (num_meshes - 1) * (xmax - xmin) + xmin, 0.0, 0.0 );
+#if 1
+        *mesh->transform = compose( mesh_shift,
+                                    makeScaling( 1.0 ),
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+#else // Mori test object
+        *mesh->transform = compose( mesh_shift,
+                                    makeScaling( 1.0 ),
+                                    makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ),
+                                    makeRotation( M_PI * 0.85, Vector4( 0.0, 1.0, 0.0 ) ) );
+#endif
+        meshes[mesh_index] = mesh;
+        container->add( mesh );
+    }
+);
+END_SCENE()
+

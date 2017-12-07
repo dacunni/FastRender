@@ -69,6 +69,44 @@ BUILD_SCENE(
     mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 1.0 );
 );
 END_SCENE()
+
+// ------------------------------------------------------------ 
+// Parameter Sweeps
 // ------------------------------------------------------------ 
 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorrancePointLightSweepRoughnessFull, MaterialTestMontageBase)
+SETUP_SCENE(
+    MaterialTestMontageBase::setup();
+    //tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->shader = new DirectPointLightShader();
+    tracer->rays_per_pixel = 10;
+);
+BUILD_SCENE(
+    MaterialTestMontageBase::buildScene();
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        float roughness = (float) mesh_index / (num_meshes - 1);
+        meshes[mesh_index]->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, roughness );
+    }
+    scene->addPointLight( PointLight( Vector4( 5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 1.0, 1.0 ).scaled(600.0) ) );
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestCookTorrancePointLightSweepRoughnessLow, MaterialTestMontageBase)
+SETUP_SCENE(
+    MaterialTestMontageBase::setup();
+    //tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->shader = new DirectPointLightShader();
+    tracer->rays_per_pixel = 10;
+);
+BUILD_SCENE(
+    MaterialTestMontageBase::buildScene();
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        float roughness = (float) mesh_index / (num_meshes - 1) * 0.1;
+        meshes[mesh_index]->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, roughness );
+    }
+    scene->addPointLight( PointLight( Vector4( 5.0, 5.0, 5.0 ),
+                          RGBColor( 1.0, 1.0, 1.0 ).scaled(600.0) ) );
+);
+END_SCENE()
 
