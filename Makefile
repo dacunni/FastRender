@@ -1,54 +1,5 @@
 
-HDR = \
-	AmbientOcclusionShader.h \
-	Artifacts.h \
-	AssetLoader.h \
-	AxisAlignedSlab.h \
-	BasicDiffuseSpecularShader.h \
-	Boolean.h \
-	BoundingVolume.h \
-	BoundingVolumeHierarchy.h \
-	Color.h \
-	Container.h \
-	CSG.h \
-    DirectPointLightShader.h \
-	DistributionSamplers.h \
-    Editor.h \
-    EditorSceneGraph.h \
-	EnvironmentMap.h \
-	FlatContainer.h \
-	GeometryUtils.h \
-	GoochShader.h \
-    HDRImage.h \
-	Image.h \
-	ImageTracer.h \
-	InspectionShader.h \
-	Lights.h \
-	Material.h \
-	Matrix.h \
-    OpenGLUtil.h \
-	Plot2D.h \
-	PreviewWindow.h \
-	Quaternion.h \
-	RandomNumberGenerator.h \
-	Ray.h \
-    RGBImage.h \
-	Scene.h \
-	SignedDistanceFunction.h \
-	SimpleCamera.h \
-	Shader.h \
-    ShaderProgram.h \
-	Sphere.h \
-    SurfaceTexture.h \
-	TMOctreeAccelerator.h \
-	TestScenes.h \
-	Timer.h \
-	Traceable.h \
-	TraceableVisitor.h \
-	TraceLog.h \
-	Transform.h \
-	TriangleMesh.h \
-	Vector.h
+HDR = $(wildcard *.h)
 
 OBJ = \
 	AmbientOcclusionShader.o \
@@ -246,9 +197,10 @@ TESTS = test_random test_ray_trace test_samplers test_materials test_render
 
 tests: $(TESTS)
 
-.PHONY: benchmarks
+.PHONY: benchmarks unittests
 
-benchmarks: benchmarks/vector benchmarks/transform benchmarks/intersect benchmarks/random
+BENCHMARK_SRC = $(wildcard benchmarks/*.cpp)
+benchmarks: $(BENCHMARK_SRC:.cpp=)
 
 BENCHMARK_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lbenchmark
 
@@ -261,7 +213,8 @@ benchmarks/intersect: benchmarks/intersect.cpp $(HDR) libFastRender.so
 benchmarks/random: benchmarks/random.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
 
-unittests: unittests/vector unittests/transform unittests/raysphere
+UNITTEST_SRC = $(wildcard unittests/*.cpp)
+unittests: $(UNITTEST_SRC:.cpp=)
 
 UNITTEST_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lgtest
 
