@@ -2,6 +2,7 @@
 BEGIN_DERIVED_SCENE(MaterialTestHDREnvironmentMap, MaterialTestBase)
 SETUP_SCENE(
     MaterialTestBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
     tracer->rays_per_pixel = 30;
     //tracer->rays_per_pixel = 100;
 );
