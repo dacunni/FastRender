@@ -200,7 +200,8 @@ tests: $(TESTS)
 .PHONY: benchmarks unittests
 
 BENCHMARK_SRC = $(wildcard benchmarks/*.cpp)
-benchmarks: $(BENCHMARK_SRC:.cpp=)
+BENCHMARKS = $(BENCHMARK_SRC:.cpp=)
+benchmarks: $(BENCHMARKS)
 
 BENCHMARK_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lbenchmark
 
@@ -214,7 +215,8 @@ benchmarks/random: benchmarks/random.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(BENCHMARK_LDXXFLAGS)
 
 UNITTEST_SRC = $(wildcard unittests/*.cpp)
-unittests: $(UNITTEST_SRC:.cpp=)
+UNITTESTS = $(UNITTEST_SRC:.cpp=)
+unittests: $(UNITTESTS)
 
 UNITTEST_LDXXFLAGS = $(LDXXFLAGS) -L. -L/usr/local/lib -lFastRender -lgtest
 
@@ -225,8 +227,6 @@ unittests/transform: unittests/transform.cpp $(HDR) libFastRender.so
 unittests/raysphere: unittests/raysphere.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
 
-
-# TODO: Add 'clean' target for benchmarks
 
 #
 # Python Bindings
@@ -246,6 +246,8 @@ $(OBJDIR)/%.o : %.cpp
 
 
 clean:
-	rm -rf $(frOBJ_IN_DIR) $(freditOBJ_IN_DIR) $(testOBJ_IN_DIR) fr fredit $(TESTS)
-	rm -rf _FastRender.so FastRender_wrap.cpp $(OBJDIR)/FastRender_wrap.o FastRender.py
+	rm -f $(frOBJ_IN_DIR) $(freditOBJ_IN_DIR) $(testOBJ_IN_DIR) fr fredit $(TESTS)
+	rm -f $(UNITTESTS)
+	rm -f $(BENCHMARKS)
+	rm -f _FastRender.so FastRender_wrap.cpp $(OBJDIR)/FastRender_wrap.o FastRender.py
 
