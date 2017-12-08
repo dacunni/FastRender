@@ -59,7 +59,7 @@ inline float Vector4::magnitude_sq() const
 
 inline float Vector4::magnitude() const
 {
-	return sqrt( sq(x) + sq(y) + sq(z) );
+	return std::sqrt( sq(x) + sq(y) + sq(z) );
 }
 
 inline void Vector4::normalize()
@@ -254,7 +254,7 @@ inline void refract( const Vector4 & a, const Vector4 & n, float n1, float n2,
         return;
     }
 
-    r = blend( a.negated(), eta, n, eta * c1 - sqrt(c2sq) );
+    r = blend( a.negated(), eta, n, eta * c1 - std::sqrt(c2sq) );
     r.normalize();
     r.makeDirection();
 }

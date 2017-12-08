@@ -1,5 +1,5 @@
 
-HDR = $(wildcard *.h)
+HDR = $(wildcard *.h) $(wildcard *.hpp)
 
 OBJ = \
 	AmbientOcclusionShader.o \
