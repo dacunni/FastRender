@@ -836,10 +836,10 @@ int main (int argc, char * const argv[])
 
     //MirrorSphereColoredSpheresArcLight::run();
 
-    //RefractiveSpheresAndCubes::run();
+    RefractiveSpheresAndCubes::run();
     //RefractiveBunniesVaryingIOR::run();
     //RefractiveSpheresVaryingIOR::run();
-    RefractiveSphereEmissiveObjectCaustic::run();
+    //RefractiveSphereEmissiveObjectCaustic::run();
 #endif
     
     total_run_timer.stop();

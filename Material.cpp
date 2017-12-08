@@ -6,16 +6,7 @@
 std::shared_ptr<Material> DEFAULT_MATERIAL = std::make_shared<DiffuseMaterial>();
 
 float
-Material::BxDF( const RayIntersection & intersection ) const
-{
-    printf("BxDF is not overridden!!!\n");
-    return 1.0f; // Perfectly diffuse
-}
-
-float
-Material::BxDF( const Vector4 & normal,
-                const Vector4 & wi,
-                const Vector4 & wo )
+Material::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
 {
     printf("BxDF is not overridden!!!\n");
     return 1.0f / M_PI; // Perfectly diffuse
@@ -46,15 +37,7 @@ DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
 }
 
 float
-DiffuseMaterial::BxDF( const RayIntersection & intersection ) const
-{
-    return 1.0f / M_PI; // Perfectly diffuse
-}
-
-float
-DiffuseMaterial::BxDF( const Vector4 & normal,
-                       const Vector4 & wi,
-                       const Vector4 & wo )
+DiffuseMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
 {
     return 1.0f / M_PI; // Perfectly diffuse
 }
@@ -72,15 +55,7 @@ DiffuseCheckerBoardMaterial::diffuse( const RayIntersection & isect ) {
 }
 
 float
-DiffuseCheckerBoardMaterial::BxDF( const RayIntersection & intersection ) const
-{
-    return 1.0f / M_PI; // Perfectly diffuse
-}
-
-float
-DiffuseCheckerBoardMaterial::BxDF( const Vector4 & normal,
-                                   const Vector4 & wi,
-                                   const Vector4 & wo )
+DiffuseCheckerBoardMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
 {
     return 1.0f / M_PI; // Perfectly diffuse
 }
@@ -176,16 +151,7 @@ RefractiveMaterial::sampleBxDF( RandomNumberGenerator & rng,
 }
 
 float
-CookTorranceMaterial::BxDF( const RayIntersection & intersection ) const
-{
-    // TODO
-    return 1.0f / M_PI; // Perfectly diffuse
-}
-
-float
-CookTorranceMaterial::BxDF( const Vector4 & normal,
-                            const Vector4 & wi,
-                            const Vector4 & wo )
+CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
 {
     const auto H = (wi + wo).normalized();
 

@@ -58,14 +58,7 @@ class Material
 
         std::string name() { return typeid(*this).name(); }
 
-        // NEW
-        virtual float BxDF( const Vector4 & normal,
-                            const Vector4 & wi,
-                            const Vector4 & wo );
-        // FIXME: Deprecate this form?
-        // OLD
-        virtual float BxDF( const RayIntersection & intersection ) const;
-
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 
@@ -104,12 +97,7 @@ class DiffuseMaterial : public Material
         }
         virtual ~DiffuseMaterial() {}
 
-        // NEW
-        virtual float BxDF( const Vector4 & normal,
-                            const Vector4 & wi,
-                            const Vector4 & wo );
-        // OLD
-        virtual float BxDF( const RayIntersection & intersection ) const;
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 };
@@ -138,12 +126,7 @@ class DiffuseCheckerBoardMaterial : public Material
         
         virtual RGBColor diffuse( const RayIntersection & isect );
 
-        // NEW
-        virtual float BxDF( const Vector4 & normal,
-                            const Vector4 & wi,
-                            const Vector4 & wo );
-        // OLD
-        virtual float BxDF( const RayIntersection & intersection ) const;
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 
@@ -244,12 +227,7 @@ class CookTorranceMaterial : public Material
         }
         virtual ~CookTorranceMaterial() {}
 
-        // NEW
-        virtual float BxDF( const Vector4 & normal,
-                            const Vector4 & wi,
-                            const Vector4 & wo );
-        // OLD
-        virtual float BxDF( const RayIntersection & intersection ) const;
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
         // TODO
         //virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
         //                                       const RayIntersection & intersection ) const;

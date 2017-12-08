@@ -169,6 +169,7 @@ void testSamplePDF2D()
 #endif
 }
 
+#if 0 // FIXME - Use new BxDF that accounts for in and out direction
 void validateBxDF(const Material & material)
 {
     const unsigned int numThetaSteps = 100;
@@ -207,6 +208,7 @@ void validateBxDF(const Material & material)
     std::string name = typeid(material).name();
     printf("%s integral(BxDF*dAreaProj) = %f\n", name.c_str(), integral);
 }
+#endif
 
 int main (int argc, char * const argv[]) 
 {
@@ -225,7 +227,7 @@ int main (int argc, char * const argv[])
     testSamplePDF2D();
 
     // BRDF Validation
-    validateBxDF(DiffuseMaterial(1.0, 1.0, 1.0));
+    //validateBxDF(DiffuseMaterial(1.0, 1.0, 1.0));
 
     total_run_timer.stop();
     printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());
