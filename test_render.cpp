@@ -836,7 +836,9 @@ int main (int argc, char * const argv[])
 
     //MirrorSphereColoredSpheresArcLight::run();
 
-    RefractiveSpheresAndCubes::run();
+    GridRoomSceneWithSignedDistanceFunction::run();
+
+    //RefractiveSpheresAndCubes::run();
     //RefractiveBunniesVaryingIOR::run();
     //RefractiveSpheresVaryingIOR::run();
     //RefractiveSphereEmissiveObjectCaustic::run();

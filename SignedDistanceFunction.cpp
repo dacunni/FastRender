@@ -24,10 +24,10 @@ bool SignedDistanceFunction::intersectsAny( const Ray & ray, float min_distance 
 bool SignedDistanceFunction::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
     Vector4 position;
-    float signedDistance, distance;
+    float signedDistance, t;
 
-    if( walkRay( ray, intersection.min_distance, signedDistance, distance, position ) ) {
-        populateIntersection( ray, signedDistance, distance, position, intersection );
+    if( walkRay( ray, intersection.min_distance, signedDistance, t, position ) ) {
+        populateIntersection( ray, signedDistance, t, position, intersection );
         //intersection.print(); // TEMP
         return true;
     }
@@ -39,14 +39,14 @@ bool SignedDistanceFunction::intersect( const Ray & ray, RayIntersection & inter
 inline bool SignedDistanceFunction::walkRay( const Ray & ray,
                                              float tInit,
                                              float & signedDistance,
-                                             float & distance,
+                                             float & t,
                                              Vector4 & position ) const
 {
     // Initial state
-    float t = tInit;
+    t = tInit;
     position = add( scale( ray.direction, t ), ray.origin );
     signedDistance = valueFunction( position );
-    distance = fabsf( signedDistance );
+    float distance = fabsf( signedDistance );
 
     // Get away from the surface that we won't immediately think we've hit it.
     // This should help with refractive surfaces.
@@ -80,7 +80,7 @@ inline bool SignedDistanceFunction::walkRay( const Ray & ray,
 
 inline void SignedDistanceFunction::populateIntersection( const Ray & ray,
                                                           float signedDistance,
-                                                          float distance,
+                                                          float t,
                                                           const Vector4 & position,
                                                           RayIntersection & intersection ) const
 {
@@ -88,7 +88,7 @@ inline void SignedDistanceFunction::populateIntersection( const Ray & ray,
     float dvdy = valueFunction( add( position, Vector4( 0.0, normalDelta, 0.0 ) ) ) - signedDistance;
     float dvdz = valueFunction( add( position, Vector4( 0.0, 0.0, normalDelta ) ) ) - signedDistance;
     intersection.normal = Vector4( dvdx, dvdy, dvdz ).normalized();
-    intersection.distance = distance;
+    intersection.distance = t;
     intersection.ray = ray;
     intersection.position = position;
     intersection.material = material;

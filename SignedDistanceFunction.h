@@ -30,12 +30,12 @@ public:
     inline bool walkRay( const Ray & ray,
                          float tInit,
                          float & signedDistance,
-                         float & distance,
+                         float & t,
                          Vector4 & position ) const;
 
     inline void populateIntersection( const Ray & ray,
                                       float signedDistance,
-                                      float distance,
+                                      float t,
                                       const Vector4 & position,
                                       RayIntersection & intersection ) const;
 };
