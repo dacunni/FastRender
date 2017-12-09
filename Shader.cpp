@@ -63,7 +63,6 @@ RGBColor Shader::sampleAreaLight( const Scene & scene,
                                   RandomNumberGenerator & rng,
                                   const AreaLight & light )
 {
-
     auto sample = light.sampleSurfaceTransformed( rng );
     auto to_light = subtract( sample.position, intersection.position );
 

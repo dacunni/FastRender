@@ -4,10 +4,11 @@ SETUP_SCENE(
     MaterialTestBase::setup();
     tracer->rays_per_pixel = 30;
 );
+std::shared_ptr<AreaLight> light;
 BUILD_SCENE(
     MaterialTestBase::buildScene();
     auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.0 );
-    auto light = std::make_shared<CircleAreaLight>( 2.0, light_color );
+    light = std::make_shared<CircleAreaLight>( 2.0, light_color );
     light->transform = std::make_shared<Transform>();
     *light->transform = compose( makeRotation( M_PI * 0.0, Vector4(0, 0, 1) ),
                                  makeTranslation( Vector4( 0, 3.0, 0 ) ) );
@@ -24,6 +25,30 @@ SETUP_SCENE(
 BUILD_SCENE(
     MaterialTestAreaLight::buildScene();
     mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseColoredAreaLight, MaterialTestAreaLight)
+SETUP_SCENE(
+    MaterialTestAreaLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestAreaLight::buildScene();
+    mesh->material = std::make_shared<DiffuseMaterial>( 0.5, 0.5, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteAreaLightColored, MaterialTestAreaLight)
+SETUP_SCENE(
+    MaterialTestAreaLight::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestAreaLight::buildScene();
+    light->material->emittance.setRGB( 0.5, 1.0, 0.2 );
 );
 END_SCENE()
 
