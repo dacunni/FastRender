@@ -33,6 +33,8 @@ Artifacts::~Artifacts()
 void Artifacts::startNewFrame() 
 {
     printf("Starting new frame artifacts\n");
+    printf("  output_path : %s\n", output_path.c_str());
+    printf("  file_prefix : %s\n", file_prefix.c_str());
     if( frame_number > 0 )
         flush();
     resetImages();

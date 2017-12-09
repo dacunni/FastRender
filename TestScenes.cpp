@@ -8,6 +8,7 @@
  */
 
 #include <iostream>
+#include <sys/stat.h>
 
 #include "Container.h"
 #include "AxisAlignedSlab.h"
@@ -80,8 +81,17 @@ void TestScene::setup()
     tracer = new ImageTracer( image_width, image_height,
                               anim_frames, rays_per_pixel );
 
+#if 1
+    // Create a subdirectory in the output directory named with the test name, and put standard
+    // output files in there
+    tracer->artifacts.output_path = output_dir + "/" + name;
+    mkdir(tracer->artifacts.output_path.c_str(), 0777);
+    tracer->artifacts.file_prefix = "";
+#else
+    // Prefix each output file with the test name and put them in the output directory
     tracer->artifacts.output_path = output_dir;
     tracer->artifacts.file_prefix = name + "_";
+#endif
 
     tracer->shader = new BasicDiffuseSpecularShader();
 
