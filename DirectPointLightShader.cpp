@@ -31,7 +31,7 @@ void DirectPointLightShader::shade( Scene & scene, RandomNumberGenerator & rng, 
         float kd = 0.2f;
         float ks = 1.0f - kd;
 
-        float bxdf = intersection.material->BxDF(intersection.normal, intersection.fromDirection(), toLight);
+        float bxdf = intersection.material->BxDF(intersection.normal, intersection.fromDirection(), direction);
 
         RGBColor diffuse = intersection.material->diffuseColor.scaled(kd / M_PI);
         RGBColor specular = RGBColor(ks * bxdf);
