@@ -110,7 +110,7 @@ void ImageTracer::renderThread()
                 }
             }
         }
-        else if( traversal_nesting == PositionSample ) {
+        else if( traversal_nesting == TilePositionSample ) {
             unsigned int tileSize = 8;
             unsigned int numGridRows = (image_height + tileSize - 1) / tileSize;
             unsigned int numGridCols = (image_width + tileSize - 1) / tileSize;
@@ -141,7 +141,7 @@ void ImageTracer::renderThread()
                 }
             }
         }
-        else if( traversal_nesting == TilePositionSample ) {
+        else if( traversal_nesting == PositionSample ) {
             for( unsigned int row = 0; row < image_height; ++row ) {
                 if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
                     printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
