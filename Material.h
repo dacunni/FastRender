@@ -68,6 +68,8 @@ class Material
         virtual RGBColor diffuse( const RayIntersection & isect ) { return diffuseColor; }
         virtual RGBColor specular( const RayIntersection & isect ) { return specularColor; }
 
+        virtual float specularity() { return 0.0f; }
+
         // Reflectances
         // FIXME - not realistic. need a more generic, physically-based reflection model. gotta start somewhere, though
         RGBColor diffuseColor;
@@ -174,6 +176,7 @@ class MirrorMaterial : public Material
 
         virtual ~MirrorMaterial() {}
 
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) { return 1.0f; }
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 };
@@ -202,6 +205,7 @@ class RefractiveMaterial : public Material
 
         virtual ~RefractiveMaterial() {}
 
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) { return 1.0f; }
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 };
@@ -227,12 +231,15 @@ class CookTorranceMaterial : public Material
         }
         virtual ~CookTorranceMaterial() {}
 
+        virtual float specularity() { return specular; }
+
         virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
         // TODO
-        //virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
-        //                                       const RayIntersection & intersection ) const;
+        virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
+                                               const RayIntersection & intersection ) const;
 
         float roughness = 0.1; // [0, 1]
+        float specular = 0.8; // fraction of light reflected by specular reflection
 };
 
 

@@ -44,10 +44,10 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(RoomSceneWithSpheres, RoomScene)
 SETUP_SCENE(
     RoomScene::setup();
-    tracer->rays_per_pixel = 10;
 );
 BUILD_SCENE(
     RoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     auto mirror_material = std::make_shared<MirrorMaterial>();
     auto refractive_material = std::make_shared<RefractiveMaterial>( N_FLINT_GLASS );
 #if 1
@@ -90,3 +90,20 @@ BUILD_SCENE(
         });
 );
 END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(RoomSceneWithSpheresCookTorrance, RoomScene)
+SETUP_SCENE(
+    RoomScene::setup();
+);
+BUILD_SCENE(
+    RoomScene::buildScene();
+    auto cook_material1 = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0 );
+    auto cook_material2 = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0 );
+    cook_material1->roughness = 0.05;
+    cook_material2->roughness = 0.95;
+    container->add( std::make_shared<Sphere>( -0.3, -0.3, -0.3, 0.2 ), cook_material1 );
+    container->add( std::make_shared<Sphere>( +0.3, -0.3, -0.3, 0.2 ), cook_material2 );
+    //tracer->rays_per_pixel = 1000;
+);
+END_SCENE()
+// ------------------------------------------------------------ 

@@ -12,6 +12,7 @@ OBJ = \
 	BoundingVolumeHierarchy.o \
 	Container.o \
 	CSG.o \
+    DirectAreaLightShader.o \
     DirectPointLightShader.o \
 	DistributionSamplers.o \
     Editor.o \
@@ -122,7 +123,8 @@ test_materialsLDXXFLAGS = $(LDXXFLAGS)
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr tests
-all: fr fredit tests libFastRender.so benchmarks unittests
+#all: fr fredit tests libFastRender.so benchmarks unittests
+all: tests
 #all: fr fredit tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 

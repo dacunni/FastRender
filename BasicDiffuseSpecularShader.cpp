@@ -50,10 +50,6 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         direct_contrib.accum( sampleEnvironmentMap( scene, intersection, rng ) );
     }
 
-    // TODO: How best should we choose between diffuse and specular?
-    // FIXME: Should I scale by the cosine for a perfect reflector?
-    // TODO: Generalize BRDF sampling
-    // TODO: Generalize BRDF importance sampling
     // TODO: Generalize environment map intersection / sampling to generic BRDF
 
     if( intersection.ray.depth < max_depth ) {
@@ -89,14 +85,14 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 {
                     shade( scene, rng, new_intersection );
                 }
-                float cos_r_n = dot( new_ray.direction, intersection.normal ); 
-                new_intersection.sample.color.scale( cos_r_n );
-                diffuse_contrib.accum( new_intersection.sample.color );
+                RGBColor Li = new_intersection.sample.color;
+                RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
+                Lo.scale(1.0f/sample.pdf_sample);
+                diffuse_contrib.accum( Lo );
             }
             else if( !sample_env_maps
                      || (scene.env_map && !scene.env_map->canImportanceSample()) )
             {
-#if 1
                 if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
                     // FIXME: Make this match importance sampled version
                     float cos_r_n = dot( new_ray.direction, intersection.normal ); 
@@ -104,7 +100,6 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                     new_intersection.sample.color.scale( cos_r_n );
                     diffuse_contrib.accum( new_intersection.sample.color );
                 }
-#endif
             }
         }
         else {
@@ -131,10 +126,10 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         }
     }
 
-    intersection.sample.color = mult( diffuse_contrib, intersection.material->diffuse(intersection) );
-    intersection.sample.color.accum( mult( specular_contrib, intersection.material->specular(intersection) ) );
-    intersection.sample.color.accum( intersection.material->emittance );
-    intersection.sample.color.accum( direct_contrib );
+    intersection.sample.color = diffuse_contrib;
+    intersection.sample.color += specular_contrib;
+    intersection.sample.color += intersection.material->emittance;
+    intersection.sample.color += direct_contrib;
 }
 
 

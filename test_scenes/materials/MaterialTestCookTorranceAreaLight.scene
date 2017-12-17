@@ -1,0 +1,158 @@
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceAreaLight, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    //tracer->shader = new DirectAreaLightShader();
+    tracer->rays_per_pixel = 30;
+);
+std::shared_ptr<AreaLight> light;
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 10.0 );
+    light = std::make_shared<CircleAreaLight>( 0.5, light_color );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = compose( makeRotation( M_PI * 0.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, 3.0, 0 ) ) );
+    container->add( light );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceDefaultsWhiteAreaLight, MaterialTestCookTorranceAreaLight)
+SETUP_SCENE(
+    MaterialTestCookTorranceAreaLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorranceAreaLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.5, 0.5 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness00WhiteAreaLight, MaterialTestCookTorranceAreaLight)
+SETUP_SCENE(
+    MaterialTestCookTorranceAreaLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorranceAreaLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 0.01 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness01WhiteAreaLight, MaterialTestCookTorranceAreaLight)
+SETUP_SCENE(
+    MaterialTestCookTorranceAreaLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorranceAreaLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 0.1 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness05WhiteAreaLight, MaterialTestCookTorranceAreaLight)
+SETUP_SCENE(
+    MaterialTestCookTorranceAreaLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorranceAreaLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 0.5 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness10WhiteAreaLight, MaterialTestCookTorranceAreaLight)
+SETUP_SCENE(
+    MaterialTestCookTorranceAreaLight::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorranceAreaLight::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 1.0 );
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+// Parameter Sweeps
+// ------------------------------------------------------------ 
+
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceAreaLightSweepRoughnessFull, MaterialTestMontageBase)
+SETUP_SCENE(
+    MaterialTestMontageBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestMontageBase::buildScene();
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        float roughness = (float) mesh_index / (num_meshes - 1);
+        meshes[mesh_index]->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, roughness );
+    }
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 20.0 );
+    auto light = std::make_shared<RectangleAreaLight>( 10.0, 2.0, light_color );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = makeTranslation( Vector4( 0, 3.0, 1.0 ) );
+    container->add( light );
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceAreaLightSweepRoughnessLow, MaterialTestMontageBase)
+SETUP_SCENE(
+    MaterialTestMontageBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestMontageBase::buildScene();
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        float roughness = (float) mesh_index / (num_meshes - 1) * 0.1;
+        meshes[mesh_index]->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, roughness );
+    }
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 20.0 );
+    auto light = std::make_shared<RectangleAreaLight>( 10.0, 2.0, light_color );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = makeTranslation( Vector4( 0, 3.0, 1.0 ) );
+    container->add( light );
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceAreaLightSweepRoughnessFullVaryingColors, MaterialTestMontageTwoParamBase)
+SETUP_SCENE(
+    MaterialTestMontageTwoParamBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestMontageTwoParamBase::buildScene();
+    float param1; float param2;
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        auto mesh = meshAtIndex(mesh_index, param1, param2);
+        float roughness = param1;
+        meshes[mesh_index]->material = std::make_shared<CookTorranceMaterial>( 1.0-param2, 0.3, param2, roughness );
+    }
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 20.0 );
+    auto light = std::make_shared<RectangleAreaLight>( 10.0, 10.0, light_color );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = makeTranslation( Vector4( 0, 10.0, 0.0 ) );
+    container->add( light );
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceAreaLightSweepRoughnessLowVaryingColors, MaterialTestMontageTwoParamBase)
+SETUP_SCENE(
+    MaterialTestMontageTwoParamBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestMontageTwoParamBase::buildScene();
+    float param1; float param2;
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        auto mesh = meshAtIndex(mesh_index, param1, param2);
+        float roughness = param1 * 0.1;
+        meshes[mesh_index]->material = std::make_shared<CookTorranceMaterial>( 1.0-param2, 0.3, param2, roughness );
+    }
+    auto light_color = RGBColor( 1.0, 1.0, 1.0 ).scaled( 20.0 );
+    auto light = std::make_shared<RectangleAreaLight>( 10.0, 10.0, light_color );
+    light->transform = std::make_shared<Transform>();
+    *light->transform = makeTranslation( Vector4( 0, 10.0, 0.0 ) );
+    container->add( light );
+);
+END_SCENE()
+

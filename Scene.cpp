@@ -102,12 +102,10 @@ bool Scene::intersectEnvMap( const Ray & ray, RayIntersection & intersection ) c
 
 void Scene::buildLightList()
 {
-    printf("Finding lights in the scene\n");
     lights.clear();
     addLightsForTraceable( root );    
-    printf("Found %u area lights\n", (unsigned int) lights.size());
     // TODO[DAC]: Handle point lights buried within the scene hierarchy
-    printf("Found %u point lights\n", (unsigned int) point_lights.size());
+    printf("Found lights : %u area %u point\n", (unsigned int) lights.size(), (unsigned int) point_lights.size());
 }
 
 void Scene::addLightsForTraceable( std::shared_ptr<Traceable> obj )

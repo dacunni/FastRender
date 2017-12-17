@@ -76,9 +76,7 @@ void ImageTracer::renderThread()
 
     artifacts.startNewFrame();
 
-    printf("ImageTracer: Tracing scene\n"
-           "  image_width = %u  image_height = %u\n"
-           "  num_frames = %u  rays_per_pixel = %u\n",
+    printf("Tracing scene :  %u x %u frm %u rpp %u\n",
            image_width, image_height,
            num_frames, rays_per_pixel);
 

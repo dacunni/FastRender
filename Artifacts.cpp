@@ -156,7 +156,7 @@ void Artifacts::flush()
     }
 
     time_image->write( output_path + "/" + file_prefix + "time.png" );
-    printf( "Average pixel render time: %f sec max: %f sec\n", average_value, max_value );
+    //printf( "Average pixel render time: %f sec max: %f sec\n", average_value, max_value );
 }
 
 void Artifacts::accumPixelColorMono( unsigned int row, unsigned int col, float value )

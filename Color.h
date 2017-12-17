@@ -32,6 +32,8 @@ class RGBColor {
     RGBColor scaled( float rs, float gs, float bs ) const { auto c(*this); c.scale(rs, gs, bs); return c; }
     void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
+    RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
+
     void print() { printf("RGBColor( %0.3f %0.3f %0.3f )\n", r, g, b ); }
 
     bool isZero() { return r == 0.0f && g == 0.0f && b == 0.0f; }

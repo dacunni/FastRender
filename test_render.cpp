@@ -827,6 +827,10 @@ int main (int argc, char * const argv[])
     //AmbientOcclusionStanfordHappyBuddha::run();
 
     //GridRoomSceneWithTexturedMonkey::run();
+    //GridRoomSceneWithSignedDistanceFunction::run();
+
+    //RoomSceneWithSpheres::run();
+    //RoomSceneWithSpheresCookTorrance::run();
 
     //SpheresPointLight::run();
     //SpheresColoredPointLights::run();
@@ -836,9 +840,7 @@ int main (int argc, char * const argv[])
 
     //MirrorSphereColoredSpheresArcLight::run();
 
-    GridRoomSceneWithSignedDistanceFunction::run();
-
-    //RefractiveSpheresAndCubes::run();
+    RefractiveSpheresAndCubes::run();
     //RefractiveBunniesVaryingIOR::run();
     //RefractiveSpheresVaryingIOR::run();
     //RefractiveSphereEmissiveObjectCaustic::run();

@@ -2,6 +2,7 @@ BEGIN_SCENE( BunnyEtcDiffusePointLights )
 SETUP_SCENE(
     image_width = image_height = 512;
     TestScene::setup();
+    tracer->rays_per_pixel = 30;
 );
 BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
@@ -26,11 +27,11 @@ BUILD_SCENE(
     container->add( cube );
 
     scene->addPointLight( PointLight( Vector4( -15.0, 15.0, 15.0 ),
-        RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(1000.0) ) );
     scene->addPointLight( PointLight( Vector4( 13.0, 15.0, 20.0 ),
-        RGBColor( 1.0, 0.4, 0.4 ).scaled(150.0) ) );
+        RGBColor( 1.0, 0.4, 0.4 ).scaled(1000.0) ) );
     scene->addPointLight( PointLight( Vector4( 0.0, 20.0, 15.0 ),
-        RGBColor( 0.4, 0.4, 1.0 ).scaled(150.0) ) );
+        RGBColor( 0.4, 0.4, 1.0 ).scaled(1000.0) ) );
 
     tracer->shader = new BasicDiffuseSpecularShader();
 

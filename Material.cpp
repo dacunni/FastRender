@@ -1,4 +1,5 @@
 
+#include <typeinfo>
 #include "Material.h"
 #include "RandomNumberGenerator.h"
 #include "GeometryUtils.h"
@@ -8,7 +9,7 @@ std::shared_ptr<Material> DEFAULT_MATERIAL = std::make_shared<DiffuseMaterial>()
 float
 Material::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
 {
-    printf("BxDF is not overridden!!!\n");
+    printf("BxDF is not overridden!!! (%s)\n", typeid(*this).name());
     return 1.0f / M_PI; // Perfectly diffuse
 }
 
@@ -24,6 +25,12 @@ Material::sampleBxDF( RandomNumberGenerator & rng,
     return sample;
 }
 
+float
+DiffuseMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
+{
+    return 1.0f / M_PI; // Perfectly diffuse
+}
+
 DistributionSample
 DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
                              const RayIntersection & intersection ) const
@@ -36,16 +43,10 @@ DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
     return sample;
 }
 
-float
-DiffuseMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
-{
-    return 1.0f / M_PI; // Perfectly diffuse
-}
-
 RGBColor
 DiffuseCheckerBoardMaterial::diffuse( const RayIntersection & isect ) {
     return (bool(int(floorf(isect.position.x / gridSize)) % 2) ^
-            bool(int(floorf(isect.position.y / gridSize)) % 2) ^
+            //bool(int(floorf(isect.position.y / gridSize)) % 2) ^
             bool(int(floorf(isect.position.z / gridSize)) % 2)
             )
         ?  diffuseColor 
@@ -150,14 +151,39 @@ RefractiveMaterial::sampleBxDF( RandomNumberGenerator & rng,
     return sample;
 }
 
+DistributionSample
+CookTorranceMaterial::sampleBxDF( RandomNumberGenerator & rng,
+                                  const RayIntersection & intersection ) const
+{
+    DistributionSample sample;
+    //if(roughness < 0.01) {
+    //    // TODO: Do we need to handle 0 roughness like a mirror?
+    //    // Perfect mirror - PDF if a Dirac delta function
+    //    sample.direction = mirror( intersection.fromDirection(), intersection.normal );
+    //    sample.pdf_sample = DistributionSample::DIRAC_PDF_SAMPLE;
+    //}
+    //else {
+        // TODO: Sample the distribution. This is sampling like a perfectly diffuse distribution
+        rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
+        sample.direction.makeDirection();
+        sample.pdf_sample = 1.0f / (2.0f * M_PI);
+    //}
+    return sample;
+}
+
 float
 CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
 {
+    const float NdV = dot(normal, wi);
+    const float NdL = dot(normal, wo);
+
+    // Make sure wi/wo are on the same side as the normal
+    if(NdV < 0.0f || NdL < 0.0f)
+        return 0.0f;
+
     const auto H = (wi + wo).normalized();
 
     const float NdH = clampedDot(normal, H);
-    const float NdV = clampedDot(normal, wi);
-    const float NdL = clampedDot(normal, wo);
     const float VdH = clampedDot(wi, H);
     const float LdH = clampedDot(wo, H);
 
@@ -172,11 +198,11 @@ CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Ve
     float G = std::min(1.0f, std::min(G1, G2));
 
     // Beckman microfacet distribution function
-    const float & m = roughness;
+    const float m = roughness;
     float D = 1.0 / (M_PI * m * m * NdH * NdH * NdH * NdH)
         * exp((NdH * NdH - 1) / (m * m * NdH * NdH));
 
-    float denom = 4.0f * dot(wi, normal) * dot(wo, normal);
+    float denom = 4.0f * NdV * NdL;
 
     return F * G * D / denom;
 }

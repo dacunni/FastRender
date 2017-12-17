@@ -27,7 +27,7 @@ const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string 
     const aiScene * scene = nullptr;
     
     // NOTE: Scene is destroyed automatically when importer is destroyed!
-    printf("Assimp::Importer::ReadFile\n");
+    printf("Loading %s\n", filename.c_str());
     scene = importer.ReadFile( filename,
                                aiProcess_Triangulate
                                | aiProcess_FindInvalidData
@@ -35,9 +35,7 @@ const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string 
                                //| aiProcess_GenNormals
                                | aiProcess_FixInfacingNormals
                                );
-    printf("Assimp::Importer::ReadFile DONE\n");
     importer.ApplyPostProcessing( aiProcess_CalcTangentSpace );
-    printf("Assimp::Importer::ApplyPostProcessing DONE\n");
 
     if( !scene ) {
         fprintf( stderr, "Failed to load %s\n", filename.c_str() );

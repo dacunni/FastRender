@@ -18,7 +18,7 @@ BUILD_SCENE(
 #if 1 // Area light
     float light_radius = dim;
     float light_distance = 2.0 * dim;
-    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 1.0, 1.0 ).scaled( 1.2 ) );
+    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 1.0, 1.0 ).scaled( 3.2 ) );
     light->transform = std::make_shared<Transform>();
     *light->transform = compose( makeRotation( M_PI * -0.2, Vector4(0, 0, 1) ),
                                  makeTranslation( Vector4( 0, light_distance, 0 ) ) );
