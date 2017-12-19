@@ -42,7 +42,15 @@ int main (int argc, char * const argv[])
             if( argc > 2 && std::string(argv[2]) == "animate" ) {
                 animateMaterialTests = true;
             }
-            runTest(atoi(argv[1]));
+            int first, last;
+            if(sscanf(argv[1], "%d-%d", &first, &last) == 2) {
+                for(int index = first; index <= last; index++) {
+                    runTest(index);
+                }
+            }
+            else {
+                runTest(atoi(argv[1]));
+            }
         }
     }
     else {
