@@ -21,7 +21,8 @@ Material::sampleBxDF( RandomNumberGenerator & rng,
     DistributionSample sample;
     rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
     sample.direction.makeDirection();
-    sample.pdf_sample = 1.0f / (2.0f * M_PI);
+    //sample.pdf_sample = 1.0f / (2.0f * M_PI);
+    sample.pdf_sample = 1.0f; // see DiffuseMaterial
     return sample;
 }
 
@@ -39,7 +40,11 @@ DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
     DistributionSample sample;
     rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
     sample.direction.makeDirection();
-    sample.pdf_sample = 1.0f / (2.0f * M_PI);
+    //sample.pdf_sample = 1.0f / (2.0f * M_PI);
+    // Special case for diffuse. reflectedRadiance() already accounts for the divide by
+    // pi for diffuse, so as long as we're doing uniform sampling in sampleBxDF, we should
+    // return unity here so things balance out appropriately.
+    sample.pdf_sample = 1.0f;
     return sample;
 }
 
@@ -166,7 +171,11 @@ CookTorranceMaterial::sampleBxDF( RandomNumberGenerator & rng,
         // TODO: Sample the distribution. This is sampling like a perfectly diffuse distribution
         rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
         sample.direction.makeDirection();
-        sample.pdf_sample = 1.0f / (2.0f * M_PI);
+        // FIXME: Special case for sampling diffuse. reflectedRadiance() already accounts for the divide by
+        // pi for diffuse, so as long as we're doing uniform sampling in sampleBxDF, we should
+        // return unity here so things balance out appropriately.
+        sample.pdf_sample = 1.0f;
+        //sample.pdf_sample = 1.0f / (2.0f * M_PI);
     //}
     return sample;
 }
@@ -180,6 +189,11 @@ CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Ve
     // Make sure wi/wo are on the same side as the normal
     if(NdV < 0.0f || NdL < 0.0f)
         return 0.0f;
+    if(roughness <= 0.0f) {
+        // Delta function
+        // FIXME: Should we treat this like a mirror in this case?
+        return 1.0f;
+    }
 
     const auto H = (wi + wo).normalized();
 
@@ -189,7 +203,8 @@ CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Ve
 
     // Fresnel: Fraction of light reflected
     // TODO: Derive F0 from the indices of refraction
-    float F0 = 0.25;
+    //float F0 = 0.25;
+    float F0 = 0.75;
     float F = F0 + (1.0 - F0) * pow(1.0 - VdH, 5);
 
     // Geometric attenuation according to Blinn

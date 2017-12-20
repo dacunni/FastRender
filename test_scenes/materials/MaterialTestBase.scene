@@ -48,8 +48,9 @@ std::shared_ptr<TriangleMesh> mesh;
 BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10, -1, -10,
                                                      10, 0, 10 );
-    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
-    container->add( floor, checkerboard_material );
+    //auto floor_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto floor_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    container->add( floor, floor_material );
 
     mesh = loadMaterialTestModel( loader );
     auto bounds = mesh->getAxisAlignedBounds();
@@ -61,7 +62,8 @@ BUILD_SCENE(
 #else // Mori test object
     *mesh->transform = compose( makeScaling( 1.0 ),
                                 makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ),
-                                makeRotation( M_PI * 0.85, Vector4( 0.0, 1.0, 0.0 ) ) );
+                                makeRotation( -M_PI * 0.50, Vector4( 1.0, 0.0, 0.0 ) )
+                              );
 #endif
     container->add( mesh );
 );

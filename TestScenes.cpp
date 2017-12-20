@@ -81,7 +81,7 @@ void TestScene::setup()
     tracer = new ImageTracer( image_width, image_height,
                               anim_frames, rays_per_pixel );
 
-#if 1
+#if 0
     // Create a subdirectory in the output directory named with the test name, and put standard
     // output files in there
     tracer->artifacts.output_path = output_dir + "/" + name;

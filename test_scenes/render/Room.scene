@@ -17,7 +17,7 @@ BUILD_SCENE(
 #if 0 // Point light
     scene->addPointLight( PointLight( Vector4( 0.2, 0.2, 0.0 ), RGBColor( 1.0, 1.0, 1.0 ).scaled(0.15) ) );
 #elif 1 // Area light
-    auto light = std::make_shared<CircleAreaLight>( 0.2, RGBColor( 1.0, 1.0, 1.0 ).scaled( 0.75 ) );
+    auto light = std::make_shared<CircleAreaLight>( 0.2, RGBColor( 1.0, 1.0, 1.0 ).scaled( 3.0 ) );
     light->transform = std::make_shared<Transform>();
     *light->transform = makeTranslation( Vector4( 0, 0.45, 0 ) );
     container->add( light );
@@ -104,6 +104,7 @@ BUILD_SCENE(
     container->add( std::make_shared<Sphere>( -0.3, -0.3, -0.3, 0.2 ), cook_material1 );
     container->add( std::make_shared<Sphere>( +0.3, -0.3, -0.3, 0.2 ), cook_material2 );
     //tracer->rays_per_pixel = 1000;
+    //tracer->rays_per_pixel = 10;
 );
 END_SCENE()
 // ------------------------------------------------------------ 

@@ -126,7 +126,7 @@ RGBColor Shader::sampleEnvironmentMap( const Scene & scene,
         s_dot_n = dot( isamp.ray.direction, intersection.normal);
     }
 
-    // Shoot a ray toward the light to see if we are in shadow
+    // Shoot a ray to see if we intersect the scene. If, we don't sample the environment map
     Ray shadow_ray = isamp.ray;
     RayIntersection shadow_isect;
     shadow_isect.min_distance = EPSILON;
@@ -152,11 +152,12 @@ RGBColor Shader::reflectedRadiance( const RayIntersection & intersection,
 
     // TODO: should kd be based on fresnel?
     float ks = intersection.material->specularity();
-    float kd = 1.0f - ks; // FIXME: use this?
+    float kd = 1.0f - ks;
     float bxdf = intersection.material->BxDF(intersection.normal, intersection.fromDirection(), lightDirection);
     RGBColor diffuse = intersection.material->diffuse(intersection).scaled(kd / M_PI);
     RGBColor specular = RGBColor(ks * bxdf);
     RGBColor Lo = (diffuse + specular) * Li * cos_r_n;
+
     return Lo;
 }
 

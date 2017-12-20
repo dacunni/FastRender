@@ -53,10 +53,6 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     // TODO: Generalize environment map intersection / sampling to generic BRDF
 
     if( intersection.ray.depth < max_depth ) {
-        //const float diffuse_chance = 0.9; // FIXME: HACKHACK
-        const float diffuse_chance = 1.0f; // FIXME: HACKHACK
-        float diff_spec_select = rng.uniform01();
-
         if( intersection.material->perfect_reflector
             || intersection.material->perfect_refractor ) {
             auto sample = intersection.material->sampleBxDF( rng, intersection );
@@ -73,8 +69,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 specular_contrib.accum( new_intersection.sample.color );
             }
         }
-        else if( diff_spec_select <= diffuse_chance ) {
-            // Diffuse
+        else { // General BxDF
             auto sample = intersection.material->sampleBxDF( rng, intersection );
             new_ray.direction = sample.direction;
             new_ray.index_of_refraction = intersection.ray.index_of_refraction;
@@ -87,7 +82,9 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 }
                 RGBColor Li = new_intersection.sample.color;
                 RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
+                // FIXME: Fix importance sampling scaling
                 Lo.scale(1.0f/sample.pdf_sample);
+                Lo.scale(M_PI); // FIXME: This seems to be necessary
                 diffuse_contrib.accum( Lo );
             }
             else if( !sample_env_maps
@@ -100,28 +97,6 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                     new_intersection.sample.color.scale( cos_r_n );
                     diffuse_contrib.accum( new_intersection.sample.color );
                 }
-            }
-        }
-        else {
-            // Specular
-            // TODO - sample the specular lobe, not just the mirror direction
-            new_ray.direction = mirror( from_dir, intersection.normal );
-            new_ray.direction.makeDirection();
-
-            if( scene.intersect( new_ray, new_intersection ) ) {
-                if( new_intersection.distance != FLT_MAX
-                    //&& !new_intersection.material->isEmitter()
-                    && !(sample_area_lights && new_intersection.traceable->isAreaLight())
-                    ) {
-                    shade( scene, rng, new_intersection );
-                }
-                float cos_r_n = dot( new_ray.direction, intersection.normal ); 
-                new_intersection.sample.color.scale( cos_r_n );
-                specular_contrib.accum( new_intersection.sample.color );
-            }
-            else if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
-                // FIXME
-                specular_contrib.accum( new_intersection.sample.color );
             }
         }
     }

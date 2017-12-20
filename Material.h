@@ -239,7 +239,7 @@ class CookTorranceMaterial : public Material
                                                const RayIntersection & intersection ) const;
 
         float roughness = 0.1; // [0, 1]
-        float specular = 0.8; // fraction of light reflected by specular reflection
+        float specular = 0.2; // fraction of light reflected by specular reflection
 };
 
 

@@ -42,7 +42,8 @@ const std::string modelBasePath = "models";
 
 void testMesh1()
 {
-    int imageSize = 256;
+    int imageSize = 64;
+    //int imageSize = 256;
     //int imageSize = 320;
     //int imageSize = 512;
     //int imageSize = 1024;
@@ -590,16 +591,16 @@ void testCircleAreaLight2()
     // Area Light
     float light_radius = 1.0;
     float light_distance = 0.7;
-    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 0.4, 0.2 ).scaled( 3.0 ) );
+    auto light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1.0, 0.4, 0.2 ).scaled( 15.0 ) );
     light->transform = std::make_shared<Transform>();
     *light->transform = compose( makeRotation( M_PI * -0.0, Vector4(0, 0, 1) ),
                                  makeTranslation( Vector4( 0, light_distance, 0 ) ) );
     container->add( light );
     // Area Light
-    light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1, 1, 1 ).scaled( 3.0 ) );
+    light = std::make_shared<CircleAreaLight>( light_radius, RGBColor( 1, 1, 1 ).scaled( 15.0 ) );
     light->transform = std::make_shared<Transform>();
-    *light->transform = compose( makeRotation( M_PI * -0.0, Vector4(0, 0, 1) ),
-                                 makeTranslation( Vector4( 0, -light_distance, 0 ) ) );
+    *light->transform = compose( makeRotation( M_PI * -1.0, Vector4(0, 0, 1) ),
+                                 makeTranslation( Vector4( 0, light_distance, 0 ) ) );
     container->add( light );
 
 	scene->root = container;
@@ -830,7 +831,7 @@ int main (int argc, char * const argv[])
     //GridRoomSceneWithSignedDistanceFunction::run();
 
     //RoomSceneWithSpheres::run();
-    //RoomSceneWithSpheresCookTorrance::run();
+    RoomSceneWithSpheresCookTorrance::run();
 
     //SpheresPointLight::run();
     //SpheresColoredPointLights::run();
@@ -840,7 +841,7 @@ int main (int argc, char * const argv[])
 
     //MirrorSphereColoredSpheresArcLight::run();
 
-    RefractiveSpheresAndCubes::run();
+    //RefractiveSpheresAndCubes::run();
     //RefractiveBunniesVaryingIOR::run();
     //RefractiveSpheresVaryingIOR::run();
     //RefractiveSphereEmissiveObjectCaustic::run();
