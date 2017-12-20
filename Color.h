@@ -11,6 +11,7 @@
 #define _COLOR_H_
 
 #include <stdio.h>
+#include <cmath>
 
 #define RED_BIT   0x1
 #define GREEN_BIT 0x2
@@ -34,9 +35,11 @@ class RGBColor {
 
     RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
 
-    void print() { printf("RGBColor( %0.3f %0.3f %0.3f )\n", r, g, b ); }
+    void print() const { printf("RGBColor( %0.3f %0.3f %0.3f )\n", r, g, b ); }
 
-    bool isZero() { return r == 0.0f && g == 0.0f && b == 0.0f; }
+    bool isZero() const { return r == 0.0f && g == 0.0f && b == 0.0f; }
+    bool isNonNegative() const { return r >= 0.0f && g >= 0.0f && b >= 0.0f; }
+    bool isFinite() const { return isfinite(r) && isfinite(g) && isfinite(b); }
 
     union {
         struct {
