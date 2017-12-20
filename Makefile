@@ -60,8 +60,6 @@ frOBJ = $(OBJ) \
 freditOBJ = $(OBJ) \
 	editormain.o
 
-MATERIAL_SCENES = $(wildcard test_scenes/materials/*.scene)
-
 test_randomOBJ = $(OBJ) test_random.o
 test_renderOBJ = $(OBJ) test_render.o
 test_materialsOBJ = $(OBJ) test_materials.o
@@ -185,15 +183,9 @@ test_ray_trace: $(test_ray_traceOBJ_IN_DIR)
 test_samplers: $(test_samplersOBJ_IN_DIR)
 	g++ -o $@ $(test_samplersOBJ_IN_DIR) $(test_samplersLDXXFLAGS)
 
-MATERIAL_SCENES = $(wildcard test_scenes/materials/*.scene)
-# FIXME: scene dependency not working
-test_materials.o: $(MATERIAL_SCENES)
 test_materials: $(test_materialsOBJ_IN_DIR)
 	g++ -o $@ $(test_materialsOBJ_IN_DIR) $(test_materialsLDXXFLAGS)
 
-RENDER_SCENES = $(wildcard test_scenes/render/*.scene)
-# FIXME: scene dependency not working
-test_render.o: $(RENDER_SCENES)
 test_render: $(test_renderOBJ_IN_DIR)
 	g++ -o $@ $(test_renderOBJ_IN_DIR) $(test_renderLDXXFLAGS)
 
@@ -245,7 +237,11 @@ _FastRender.so: $(PYTHON_BINDING_OBJ_IN_DIR)
 	g++ -dynamiclib -o _FastRender.so $(PYTHON_BINDING_OBJ_IN_DIR) `python-config --ldflags --libs` $(LDXXFLAGS)
 python_bindings: _FastRender.so
 
+MATERIAL_SCENES = $(wildcard test_scenes/materials/*.scene)
 $(OBJDIR)/test_materials.o: $(MATERIAL_SCENES)
+
+RENDER_SCENES = $(wildcard test_scenes/render/*.scene)
+$(OBJDIR)/test_render.o: $(RENDER_SCENES)
 
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
