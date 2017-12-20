@@ -160,6 +160,7 @@ HDRImageEnvironmentMap::importanceSample( RandomNumberGenerator & rng,
     mapSample.ray.direction.x = sinf(phi) * cosf(theta);
     mapSample.ray.direction.y = sinf(phi) * sinf(theta);
     mapSample.ray.direction.z = cosf(phi);
+    mapSample.ray.direction.makeDirection();
 
     // TODO: Handle sample pointing away from normal
     //       Currently the caller handles this

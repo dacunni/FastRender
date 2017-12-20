@@ -102,6 +102,7 @@ void RandomNumberGenerator::uniformConeDirection( const Vector4 & dir, float the
     static const Vector4 up( 0.0f, 0.0f, 1.0f );
     Transform xform = makeRotation( acos(dot(up, dir)), cross(up, dir) ); 
     v = mult( xform.fwd, v );
+    v.makeDirection();
 }
 
 void RandomNumberGenerator::cosineUnitHalfSphere( float & x, float & y, float & z )
