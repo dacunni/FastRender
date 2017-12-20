@@ -60,6 +60,8 @@ frOBJ = $(OBJ) \
 freditOBJ = $(OBJ) \
 	editormain.o
 
+MATERIAL_SCENES = $(wildcard test_scenes/materials/*.scene)
+
 test_randomOBJ = $(OBJ) test_random.o
 test_renderOBJ = $(OBJ) test_render.o
 test_materialsOBJ = $(OBJ) test_materials.o
@@ -242,6 +244,8 @@ $(OBJDIR)/FastRender_wrap.o: FastRender_wrap.cpp
 _FastRender.so: $(PYTHON_BINDING_OBJ_IN_DIR)
 	g++ -dynamiclib -o _FastRender.so $(PYTHON_BINDING_OBJ_IN_DIR) `python-config --ldflags --libs` $(LDXXFLAGS)
 python_bindings: _FastRender.so
+
+$(OBJDIR)/test_materials.o: $(MATERIAL_SCENES)
 
 $(OBJDIR)/%.o : %.cpp
 	g++ -c $< -o $@ $(CXXFLAGS) $(INC)
