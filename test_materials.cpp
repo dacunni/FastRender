@@ -29,9 +29,6 @@ int main (int argc, char * const argv[])
     Timer total_run_timer;
     total_run_timer.start();
 
-    //RandomNumberGenerator rng;
-    //rng.seedCurrentTime();
-
     if( argc > 1 ) {
         if( std::string(argv[1]) == "list" ) {
             printTests();

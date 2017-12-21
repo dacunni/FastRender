@@ -1,6 +1,6 @@
 
 bool animateMaterialTests = false;
-bool stereoMaterialTests = true;
+bool stereoMaterialTests = false;
 
 BEGIN_SCENE(MaterialTestBase)
 SETUP_SCENE(
