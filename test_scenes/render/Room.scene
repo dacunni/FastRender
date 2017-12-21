@@ -108,3 +108,29 @@ BUILD_SCENE(
 );
 END_SCENE()
 // ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(RoomSceneWithManyRefractiveSpheres, RoomScene)
+SETUP_SCENE(
+    RoomScene::setup();
+);
+BUILD_SCENE(
+    RoomScene::buildScene();
+    RandomNumberGenerator rng;
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_WATER );
+    float radius = 0.05;
+    int num_obj = 30;
+    for(int i = 0; i < num_obj; i++) {
+#if 1
+        float a = (float) i / (num_obj - 1);
+        float angle = a * M_PI * 4;
+        float x = 0.3f * cosf(angle);
+        float y = -0.3f + 0.6 * a;
+        float z = 0.3f * sinf(angle);
+#else
+        float x = rng.uniformRange(-0.3, +0.3);
+        float y = rng.uniformRange(-0.3, +0.3);
+        float z = rng.uniformRange(-0.3, +0.3);
+#endif
+        container->add( std::make_shared<Sphere>( x, y, z, radius ), refractive_material );
+    }
+);
+END_SCENE()

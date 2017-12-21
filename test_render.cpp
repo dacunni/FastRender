@@ -831,7 +831,8 @@ int main (int argc, char * const argv[])
     //GridRoomSceneWithSignedDistanceFunction::run();
 
     //RoomSceneWithSpheres::run();
-    RoomSceneWithSpheresCookTorrance::run();
+    //RoomSceneWithSpheresCookTorrance::run();
+    RoomSceneWithManyRefractiveSpheres::run();
 
     //SpheresPointLight::run();
     //SpheresColoredPointLights::run();
