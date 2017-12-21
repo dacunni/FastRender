@@ -1,5 +1,6 @@
 
 bool animateMaterialTests = false;
+bool stereoMaterialTests = true;
 
 BEGIN_SCENE(MaterialTestBase)
 SETUP_SCENE(
@@ -25,6 +26,22 @@ SETUP_SCENE(
                         makeTranslation( 0.0, 0.5, 0.0 ),
                         //makeRotation( M_PI / 8.0f * sinf(2.0f*M_PI*anim_progress), Vector4(0, 1, 0) ), // wiggle
                         makeRotation( 2.0f * M_PI * anim_progress, Vector4(0, 1, 0) ), // orbit
+                        // rotate so we are looking down
+                        makeRotation( -0.2, Vector4(1, 0, 0) ),
+                        // back away from the origin
+                        makeTranslation( 0.0, 0.0, 5.0 )
+                    );});
+    }
+    else if( stereoMaterialTests ) {
+        tracer->num_frames = 2;
+        tracer->loopable_animations = true;
+        tracer->setCameraTransform(
+                [](float anim_progress) { 
+                    float fullrot = 0.1;
+                    return compose(
+                        // move up a bit
+                        makeTranslation( 0.0, 0.5, 0.0 ),
+                        makeRotation( -fullrot * 0.5 + fullrot * anim_progress, Vector4(0, 1, 0) ),
                         // rotate so we are looking down
                         makeRotation( -0.2, Vector4(1, 0, 0) ),
                         // back away from the origin
