@@ -107,12 +107,12 @@ void RandomNumberGenerator::uniformConeDirection( const Vector4 & dir, float the
 
 void RandomNumberGenerator::cosineUnitHalfSphere( float & x, float & y, float & z )
 {
-    float az = uniformRange( 0.0f, 2.0f * M_PI );
-    // cosine-weighted pdf aligned to y axis
-    float dec = cosineQuarterWave();
-    x = cosf( az ) * sinf( dec );
-    y = sinf( az ) * sinf( dec );
-    z = cosf( dec );
+    const float u1 = uniform01(), u2 = uniform01();
+    const float r = std::sqrt(u1);
+    const float az = 2.0 * M_PI * u2;
+    x = r * std::cos(az);
+    y = r * std::sin(az);
+    z = std::sqrt(1.0f - u1);
 }
 
 void RandomNumberGenerator::cosineUnitHalfSphere( Vector4 & v )
@@ -121,13 +121,24 @@ void RandomNumberGenerator::cosineUnitHalfSphere( Vector4 & v )
     v.w = 1.0;
 }
 
+// Generate a random 3D point within the unit cube
+void RandomNumberGenerator::uniformVolumeUnitCube( float & x, float & y, float & z )
+{
+    x = uniformRange( -1.0f, 1.0f );
+    y = uniformRange( -1.0f, 1.0f );
+    z = uniformRange( -1.0f, 1.0f );
+}
+
+void RandomNumberGenerator::uniformVolumeUnitCube( Vector4 & v )
+{
+    uniformVolumeUnitCube( v.x, v.y, v.z );
+}
+
 // Generate a random 3D point within the unit sphere by means of the rejection method
 void RandomNumberGenerator::uniformVolumeUnitSphere( float & x, float & y, float & z )
 {
     do {
-        x = uniformRange( -1.0, 1.0 );
-        y = uniformRange( -1.0, 1.0 );
-        z = uniformRange( -1.0, 1.0 );
+        uniformVolumeUnitCube( x, y, z );
     } while( x*x + y*y + z*z > 1.0 );
 }
 

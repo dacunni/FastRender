@@ -40,6 +40,9 @@ public:
     void cosineUnitHalfSphere( float & x, float & y, float & z );
     void cosineUnitHalfSphere( Vector4 & v );
     
+    void uniformVolumeUnitCube( float & x, float & y, float & z );
+    void uniformVolumeUnitCube( Vector4 & v );
+
     void uniformVolumeUnitSphere( float & x, float & y, float & z );
 
     void uniformUnitTriangle2D( float & x, float & y );
