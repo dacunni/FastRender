@@ -1,12 +1,3 @@
-/*
- *  Material.h
- *  FastRender
- *
- *  Created by David Cunningham on 4/12/14
- *  Copyright 2014 __MyCompanyName__. All rights reserved.
- *
- */
-
 #ifndef _MATERIAL_H_
 #define _MATERIAL_H_
 
@@ -15,6 +6,11 @@
 #include "Color.h"
 #include "Ray.h"
 #include "SurfaceTexture.h"
+
+
+// TEMP - switch for testing with cosine-weighted sampling instead
+//        of hemisphere sampling
+#define USE_COSINE_SAMPLING
 
 class RandomNumberGenerator;
 
@@ -213,40 +209,5 @@ class RefractiveMaterial : public Material
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 };
-
-class CookTorranceMaterial : public Material
-{
-    public:
-        CookTorranceMaterial() : Material() {
-            diffuseColor.setRGB( 1.0f, 1.0f, 1.0f );
-            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-            emittance.setRGB( 0.0f, 0.0f, 0.0f );
-        }
-        CookTorranceMaterial( float r, float g, float b ) : Material() { 
-            diffuseColor.setRGB( r, g, b ); 
-            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-            emittance.setRGB( 0.0f, 0.0f, 0.0f );
-        }
-        CookTorranceMaterial( float r, float g, float b, float roughness ) : Material() { 
-            diffuseColor.setRGB( r, g, b ); 
-            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-            emittance.setRGB( 0.0f, 0.0f, 0.0f );
-            this->roughness = roughness;
-        }
-        virtual ~CookTorranceMaterial() {}
-
-        virtual float specularity() { return specular; }
-
-        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const;
-        // TODO
-        virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
-                                               const RayIntersection & intersection ) const;
-
-        float roughness = 0.1; // [0, 1]
-        float specular = 0.2; // fraction of light reflected by specular reflection
-        //float specular = 0.5; // fraction of light reflected by specular reflection
-        //float specular = 0.9; // fraction of light reflected by specular reflection
-};
-
 
 #endif

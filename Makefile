@@ -12,6 +12,7 @@ OBJ = \
 	BoundingVolumeHierarchy.o \
     Color.o \
 	Container.o \
+    CookTorranceMaterial.o \
 	CSG.o \
     DirectAreaLightShader.o \
     DirectEnvironmentMapShader.o \

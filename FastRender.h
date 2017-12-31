@@ -9,6 +9,7 @@
 #include "CSG.h"
 #include "Color.h"
 #include "Container.h"
+#include "CookTorranceMaterial.h"
 #include "DirectAreaLightShader.h"
 #include "DirectEnvironmentMapShader.h"
 #include "DirectPointLightShader.h"
