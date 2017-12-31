@@ -244,6 +244,8 @@ class CookTorranceMaterial : public Material
 
         float roughness = 0.1; // [0, 1]
         float specular = 0.2; // fraction of light reflected by specular reflection
+        //float specular = 0.5; // fraction of light reflected by specular reflection
+        //float specular = 0.9; // fraction of light reflected by specular reflection
 };
 
 

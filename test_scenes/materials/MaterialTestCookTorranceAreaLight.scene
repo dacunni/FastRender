@@ -1,10 +1,9 @@
 BEGIN_DERIVED_SCENE(MaterialTestCookTorranceAreaLight, MaterialTestBase)
 SETUP_SCENE(
     MaterialTestBase::setup();
-    //tracer->shader = new BasicDiffuseSpecularShader();
-    tracer->shader = new DirectAreaLightShader();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    //tracer->shader = new DirectAreaLightShader();
     tracer->rays_per_pixel = 30;
-    tracer->rays_per_pixel = 5; // TEMP
 );
 std::shared_ptr<AreaLight> light;
 BUILD_SCENE(
@@ -124,7 +123,6 @@ SETUP_SCENE(
     //tracer->shader = new BasicDiffuseSpecularShader();
     tracer->shader = new DirectAreaLightShader();
     tracer->rays_per_pixel = 30;
-    tracer->rays_per_pixel = 5; // TEMP
 );
 BUILD_SCENE(
     MaterialTestMontageTwoParamBase::buildScene();
@@ -150,7 +148,6 @@ SETUP_SCENE(
     //tracer->shader = new BasicDiffuseSpecularShader();
     tracer->shader = new DirectAreaLightShader();
     tracer->rays_per_pixel = 30;
-    tracer->rays_per_pixel = 5; // TEMP
 );
 BUILD_SCENE(
     MaterialTestMontageTwoParamBase::buildScene();

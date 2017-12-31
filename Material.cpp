@@ -239,8 +239,10 @@ CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Ve
 
     // Fresnel: Fraction of light reflected
     // TODO: Derive F0 from the indices of refraction
+    //float F0 = 0.04;
     //float F0 = 0.25;
     float F0 = 0.75;
+    //float F0 = 1.0;
     float F = fresnelDialectricSchlick(F0, VdH);
 
     // Geometric attenuation according to Blinn

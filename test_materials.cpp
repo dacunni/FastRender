@@ -18,6 +18,7 @@ std::string output_path = "testoutput";
 #include "test_scenes/materials/MaterialTestHDREnvironmentMap.scene"
 #include "test_scenes/materials/MaterialTestCookTorrancePointLight.scene"
 #include "test_scenes/materials/MaterialTestCookTorranceAreaLight.scene"
+#include "test_scenes/materials/MaterialTestCookTorranceEnvironmentMap.scene"
 
 int main (int argc, char * const argv[]) 
 {

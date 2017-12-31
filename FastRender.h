@@ -10,6 +10,7 @@
 #include "Color.h"
 #include "Container.h"
 #include "DirectAreaLightShader.h"
+#include "DirectEnvironmentMapShader.h"
 #include "DirectPointLightShader.h"
 #include "DistributionSamplers.h"
 #include "Editor.h"

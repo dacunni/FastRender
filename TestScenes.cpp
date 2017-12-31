@@ -443,3 +443,20 @@ std::shared_ptr<TriangleMesh> loadMaterialTestModel( AssetLoader & loader )
     return mesh;
 }
 
+std::shared_ptr<HDRImageEnvironmentMap> loadStPetersEnvironmentMap()
+{
+    return std::make_shared<HDRImageEnvironmentMap>("light_probes/debevec/stpeters_probe.float", 1500, 1500);
+}
+std::shared_ptr<HDRImageEnvironmentMap> loadUffiziEnvironmentMap()
+{
+    return std::make_shared<HDRImageEnvironmentMap>("light_probes/debevec/uffizi_probe.float", 1500, 1500);
+}
+std::shared_ptr<HDRImageEnvironmentMap> loadRNLEnvironmentMap()
+{
+    return std::make_shared<HDRImageEnvironmentMap>("light_probes/debevec/rnl_probe.float", 900, 900);
+}
+std::shared_ptr<HDRImageEnvironmentMap> loadGraceEnvironmentMap()
+{
+    return std::make_shared<HDRImageEnvironmentMap>("light_probes/debevec/grace_probe.float", 1000, 1000);
+}
+

@@ -83,25 +83,22 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 RGBColor Li = new_intersection.sample.color;
                 RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
                 if(sample.pdf_sample != DistributionSample::DIRAC_PDF_SAMPLE) {
-                    // FIXME: Fix importance sampling scaling
                     Lo.scale(1.0f/sample.pdf_sample);
                     Lo.scale(M_PI); // FIXME: This seems to be necessary
                 }
-
-                //assert(Lo.isNonNegative()); // TEMP
-                //assert(Lo.isFinite()); // TEMP
-
                 diffuse_contrib.accum( Lo );
             }
             else if( !sample_env_maps
                      || (scene.env_map && !scene.env_map->canImportanceSample()) )
             {
                 if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
-                    // FIXME: Make this match importance sampled version
-                    float cos_r_n = dot( new_ray.direction, intersection.normal ); 
-                    //new_intersection.sample.color.scale( 1.0f / sample.pdf_sample );
-                    new_intersection.sample.color.scale( cos_r_n );
-                    diffuse_contrib.accum( new_intersection.sample.color );
+                    RGBColor Li = new_intersection.sample.color;
+                    RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
+                    if(sample.pdf_sample != DistributionSample::DIRAC_PDF_SAMPLE) {
+                        Lo.scale(1.0f/sample.pdf_sample);
+                        Lo.scale(M_PI); // FIXME: This seems to be necessary
+                    }
+                    diffuse_contrib.accum( Lo );
                 }
             }
         }

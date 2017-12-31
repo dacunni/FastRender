@@ -122,23 +122,22 @@ RGBColor Shader::sampleEnvironmentMap( const Scene & scene,
     float s_dot_n = -1.0;
     const unsigned int max_tries = 100;
     for( unsigned int tries = 0; tries < max_tries && s_dot_n < 0.0f; tries++ ) {
-        isamp = envmap.importanceSample( rng, intersection );
-        s_dot_n = dot( isamp.ray.direction, intersection.normal);
+        isamp = envmap.importanceSample(rng, intersection);
+        s_dot_n = dot(isamp.ray.direction, intersection.normal);
     }
 
-    // Shoot a ray to see if we intersect the scene. If, we don't sample the environment map
+    // Shoot a ray to see if we intersect the scene. If we don't, then sample the environment map
     Ray shadow_ray = isamp.ray;
     RayIntersection shadow_isect;
     shadow_isect.min_distance = EPSILON;
-    if( s_dot_n > 0.0f &&
-        !scene.intersect( shadow_ray, shadow_isect ) ) {
+    if( s_dot_n >= 0.0f && !scene.intersect( shadow_ray, shadow_isect ) ) {
         // Not in shadow
         auto sample = envmap.sample(isamp.ray);
-        float cos_r_n = clampedDot( isamp.ray.direction, intersection.normal );
-        auto color = sample.color;
-        color.scale(1.0f / isamp.pdf);
-        color.scale(cos_r_n);
-        return mult( color, intersection.material->diffuse(intersection) );
+        RGBColor Li = sample.color;
+        RGBColor Lo = reflectedRadiance(intersection, Li, isamp.ray.direction);
+        Lo.scale(1.0f / isamp.pdf);
+        Lo.scale(M_PI); // TEMP
+        return Lo;
     }
 
     return RGBColor(0.0f, 0.0f, 0.0f);

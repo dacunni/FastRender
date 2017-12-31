@@ -10,9 +10,11 @@ OBJ = \
 	Boolean.o \
 	BoundingVolume.o \
 	BoundingVolumeHierarchy.o \
+    Color.o \
 	Container.o \
 	CSG.o \
     DirectAreaLightShader.o \
+    DirectEnvironmentMapShader.o \
     DirectPointLightShader.o \
 	DistributionSamplers.o \
     Editor.o \

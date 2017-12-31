@@ -1,16 +1,8 @@
-/*
- *  Color.h
- *  FastRender
- *
- *  Created by David Cunningham on 4/12/14
- *  Copyright 2014 __MyCompanyName__. All rights reserved.
- *
- */
-
 #ifndef _COLOR_H_
 #define _COLOR_H_
 
 #include <stdio.h>
+#include <iosfwd>
 #include <cmath>
 
 #define RED_BIT   0x1
@@ -35,7 +27,7 @@ class RGBColor {
 
     RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
 
-    void print() const { printf("RGBColor( %0.3f %0.3f %0.3f )\n", r, g, b ); }
+    void print() const;
 
     bool isZero() const { return r == 0.0f && g == 0.0f && b == 0.0f; }
     bool isNonNegative() const { return r >= 0.0f && g >= 0.0f && b >= 0.0f; }
@@ -58,5 +50,7 @@ inline RGBColor operator+( const RGBColor & a, const RGBColor & b )
 inline RGBColor operator*( const RGBColor & a, const RGBColor & b ) { return a.scaled(b.r, b.g, b.b); }
 inline RGBColor operator*( const RGBColor & a, float s ) { return a.scaled(s); }
 inline RGBColor operator*( float s, const RGBColor & a ) { return a.scaled(s); }
+
+std::ostream & operator<<( std::ostream & o, const RGBColor & c );
 
 #endif

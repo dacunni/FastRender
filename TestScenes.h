@@ -1,15 +1,3 @@
-/*
- *  TestScenes.h
- *  FastRender
- *
- *  Some utility functions for creating test scenes. Will hopefully eventually be subsumed by some kind
- *  of scripting or scene graph format. 
- *
- *  Created by David Cunningham on 2/22/14
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
 #ifndef _TEST_SCENES_H_
 #define _TEST_SCENES_H_
 
@@ -42,6 +30,11 @@ void addLightingTest4( std::shared_ptr<Container> container );
 void addMirrors( std::shared_ptr<Container> container );
 
 std::shared_ptr<TriangleMesh> loadMaterialTestModel( AssetLoader & loader );
+
+std::shared_ptr<HDRImageEnvironmentMap> loadStPetersEnvironmentMap();
+std::shared_ptr<HDRImageEnvironmentMap> loadUffiziEnvironmentMap();
+std::shared_ptr<HDRImageEnvironmentMap> loadRNLEnvironmentMap();
+std::shared_ptr<HDRImageEnvironmentMap> loadGraceEnvironmentMap();
 
 //
 // Test Registry
