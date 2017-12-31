@@ -1,12 +1,12 @@
 BEGIN_SCENE(MaterialTestMontageBase)
 SETUP_SCENE(
     int image_size = 128;
-    float aspect_ratio = 8;
+    float aspect_ratio = 8.3;
     image_width = image_size * aspect_ratio;
     image_height = image_size;
     TestScene::setup();
     tracer->rays_per_pixel = 5;
-    float half_fov_y = 0.05;
+    float half_fov_y = 0.045;
     float half_fov_x = aspect_ratio * half_fov_y;
     tracer->camera.setFocalPlaneDimensions( -half_fov_x, half_fov_x, -half_fov_y, half_fov_y );
 
@@ -48,8 +48,9 @@ std::shared_ptr<TriangleMesh> meshes[num_meshes];
 BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10, -1, -10,
                                                      10, 0, 10 );
-    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
-    container->add( floor, checkerboard_material );
+    auto floor_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    //auto floor_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    container->add( floor, floor_material );
 
     for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
         auto mesh = loadMaterialTestModel( loader );

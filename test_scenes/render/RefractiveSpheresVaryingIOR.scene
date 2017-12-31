@@ -35,6 +35,14 @@ BUILD_SCENE(
     sphere->material = std::make_shared<RefractiveMaterial>(2.5);
     container->add( sphere );
 
+    // Walls
+#if 1
+    auto wall = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -10.0,
+                                     +10.0, 10.0, -10.0 );
+    wall->material = std::make_shared<DiffuseMaterial>( 0.8, 0.8, 1.0 );
+    container->add( wall );
+#endif
+
     // Colored strips to show refraction from background objects
     auto cube = std::make_shared<AxisAlignedSlab>( -10.0, 0.0, -2.0,
                                      +10.0, 0.15, -2.15 );

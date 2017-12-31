@@ -832,7 +832,7 @@ int main (int argc, char * const argv[])
 
     //RoomSceneWithSpheres::run();
     //RoomSceneWithSpheresCookTorrance::run();
-    RoomSceneWithManyRefractiveSpheres::run();
+    //RoomSceneWithManyRefractiveSpheres::run();
 
     //SpheresPointLight::run();
     //SpheresColoredPointLights::run();
@@ -844,7 +844,7 @@ int main (int argc, char * const argv[])
 
     //RefractiveSpheresAndCubes::run();
     //RefractiveBunniesVaryingIOR::run();
-    //RefractiveSpheresVaryingIOR::run();
+    RefractiveSpheresVaryingIOR::run();
     //RefractiveSphereEmissiveObjectCaustic::run();
 #endif
     

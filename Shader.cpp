@@ -17,7 +17,7 @@ bool Shader::inShadow( const Scene & scene,
     shadow_isect.min_distance = EPSILON;
     if( scene.intersect( shadow_ray, shadow_isect ) ) {
         float dist_sq_to_isect = sq(shadow_isect.distance + shadow_isect.min_distance);
-        if( dist_sq_to_isect < dist_sq_to_light) {
+        if( dist_sq_to_isect < dist_sq_to_light ) {
             return true;
         }
     }
@@ -148,7 +148,7 @@ RGBColor Shader::reflectedRadiance( const RayIntersection & intersection,
                                     const RGBColor & Li,
                                     const Vector4 & lightDirection )
 {
-    float cos_r_n = clampedDot( lightDirection, intersection.normal ); 
+    float cos_r_n = clampedDot(lightDirection, intersection.normal); 
 
     // TODO: should kd be based on fresnel?
     float ks = intersection.material->specularity();

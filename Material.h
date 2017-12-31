@@ -56,11 +56,15 @@ class Material
         Material() {}
         virtual ~Material() {}
 
-        std::string name() { return typeid(*this).name(); }
+        std::string name() const { return typeid(*this).name(); }
 
-        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
+        DistributionSample sampleHemisphereUniform( RandomNumberGenerator & rng,
+                                                    const RayIntersection & intersection ) const;
+        DistributionSample sampleCosineLobe( RandomNumberGenerator & rng,
+                                             const RayIntersection & intersection ) const;
 
         // FIXME - stopgap
         virtual bool isEmitter() { return emittance.r > 0.0 || emittance.g > 0.0 || emittance.b > 0.0; }
@@ -99,7 +103,7 @@ class DiffuseMaterial : public Material
         }
         virtual ~DiffuseMaterial() {}
 
-        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 };
@@ -128,7 +132,7 @@ class DiffuseCheckerBoardMaterial : public Material
         
         virtual RGBColor diffuse( const RayIntersection & isect );
 
-        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 
@@ -176,7 +180,7 @@ class MirrorMaterial : public Material
 
         virtual ~MirrorMaterial() {}
 
-        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) { return 1.0f; }
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const { return 1.0f; }
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 };
@@ -205,7 +209,7 @@ class RefractiveMaterial : public Material
 
         virtual ~RefractiveMaterial() {}
 
-        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) { return 1.0f; }
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const { return 1.0f; }
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 };
@@ -233,7 +237,7 @@ class CookTorranceMaterial : public Material
 
         virtual float specularity() { return specular; }
 
-        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo );
+        virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const;
         // TODO
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;

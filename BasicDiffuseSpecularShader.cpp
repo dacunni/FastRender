@@ -82,9 +82,15 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 }
                 RGBColor Li = new_intersection.sample.color;
                 RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
-                // FIXME: Fix importance sampling scaling
-                Lo.scale(1.0f/sample.pdf_sample);
-                Lo.scale(M_PI); // FIXME: This seems to be necessary
+                if(sample.pdf_sample != DistributionSample::DIRAC_PDF_SAMPLE) {
+                    // FIXME: Fix importance sampling scaling
+                    Lo.scale(1.0f/sample.pdf_sample);
+                    Lo.scale(M_PI); // FIXME: This seems to be necessary
+                }
+
+                //assert(Lo.isNonNegative()); // TEMP
+                //assert(Lo.isFinite()); // TEMP
+
                 diffuse_contrib.accum( Lo );
             }
             else if( !sample_env_maps

@@ -7,27 +7,66 @@
 std::shared_ptr<Material> DEFAULT_MATERIAL = std::make_shared<DiffuseMaterial>();
 
 float
-Material::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
+Material::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const
 {
     printf("BxDF is not overridden!!! (%s)\n", typeid(*this).name());
     return 1.0f / M_PI; // Perfectly diffuse
 }
 
+DistributionSample Material::sampleHemisphereUniform( RandomNumberGenerator & rng,
+                                                      const RayIntersection & intersection ) const
+{
+    DistributionSample sample;
+    rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
+    //sample.pdf_sample = 1.0f / (2.0f * M_PI);
+    // Special case for diffuse. reflectedRadiance() already accounts for the divide by
+    // pi for diffuse, so as long as we're doing uniform sampling in sampleBxDF, we should
+    // return unity here so things balance out appropriately.
+    sample.pdf_sample = 1.0f;
+    sample.direction.makeDirection();
+    return sample;
+}
+
+DistributionSample Material::sampleCosineLobe( RandomNumberGenerator & rng,
+                                               const RayIntersection & intersection ) const
+{
+    DistributionSample sample;
+
+    // FIXME: There must be a faster way
+
+    // Generate an arbitrary direction to help us make a basis for tangent space.
+    // The likelyhood that this is pointing in the same direction as the normal is very low.
+    Vector4 elsewhere; rng.uniformVolumeUnitCube(elsewhere);
+    Vector4 tangent = cross(elsewhere, intersection.normal).normalized();
+    Vector4 bitangent = cross(intersection.normal, tangent).normalized();
+
+    // Randomly generate a direction from a cosine-weighted pdf centered about the normal
+    Vector4 R; rng.cosineUnitHalfSphere(R);
+    sample.direction = R.x * tangent + R.y * bitangent + R.z * intersection.normal;
+    sample.direction.makeDirection();
+    sample.pdf_sample = dot(sample.direction, intersection.normal) / M_PI;
+
+    //sample.pdf_sample *= M_PI; // TEMP - FIXME - this shouldn't be here
+    sample.pdf_sample *= 2.0 * M_PI; // TEMP - FIXME - this shouldn't be here
+
+    return sample;
+}
+
+#define USE_COSINE_SAMPLING
+
 DistributionSample
 Material::sampleBxDF( RandomNumberGenerator & rng,
                       const RayIntersection & intersection ) const
 {
-    // Perfectly diffuse surface
-    DistributionSample sample;
-    rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
-    sample.direction.makeDirection();
-    //sample.pdf_sample = 1.0f / (2.0f * M_PI);
-    sample.pdf_sample = 1.0f; // see DiffuseMaterial
-    return sample;
+#ifdef USE_COSINE_SAMPLING
+    return sampleCosineLobe(rng, intersection);
+#else
+    return sampleHemisphereUniform(rng, intersection);
+#endif
 }
 
 float
-DiffuseMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
+DiffuseMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const
 {
     return 1.0f / M_PI; // Perfectly diffuse
 }
@@ -36,16 +75,11 @@ DistributionSample
 DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
                              const RayIntersection & intersection ) const
 {
-    // Perfectly diffuse surface
-    DistributionSample sample;
-    rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
-    sample.direction.makeDirection();
-    //sample.pdf_sample = 1.0f / (2.0f * M_PI);
-    // Special case for diffuse. reflectedRadiance() already accounts for the divide by
-    // pi for diffuse, so as long as we're doing uniform sampling in sampleBxDF, we should
-    // return unity here so things balance out appropriately.
-    sample.pdf_sample = 1.0f;
-    return sample;
+#ifdef USE_COSINE_SAMPLING
+    return sampleCosineLobe(rng, intersection);
+#else
+    return sampleHemisphereUniform(rng, intersection);
+#endif
 }
 
 RGBColor
@@ -61,7 +95,7 @@ DiffuseCheckerBoardMaterial::diffuse( const RayIntersection & isect ) {
 }
 
 float
-DiffuseCheckerBoardMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
+DiffuseCheckerBoardMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const
 {
     return 1.0f / M_PI; // Perfectly diffuse
 }
@@ -84,14 +118,13 @@ DiffuseTextureMaterial::diffuse( const RayIntersection & isect )
 
 DistributionSample
 DiffuseCheckerBoardMaterial::sampleBxDF( RandomNumberGenerator & rng,
-                             const RayIntersection & intersection ) const
+                                         const RayIntersection & intersection ) const
 {
-    // Perfectly diffuse surface
-    DistributionSample sample;
-    rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
-    sample.direction.makeDirection();
-    sample.pdf_sample = 1.0f / (2.0f * M_PI);
-    return sample;
+#ifdef USE_COSINE_SAMPLING
+    return sampleCosineLobe(rng, intersection);
+#else
+    return sampleHemisphereUniform(rng, intersection);
+#endif
 }
 
 DistributionSample
@@ -161,27 +194,30 @@ CookTorranceMaterial::sampleBxDF( RandomNumberGenerator & rng,
                                   const RayIntersection & intersection ) const
 {
     DistributionSample sample;
-    //if(roughness < 0.01) {
-    //    // TODO: Do we need to handle 0 roughness like a mirror?
-    //    // Perfect mirror - PDF if a Dirac delta function
-    //    sample.direction = mirror( intersection.fromDirection(), intersection.normal );
-    //    sample.pdf_sample = DistributionSample::DIRAC_PDF_SAMPLE;
-    //}
-    //else {
-        // TODO: Sample the distribution. This is sampling like a perfectly diffuse distribution
-        rng.uniformSurfaceUnitHalfSphere( intersection.normal, sample.direction );
+#if 0
+    if(roughness < 0.01) {
+        // TODO: Do we need to handle 0 roughness like a mirror?
+        // Perfect mirror - PDF if a Dirac delta function
+        sample.direction = mirror( intersection.fromDirection(), intersection.normal );
         sample.direction.makeDirection();
-        // FIXME: Special case for sampling diffuse. reflectedRadiance() already accounts for the divide by
-        // pi for diffuse, so as long as we're doing uniform sampling in sampleBxDF, we should
-        // return unity here so things balance out appropriately.
-        sample.pdf_sample = 1.0f;
-        //sample.pdf_sample = 1.0f / (2.0f * M_PI);
-    //}
+        sample.pdf_sample = DistributionSample::DIRAC_PDF_SAMPLE;
+    }
+    else {
+#endif
+        // TODO: Sample the distribution. This is sampling like a perfectly diffuse distribution
+#ifdef USE_COSINE_SAMPLING
+        return sampleCosineLobe(rng, intersection);
+#else
+        return sampleHemisphereUniform(rng, intersection);
+#endif
+#if 0
+    }
+#endif
     return sample;
 }
 
 float
-CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo )
+CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const
 {
     const float NdV = dot(normal, wi);
     const float NdL = dot(normal, wo);

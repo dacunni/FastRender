@@ -169,46 +169,152 @@ void testSamplePDF2D()
 #endif
 }
 
-#if 0 // FIXME - Use new BxDF that accounts for in and out direction
-void validateBxDF(const Material & material)
+// Hemisphere direction generator, useful for easily iterating over directions in the hemisphere
+class HemisphereDirectionGenerator
+{
+    public:
+        HemisphereDirectionGenerator(unsigned int nThetaSteps, unsigned int nPhiSteps)
+            : numThetaSteps(nThetaSteps), numPhiSteps(nPhiSteps) {}
+
+        // iteration
+        void reset() { currentIndex = 0; }
+        void next() { currentIndex++; thetaIndex = currentIndex / numPhiSteps; phiIndex = currentIndex % numPhiSteps; }
+        bool done() const { return currentIndex >= numThetaSteps * numPhiSteps; }
+
+        // state of current iteration step
+        float theta()     const { return ((float) thetaIndex + 0.5) / numThetaSteps * M_PI * 0.5; }
+        float phi()       const { return ((float) phiIndex + 0.5) / numPhiSteps * 2.0 * M_PI; }
+
+        float x()         const { return cosf(phi()) * sinf(theta()); }
+        float y()         const { return sinf(phi()) * sinf(theta()); }
+        float z()         const { return cosf(theta()); }
+        Vector4 vector()  const { return Vector4(x(), y(), z()); }
+
+        float dtheta()    const { return 0.5 * M_PI / (float) numThetaSteps; }
+        float dphi()      const { return 2.0 * M_PI / (float) numPhiSteps; }
+        float dArea()     const { return dtheta() * dphi() * sinf(theta()); }
+        float dAreaProj() const { return dArea() * cosf(theta()); }
+
+    protected:
+        unsigned int currentIndex = 0;
+        unsigned int thetaIndex = 0;
+        unsigned int phiIndex = 0;
+        unsigned int numThetaSteps;
+        unsigned int numPhiSteps;
+};
+
+bool validateBxdfConservesEnergyForOutDirection(const Material & material, const Vector4 & wo)
 {
     const unsigned int numThetaSteps = 100;
     const unsigned int numPhiSteps = 400;
-    const float dtheta = M_PI * 0.5 / (float) numThetaSteps;
-    const float dphi = 2.0 * M_PI / (float) numPhiSteps;
-
-    RayIntersection isect;
-    isect.position = Vector4(0, 0, 0);
-    isect.normal = Vector4(0, 0, 1);
-
+    const float integralEpsilon = 0.01;
+    Vector4 normal(0, 0, 1);
     float areaSum = 0.0;
     float integral = 0.0;
 
-    for(unsigned int thetaIndex = 0; thetaIndex < numThetaSteps; thetaIndex++) {
-        float theta = ((float) thetaIndex + 0.5) / numThetaSteps * M_PI * 0.5;
-        float dArea = dtheta * dphi * sinf(theta);
-        for(unsigned int phiIndex = 0; phiIndex < numPhiSteps; phiIndex++) {
-            float phi = ((float) phiIndex + 0.5) / numPhiSteps * 2.0 * M_PI;
-            float x = cosf(phi) * sinf(theta);
-            float y = sinf(phi) * sinf(theta);
-            float z = cosf(theta);
-            float dAreaProj = dArea * cosf(theta);
+    HemisphereDirectionGenerator dirGen(numThetaSteps, numPhiSteps);
 
-            Vector4 fromDirection(x, y, z);
-            isect.ray.origin = fromDirection;
-            isect.ray.direction = fromDirection.negated();
+    for(; !dirGen.done(); dirGen.next()) {
+        Vector4 wi = dirGen.vector();
+        //std::cout << wi << std::endl;
+        float bxdfValue = material.BxDF(normal, wi, wo);
+        integral += bxdfValue * dirGen.dAreaProj();
+        areaSum += dirGen.dArea();
+    }
 
-            float bxdfValue = material.BxDF(isect);
-            integral += bxdfValue * dAreaProj;
+    //std::string name = material.name();
+    //printf("%s integral(BxDF*dAreaProj) = %f\n", name.c_str(), integral);
 
-            areaSum += dArea;
+    if(integral > 1.0f + integralEpsilon) {
+        std::string name = material.name();
+        printf("%s integral(BxDF*dAreaProj) = %f should integrate to <= 1.0\n", name.c_str(), integral);
+    }
+
+    return integral <= 1.0f + integralEpsilon;
+}
+
+void validateBxdfConservesEnergy(const Material & material)
+{
+    const unsigned int numThetaSteps = 25;
+    const unsigned int numPhiSteps = 100;
+    bool success = true;
+
+    HemisphereDirectionGenerator dirGen(numThetaSteps, numPhiSteps);
+
+    for(; !dirGen.done(); dirGen.next()) {
+        Vector4 wo = dirGen.vector();
+        //std::cout << wo << std::endl;
+        success = success && validateBxdfConservesEnergyForOutDirection(material, wo);
+    }
+
+    std::string name = typeid(material).name();
+    printf("%s integral : %s\n", name.c_str(), success ? "PASS" : "FAIL");
+}
+
+void validateBxdfIsNonNegative(const Material & material)
+{
+    const unsigned int numThetaSteps = 25;
+    const unsigned int numPhiSteps = 100;
+    Vector4 normal(0, 0, 1);
+    bool success = true;
+
+    HemisphereDirectionGenerator dirGen1(numThetaSteps, numPhiSteps);
+    HemisphereDirectionGenerator dirGen2(numThetaSteps, numPhiSteps);
+
+    for(; !dirGen1.done(); dirGen1.next()) {
+        Vector4 wi = dirGen1.vector();
+        for(; !dirGen2.done(); dirGen2.next()) {
+            Vector4 wo = dirGen2.vector();
+            float bxdfValue = material.BxDF(normal, wi, wo);
+
+            if(bxdfValue < 0.0f) {
+                std::cout << "BxDF is negative for " << wi << ", " << wo << std::endl;
+            }
+            success = success && (bxdfValue >= 0.0f);
         }
     }
 
     std::string name = typeid(material).name();
-    printf("%s integral(BxDF*dAreaProj) = %f\n", name.c_str(), integral);
+    printf("%s is non negative : %s\n", name.c_str(), success ? "PASS" : "FAIL");
 }
-#endif
+
+void validateBxdfHelmholtzReciprocity(const Material & material)
+{
+    const unsigned int numThetaSteps = 25;
+    const unsigned int numPhiSteps = 100;
+    Vector4 normal(0, 0, 1);
+    bool success = true;
+    const float bxdfCompareEpsilon = 0.0001f;
+
+    HemisphereDirectionGenerator dirGen1(numThetaSteps, numPhiSteps);
+    HemisphereDirectionGenerator dirGen2(numThetaSteps, numPhiSteps);
+
+    for(; !dirGen1.done(); dirGen1.next()) {
+        Vector4 wi = dirGen1.vector();
+        for(; !dirGen2.done(); dirGen2.next()) {
+            Vector4 wo = dirGen2.vector();
+            float bxdfFwd = material.BxDF(normal, wi, wo);
+            float bxdfRev = material.BxDF(normal, wo, wi);
+            float absdiff = fabs(bxdfFwd - bxdfRev);
+
+            if(absdiff > bxdfCompareEpsilon) {
+                std::cout << "Helmholtz reciprocity violated for " << wi << ", " << wo
+                    << " : fwd " << bxdfFwd << " rev " << bxdfRev << std::endl;
+            }
+            success = success && (fabs(bxdfFwd - bxdfRev) <= bxdfCompareEpsilon);
+        }
+    }
+
+    std::string name = typeid(material).name();
+    printf("%s Helmholtz reciprocity : %s\n", name.c_str(), success ? "PASS" : "FAIL");
+}
+
+void validateBxDF(const Material & material)
+{
+    validateBxdfIsNonNegative(material);
+    validateBxdfHelmholtzReciprocity(material);
+    validateBxdfConservesEnergy(material);
+}
 
 int main (int argc, char * const argv[]) 
 {
@@ -223,11 +329,17 @@ int main (int argc, char * const argv[])
     rng.seedCurrentTime();
 
     // PDF Sampling
-    testSamplePDF1D();
-    testSamplePDF2D();
+    //testSamplePDF1D();
+    //testSamplePDF2D();
 
-    // BRDF Validation
-    //validateBxDF(DiffuseMaterial(1.0, 1.0, 1.0));
+    // BxDF Validation
+    printf("BxDF Validation\n");
+    validateBxDF(DiffuseMaterial(1.0, 1.0, 1.0));
+    validateBxDF(DiffuseCheckerBoardMaterial(1.0, 1.0, 1.0));
+    validateBxDF(DiffuseUVMaterial());
+    validateBxDF(MirrorMaterial(1.0, 1.0, 1.0));
+    validateBxDF(CookTorranceMaterial(1.0, 1.0, 1.0));
+
 
     total_run_timer.stop();
     printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());
