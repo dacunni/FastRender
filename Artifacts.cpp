@@ -208,6 +208,11 @@ void Artifacts::setPixelDepth( unsigned int row, unsigned int col, float depth )
     auto pindex = row * width + col;
 
 #if 1
+    float near = 1.0f;
+    float far = 20.0f;
+    //depth = (2.0 * near) / (far + near - depth * (far - near));
+    depth = (depth - near) / (far - near);
+#elif 1
     depth = log2f(depth);
 #else
     depth = (1.0 - (depth - 3.0) / 20.0);
