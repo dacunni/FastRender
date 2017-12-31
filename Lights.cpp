@@ -124,7 +124,7 @@ LightSample RectangleAreaLight::sampleSurface( RandomNumberGenerator & rng ) con
     };
     
     sample.position.x = rng.uniformRange( -xdim * 0.5, xdim * 0.5 );
-    sample.position.y = rng.uniformRange( -zdim * 0.5, zdim * 0.5 );
+    sample.position.z = rng.uniformRange( -zdim * 0.5, zdim * 0.5 );
 
     return sample;
 }
