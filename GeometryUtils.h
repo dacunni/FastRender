@@ -51,6 +51,7 @@ float fresnelDialectricPerpendicular( float cos_i, float cos_t, float n_i, float
 float fresnelDialectricSnell( float cos_i, float n_i, float n_t );
 float fresnelDialectricParallelSnell( float cos_i, float n_i, float n_t );
 float fresnelDialectricPerpendicularSnell( float cos_i, float n_i, float n_t );
+float fresnelDialectricSchlick( float F0, float cos_t );
 
 float fresnelConductor( float cos_i, float n, float k );
 

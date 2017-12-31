@@ -241,7 +241,7 @@ CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Ve
     // TODO: Derive F0 from the indices of refraction
     //float F0 = 0.25;
     float F0 = 0.75;
-    float F = F0 + (1.0 - F0) * pow(1.0 - VdH, 5);
+    float F = fresnelDialectricSchlick(F0, VdH);
 
     // Geometric attenuation according to Blinn
     float G1 = 2.0 * NdH * NdV / VdH;

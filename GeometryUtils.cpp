@@ -1,13 +1,4 @@
-/*
- *  GeometryUtils.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 12/18/2015.
- *  Copyright 2015 __MyCompanyName__. All rights reserved.
- *
- */
-
-#include <math.h>
+#include <cmath>
 
 #include "Vector.h"
 #include "GeometryUtils.h"
@@ -134,6 +125,12 @@ float fresnelDialectricPerpendicularSnell( float cos_i, float n_i, float n_t )
     float angle_i = acos(cos_i);
     float angle_t = snellsLawAngle(n_i, angle_i, n_t);
     return fresnelDialectricPerpendicular(cos_i, cos(angle_t), n_i, n_t);
+}
+
+// Schlick approximation for Fresnel of a dialectric
+float fresnelDialectricSchlick( float F0, float cos_t )
+{
+    return F0 + (1.0f - F0) * std::pow(1.0f - cos_t, 5.0f);
 }
 
 // Fresnel formula for reflectance of a conductive material (eg: metals)
