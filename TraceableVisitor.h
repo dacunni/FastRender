@@ -1,14 +1,7 @@
-/*
- *  TraceableVisitor.h
- *  FastRender
- *
- */
-
 #ifndef _TRACEABLE_VISITOR_H_
 #define _TRACEABLE_VISITOR_H_
 
 #include <string>
-#include <iostream>
 
 class Traceable;
 class FlatContainer;

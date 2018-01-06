@@ -21,8 +21,7 @@ public:
     // IndexTriangle represents a single triangle, whose
     // vertices are in the TriangleMesh's vertices array.
     // It stores indices into this array.
-    class IndexTriangle {
-    public:
+    struct IndexTriangle {
         std::string toJSON() const;
         unsigned int vi[3];
     };

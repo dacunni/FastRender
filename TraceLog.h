@@ -1,17 +1,8 @@
-/*
- *  TraceLog.h
- *  FastRender
- *
- *  Created by David Cunningham on 12/12/16.
- *  Copyright 2016 __MyCompanyName__. All rights reserved.
- *
- */
-
 #ifndef _TRACE_LOG_H_
 #define _TRACE_LOG_H_
 
 #include <vector>
-#include <ostream>
+#include <iosfwd>
 #include "Ray.h"
 
 class Traceable;

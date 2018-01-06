@@ -1,4 +1,6 @@
 
+#include <iostream>
+#include <fstream>
 #include "TraceLog.h"
 
 

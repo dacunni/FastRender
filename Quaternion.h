@@ -1,15 +1,7 @@
-/*
- *  Quaternion.h
- *  FastRender
- *
- *  Created by David Cunningham on 8/32/16.
- *  Copyright 2016 __MyCompanyName__. All rights reserved.
- *
- */
 #ifndef _QUATERNION_H_
 #define _QUATERNION_H_
 
-#include <fstream>
+#include <iosfwd>
 #include <stdio.h>
 #include "Vector.h"
 
