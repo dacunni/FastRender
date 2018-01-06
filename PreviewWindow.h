@@ -58,6 +58,13 @@ private:
     GLuint pixelCountTex = 0;
 
     float update_rate_sec = 0.3;
+    
+    // Image adjustments
+    float gain = 1.0f;
+    float gainAdjustMultiplier = 1.15;
+    float bias = 0.0f;
+    float biasAdjustIncrement = 0.05;
+    bool flagUnnaturalValues = false;
 };
 
 #endif /* defined(__FastRender__PreviewWindow__) */

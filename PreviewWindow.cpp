@@ -63,6 +63,9 @@ void PreviewWindow::init()
         uniform usampler2D pixelCount;
         uniform bool divideByCount;
         uniform bool grayInRed;
+        uniform float gain;
+        uniform float bias;
+        uniform bool flagUnnatural;
         in vec2 vUV;
         out vec4 color;
          
@@ -79,6 +82,22 @@ void PreviewWindow::init()
                 // Divide pixel accumulation buffer by sample count to get pixel color
                 color = color / texture( pixelCount, vUV ).r;
             }
+
+            // Image adjustments
+            color = (color + bias) * gain;
+
+            if( flagUnnatural ) {
+                if( any(lessThan(color.rgb, vec3(0.0))) ) {
+                    color.rgb = vec3(1.0, 0.0, 1.0);
+                }
+                if( any(isnan(color.rgb)) ) {
+                    color.rgb = vec3(1.0, 1.0, 0.0);
+                }
+                if( any(isinf(color.rgb)) ) {
+                    color.rgb = vec3(0.0, 1.0, 1.0);
+                }
+            }
+
             color.a = 1.0;
         }
     )glsl";
@@ -209,6 +228,10 @@ void PreviewWindow::repaintViewport()
     }
     GL_WARN_IF_ERROR();
 
+    glUniform1f( glGetUniformLocation( imgShaderProgram.id, "gain" ), gain );
+    glUniform1f( glGetUniformLocation( imgShaderProgram.id, "bias" ), bias );
+    glUniform1i( glGetUniformLocation( imgShaderProgram.id, "flagUnnatural" ), (int) flagUnnaturalValues );
+
     glClearColor( 0.2, 0.2, 0.3, 1.0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     //glEnable( GL_DEPTH_TEST );
@@ -225,9 +248,35 @@ void PreviewWindow::repaintViewport()
 
 void PreviewWindow::keyPressed( unsigned char key, int x, int y )
 {
-    if( key == ' ' ) {
-        activeImage = (ImageArtifact) ((int) (activeImage + 1) % NumImageArtifacts);
-        glutPostRedisplay();
+    switch(key) {
+        // Cycle through images
+        case ' ':
+            activeImage = (ImageArtifact) ((int) (activeImage + 1) % NumImageArtifacts);
+            glutPostRedisplay();
+            break;
+        // Multiplicative image adjustment
+        case 'q':
+            gain /= gainAdjustMultiplier;
+            glutPostRedisplay();
+            break;
+        case 'w':
+            gain *= gainAdjustMultiplier;
+            glutPostRedisplay();
+            break;
+        // Additive image adjustment
+        case 'a':
+            bias -= biasAdjustIncrement;
+            glutPostRedisplay();
+            break;
+        case 's':
+            bias += biasAdjustIncrement;
+            glutPostRedisplay();
+            break;
+        // Flag values that are impossible (negatives, ...)
+        case 'f':
+            flagUnnaturalValues = !flagUnnaturalValues;
+            glutPostRedisplay();
+            break;
     }
 }
 
