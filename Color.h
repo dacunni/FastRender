@@ -31,7 +31,7 @@ class RGBColor {
 
     bool isZero() const { return r == 0.0f && g == 0.0f && b == 0.0f; }
     bool isNonNegative() const { return r >= 0.0f && g >= 0.0f && b >= 0.0f; }
-    bool isFinite() const { return isfinite(r) && isfinite(g) && isfinite(b); }
+    bool isFinite() const { return std::isfinite(r) && std::isfinite(g) && std::isfinite(b); }
 
     union {
         struct {
