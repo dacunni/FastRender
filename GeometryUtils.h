@@ -9,6 +9,8 @@
 #ifndef _GEOMETRY_UTILS_H_
 #define _GEOMETRY_UTILS_H_
 
+#include <algorithm>
+
 template <typename T>
 inline T clamp( T value, const T low, const T high ) {
     return std::max(low, std::min(value, high));

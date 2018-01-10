@@ -75,9 +75,6 @@ UNAME_S := $(shell uname -s)
 # Compiler flags
 #
 INC = -I.
-INC += -I/usr/local/include
-INC += -I/usr/include/ImageMagick
-INC += -I/usr/local/include/ImageMagick-6
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 CXXFLAGS += -O2
@@ -93,6 +90,16 @@ ifeq ($(UNAME_S),Darwin)
     # Silence "gl.h and gl3.h are both included.  Compiler will not invoke errors if using removed OpenGL functionality."
     CXXFLAGS += -D__gl_h_ -DGL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 endif
+
+ifeq ($(UNAME_S),Linux)
+    CXXFLAGS += `pkg-config --cflags ImageMagick++`
+else
+    CXXFLAGS += -I/usr/local/include
+    CXXFLAGS += -I/usr/include/ImageMagick
+    CXXFLAGS += -I/usr/local/include/ImageMagick-6
+endif
+
+
 #CXXFLAGS += -v
 
 #
@@ -100,18 +107,23 @@ endif
 #
 LDXXFLAGS += -L/usr/local/lib
 #LDXXFLAGS += -e _main -lassimp -lm -lc
-LDXXFLAGS += -framework GLUT -framework OpenGL
+ifeq ($(UNAME_S),Darwin)
+    LDXXFLAGS += -framework GLUT -framework OpenGL
+else
+    LDXXFLAGS += -lglut -lGLU -lGL
+endif
 ifeq ($(UNAME_S),Linux)
     # FIXME: HACKHACK
     LDXXFLAGS += -L/usr/lib/gcc/x86_64-amazon-linux/4.8.3/
 endif
-LDXXFLAGS += -lassimp -lm -lc
+LDXXFLAGS += -lassimp -lpthread -lm -lc
 ifeq ($(UNAME_S),Darwin)
     #LDXXFLAGS += -lc++
     #LDXXFLAGS += -mmacosx-version-min=10.10
     LDXXFLAGS += -lMagick++-6.Q16
 else
-    LDXXFLAGS += -lMagick++
+    #LDXXFLAGS += -lMagick++
+    LDXXFLAGS += `pkg-config --libs ImageMagick++`
 endif
 # Linux
 #LDXXFLAGS += -lstdc++
@@ -128,6 +140,7 @@ test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 #all: fr tests
 #all: fr fredit tests libFastRender.so benchmarks unittests
 all: tests
+#all: fr fredit tests libFastRender.so benchmarks unittests
 #all: fr fredit tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 

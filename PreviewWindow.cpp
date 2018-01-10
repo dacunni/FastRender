@@ -39,7 +39,9 @@ void PreviewWindow::init()
     glutInit( &argc, const_cast<char **>(argv) );
     glutInitDisplayMode( GLUT_DOUBLE              // Double buffered
                          | GLUT_RGBA | GLUT_DEPTH
+#ifdef __APPLE__
                          | GLUT_3_2_CORE_PROFILE  // Core profile context
+#endif
                          );
     glutInitWindowSize( window_width, window_height );
     glutInitWindowPosition( 0, 0 );
