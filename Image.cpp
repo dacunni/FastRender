@@ -21,11 +21,12 @@ Image::Image()
 
 }
 
-Image::Image( unsigned int w, unsigned int h )
+Image::Image( unsigned int w, unsigned int h, unsigned int c )
     : width(w),
-      height(h)
+      height(h),
+      channels(c)
 {
-    data.resize(w * h);
+    data.resize(width * height * channels);
 }
 
 Image::~Image()
@@ -33,5 +34,9 @@ Image::~Image()
 
 }
 
+void Image::sizeDataToConfig()
+{
+    data.resize(width * height * channels);
+}
 
 

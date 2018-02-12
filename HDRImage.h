@@ -1,11 +1,3 @@
-/*
- *  HDRImage.h
- *  FastRender
- *
- *  Created by David Cunningham on 2/8/17.
- *
- */
-
 #ifndef _HDRIMAGE_H_
 #define _HDRIMAGE_H_
 
@@ -25,8 +17,13 @@ class HDRImage : public Image {
         // TODO: Clean this up and make a grayscale image type
         void toGray( std::vector<float> & grayData ) const;
 
-        // Clear values using the mask
+        void set( float value );
+
+        // Clear values using the mask (params: u,v)
         void maskUV( const std::function<bool(float,float)> & mask );
+
+        // Apply a scaling factor at uv (params: u,v)
+        void applyScalingUV( const std::function<float(float,float)> & scale );
 
         void loadDataFromFile( const std::string & filename,
                                unsigned int w, unsigned int h);

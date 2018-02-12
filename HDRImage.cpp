@@ -1,11 +1,3 @@
-/*
- *  HDRImage.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 2/8/17.
- *
- */
-
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -15,7 +7,7 @@
 #include "Color.h"
 
 HDRImage::HDRImage( unsigned int w, unsigned int h )
-    : Image(w, h)
+    : Image(w, h, 3)
 {
 
 }
@@ -44,11 +36,13 @@ void HDRImage::loadDataFromFile( const std::string & filename,
         file.close();
         width = w;
         height = h;
+        channels = 3;
     }
     else {
         printf("Error reading data from %s\n", filename.c_str());
         width = 0;
         height = 0;
+        channels = 3;
     }
 }
 
@@ -59,6 +53,17 @@ void HDRImage::toGray( std::vector<float> & grayData ) const
         grayData[i] = (data[3 * i + 0] +
                        data[3 * i + 1] +
                        data[3 * i + 2]) / 3.0f;
+    }
+}
+
+void HDRImage::set( float value )
+{
+    for( unsigned int row = 0; row < height; row++ ) {
+        for( unsigned int col = 0; col < width; col++ ) {
+            data[3 * (row * width + col) + 0] = value;
+            data[3 * (row * width + col) + 1] = value;
+            data[3 * (row * width + col) + 2] = value;
+        }
     }
 }
 
@@ -73,6 +78,20 @@ void HDRImage::maskUV( const std::function<bool(float,float)> & mask )
                 data[3 * (row * width + col) + 1] = 0.0f;
                 data[3 * (row * width + col) + 2] = 0.0f;
             }
+        }
+    }
+}
+
+void HDRImage::applyScalingUV( const std::function<float(float,float)> & scale )
+{
+    for( unsigned int row = 0; row < height; row++ ) {
+        for( unsigned int col = 0; col < width; col++ ) {
+            float v = (float) row / height;
+            float u = (float) col / width;
+            float s = scale(u, v);
+            data[3 * (row * width + col) + 0] *= s;
+            data[3 * (row * width + col) + 1] *= s;
+            data[3 * (row * width + col) + 2] *= s;
         }
     }
 }
