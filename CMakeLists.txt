@@ -18,8 +18,11 @@ set(SRCS
     BoundingVolume.cpp
     BoundingVolumeHierarchy.cpp
     CSG.cpp
+    Color.cpp
+    CookTorranceMaterial.cpp
     Container.cpp
     DirectAreaLightShader.cpp
+    DirectEnvironmentMapShader.cpp
     DirectPointLightShader.cpp
     DistributionSamplers.cpp
     Editor.cpp
