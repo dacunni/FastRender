@@ -1,15 +1,8 @@
-//
-//  Vector.hpp
-//  FastRender
-//
-//  Created by David Cunningham on 8/3/13.
-//
-//
-
 #ifndef FastRender_Vector_hpp
 #define FastRender_Vector_hpp
 
 #include <cmath>
+#include <algorithm>
 #include "GeometryUtils.h"
 
 inline Vector4::Vector4()

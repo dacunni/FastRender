@@ -1,11 +1,3 @@
-/*
- *  Image.h
- *  FastRender
- *
- *  Created by David Cunningham on 2/8/17.
- *
- */
-
 #ifndef _IMAGE_H_
 #define _IMAGE_H_
 
@@ -17,12 +9,15 @@
 class Image {
     public:
         Image();
-        Image( unsigned int w, unsigned int h );
+        Image( unsigned int w, unsigned int h, unsigned int c );
         virtual ~Image();
+
+        void sizeDataToConfig();
 
         std::vector<float> data;
         unsigned int width;
         unsigned int height;
+        unsigned int channels;
 };
 
 

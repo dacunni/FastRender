@@ -26,7 +26,7 @@ RGBImage::RGBImage()
 }
 
 RGBImage::RGBImage( unsigned int w, unsigned int h )
-    : Image(w, h)
+    : Image(w, h, 3)
 {
 
 }
@@ -60,11 +60,13 @@ void RGBImage::loadDataFromRawFile( const std::string & filename,
         file.close();
         width = w;
         height = h;
+        channels = 3;
     }
     else {
         printf("Error reading data from %s\n", filename.c_str());
         width = 0;
         height = 0;
+        channels = 3;
     }
 }
 
