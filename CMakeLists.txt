@@ -18,8 +18,11 @@ set(SRCS
     BoundingVolume.cpp
     BoundingVolumeHierarchy.cpp
     CSG.cpp
+    Color.cpp
+    CookTorranceMaterial.cpp
     Container.cpp
     DirectAreaLightShader.cpp
+    DirectEnvironmentMapShader.cpp
     DirectPointLightShader.cpp
     DistributionSamplers.cpp
     Editor.cpp
@@ -65,7 +68,7 @@ ADD_EXECUTABLE (fr main.cpp)
 ADD_EXECUTABLE (test_materials test_materials.cpp)
 ADD_EXECUTABLE (test_render test_render.cpp)
 
-SET(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated")
+SET(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated -O2")
 
 include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${ASSIMP_INCLUDE_DIRS})
