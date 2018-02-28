@@ -30,6 +30,8 @@ class ImageTracer
         void setCameraTransform( const Transform & xform ) { camera.transform = xform; }
         void setCameraTransform( const std::function<Transform(float)> & xform_cb ) { camera_transform_cb = xform_cb; }
 
+        void setAnimationCallback( const std::function<void(float)> & anim_cb ) { animation_cb = anim_cb; }
+
         virtual void render();
         virtual void renderPixel( unsigned int row, unsigned int col,
                                   unsigned int num_rays );
@@ -70,7 +72,10 @@ class ImageTracer
         // Frame rendering
         // Blend factor from 0.0 to 1.0 throughout animation
         float anim_progress = 0.0f;
+        // A callback function for animating the camera transform
         std::function<Transform(float)> camera_transform_cb;
+        // A callback function for updating state for each frame
+        std::function<void(float)> animation_cb;
 
         // Pixel rendering
         Timer pixel_render_timer;

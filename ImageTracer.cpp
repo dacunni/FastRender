@@ -196,6 +196,10 @@ void ImageTracer::beginFrame( unsigned int frame_index )
     }
     //camera.transform.print();
 
+    if( animation_cb ) {
+        animation_cb( anim_progress );
+    }
+
     scene->updateAnim( anim_progress );
 }
 
