@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef FastRender_Vector_hpp
-#define FastRender_Vector_hpp
+#ifndef FastRender_Quaternion_hpp
+#define FastRender_Quaternion_hpp
 
 #include <cmath>
 #include "GeometryUtils.h"
@@ -42,24 +42,28 @@ inline void Quaternion::set( float xn, float yn, float zn, float rn )
 	data[3] = rn;
 }
 
-inline void       mult( const Quaternion & q, const Quaternion & p, Quaternion & r )
+inline void mult( const Quaternion & q, const Quaternion & p, Quaternion & r )
 {
     // IMPLEMENT ME
 }
 
 inline Quaternion mult( const Quaternion & q, const Quaternion & p )
 {
+    Quaternion r;
     // IMPLEMENT ME
+    return r;
 }
 
-inline void       rotate( const Quaternion & q, const Vector4 & v, Vector4 & r )
+inline void rotate( const Quaternion & q, const Vector4 & v, Vector4 & r )
 {
     // IMPLEMENT ME
 }
 
 inline Quaternion rotate( const Quaternion & q, const Vector4 & v )
 {
+    Quaternion r;
     // IMPLEMENT ME
+    return r;
 }
 
 
