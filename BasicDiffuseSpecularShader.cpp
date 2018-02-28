@@ -26,8 +26,6 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     //const unsigned char max_depth = 3;
     //const unsigned char max_depth = 2;
 
-    Vector4 from_dir = intersection.fromDirection();
-
     // Asserts
     intersection.normal.assertIsUnity();
     intersection.normal.assertIsDirection();
@@ -82,19 +80,27 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 }
                 RGBColor Li = new_intersection.sample.color;
                 RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
-                if(sample.pdf_sample != DistributionSample::DIRAC_PDF_SAMPLE) {
+                if(sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE) {
+                    Lo = Li;
+                }
+                else {
                     Lo.scale(1.0f/sample.pdf_sample);
                     Lo.scale(M_PI); // FIXME: This seems to be necessary
                 }
                 diffuse_contrib.accum( Lo );
             }
             else if( !sample_env_maps
-                     || (scene.env_map && !scene.env_map->canImportanceSample()) )
+                     || (scene.env_map && !scene.env_map->canImportanceSample())
+                     || sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE
+                     )
             {
                 if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
                     RGBColor Li = new_intersection.sample.color;
                     RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
-                    if(sample.pdf_sample != DistributionSample::DIRAC_PDF_SAMPLE) {
+                    if(sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE) {
+                        Lo = Li;
+                    }
+                    else {
                         Lo.scale(1.0f/sample.pdf_sample);
                         Lo.scale(M_PI); // FIXME: This seems to be necessary
                     }

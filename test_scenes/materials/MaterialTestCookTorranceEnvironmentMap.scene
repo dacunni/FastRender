@@ -8,7 +8,8 @@ SETUP_SCENE(
 std::shared_ptr<AreaLight> light;
 BUILD_SCENE(
     MaterialTestBase::buildScene();
-    scene->env_map = loadStPetersEnvironmentMap();
+    //scene->env_map = loadStPetersEnvironmentMap();
+    scene->env_map = loadRNLEnvironmentMap();
 );
 END_SCENE()
 
@@ -29,6 +30,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestCookTorranceEnvironmentMap::buildScene();
+    //mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 0.0 );
     mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 0.01 );
 );
 END_SCENE()
@@ -122,8 +124,8 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(MaterialTestCookTorranceEnvironmentMapSweepRoughnessLowVaryingColors, MaterialTestMontageTwoParamBase)
 SETUP_SCENE(
     MaterialTestMontageTwoParamBase::setup();
-    //tracer->shader = new BasicDiffuseSpecularShader();
-    tracer->shader = new DirectEnvironmentMapShader();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    //tracer->shader = new DirectEnvironmentMapShader();
     tracer->rays_per_pixel = 30;
 );
 BUILD_SCENE(
@@ -138,3 +140,23 @@ BUILD_SCENE(
 );
 END_SCENE()
 
+#if 0
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceAnimateRoughnessEnvironmentMap, MaterialTestCookTorranceEnvironmentMap)
+SETUP_SCENE(
+    //image_width = image_height = 128;
+    MaterialTestCookTorranceEnvironmentMap::setup();
+    //tracer->rays_per_pixel = 5;
+);
+BUILD_SCENE(
+    MaterialTestCookTorranceEnvironmentMap::buildScene();
+    auto material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 0.01 );
+    mesh->material = material;
+    tracer->setAnimationCallback(
+        [material](float anim_progress) {
+            float min_roughness = 0.01, max_roughness = 1.0;
+            material->roughness = (max_roughness - min_roughness) * anim_progress + min_roughness;
+        });
+);
+END_SCENE()
+#endif

@@ -157,6 +157,8 @@ RGBColor Shader::reflectedRadiance( const RayIntersection & intersection,
     RGBColor specular = RGBColor(ks * bxdf);
     RGBColor Lo = (diffuse + specular) * Li * cos_r_n;
 
+    assert(Lo.isFinite());
+
     return Lo;
 }
 

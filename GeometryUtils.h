@@ -1,13 +1,7 @@
-/*
- *  GeometryUtils.h
- *  FastRender
- *
- *  Created by David Cunningham on 12/18/2015
- *  Copyright 2015 __MyCompanyName__. All rights reserved.
- *
- */
 #ifndef _GEOMETRY_UTILS_H_
 #define _GEOMETRY_UTILS_H_
+
+#include <algorithm>
 
 template <typename T>
 inline T clamp( T value, const T low, const T high ) {

@@ -43,6 +43,9 @@ int main (int argc, char * const argv[])
             if( argc > 2 && std::string(argv[2]) == "stereo" ) {
                 stereoMaterialTests = true;
             }
+            if( argc > 2 && std::string(argv[2]) == "preview" ) {
+                showPreviewWindow = true;
+            }
             int first, last;
             if(sscanf(argv[1], "%d-%d", &first, &last) == 2) {
                 for(int index = first; index <= last; index++) {

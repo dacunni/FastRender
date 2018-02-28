@@ -13,7 +13,7 @@ SETUP_SCENE(
     // Don't show the preview window, because we currently have no way to
     // make it close when complete. It will therefor force the first test
     // to hang indefinitely when complete.
-    tracer->show_preview_window = false;
+    tracer->show_preview_window = showPreviewWindow;
 
     if( animateMaterialTests ) {
         tracer->num_frames = 32;
