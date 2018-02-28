@@ -118,7 +118,25 @@ void RandomNumberGenerator::cosineUnitHalfSphere( float & x, float & y, float & 
 void RandomNumberGenerator::cosineUnitHalfSphere( Vector4 & v )
 {
     cosineUnitHalfSphere( v.x, v.y, v.z );
-    v.w = 1.0;
+    v.w = 1.0f;
+}
+
+void RandomNumberGenerator::beckmanNDF( float roughness, float & x, float & y, float & z )
+{
+    if(roughness <= 0.0f) { x = y = 0.0f; z = 1.0f; }
+    const float u1 = uniform01(), u2 = uniform01();
+    const float phi = 2.0 * M_PI * u2;
+    const float theta = atanf(sqrtf(-roughness * roughness * std::log(u1)));
+    const float sin_theta = std::sin(theta);
+    x = sin_theta * std::cos(phi);
+    y = sin_theta * std::sin(phi);
+    z = std::cos(theta);
+}
+
+void RandomNumberGenerator::beckmanNDF( float roughness, Vector4 & v )
+{
+    beckmanNDF( roughness, v.x, v.y, v.z );
+    v.w = 1.0f;
 }
 
 // Generate a random 3D point within the unit cube

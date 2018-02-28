@@ -37,8 +37,16 @@ public:
     void uniformSurfaceUnitSphere( Vector4 & v );
     void uniformSurfaceUnitHalfSphere( const Vector4 & half_space, Vector4 & v );
     void uniformConeDirection( const Vector4 & dir, float angle, Vector4 & v );
+
+    // Distribution sampling
+    //   Convention:
+    //      +z out of surface
+    //      phi measured CCW about z, with phi=0 is x+ axis
+    //      theta measured from +z axis, with theta=0 is z+ axis
     void cosineUnitHalfSphere( float & x, float & y, float & z );
     void cosineUnitHalfSphere( Vector4 & v );
+    void beckmanNDF( float roughness, float & x, float & y, float & z );
+    void beckmanNDF( float roughness, Vector4 & v );
     
     void uniformVolumeUnitCube( float & x, float & y, float & z );
     void uniformVolumeUnitCube( Vector4 & v );
