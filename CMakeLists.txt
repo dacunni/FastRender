@@ -63,10 +63,14 @@ set(SRCS
     Vector.cpp
     )
 
-ADD_LIBRARY(FastRender ${SRCS})
+ADD_LIBRARY(FastRender SHARED ${SRCS})
+
 ADD_EXECUTABLE (fr main.cpp)
 ADD_EXECUTABLE (test_materials test_materials.cpp)
 ADD_EXECUTABLE (test_render test_render.cpp)
+ADD_EXECUTABLE (test_ray_trace test_ray_trace.cpp)
+ADD_EXECUTABLE (test_samplers test_samplers.cpp)
+ADD_EXECUTABLE (test_random test_random.cpp)
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated -O2")
 
@@ -78,7 +82,6 @@ link_directories(/usr/local/lib)
 
 set(LIBS
     -L/usr/local/lib
-    FastRender
     ${ASSIMP_LIBRARIES}
     ${GLUT_LIBRARY}
     ${GLU_LIBRARY}
@@ -87,7 +90,12 @@ set(LIBS
     m
     c)
 
-TARGET_LINK_LIBRARIES (fr ${LIBS})
-TARGET_LINK_LIBRARIES (test_materials ${LIBS})
-TARGET_LINK_LIBRARIES (test_render ${LIBS})
+TARGET_LINK_LIBRARIES (FastRender ${LIBS})
+
+TARGET_LINK_LIBRARIES (fr FastRender ${LIBS})
+TARGET_LINK_LIBRARIES (test_materials FastRender ${LIBS})
+TARGET_LINK_LIBRARIES (test_render FastRender ${LIBS})
+TARGET_LINK_LIBRARIES (test_ray_trace FastRender ${LIBS})
+TARGET_LINK_LIBRARIES (test_samplers FastRender ${LIBS})
+TARGET_LINK_LIBRARIES (test_random FastRender ${LIBS})
 
