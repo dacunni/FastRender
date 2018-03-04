@@ -1,11 +1,3 @@
-//
-//  Quaternion.hpp
-//  FastRender
-//
-//  Created by David Cunningham on 8/21/2016.
-//
-//
-
 #ifndef FastRender_Quaternion_hpp
 #define FastRender_Quaternion_hpp
 

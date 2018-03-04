@@ -191,15 +191,15 @@ void PreviewWindow::repaintViewport()
     glBindTexture( GL_TEXTURE_2D, pixelAccumTex );
     switch( activeImage ) {
         case FramebufferImage:
-            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, artifacts.width, artifacts.height,
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB32F, artifacts.width, artifacts.height,
                           0, GL_RGB, GL_FLOAT, &artifacts.pixel_color_accum[0] );
             break;
         case NormalsImage:
-            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, artifacts.width, artifacts.height,
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB32F, artifacts.width, artifacts.height,
                           0, GL_RGB, GL_FLOAT, &artifacts.pixel_normal[0] );
             break;
         case DepthImage:
-            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, artifacts.width, artifacts.height,
+            glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB32F, artifacts.width, artifacts.height,
                           0, GL_RED, GL_FLOAT, &artifacts.pixel_depth[0] );
             break;
         default: ;
