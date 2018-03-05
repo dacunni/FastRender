@@ -65,7 +65,8 @@ freditOBJ = $(OBJ) \
 
 test_randomOBJ = $(OBJ) test_random.o
 test_renderOBJ = $(OBJ) test_render.o
-test_materialsOBJ = $(OBJ) test_materials.o
+#test_materialsOBJ = $(OBJ) test_materials.o
+test_materialsOBJ = test_materials.o
 test_ray_traceOBJ = $(OBJ) test_ray_trace.o
 test_samplersOBJ = $(OBJ) test_samplers.o
 
@@ -122,12 +123,13 @@ freditLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 test_randomLDXXFLAGS = $(LDXXFLAGS)
 test_samplersLDXXFLAGS = $(LDXXFLAGS)
 test_renderLDXXFLAGS = $(LDXXFLAGS)
-test_materialsLDXXFLAGS = $(LDXXFLAGS)
+test_materialsLDXXFLAGS = $(LDXXFLAGS) -L. -lFastRender
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 #all: fr tests
 #all: fr fredit tests libFastRender.so benchmarks unittests
-all: tests
+all: libFastRender.so tests
+#all: tests
 #all: fr fredit tests python_bindings
 
 # Stash object files away in a separate directory so we don't have 

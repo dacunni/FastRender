@@ -29,6 +29,14 @@ FlatContainer::~FlatContainer()
     */
 }
 
+void FlatContainer::print( FILE * file ) const
+{
+    fprintf(file, "FlatContainer:\n");
+    for(const auto & child : objects) {
+        child->print(file);
+    }
+}
+
 void FlatContainer::add( std::shared_ptr<Traceable> traceable )
 {
 	objects.push_back( traceable );

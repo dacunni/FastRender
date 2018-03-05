@@ -56,12 +56,10 @@ void BoundingVolumeHierarchy::buildBottomUp( std::shared_ptr<Container> containe
     objects.sort( compare );
 
     while(1) {
-
         if( objects.size() == 1 ) {
             root = objects.front();
             return;
         }
-
         auto o = objects.front();
         objects.pop_front();
 
@@ -69,16 +67,19 @@ void BoundingVolumeHierarchy::buildBottomUp( std::shared_ptr<Container> containe
 
         // Greedily take the node with the smallest bounding volume and combine it with
         // whichever node minimizes their combined bounding volume.
-        auto o_bound = std::static_pointer_cast<AxisAlignedSlab>(o->bound);
-        float best_volume = o_bound->volume();
+        auto o1_bound = std::static_pointer_cast<AxisAlignedSlab>(o->bound);
+        float best_volume = o1_bound->volume();
+
         //std::cout << "Initial volume = " << best_volume << std::endl; // TEMP
+
         partner = objects.end();
         for( iter = objects.begin(); iter != objects.end(); ++iter ) {
             auto o2_bound = std::static_pointer_cast<AxisAlignedSlab>((*iter)->bound);
             //std::cout << "  volume = " << o2_bound->volume(); // TEMP
-            AxisAlignedSlab combined = merge( *o_bound, *o2_bound );
+            AxisAlignedSlab combined = merge( *o1_bound, *o2_bound );
             float volume = combined.volume();
             //std::cout << " , combined = " << volume << std::endl; // TEMP
+
             if( partner == objects.end() || volume < best_volume ) {
                 //std::cout << "Found better volume = " << volume << ", was = " << best_volume << std::endl; // TEMP
                 partner = iter;
@@ -92,13 +93,10 @@ void BoundingVolumeHierarchy::buildBottomUp( std::shared_ptr<Container> containe
         auto pair = std::make_shared<FlatContainer>();
         pair->add( o );
         pair->add( *partner );
-
         objects.erase( partner );
-
         objects.push_front( std::make_shared<BoundingVolume>( pair ) );
 
-        // Resort them
-        objects.sort( compare );
+        objects.sort( compare ); // Resort them
 
         std::cout << "objects.size = " << objects.size() << " best_volume = " << best_volume << std::endl; // TEMP
     }
@@ -112,7 +110,10 @@ void BoundingVolumeHierarchy::buildTopDown( std::shared_ptr<Container> container
 
 void BoundingVolumeHierarchy::print( FILE * file ) const
 {
-    // TODO
+    fprintf(file, "BVH:\n");
+    if(root) {
+        root->print(file);
+    }
 }
 
 

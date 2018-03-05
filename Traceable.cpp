@@ -14,6 +14,7 @@
 #include "Traceable.h"
 #include "TraceableVisitor.h"
 #include "Ray.h"
+#include "AxisAlignedSlab.h"
 
 Traceable::Traceable()
     : material(DEFAULT_MATERIAL)
@@ -126,5 +127,46 @@ void Traceable::visit( TraceableVisitor & visitor )
     visitor.handle(*this);
 }
 
+std::shared_ptr<AxisAlignedSlab> Traceable::getTransformedAxisAlignedBounds() const
+{
+    auto objB = getAxisAlignedBounds();
+    auto xfB = std::make_shared<AxisAlignedSlab>();
 
+    if(!transform) {
+        return objB;
+    }
+
+    float x[2] = { objB->xmin, objB->xmax };
+    float y[2] = { objB->ymin, objB->ymax };
+    float z[2] = { objB->zmin, objB->zmax };
+
+    Vector4 minCorner = mult(transform->fwd, Vector4(x[0], y[0], z[0], 1.0f));
+    Vector4 maxCorner = mult(transform->fwd, Vector4(x[0], y[0], z[0], 1.0f));
+
+    for( int xi = 0; xi < 2; xi++ ) {
+        for( int yi = 0; yi < 2; yi++ ) {
+            for( int zi = 0; zi < 2; zi++ ) {
+                Vector4 xfPoint = mult(transform->fwd, Vector4(x[xi], y[yi], z[zi], 1.0f));
+                minCorner.x = std::min(minCorner.x, xfPoint.x);
+                minCorner.y = std::min(minCorner.y, xfPoint.y);
+                minCorner.z = std::min(minCorner.z, xfPoint.z);
+                maxCorner.x = std::max(maxCorner.x, xfPoint.x);
+                maxCorner.y = std::max(maxCorner.y, xfPoint.y);
+                maxCorner.z = std::max(maxCorner.z, xfPoint.z);
+            }
+        }
+    }
+
+    minCorner = perspective_scale(minCorner);
+    maxCorner = perspective_scale(maxCorner);
+
+    xfB->xmin = minCorner.x;
+    xfB->ymin = minCorner.y;
+    xfB->zmin = minCorner.z;
+    xfB->xmax = maxCorner.x;
+    xfB->ymax = maxCorner.y;
+    xfB->zmax = maxCorner.z;
+
+    return xfB;
+}
 
