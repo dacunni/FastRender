@@ -69,7 +69,9 @@ BUILD_SCENE(
     container->add( floor, checkerboard_material );
 #endif
 
-    auto temp_container = std::make_shared<FlatContainer>();
+    const bool use_bvh = true;
+    std::shared_ptr<FlatContainer> bvh_temp_container;
+    if(use_bvh) { bvh_temp_container = std::make_shared<FlatContainer>(); }
 
     float param1; float param2;
     for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
@@ -93,14 +95,15 @@ BUILD_SCENE(
                                     makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ),
                                     makeRotation( M_PI * 0.85, Vector4( 0.0, 1.0, 0.0 ) ) );
 #endif
-            //container->add( mesh );
-            temp_container->add( mesh );
+        if(use_bvh) { bvh_temp_container->add( mesh ); }
+        else        { container->add( mesh ); }
     }
 
-    auto bvh = std::make_shared<BoundingVolumeHierarchy>();
-    bvh->build( temp_container );
-
-    container->add( bvh );
+    if(use_bvh) {
+        auto bvh = std::make_shared<BoundingVolumeHierarchy>();
+        bvh->build( bvh_temp_container );
+        container->add( bvh );
+    }
     
 );
 END_SCENE()

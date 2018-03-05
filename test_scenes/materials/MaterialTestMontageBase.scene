@@ -52,6 +52,10 @@ BUILD_SCENE(
     //auto floor_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
     container->add( floor, floor_material );
 
+    const bool use_bvh = true;
+    std::shared_ptr<FlatContainer> bvh_temp_container;
+    if(use_bvh) { bvh_temp_container = std::make_shared<FlatContainer>(); }
+
     for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
         auto mesh = loadMaterialTestModel( loader );
         auto bounds = mesh->getAxisAlignedBounds();
@@ -73,7 +77,14 @@ BUILD_SCENE(
                                     makeRotation( M_PI * 0.85, Vector4( 0.0, 1.0, 0.0 ) ) );
 #endif
         meshes[mesh_index] = mesh;
-        container->add( mesh );
+        if(use_bvh) { bvh_temp_container->add( mesh ); }
+        else        { container->add( mesh ); }
+    }
+
+    if(use_bvh) {
+        auto bvh = std::make_shared<BoundingVolumeHierarchy>();
+        bvh->build( bvh_temp_container );
+        container->add( bvh );
     }
 );
 END_SCENE()
