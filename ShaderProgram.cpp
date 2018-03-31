@@ -99,14 +99,14 @@ void ShaderProgram::use()
 GLint ShaderProgram::attribLocation( const std::string & name )
 {
     GLint loc = glGetAttribLocation(id, name.c_str());
-    std::cout << "ATTRIB " << name << " @ " << loc << std::endl;
+    //std::cout << "ATTRIB " << name << " @ " << loc << std::endl;
     return loc;
 }
 
 GLint ShaderProgram::uniformLocation( const std::string & name )
 {
     GLint loc = glGetUniformLocation(id, name.c_str());
-    std::cout << "UNIFORM " << name << " @ " << loc << std::endl;
+    //std::cout << "UNIFORM " << name << " @ " << loc << std::endl;
     return loc;
 }
 

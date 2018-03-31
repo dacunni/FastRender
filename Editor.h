@@ -5,6 +5,9 @@
 #include "OpenGLUtil.h"
 #include "EditorSceneGraph.h"
 #include "ShaderProgram.h"
+#include "Timer.h"
+#include "SimpleCamera.h"
+#include "RandomNumberGenerator.h"
 
 class Editor {
 public:
@@ -37,18 +40,30 @@ private:
     static void sMouseMotionWhileButtonPressed( int x, int y );
     static void sAnimTimer( int value );
 
+    void updateEditCamera();
+
     ShaderProgram defaultShaderProgram;
 
-    // TODO - remnants of PreviewWindow heritage. change appropriately
-    GLuint img_shader_program = 0;
-    GLuint img_vertex_shader = 0;
-    GLuint img_fragment_shader = 0;
-    GLuint img_vao = 0;
-    GLuint img_vbo = 0;
-    GLuint pixelAccumTex = 0;
-    GLuint pixelCountTex = 0;
+    float update_rate_sec = 1.0f / 20.0f; // 20 FPS
+    WallClockTimer runTimer;
 
-    float update_rate_sec = 0.3;
+    // Editor camera
+    struct EditCameraParams {
+        float az = M_PI / 4.0f;
+        float el = -0.2;
+        float azStep = 0.1;
+        float elStep = 0.1;
+        Vector4 position = Vector4(2.0, 2.0, 25.0);
+        Vector4 positionStep = Vector4(1.0, 1.0, 1.0);
+        float xmin = -0.15;
+        float xmax = +0.15;
+        float ymin = -0.15;
+        float ymax = +0.15;
+    } editCameraParams;
+    SimpleCamera editCamera;
+    RandomNumberGenerator rng;
+
+    bool drawWireframes = false;
 };
 
 #endif

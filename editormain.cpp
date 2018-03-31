@@ -6,31 +6,6 @@
 
 #include "FastRender.h"
 
-int window_width = 350;
-int window_height = 350;
-
-void viewportReshaped( int width, int height ) 
-{
-    //printf("reshape: %d x %d\n", width, height);
-    window_width = width;
-    window_height = height;
-    glViewport( 0, 0, window_width, window_height );
-    GL_WARN_IF_ERROR();
-}
-
-void repaintViewport( void ) 
-{
-    //printf("repaint\n");
-    glClearColor( 0.2, 0.2, 0.3, 1.0 );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    glEnable( GL_DEPTH_TEST );
-
-    // TODO
-
-    glDisable( GL_DEPTH_TEST );
-    glutSwapBuffers();
-}
-
 // TEMP - A test scene for developing the UI
 std::shared_ptr<Scene> buildScene()
 {

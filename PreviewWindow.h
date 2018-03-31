@@ -57,7 +57,8 @@ private:
     GLuint pixelAccumTex = 0;
     GLuint pixelCountTex = 0;
 
-    float update_rate_sec = 0.3;
+    //float update_rate_sec = 0.3;
+    float update_rate_sec = 0.03;
     
     // Image adjustments
     float gain = 1.0f;

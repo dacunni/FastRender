@@ -830,10 +830,10 @@ int main (int argc, char * const argv[])
 #else
     //testVectorTiming();
     //testMatrixTiming();
-    //testRaySphereTiming();
+    testRaySphereTiming();
     //testRayAxisAlignedSlabTiming();
     //testRayMeshBunnyTiming();
-    testRayMeshOctreeBunnyTiming();
+    //testRayMeshOctreeBunnyTiming();
     //testEnvironmentMapImportanceSamplingTiming();
 #endif
     

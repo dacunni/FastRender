@@ -7,11 +7,15 @@
 static Editor * self = nullptr;
 
 Editor::Editor()
+    :  editCamera(rng, editCameraParams.xmin, editCameraParams.xmax,
+                  editCameraParams.ymin, editCameraParams.ymax,
+                  windowWidth, windowHeight)
 {
     // FIXME: HACKHACK: Workaround for no user data pointer in GLUT. Assumes
     //        a single editor window.
     self = this;
 
+    updateEditCamera();
 }
 
 Editor::~Editor()
@@ -41,35 +45,6 @@ void Editor::init()
 
     defaultShaderProgram.loadFilesVertexFragment(defaultVertexShader, defaultFragmentShader);
 
-#if 0
-    float quad[20] = {
-        // x, y, z, u, v
-        //-1.0, -1.0, 1.0, 0.0, 1.0,
-        // 1.0, -1.0, 1.0, 1.0, 1.0,
-        //-1.0,  1.0, 1.0, 0.0, 0.0,
-        // 1.0,  1.0, 1.0, 1.0, 0.0
-        -0.5, -0.5, 0.5, 0.0, 1.0,
-         0.5, -0.5, 0.5, 1.0, 1.0,
-        -0.5,  0.5, 0.5, 0.0, 0.0,
-         0.5,  0.5, 0.5, 1.0, 0.0
-    };
-
-    glGenVertexArrays( 1, &img_vao );
-    glBindVertexArray( img_vao );
-    glGenBuffers( 1, &img_vbo );
-    glBindBuffer( GL_ARRAY_BUFFER, img_vbo );
-
-    auto position_loc = defaultShaderProgram.attribLocation("position");
-    auto uv_loc = defaultShaderProgram.attribLocation("uv");
-    glBufferData( GL_ARRAY_BUFFER, sizeof(quad), &quad[0], GL_STATIC_DRAW );
-    glVertexAttribPointer( position_loc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), NULL );
-    glEnableVertexAttribArray( position_loc );
-    GL_WARN_IF_ERROR();
-    glVertexAttribPointer( uv_loc, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)) );
-    glEnableVertexAttribArray( uv_loc );
-    GL_WARN_IF_ERROR();
-#endif
-
     GL_WARN_IF_ERROR();
 
     glutReshapeFunc(sViewportReshaped);
@@ -88,6 +63,7 @@ void Editor::buildGpuBuffers()
 
 void Editor::start()
 {
+    runTimer.start();
     glutMainLoop();
 }
 
@@ -116,32 +92,27 @@ void Editor::repaintViewport()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glEnable( GL_DEPTH_TEST );
 
-    bool drawWireframes = false;
-    //bool drawWireframes = true;
-
     if(drawWireframes)
         glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
-
-#if 0
-    glBindVertexArray( img_vao );
-    glBindBuffer( GL_ARRAY_BUFFER, img_vbo );
-    defaultShaderProgram.use();
-    glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
-    GL_WARN_IF_ERROR();
-#endif
 
     // FIXME Sample transform. This should be loaded from the scene, but
     //       we currently store it in ImageTracer. So we should either
     //       move it to the Scene or pass the tracer around here.
     RandomNumberGenerator rng; // TEMP Part of this hacky mess
+    double elapsedTime = runTimer.elapsed();
+#if 1
+    defaultShaderProgram.use();
+    editorScene.draw(editCamera, defaultShaderProgram);
+#else
     SimpleCamera camera(rng, -0.15, 0.15, -0.15, 0.15, windowWidth, windowHeight);
-    Transform rotation = compose( makeRotation( M_PI / 4, Vector4(0, 1, 0) ),
-                                  makeRotation( -0.2, Vector4(1, 0, 0) ) );
-    Transform translation = makeTranslation( 2.0, 2.0, 25.0 );
+    Transform rotation = compose( makeRotation( editCameraParams.az, Vector4(0, 1, 0) ),
+                                  makeRotation( editCameraParams.el, Vector4(1, 0, 0) ) );
+    Transform translation = makeTranslation( editCameraParams.position );
     camera.transform = compose( rotation, translation );
 
     defaultShaderProgram.use();
     editorScene.draw(camera, defaultShaderProgram);
+#endif
 
     if(drawWireframes)
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );  // Draw polygons filled
@@ -152,7 +123,21 @@ void Editor::repaintViewport()
 
 void Editor::keyPressed( unsigned char key, int x, int y )
 {
+    // rotation
+         if(key == 'q') { editCameraParams.az -= editCameraParams.azStep; }
+    else if(key == 'e') { editCameraParams.az += editCameraParams.azStep; }
+    else if(key == 'y') { editCameraParams.el -= editCameraParams.elStep; }
+    else if(key == 'h') { editCameraParams.el += editCameraParams.elStep; }
+    // translation
+    else if(key == 'a') { editCameraParams.position.x -= editCameraParams.positionStep.x; }
+    else if(key == 'd') { editCameraParams.position.x += editCameraParams.positionStep.x; }
+    else if(key == 's') { editCameraParams.position.z -= editCameraParams.positionStep.z; }
+    else if(key == 'w') { editCameraParams.position.z += editCameraParams.positionStep.z; }
+    // options
+    else if(key == 'W') { drawWireframes = !drawWireframes; }
 
+    updateEditCamera();
+    glutPostRedisplay();
 }
 
 void Editor::mouseButton( int button, int state, int x, int y )
@@ -171,4 +156,11 @@ void Editor::animTimer( int value )
     glutTimerFunc( update_rate_sec * 1000, sAnimTimer, 0 );
 }
 
+void Editor::updateEditCamera()
+{
+    Transform rotation = compose( makeRotation( editCameraParams.az, Vector4(0, 1, 0) ),
+                                  makeRotation( editCameraParams.el, Vector4(1, 0, 0) ) );
+    Transform translation = makeTranslation( editCameraParams.position );
+    editCamera.transform = compose( rotation, translation );
+}
 

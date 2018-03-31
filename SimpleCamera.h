@@ -1,12 +1,3 @@
-/*
- *  SimpleCamera.h
- *  FastRender
- *
- *  Created by David Cunningham on 8/14/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
 #ifndef _SIMPLECAMERA_H_
 #define _SIMPLECAMERA_H_
 

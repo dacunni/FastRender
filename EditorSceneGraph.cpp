@@ -23,7 +23,7 @@ ObjectEditor::~ObjectEditor()
 std::string ObjectEditor::label() { return "Object"; }
 void ObjectEditor::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
 {
-    printf("VAO %u VBO %u IBO %u numVertices %u numIndices %u\n", vertexArray, vertexBuffer, indexBuffer, numVertices, numIndices);
+    //printf("VAO %u VBO %u IBO %u numVertices %u numIndices %u\n", vertexArray, vertexBuffer, indexBuffer, numVertices, numIndices);
 
     GLuint worldLoc = shaderProgram.uniformLocation("world");
     GLuint viewLoc = shaderProgram.uniformLocation("view");
