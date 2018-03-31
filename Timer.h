@@ -1,42 +1,43 @@
-//
-//  Timer.h
-//  FastRender
-//
-//  Created by David Cunningham on 8/4/13.
-//
-//
-
-#ifndef __FastRender__Timer__
-#define __FastRender__Timer__
+#ifndef __TIMER__
+#define __TIMER__
 
 #include <sys/time.h>
 #include <time.h>
 
-#define USE_PROCESS_TIMER 1
+// FIXME - Audit uses of Timer and make change them to use
+//         the appropriate specific timer implementation
+//         and deprecate Timer
 
-class Timer {
+class ProcessorTimer {
 public:
-    Timer() : running(false), valid(false) {}
-    ~Timer() {}
+    ProcessorTimer() : running(false), valid(false) {}
+    ~ProcessorTimer() {}
     
     void start();
     void stop();
     double elapsed();
     
-    static double toDouble( const struct timeval & tm );
-    
 protected:
-    
-#if USE_PROCESS_TIMER
     clock_t start_time;
     clock_t end_time;
-#else
-    struct timeval start_time;
-    struct timeval end_time;
-#endif
     bool running;
     bool valid;
-    
 };
 
-#endif /* defined(__FastRender__Timer__) */
+using Timer = ProcessorTimer;
+
+class WallClockTimer {
+public:
+    WallClockTimer() : running(false), valid(false) {}
+    ~WallClockTimer() {}
+    void start();
+    void stop();
+    double elapsed();
+protected:
+    struct timeval start_time;
+    struct timeval end_time;
+    bool running;
+    bool valid;
+};
+
+#endif
