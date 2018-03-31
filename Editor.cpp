@@ -1,8 +1,9 @@
 #include <stdio.h>
 
-#include "RandomNumberGenerator.h" // TEMP
-#include "SimpleCamera.h"
 #include "Editor.h"
+#include "AmbientOcclusionShader.h"
+#include "BasicDiffuseSpecularShader.h"
+#include "ImageTracer.h"
 
 static Editor * self = nullptr;
 
@@ -95,24 +96,9 @@ void Editor::repaintViewport()
     if(drawWireframes)
         glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );  // Draw polygons as wireframes
 
-    // FIXME Sample transform. This should be loaded from the scene, but
-    //       we currently store it in ImageTracer. So we should either
-    //       move it to the Scene or pass the tracer around here.
-    RandomNumberGenerator rng; // TEMP Part of this hacky mess
     double elapsedTime = runTimer.elapsed();
-#if 1
     defaultShaderProgram.use();
     editorScene.draw(editCamera, defaultShaderProgram);
-#else
-    SimpleCamera camera(rng, -0.15, 0.15, -0.15, 0.15, windowWidth, windowHeight);
-    Transform rotation = compose( makeRotation( editCameraParams.az, Vector4(0, 1, 0) ),
-                                  makeRotation( editCameraParams.el, Vector4(1, 0, 0) ) );
-    Transform translation = makeTranslation( editCameraParams.position );
-    camera.transform = compose( rotation, translation );
-
-    defaultShaderProgram.use();
-    editorScene.draw(camera, defaultShaderProgram);
-#endif
 
     if(drawWireframes)
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );  // Draw polygons filled
@@ -135,6 +121,8 @@ void Editor::keyPressed( unsigned char key, int x, int y )
     else if(key == 'w') { editCameraParams.position.z += editCameraParams.positionStep.z; }
     // options
     else if(key == 'W') { drawWireframes = !drawWireframes; }
+    // actions
+    else if(key == 'R') { renderEditCameraPerspective(); return; }
 
     updateEditCamera();
     glutPostRedisplay();
@@ -162,5 +150,16 @@ void Editor::updateEditCamera()
                                   makeRotation( editCameraParams.el, Vector4(1, 0, 0) ) );
     Transform translation = makeTranslation( editCameraParams.position );
     editCamera.transform = compose( rotation, translation );
+}
+
+void Editor::renderEditCameraPerspective()
+{
+    printf("Rendering edit camera perspective\n");
+    ImageTracer tracer(windowWidth, windowHeight, 1, 4);
+    tracer.camera = editCamera;
+    tracer.scene = scene.get();
+    //tracer.shader = new AmbientOcclusionShader();
+    tracer.shader = new BasicDiffuseSpecularShader();
+    tracer.render();
 }
 

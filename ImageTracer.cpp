@@ -1,11 +1,3 @@
-/*
- *  ImageTracer.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 1/22/16.
- *  Copyright 2016 __MyCompanyName__. All rights reserved.
- *
- */
 #include <iostream>
 
 #include "ImageTracer.h"

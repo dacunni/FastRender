@@ -1,12 +1,3 @@
-/*
- *  Matrix.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 7/21/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
 #include <math.h>
 #include <stdio.h>
 #include <sstream>

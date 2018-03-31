@@ -18,6 +18,9 @@ public:
     void buildGpuBuffers();
     void start();
 
+    void renderEditCameraPerspective();
+
+    // Callbacks
     void viewportReshaped( int w, int h );
     void repaintViewport();
     void keyPressed( unsigned char key, int x, int y );

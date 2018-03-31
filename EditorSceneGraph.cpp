@@ -20,7 +20,9 @@ ObjectEditor::~ObjectEditor()
     glDeleteBuffers(1, &vertexBuffer);
     glDeleteBuffers(1, &indexBuffer);
 }
+
 std::string ObjectEditor::label() { return "Object"; }
+
 void ObjectEditor::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
 {
     //printf("VAO %u VBO %u IBO %u numVertices %u numIndices %u\n", vertexArray, vertexBuffer, indexBuffer, numVertices, numIndices);
@@ -38,7 +40,10 @@ void ObjectEditor::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
         world = object().transform->fwd;
     view.identity();
     view = camera.transform.rev;
-    projection.glProjectionSymmetric(0.2, 0.2, 0.25, 200.0); // TODO - real camera projection
+
+    float xmin, xmax, ymin, ymax;
+    camera.getFocalPlaneDimensions(xmin, xmax, ymin, ymax);
+    projection.glProjection(xmin, xmax, ymin, ymax, 1.0, 1000.0);
 
     //printf("WORLD TRANSFORM:\n"); world.print();
     //printf("VIEW:\n"); view.print();

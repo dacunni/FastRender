@@ -13,9 +13,12 @@ public:
     SimpleCamera( RandomNumberGenerator & rng,
                   float xmin, float xmax, float ymin, float ymax,
                   int image_width, int image_height );
+    SimpleCamera( const SimpleCamera & c );
 
     void setFocalPlaneDimensions( float xmin, float xmax,
                                   float ymin, float ymax );
+    void getFocalPlaneDimensions( float & xmin, float & xmax,
+                                  float & ymin, float & ymax );
     void jitterRays( bool jitter ) { jitter_rays = jitter; }
 
     Vector4 vectorThrough( int row, int col );
@@ -23,7 +26,7 @@ public:
 	
     Transform transform;
 protected:
-    RandomNumberGenerator & rng;
+    RandomNumberGenerator * rng;
     float xmin, xmax;
     float ymin, ymax;
     int image_width, image_height;

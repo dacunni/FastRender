@@ -1,11 +1,3 @@
-/*
- *  ImageTracer.h
- *  FastRender
- *
- *  Created by David Cunningham on 1/22/16.
- *  Copyright 2016 __MyCompanyName__. All rights reserved.
- *
- */
 #ifndef _IMAGE_TRACER_H_
 #define _IMAGE_TRACER_H_
 
