@@ -59,7 +59,9 @@ void Editor::init()
 
 void Editor::buildGpuBuffers()
 {
+    printf("Building GPU buffers\n");
     editorScene.buildGpuBuffers(defaultShaderProgram);
+    printf("DONE Building GPU buffers\n");
 }
 
 void Editor::start()
@@ -117,8 +119,10 @@ void Editor::keyPressed( unsigned char key, int x, int y )
     // translation
     else if(key == 'a') { editCameraParams.position.x -= editCameraParams.positionStep.x; }
     else if(key == 'd') { editCameraParams.position.x += editCameraParams.positionStep.x; }
-    else if(key == 's') { editCameraParams.position.z -= editCameraParams.positionStep.z; }
-    else if(key == 'w') { editCameraParams.position.z += editCameraParams.positionStep.z; }
+    else if(key == 's') { editCameraParams.position.z += editCameraParams.positionStep.z; }
+    else if(key == 'w') { editCameraParams.position.z -= editCameraParams.positionStep.z; }
+    else if(key == 'r') { editCameraParams.position.y += editCameraParams.positionStep.y; }
+    else if(key == 'f') { editCameraParams.position.y -= editCameraParams.positionStep.y; }
     // options
     else if(key == 'W') { drawWireframes = !drawWireframes; }
     // actions
@@ -144,10 +148,15 @@ void Editor::animTimer( int value )
     glutTimerFunc( update_rate_sec * 1000, sAnimTimer, 0 );
 }
 
+Transform Editor::cameraRotation()
+{
+    return compose( makeRotation( editCameraParams.az, Vector4(0, 1, 0) ),
+                    makeRotation( editCameraParams.el, Vector4(1, 0, 0) ) );
+}
+
 void Editor::updateEditCamera()
 {
-    Transform rotation = compose( makeRotation( editCameraParams.az, Vector4(0, 1, 0) ),
-                                  makeRotation( editCameraParams.el, Vector4(1, 0, 0) ) );
+    Transform rotation = cameraRotation();
     Transform translation = makeTranslation( editCameraParams.position );
     editCamera.transform = compose( rotation, translation );
 }
@@ -160,6 +169,7 @@ void Editor::renderEditCameraPerspective()
     tracer.scene = scene.get();
     //tracer.shader = new AmbientOcclusionShader();
     tracer.shader = new BasicDiffuseSpecularShader();
+    tracer.scene->buildLightList();
     tracer.render();
 }
 

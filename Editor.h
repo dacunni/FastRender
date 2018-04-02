@@ -43,6 +43,7 @@ private:
     static void sMouseMotionWhileButtonPressed( int x, int y );
     static void sAnimTimer( int value );
 
+    Transform cameraRotation();
     void updateEditCamera();
 
     ShaderProgram defaultShaderProgram;
@@ -57,7 +58,7 @@ private:
         float azStep = 0.1;
         float elStep = 0.1;
         Vector4 position = Vector4(2.0, 2.0, 25.0);
-        Vector4 positionStep = Vector4(1.0, 1.0, 1.0);
+        Vector4 positionStep = Vector4(0.25, 0.25, 1.0);
         float xmin = -0.15;
         float xmax = +0.15;
         float ymin = -0.15;
