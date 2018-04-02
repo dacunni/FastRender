@@ -159,6 +159,7 @@ public:
 #define BUILD_SCENE(BODY) \
     virtual void buildScene() { \
         BODY; \
+        scene->root = container; \
     }
 
 #define END_SCENE() \

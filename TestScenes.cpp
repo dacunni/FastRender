@@ -132,7 +132,6 @@ void TestScene::buildScene()
 
 void TestScene::render()
 {
-	scene->root = container;
     tracer->scene = scene;
     tracer->scene->buildLightList();
     tracer->render();
