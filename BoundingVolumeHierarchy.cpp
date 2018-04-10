@@ -7,6 +7,7 @@
 #include "BoundingVolumeHierarchy.h"
 #include "AxisAlignedSlab.h"
 #include "FlatContainer.h"
+#include "TraceableVisitor.h"
 
 
 bool BoundingVolumeHierarchy::intersect( const Ray & ray, RayIntersection & intersection ) const
@@ -116,5 +117,8 @@ void BoundingVolumeHierarchy::print( FILE * file ) const
     }
 }
 
-
+void BoundingVolumeHierarchy::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
+}
 

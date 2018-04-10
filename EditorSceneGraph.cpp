@@ -9,6 +9,8 @@
 #include "TriangleMesh.h"
 #include "ShaderProgram.h"
 #include "SimpleCamera.h"
+#include "BoundingVolume.h"
+#include "BoundingVolumeHierarchy.h"
 
 ObjectEditor::ObjectEditor()
 {
@@ -155,6 +157,28 @@ class FlatContainerEditor : public ObjectEditor {
         virtual Traceable & object() const { return obj; }
 
         FlatContainer & obj;
+};
+
+class BoundingVolumeEditor : public ObjectEditor {
+    public:
+        BoundingVolumeEditor(BoundingVolume & o) : obj(o) {}
+        ~BoundingVolumeEditor() {}
+
+        virtual std::string label() { return "Bounding Volume"; }
+        virtual Traceable & object() const { return obj; }
+
+        BoundingVolume & obj;
+};
+
+class BoundingVolumeHierarchyEditor : public ObjectEditor {
+    public:
+        BoundingVolumeHierarchyEditor(BoundingVolumeHierarchy & o) : obj(o) {}
+        ~BoundingVolumeHierarchyEditor() {}
+
+        virtual std::string label() { return "Bounding Volume Hierarchy"; }
+        virtual Traceable & object() const { return obj; }
+
+        BoundingVolumeHierarchy & obj;
 };
 
 class TriangleMeshEditor : public ObjectEditor {
@@ -325,7 +349,7 @@ class EditorSceneGraphBuilder : public TraceableVisitor {
         }
 
         virtual void handle( FlatContainer & t ) {
-            //std::cout << std::string(buildStack.size(), '\t') << "building FlatContainer" << std::endl;
+            std::cout << std::string(buildStack.size(), ' ') << "building FlatContainer" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new FlatContainerEditor(t));
             if(!sceneGraph.root) { sceneGraph.root = node; }
             else { add(node); }
@@ -336,19 +360,39 @@ class EditorSceneGraphBuilder : public TraceableVisitor {
             buildStack.pop_back();
         }
         virtual void handle( Sphere & t ) {
-            //std::cout << std::string(buildStack.size(), '\t') << "building Sphere" << std::endl;
+            std::cout << std::string(buildStack.size(), ' ') << "building Sphere" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new SphereEditor(t));
             add(node);
         }
         virtual void handle( AxisAlignedSlab & t ) {
-            //std::cout << std::string(buildStack.size(), '\t') << "building AxisAlignedSlab" << std::endl;
+            std::cout << std::string(buildStack.size(), ' ') << "building AxisAlignedSlab" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new AxisAlignedSlabEditor(t));
             add(node);
         }
         virtual void handle( TriangleMesh & t ) {
-            //std::cout << std::string(buildStack.size(), '\t') << "building TriangleMesh" << std::endl;
+            std::cout << std::string(buildStack.size(), ' ') << "building TriangleMesh" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new TriangleMeshEditor(t));
             add(node);
+        }
+        virtual void handle( BoundingVolumeHierarchy & t ) {
+            std::cout << std::string(buildStack.size(), ' ') << "building BoundingVolumeHierarchy" << std::endl;
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new BoundingVolumeHierarchyEditor(t));
+            add(node);
+            if(t.root) {
+                buildStack.push_back(node);
+                walk(*t.root);
+                buildStack.pop_back();
+            }
+        }
+        virtual void handle( BoundingVolume & t ) {
+            std::cout << std::string(buildStack.size(), ' ') << "building BoundingVolume" << std::endl;
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new BoundingVolumeEditor(t));
+            add(node);
+            if(t.object) {
+                buildStack.push_back(node);
+                walk(*t.object);
+                buildStack.pop_back();
+            }
         }
 
         void add(EditorSceneGraphNode * node) {
@@ -372,13 +416,13 @@ EditorSceneGraph::~EditorSceneGraph()
 
 void EditorSceneGraph::build( Scene & scene )
 {
-    std::cout << "SCENE" << std::endl; // TEMP
+    //std::cout << "SCENE" << std::endl; // TEMP
     build(*scene.root);
 }
 
 void EditorSceneGraph::build( Traceable & traceable )
 {
-    std::cout << "TRACEABLE" << std::endl; // TEMP
+    //std::cout << "TRACEABLE " << &traceable << std::endl; // TEMP
     EditorSceneGraphBuilder builder(*this);
     builder.walk(traceable);
 }

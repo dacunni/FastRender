@@ -11,6 +11,7 @@
 #include "BoundingVolume.h"
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
+#include "TraceableVisitor.h"
 
 BoundingVolume::BoundingVolume( std::shared_ptr<Traceable> o )
 {
@@ -71,6 +72,11 @@ void BoundingVolume::print( FILE * file ) const
             object->print();
         }
     }
+}
+
+void BoundingVolume::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
 }
 
 

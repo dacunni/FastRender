@@ -11,6 +11,7 @@ out vec4 vObjSpacePosition;
 out vec4 vPosition;
 out vec4 vWorldPosition;
 out vec4 vNormal;
+out vec4 vScreenNormal;
 out vec2 vUV;
 
 void main()
@@ -22,8 +23,9 @@ void main()
     gl_Position = vPosition;
 
     // Transform normal
-    vNormal = vec4(normal.xyz, 0.0); // fix up the w component just in case
-    vNormal = world * normalize(vNormal);
+    vNormal = normalize(vec4(normal.xyz, 0.0)); // fix up the w component just in case
+    vNormal = world * vNormal;
+    vScreenNormal = view * vNormal;
 
     vUV = uv;
 }

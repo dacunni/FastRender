@@ -73,8 +73,8 @@ BUILD_SCENE(
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
     //mesh->material = mirror_material;
-    //mesh->material = refractive_material;
-    mesh->material = white_material;
+    mesh->material = refractive_material;
+    //mesh->material = white_material;
 
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 1.0 ),

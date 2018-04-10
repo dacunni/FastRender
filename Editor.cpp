@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <iostream>
 
 #include "Editor.h"
 #include "AmbientOcclusionShader.h"
 #include "BasicDiffuseSpecularShader.h"
+#include "GoochShader.h"
 #include "ImageTracer.h"
 
 static Editor * self = nullptr;
@@ -41,8 +43,8 @@ void Editor::init()
     
     std::string shaderPath = "shaders/";
     std::string defaultVertexShader = shaderPath + "basic.vs";
-    //std::string defaultFragmentShader = shaderPath + "basic.fs";
-    std::string defaultFragmentShader = shaderPath + "normals.fs";
+    std::string defaultFragmentShader = shaderPath + "gooch.fs";
+    //std::string defaultFragmentShader = shaderPath + "normals.fs";
 
     defaultShaderProgram.loadFilesVertexFragment(defaultVertexShader, defaultFragmentShader);
 
@@ -127,6 +129,7 @@ void Editor::keyPressed( unsigned char key, int x, int y )
     else if(key == 'W') { drawWireframes = !drawWireframes; }
     // actions
     else if(key == 'R') { renderEditCameraPerspective(); return; }
+    else if(key == 'C') { std::cout << editCamera.transform.toJSON() << std::endl; return; }
 
     updateEditCamera();
     glutPostRedisplay();
@@ -169,6 +172,7 @@ void Editor::renderEditCameraPerspective()
     tracer.scene = scene.get();
     //tracer.shader = new AmbientOcclusionShader();
     tracer.shader = new BasicDiffuseSpecularShader();
+    //tracer.shader = new GoochShader();
     tracer.scene->buildLightList();
     tracer.render();
 }

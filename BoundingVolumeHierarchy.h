@@ -26,6 +26,7 @@ public:
     void buildTopDown( std::shared_ptr<Container> container );
 
     virtual void print( FILE * file = stdout ) const;
+    virtual void visit( TraceableVisitor & visitor );
 
     std::shared_ptr<BoundingVolume> root = nullptr;
 };

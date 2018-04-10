@@ -48,13 +48,38 @@ std::shared_ptr<Scene> buildScene()
     return scene;
 }
 
+// TEMP
+std::string output_path = "testoutput";
+const std::string modelBasePath = "models";
+#include "test_scenes/render/SanMiguel.scene"
+#include "test_scenes/render/DabrovicSponza.scene"
+#include "test_scenes/render/SimpleCube.scene"
+#include "test_scenes/render/BunnyEtcDiffusePointLights.scene"
+#include "test_scenes/render/RefractiveSpheresAndCubes.scene"
+#include "test_scenes/render/RefractiveSpheresVaryingIOR.scene"
+#include "test_scenes/render/GridRoom.scene"
+#include "test_scenes/render/MirrorSphereColoredSpheresArcLight.scene"
+#include "test_scenes/render/UVMesh.scene"
+
 int main (int argc, char * const argv[]) 
 {
     Editor editor;
 
     editor.init();
 
+#if 1
+    //RefractiveSpheresVaryingIOR test(output_path);
+    DabrovicSponza test(output_path);
+    //SanMiguel test(output_path);
+    //GridRoomSceneWithBunny test(output_path);
+    //MirrorSphereColoredSpheresArcLight test(output_path);
+    //UVMesh test(output_path);
+    test.setup();
+    test.buildScene();
+    editor.scene = std::shared_ptr<Scene>(test.scene);
+#else
     editor.scene = buildScene();
+#endif
     editor.editorScene.build(*editor.scene);
     editor.editorScene.print();
 

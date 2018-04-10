@@ -8,6 +8,8 @@ class FlatContainer;
 class Sphere;
 class AxisAlignedSlab;
 class TriangleMesh;
+class BoundingVolumeHierarchy;
+class BoundingVolume;
 
 // Visitor object for a scene graph made of Traceable objects.
 //
@@ -36,6 +38,8 @@ class TraceableVisitor {
         virtual void handle( Sphere & t );
         virtual void handle( AxisAlignedSlab & t );
         virtual void handle( TriangleMesh & t );
+        virtual void handle( BoundingVolumeHierarchy & t );
+        virtual void handle( BoundingVolume & t );
 };
 
 

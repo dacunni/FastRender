@@ -26,6 +26,7 @@ public:
     virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const;
 
     virtual void print( FILE * file = stdout ) const;
+    virtual void visit( TraceableVisitor & visitor );
     
     std::shared_ptr<Traceable> bound;
     std::shared_ptr<Traceable> object;
