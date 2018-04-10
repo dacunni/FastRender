@@ -110,7 +110,33 @@ BUILD_SCENE(
     container->add( mesh );
 );
 END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithLunarLander, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
 
+    //auto mesh = loader.load( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    //auto mesh = loader.loadMultiPart( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    auto mesh = loader.loadMultiPartMerged( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    //auto meshes = loader.loadMultiPart( modelBasePath + "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    auto bounds = mesh->getAxisAlignedBounds();
+    auto texture = std::make_shared<SurfaceTexture>( "uvgrid.jpg" );
+    mesh->material = std::make_shared<DiffuseTextureMaterial>(texture);
+    mesh->print();
+
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                //makeRotation( M_PI * 0.25, Vector4( 0, 1, 0 ) ),
+                                makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ) );
+    container->add( mesh );
+);
+END_SCENE()
 // ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(GridRoomSceneWithTexturedMonkey, GridRoomScene)
 SETUP_SCENE(
