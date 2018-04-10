@@ -45,6 +45,15 @@ void Transform::print()
     rev.print();
 }
 
+std::string Transform::toString() const
+{
+    std::stringstream ss;
+    ss << "trans"
+       << " fwd: " << fwd.toString()
+       << " rev: " << fwd.toString();
+    return ss.str();
+}
+
 std::string Transform::toJSON() const
 {
     std::stringstream ss;

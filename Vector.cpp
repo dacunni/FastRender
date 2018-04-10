@@ -28,12 +28,17 @@ void Vector4::fprintCSV( FILE * file ) const
 	fprintf( file, "%f,%f,%f,%f\n", data[0], data[1], data[2], data[3] );
 }
 
+std::string Vector4::toString() const
+{
+    std::stringstream ss;
+    ss << x << "," << y << "," << z << "," << w;
+    return ss.str();
+}
+
 std::string Vector4::toJSON() const
 {
     std::stringstream ss;
-
     ss << "[" << x << "," << y << "," << z << "," << w << "]";
-    
     return ss.str();
 }
 

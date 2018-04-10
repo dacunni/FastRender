@@ -37,6 +37,7 @@ public:
 
     std::string className() const;
     virtual void print( FILE * file = stdout ) const;
+    virtual std::string toString() const;
     virtual std::string toJSON() const;
     virtual void visit( TraceableVisitor & visitor );
 

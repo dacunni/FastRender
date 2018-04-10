@@ -60,6 +60,7 @@ public:
 
     virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const;
 
+    virtual std::string toString() const;
     virtual std::string toJSON() const;
     virtual void visit( TraceableVisitor & visitor );
 

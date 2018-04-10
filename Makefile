@@ -126,11 +126,12 @@ test_renderLDXXFLAGS = $(LDXXFLAGS)
 test_materialsLDXXFLAGS = $(LDXXFLAGS) -L. -lFastRender
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
-all: libFastRender.so fr fredit tests
-#all: fr fredit tests libFastRender.so benchmarks unittests
-#all: libFastRender.so tests
-#all: tests
-#all: fr fredit tests python_bindings
+TARGETS = libFastRender.so fr fredit
+#TARGETS += tests
+#TARGETS += benchmarks unittests
+TARGETS += python_bindings
+
+all: $(TARGETS)
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
@@ -235,7 +236,7 @@ unittests/raysphere: unittests/raysphere.cpp $(HDR) libFastRender.so
 PYTHON_BINDING_OBJ = FastRender_wrap.o $(OBJ)
 PYTHON_BINDING_OBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(PYTHON_BINDING_OBJ))
 FastRender_wrap.cpp: FastRender.i $(HDR)
-	swig -python -c++ -o FastRender_wrap.cpp $(INC) FastRender.i 
+	swig -python -c++ -builtin -o FastRender_wrap.cpp $(INC) FastRender.i 
 $(OBJDIR)/FastRender_wrap.o: FastRender_wrap.cpp
 	g++ -o $(OBJDIR)/FastRender_wrap.o -c FastRender_wrap.cpp $(CXXFLAGS) $(INC) `python-config --includes`
 _FastRender.so: $(PYTHON_BINDING_OBJ_IN_DIR)

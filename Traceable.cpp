@@ -9,6 +9,7 @@
 
 #include <typeinfo>
 #include <cfloat>
+#include <sstream>
 
 #include "Material.h"
 #include "Traceable.h"
@@ -115,6 +116,13 @@ void Traceable::print( FILE * file ) const
     fprintf( file, "Traceable (%s) has_xform: %s\n",
              className().c_str(),
              transform ? "yes" : "no" );
+}
+
+std::string Traceable::toString() const
+{
+    std::stringstream ss;
+    ss << "traceable";
+    return ss.str();
 }
 
 std::string Traceable::toJSON() const

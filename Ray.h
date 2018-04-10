@@ -2,6 +2,7 @@
 #define _RAY_H_
 
 #include <memory>
+#include <string>
 #include <float.h>
 
 #include "Vector.h"
@@ -19,6 +20,8 @@ public:
     Ray() : depth(1) {}
     Ray( const Vector4 & o, const Vector4 & d ) : origin(o), direction(d), depth(1) {}
     ~Ray() {}
+
+    std::string toString() const;
 
     Vector4 origin;
     Vector4 direction;

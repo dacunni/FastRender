@@ -33,6 +33,7 @@ public:
     void invert() { Matrix4x4 r = rev; rev = fwd; fwd = r; }
 
     void print();
+    std::string toString() const;
     std::string toJSON() const;
     
     // Members

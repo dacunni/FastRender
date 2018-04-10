@@ -25,11 +25,12 @@ public:
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
+    virtual std::string toString() const;
     virtual std::string toJSON() const;
     virtual void visit( TraceableVisitor & visitor );
 
 	Vector4 center;
-	float radius;
+	float radius = 0.0f;
     
     static unsigned long intersection_test_count;       // Counts the number of intersection tests against
                                                         // objects of this class    

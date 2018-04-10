@@ -366,6 +366,18 @@ std::string TriangleMesh::IndexTriangle::toJSON() const
     return ss.str();
 }
 
+std::string TriangleMesh::toString() const
+{
+    std::stringstream ss;
+
+    ss << "trimesh"
+       << " vertices: " << vertices.size()
+       << " normals: " << normals.size()
+       << " triangles: " << triangles.size();
+
+    return ss.str();
+}
+
 std::string TriangleMesh::toJSON() const
 {
     std::stringstream ss;
