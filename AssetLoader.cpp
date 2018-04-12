@@ -27,7 +27,7 @@ const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string 
     const aiScene * scene = nullptr;
     
     // NOTE: Scene is destroyed automatically when importer is destroyed!
-    printf("Loading %s\n", filename.c_str());
+    printf("Assimp loading %s\n", filename.c_str());
     scene = importer.ReadFile( filename,
                                aiProcess_Triangulate
                                | aiProcess_FindInvalidData

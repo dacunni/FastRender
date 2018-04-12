@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdio.h>
+#include <cassert>
 #include <sstream>
 
 #include "Matrix.h"
@@ -118,6 +119,8 @@ std::string Matrix4x4::toJSON() const
 // TODO - handle R being the same as one of A or B
 void mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R )
 {
+    assert(&A != &R && &B != &R);
+
 	for( int r = 0; r < 4; r++ ) {
 		for( int c = 0; c < 4; c++ ) {
 			R.at( r, c ) = A.at( r, 0 ) * B.at( 0, c )

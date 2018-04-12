@@ -25,7 +25,9 @@ ObjectEditor::~ObjectEditor()
 
 std::string ObjectEditor::label() { return "Object"; }
 
-void ObjectEditor::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
+void ObjectEditor::draw(SimpleCamera & camera,
+                        ShaderProgram & shaderProgram,
+                        const Matrix4x4 * nodeWorldMatrix)
 {
     //printf("VAO %u VBO %u IBO %u numVertices %u numIndices %u\n", vertexArray, vertexBuffer, indexBuffer, numVertices, numIndices);
 
@@ -38,8 +40,10 @@ void ObjectEditor::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
     Matrix4x4 projection;
 
     world.identity();
-    if(object().transform)
-        world = object().transform->fwd;
+    if(nodeWorldMatrix)
+        world = *nodeWorldMatrix;
+    //if(object().transform)
+    //    world = mult(world, object().transform->fwd);
     view.identity();
     view = camera.transform.rev;
 
@@ -155,6 +159,7 @@ class FlatContainerEditor : public ObjectEditor {
 
         virtual std::string label() { return "Flat Container"; }
         virtual Traceable & object() const { return obj; }
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram) {}
 
         FlatContainer & obj;
 };
@@ -166,6 +171,7 @@ class BoundingVolumeEditor : public ObjectEditor {
 
         virtual std::string label() { return "Bounding Volume"; }
         virtual Traceable & object() const { return obj; }
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram) {}
 
         BoundingVolume & obj;
 };
@@ -332,10 +338,23 @@ void EditorSceneGraphNode::buildGpuBuffers(ShaderProgram & shaderProgram) {
     }
 }
 
-void EditorSceneGraphNode::draw(SimpleCamera & camera, ShaderProgram & shaderProgram) {
-    editor->draw(camera, shaderProgram);
+void EditorSceneGraphNode::draw(SimpleCamera & camera,
+                                ShaderProgram & shaderProgram,
+                                const Matrix4x4 * parentWorldMatrix) {
+    Transform * thisTransform = editor->object().transform.get();
+    Matrix4x4 * thisWorldMatrix = nullptr;
+    
+    if(thisTransform) { thisWorldMatrix = &thisTransform->fwd; }
+
+    Matrix4x4 nodeWorldMatrix;
+    if(thisWorldMatrix && parentWorldMatrix) { nodeWorldMatrix = mult(*parentWorldMatrix, *thisWorldMatrix); }
+    else if(thisWorldMatrix)                 { nodeWorldMatrix = *thisWorldMatrix; }
+    else if(parentWorldMatrix)               { nodeWorldMatrix = *parentWorldMatrix; }
+    else                                     { nodeWorldMatrix.identity(); }
+
+    editor->draw(camera, shaderProgram, &nodeWorldMatrix);
     for(auto & child : children) {
-        child->draw(camera, shaderProgram);
+        child->draw(camera, shaderProgram, &nodeWorldMatrix);
     }
 }
 
