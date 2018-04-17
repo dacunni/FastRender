@@ -28,6 +28,10 @@ public:
     inline float zdim() const { return zmax - zmin; }
     float maxdim() const;
 
+    inline float xmid() const { return 0.5f * (xmin + xmax); }
+    inline float ymid() const { return 0.5f * (ymin + ymax); }
+    inline float zmid() const { return 0.5f * (zmin + zmax); }
+
     inline float volume() const { return xdim() * ydim() * zdim(); }
     
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
