@@ -61,6 +61,13 @@ const std::string modelBasePath = "models";
 #include "test_scenes/render/MirrorSphereColoredSpheresArcLight.scene"
 #include "test_scenes/render/UVMesh.scene"
 
+
+#include "test_scenes/materials/MaterialTestBase.scene"
+#include "test_scenes/materials/MaterialTestMontageBase.scene"
+#include "test_scenes/materials/MaterialTestMontageTwoParamBase.scene"
+#include "test_scenes/materials/MaterialTestCookTorranceAreaLight.scene"
+#include "test_scenes/materials/MaterialTestCookTorranceEnvironmentMap.scene"
+
 int main (int argc, char * const argv[]) 
 {
     Editor editor;
@@ -68,10 +75,15 @@ int main (int argc, char * const argv[])
     editor.init();
 
 #if 1
+    //BunnyEtcDiffusePointLights test(output_path);
     //RefractiveSpheresVaryingIOR test(output_path);
-    DabrovicSponza test(output_path);
+    //DabrovicSponza test(output_path);
     //SanMiguel test(output_path);
     //GridRoomSceneWithBunny test(output_path);
+    //MaterialTestCookTorranceRoughness01WhiteAreaLight test(output_path);
+    //MaterialTestCookTorranceRoughness05WhiteEnvironmentMap test(output_path);
+    GridRoomSceneWithLunarLander test(output_path);
+    //GridRoomSceneWithTieFighter test(output_path);
     //MirrorSphereColoredSpheresArcLight test(output_path);
     //UVMesh test(output_path);
     test.setup();
@@ -81,7 +93,7 @@ int main (int argc, char * const argv[])
     editor.scene = buildScene();
 #endif
     editor.editorScene.build(*editor.scene);
-    editor.editorScene.print();
+    //editor.editorScene.print();
 
     editor.buildGpuBuffers();
 

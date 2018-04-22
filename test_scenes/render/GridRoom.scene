@@ -124,16 +124,18 @@ BUILD_SCENE(
     //auto mesh = loader.load( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
     //auto mesh = loader.loadMultiPart( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
     auto mesh = loader.loadMultiPartMerged( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
-    //auto meshes = loader.loadMultiPart( modelBasePath + "models/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
-    auto bounds = mesh->getAxisAlignedBounds();
-    auto texture = std::make_shared<SurfaceTexture>( "uvgrid.jpg" );
-    mesh->material = std::make_shared<DiffuseTextureMaterial>(texture);
-    mesh->print();
+    //auto bounds = mesh->getAxisAlignedBounds();
+    mesh->material = white_material;
+    //mesh->print();
 
+#if 1
     mesh->transform = std::make_shared<Transform>();
-    *mesh->transform = compose( makeScaling( 1.0 ),
-                                //makeRotation( M_PI * 0.25, Vector4( 0, 1, 0 ) ),
-                                makeTranslation( Vector4( 0.0, 0.5, 0.0 ) ) );
+    *mesh->transform = compose( makeScaling( 0.25 ),
+                                //makeScaling( 4.0 ),
+                                //makeTranslation( Vector4( 0.0, 0.25, 0.0 ) ),
+                                makeRotation( M_PI, Vector4( 1, 0, 0 ) )
+                                );
+#endif
     container->add( mesh );
 );
 END_SCENE()

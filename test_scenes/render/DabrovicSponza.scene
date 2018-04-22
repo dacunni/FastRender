@@ -7,6 +7,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     auto mesh = loader.loadMultiPart( "models/dabrovic-sponza/sponza.obj" );
+    //auto mesh = loader.loadMultiPartMerged( "models/dabrovic-sponza/sponza.obj" );
     if( !mesh ) { fprintf( stderr, "Error loading meshes\n" ); return; }
     //auto bounds = mesh->getAxisAlignedBounds();
     mesh->transform = std::make_shared<Transform>();

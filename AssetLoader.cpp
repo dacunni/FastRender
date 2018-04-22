@@ -58,55 +58,108 @@ const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string 
     return scene;
 }
 
+// Helper for loadTriangleArray
+static void const constructTriangleMesh( const aiMesh * mesh,
+                                         TriangleMesh & trimesh,
+                                         const Transform & transform )
+{
+    bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
+
+    trimesh.vertices.resize( mesh->mNumVertices );
+    trimesh.normals.resize( mesh->mNumVertices );
+    trimesh.triangles.resize( mesh->mNumFaces );
+    if( has_uv ) {
+        trimesh.textureUVCoords.resize( mesh->mNumVertices );
+    }
+
+    for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
+        const auto v = mesh->mVertices[vi];
+        auto n = mesh->mNormals[vi];
+
+        // TEMP
+        // FIXME[DAC]: This is a hacky fix, especially since normal vectors
+        //             should never be zero length. The bug is probably in assimp.
+        if( isnan(n.x) ) {
+            n.x = n.y = n.z = 0.0f;
+        }
+
+#if 1
+        trimesh.vertices[vi] = mult( transform.fwd, Vector4( v.x, v.y, v.z, 1.0f ) );
+        trimesh.normals[vi] = mult( transform.fwd, Vector4( n.x, n.y, n.z, 0.0f ) );
+#else
+        trimesh.vertices[vi].set( v.x, v.y, v.z );
+        trimesh.normals[vi].set( n.x, n.y, n.z );
+#endif
+        if( has_uv ) {
+            const auto tc = mesh->mTextureCoords[0][vi];
+            trimesh.textureUVCoords[vi] = { tc.x, tc.y };
+        }
+    }
+
+    for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {
+        const auto t = mesh->mFaces[ti];
+        trimesh.triangles[ti].vi[0] = t.mIndices[0];
+        trimesh.triangles[ti].vi[1] = t.mIndices[1];
+        trimesh.triangles[ti].vi[2] = t.mIndices[2];
+    }
+}
+
+void copy( Matrix4x4 & m, const aiMatrix4x4 & aim )
+{
+    m = Matrix4x4( aim.a1, aim.a2, aim.a3, aim.a4,
+                   aim.b1, aim.b2, aim.b3, aim.b4,
+                   aim.c1, aim.c2, aim.c3, aim.c4,
+                   aim.d1, aim.d2, aim.d3, aim.d4 );
+}
+
+// Helper for loadTriangleArray
+static void appendToTriangleArray( const aiScene * scene,
+                                   const aiNode * node,
+                                   TriangleMeshArray & array,
+                                   const Transform & parentTransform,
+                                   int depth = 0 )
+{
+    aiMatrix4x4 aifwd = node->mTransformation;
+    aiMatrix4x4 airev = aifwd.Inverse();
+
+    for(int i = 0; i < depth; i++) printf(" ");
+    printf("node nm %20s #msh %3u #ch %3u", node->mName.C_Str(),
+           node->mNumMeshes, node->mNumChildren);
+    printf(" xf");
+    printf(" %4.1f %4.1f %4.1f %4.1f", aifwd.a1, aifwd.a2, aifwd.a3, aifwd.a4);
+    printf(";%4.1f %4.1f %4.1f %4.1f", aifwd.b1, aifwd.b2, aifwd.b3, aifwd.b4);
+    printf(";%4.1f %4.1f %4.1f %4.1f", aifwd.c1, aifwd.c2, aifwd.c3, aifwd.c4);
+    printf(";%4.1f %4.1f %4.1f %4.1f", aifwd.d1, aifwd.d2, aifwd.d3, aifwd.d4);
+    printf(" det %3.2f\n", aifwd.Determinant());
+
+    Matrix4x4 fwd, rev;
+    copy(fwd, aifwd);
+    copy(rev, airev);
+
+    Transform localTransform(fwd, rev);
+    Transform transform = compose(parentTransform, localTransform);
+
+    //transform.fwd.print(); // TEMP
+
+    for( int mi = 0; mi < node->mNumMeshes; mi++ ) {
+        auto trimesh = std::make_shared<TriangleMesh>();
+        constructTriangleMesh( scene->mMeshes[node->mMeshes[mi]], *trimesh, transform );
+        array.push_back( trimesh );
+    }
+
+    for( int ci = 0; ci < node->mNumChildren; ci++ ) {
+        appendToTriangleArray( scene, node->mChildren[ci], array, transform, depth+1 );
+    }
+}
+
 void AssetLoader::loadTriangleArray( const std::string & filename,
                                      TriangleMeshArray & array ) throw(AssetFileNotFoundException)
 {
     printf("Loading triangle mesh array\n");
     Assimp::Importer importer;
     const aiScene * scene = loadAssimpScene( importer, filename );
-    aiMesh ** meshes = scene->mMeshes;
-
-    for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index ) {
-        printf("%u / %u\n", mesh_index, scene->mNumMeshes);
-        aiMesh * mesh = meshes[mesh_index];
-        bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
-        auto trimesh = std::make_shared<TriangleMesh>();
-
-        trimesh->vertices.resize( mesh->mNumVertices );
-        trimesh->normals.resize( mesh->mNumVertices );
-        trimesh->triangles.resize( mesh->mNumFaces );
-        if( has_uv ) {
-            trimesh->textureUVCoords.resize( mesh->mNumVertices );
-        }
-
-        for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
-            const auto v = mesh->mVertices[vi];
-            auto n = mesh->mNormals[vi];
-
-            // TEMP
-            // FIXME[DAC]: This is a hacky fix, especially since normal vectors
-            //             should never be zero length. The bug is probably in assimp.
-            if( isnan(n.x) ) {
-                n.x = n.y = n.z = 0.0f;
-            }
-
-            trimesh->vertices[vi].set( v.x, v.y, v.z );
-            trimesh->normals[vi].set( n.x, n.y, n.z );
-            if( has_uv ) {
-                const auto tc = mesh->mTextureCoords[0][vi];
-                trimesh->textureUVCoords[vi] = { tc.x, tc.y };
-            }
-        }
-
-        for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {
-            const auto t = mesh->mFaces[ti];
-            trimesh->triangles[ti].vi[0] = t.mIndices[0];
-            trimesh->triangles[ti].vi[1] = t.mIndices[1];
-            trimesh->triangles[ti].vi[2] = t.mIndices[2];
-        }
-
-       array.push_back( trimesh );
-    }
+    Transform baseTransform;
+    appendToTriangleArray( scene, scene->mRootNode, array, baseTransform );
 }
 
 std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
@@ -180,24 +233,18 @@ std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filen
 
     auto container = std::make_shared<FlatContainer>();
     
-    for( auto trimesh : array )
-    {
+    for( auto trimesh : array ) {
         if( build_accelerator ) {
             TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );
             trimesh_octree->build();
             trimesh->accelerator = trimesh_octree;
         }
 
-#if 0
-        // TEMP: return bounding box for fast rendering
-        container->add( trimesh->getAxisAlignedBounds() );
-#else
         container->add( trimesh );
 
         printf("TriMesh bounds: ");
         auto bounds = trimesh->getAxisAlignedBounds();
         bounds->print();
-#endif
     }
 
 #if 1
