@@ -9,6 +9,8 @@ find_package(GLU REQUIRED)
 find_package(OpenGL REQUIRED)
 
 set(SRC_ROOT src)
+set(APP_SRC_ROOT src/app)
+set(TEST_SRC_ROOT src/tests)
 
 set(SRCS
     ${SRC_ROOT}/traceable/Boolean.cpp
@@ -67,13 +69,13 @@ set(SRCS
 
 ADD_LIBRARY(FastRender SHARED ${SRCS})
 
-ADD_EXECUTABLE (fr ${SRC_ROOT}/main.cpp)
-ADD_EXECUTABLE (fredit ${SRC_ROOT}/editormain.cpp)
-ADD_EXECUTABLE (test_materials ${SRC_ROOT}/test_materials.cpp)
-ADD_EXECUTABLE (test_render ${SRC_ROOT}/test_render.cpp)
-ADD_EXECUTABLE (test_ray_trace ${SRC_ROOT}/test_ray_trace.cpp)
-ADD_EXECUTABLE (test_samplers ${SRC_ROOT}/test_samplers.cpp)
-ADD_EXECUTABLE (test_random ${SRC_ROOT}/test_random.cpp)
+ADD_EXECUTABLE (fr ${APP_SRC_ROOT}/main.cpp)
+ADD_EXECUTABLE (fredit ${APP_SRC_ROOT}/editormain.cpp)
+ADD_EXECUTABLE (test_materials ${TEST_SRC_ROOT}/test_materials.cpp)
+ADD_EXECUTABLE (test_render ${TEST_SRC_ROOT}/test_render.cpp)
+ADD_EXECUTABLE (test_ray_trace ${TEST_SRC_ROOT}/test_ray_trace.cpp)
+ADD_EXECUTABLE (test_samplers ${TEST_SRC_ROOT}/test_samplers.cpp)
+ADD_EXECUTABLE (test_random ${TEST_SRC_ROOT}/test_random.cpp)
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated -O2")
 
