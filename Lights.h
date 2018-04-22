@@ -69,6 +69,8 @@ public:
 
     virtual float area() const;
 
+    virtual void visit( TraceableVisitor & visitor );
+
     float radius;
 };
 
@@ -84,6 +86,8 @@ public:
     virtual LightSample sampleSurface( RandomNumberGenerator & rng ) const;
 
     virtual float area() const;
+
+    virtual void visit( TraceableVisitor & visitor );
 
     float xdim;
     float zdim;
