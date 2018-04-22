@@ -13,6 +13,9 @@ set(APP_SRC_ROOT src/app)
 set(TEST_SRC_ROOT src/tests)
 
 set(SRCS
+    ${SRC_ROOT}/geometry/Matrix.cpp
+    ${SRC_ROOT}/geometry/Transform.cpp
+    ${SRC_ROOT}/geometry/Vector.cpp
     ${SRC_ROOT}/shading/AmbientOcclusionShader.cpp
     ${SRC_ROOT}/shading/BasicDiffuseSpecularShader.cpp
     ${SRC_ROOT}/shading/DirectAreaLightShader.cpp
@@ -47,7 +50,6 @@ set(SRCS
     ${SRC_ROOT}/ImageTracer.cpp
     ${SRC_ROOT}/Lights.cpp
     ${SRC_ROOT}/Material.cpp
-    ${SRC_ROOT}/Matrix.cpp
     ${SRC_ROOT}/OpenGLUtil.cpp
     ${SRC_ROOT}/Plot2D.cpp
     ${SRC_ROOT}/PreviewWindow.cpp
@@ -63,8 +65,6 @@ set(SRCS
     ${SRC_ROOT}/Timer.cpp
     ${SRC_ROOT}/TraceLog.cpp
     ${SRC_ROOT}/TraceableVisitor.cpp
-    ${SRC_ROOT}/Transform.cpp
-    ${SRC_ROOT}/Vector.cpp
     )
 
 ADD_LIBRARY(FastRender SHARED ${SRCS})
@@ -85,6 +85,7 @@ include_directories(${GLUT_INCLUDE_DIR})
 
 include_directories(.)
 include_directories(src)
+include_directories(src/geometry)
 include_directories(src/shading)
 include_directories(src/traceable)
 
