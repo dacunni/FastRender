@@ -13,6 +13,14 @@ set(APP_SRC_ROOT src/app)
 set(TEST_SRC_ROOT src/tests)
 
 set(SRCS
+    ${SRC_ROOT}/shading/AmbientOcclusionShader.cpp
+    ${SRC_ROOT}/shading/BasicDiffuseSpecularShader.cpp
+    ${SRC_ROOT}/shading/DirectAreaLightShader.cpp
+    ${SRC_ROOT}/shading/DirectEnvironmentMapShader.cpp
+    ${SRC_ROOT}/shading/DirectPointLightShader.cpp
+    ${SRC_ROOT}/shading/GoochShader.cpp
+    ${SRC_ROOT}/shading/InspectionShader.cpp
+    ${SRC_ROOT}/shading/Shader.cpp
     ${SRC_ROOT}/traceable/Boolean.cpp
     ${SRC_ROOT}/traceable/BoundingVolume.cpp
     ${SRC_ROOT}/traceable/BoundingVolumeHierarchy.cpp
@@ -24,26 +32,19 @@ set(SRCS
     ${SRC_ROOT}/traceable/TMOctreeAccelerator.cpp
     ${SRC_ROOT}/traceable/Traceable.cpp
     ${SRC_ROOT}/traceable/TriangleMesh.cpp
-    ${SRC_ROOT}/AmbientOcclusionShader.cpp
     ${SRC_ROOT}/Artifacts.cpp
     ${SRC_ROOT}/AssetLoader.cpp
-    ${SRC_ROOT}/BasicDiffuseSpecularShader.cpp
     ${SRC_ROOT}/Color.cpp
     ${SRC_ROOT}/CookTorranceMaterial.cpp
-    ${SRC_ROOT}/DirectAreaLightShader.cpp
-    ${SRC_ROOT}/DirectEnvironmentMapShader.cpp
-    ${SRC_ROOT}/DirectPointLightShader.cpp
     ${SRC_ROOT}/DistributionSamplers.cpp
     ${SRC_ROOT}/Editor.cpp
     ${SRC_ROOT}/EditorSceneGraph.cpp
     ${SRC_ROOT}/EnvironmentMap.cpp
     ${SRC_ROOT}/FlatContainer.cpp
     ${SRC_ROOT}/GeometryUtils.cpp
-    ${SRC_ROOT}/GoochShader.cpp
     ${SRC_ROOT}/HDRImage.cpp
     ${SRC_ROOT}/Image.cpp
     ${SRC_ROOT}/ImageTracer.cpp
-    ${SRC_ROOT}/InspectionShader.cpp
     ${SRC_ROOT}/Lights.cpp
     ${SRC_ROOT}/Material.cpp
     ${SRC_ROOT}/Matrix.cpp
@@ -55,7 +56,6 @@ set(SRCS
     ${SRC_ROOT}/RandomNumberGenerator.cpp
     ${SRC_ROOT}/Ray.cpp
     ${SRC_ROOT}/Scene.cpp
-    ${SRC_ROOT}/Shader.cpp
     ${SRC_ROOT}/ShaderProgram.cpp
     ${SRC_ROOT}/SimpleCamera.cpp
     ${SRC_ROOT}/SurfaceTexture.cpp
@@ -85,6 +85,7 @@ include_directories(${GLUT_INCLUDE_DIR})
 
 include_directories(.)
 include_directories(src)
+include_directories(src/shading)
 include_directories(src/traceable)
 
 link_directories(/usr/local/lib)
