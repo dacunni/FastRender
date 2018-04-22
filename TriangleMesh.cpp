@@ -28,45 +28,30 @@ TriangleMesh::~TriangleMesh()
         delete accelerator;
 }
 
+// Fit in unit cube centered at origin
 void TriangleMesh::makeCanonical()
 {
     std::shared_ptr<AxisAlignedSlab> bounds( getAxisAlignedBounds() );
     //printf("makeCanonical: Initial bounds: "); bounds->print();
 
     float maxdim = bounds->maxdim();
-    float xdim = bounds->xdim();
-    float ydim = bounds->ydim();
-    float zdim = bounds->zdim();
-
-    //printf("dim xd=%f yd=%f zd=%f max=%f\n",
-    //       xdim, ydim, zdim, maxdim);
 
     // Shift to center around the origin
-    float xshift = -bounds->xmin - xdim * 0.5;
-    float yshift = -bounds->ymin - ydim * 0.5;
-    float zshift = -bounds->zmin - zdim * 0.5;
-
-    //printf("shift xs=%f ys=%f zs=%f\n",
-    //       xshift, yshift, zshift);
+    float xshift = -bounds->xmid();
+    float yshift = -bounds->ymid();
+    float zshift = -bounds->zmid();
 
     // Scale to unit size along dimension with largest extent
     float scale = 1.0 / maxdim;
-    float xscale = scale * xdim / maxdim;
-    float yscale = scale * ydim / maxdim;
-    float zscale = scale * zdim / maxdim;
-
-    //printf("scale=%f xs=%f ys=%f zs=%f\n",
-    //       scale, xscale, yscale, zscale);
 
     const unsigned int num_verts = vertices.size();
     for( unsigned int vi = 0; vi < num_verts; ++vi ) {
-        vertices[vi][0] = (vertices[vi][0] + xshift) * xscale;
-        vertices[vi][1] = (vertices[vi][1] + yshift) * yscale;
-        vertices[vi][2] = (vertices[vi][2] + zshift) * zscale;
+        vertices[vi][0] = (vertices[vi][0] + xshift) * scale;
+        vertices[vi][1] = (vertices[vi][1] + yshift) * scale;
+        vertices[vi][2] = (vertices[vi][2] + zshift) * scale;
     }
 
-    //bounds.reset( getAxisAlignedBounds() );
-    //printf("makeCanonical: Final bounds: "); bounds->print();
+    bounds = getAxisAlignedBounds();
 }
 
 //
@@ -290,18 +275,12 @@ std::shared_ptr<AxisAlignedSlab> TriangleMesh::getAxisAlignedBounds() const
     bb->zmin = bb->zmax = vertices[0].z;
     
     for( auto vi : vertices ) {
-        if( vi.x < bb->xmin )
-            bb->xmin = vi.x;
-        if( vi.x > bb->xmax )
-            bb->xmax = vi.x;
-        if( vi.y < bb->ymin )
-            bb->ymin = vi.y;
-        if( vi.y > bb->ymax )
-            bb->ymax = vi.y;
-        if( vi.z < bb->zmin )
-            bb->zmin = vi.z;
-        if( vi.z > bb->zmax )
-            bb->zmax = vi.z;
+        if( vi.x < bb->xmin ) bb->xmin = vi.x;
+        if( vi.x > bb->xmax ) bb->xmax = vi.x;
+        if( vi.y < bb->ymin ) bb->ymin = vi.y;
+        if( vi.y > bb->ymax ) bb->ymax = vi.y;
+        if( vi.z < bb->zmin ) bb->zmin = vi.z;
+        if( vi.z > bb->zmax ) bb->zmax = vi.z;
     }
     
     return bb;
