@@ -4,6 +4,8 @@
 #include <sys/time.h>
 #include <time.h>
 
+double timeNowAsDouble();
+
 // FIXME - Audit uses of Timer and make change them to use
 //         the appropriate specific timer implementation
 //         and deprecate Timer
