@@ -250,6 +250,57 @@ class TriangleMeshEditor : public ObjectEditor {
         TriangleMesh & obj;
 };
 
+class CircleAreaLightEditor : public ObjectEditor {
+    public:
+        CircleAreaLightEditor(CircleAreaLight & o) : obj(o) {}
+        ~CircleAreaLightEditor() {}
+
+        virtual std::string label() { return "Circle Area Light"; }
+        virtual Traceable & object() const { return obj; }
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram)
+        {
+            glGenVertexArrays(1, &vertexArray);
+            glGenBuffers(1, &vertexBuffer);
+            glBindVertexArray(vertexArray);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+            unsigned int numSteps = 20;
+            std::vector<Vertex> vertices;
+            vertices.reserve(numSteps);
+
+            float radius = obj.radius;
+            float dangle = 2.0f * M_PI / (float) numSteps;
+            for(unsigned int step = 0; step < numSteps; step++) {
+                float angle1 = step * dangle;
+                float angle2 = (step + 1) * dangle;
+                vertices.push_back( { .position = { .x = 0, .y = 0, .z = 0 },
+                                      .normal = { .x = 0, .y = -1, .z = 0 } } );
+                vertices.push_back( { .position = { .x = cosf(angle1), .y = 0, .z = sinf(angle1) },
+                                      .normal = { .x = 0, .y = -1, .z = 0 } } );
+                vertices.push_back( { .position = { .x = cosf(angle2), .y = 0, .z = sinf(angle2) },
+                                      .normal = { .x = 0, .y = -1, .z = 0 } } );
+            }
+            numVertices = vertices.size();
+
+            glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, position));
+            glEnableVertexAttribArray(positionLoc);
+            GL_WARN_IF_ERROR();
+
+            auto normalLoc = shaderProgram.attribLocation("normal");
+            glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
+            glEnableVertexAttribArray(normalLoc);
+            GL_WARN_IF_ERROR();
+
+            glBindVertexArray(0);
+        }
+
+        CircleAreaLight & obj;
+};
+
+
 class AxisAlignedSlabEditor : public ObjectEditor {
     public:
         AxisAlignedSlabEditor(AxisAlignedSlab & o) : obj(o) {}
@@ -392,6 +443,13 @@ class EditorSceneGraphBuilder : public TraceableVisitor {
             std::cout << std::string(buildStack.size(), ' ') << "building TriangleMesh" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new TriangleMeshEditor(t));
             add(node);
+#if 0 // TEMP - show bounding boxes; warning, leaks memory!
+            {
+            auto bounds = new AxisAlignedSlab(*t.getAxisAlignedBounds());
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new AxisAlignedSlabEditor(*bounds));
+            add(node);
+            }
+#endif
         }
         virtual void handle( BoundingVolumeHierarchy & t ) {
             std::cout << std::string(buildStack.size(), ' ') << "building BoundingVolumeHierarchy" << std::endl;
@@ -410,8 +468,15 @@ class EditorSceneGraphBuilder : public TraceableVisitor {
             if(t.object) {
                 buildStack.push_back(node);
                 walk(*t.object);
+                // DEBUG: show bounding volume
+                //walk(*t.bound);
                 buildStack.pop_back();
             }
+        }
+        virtual void handle( CircleAreaLight & t ) {
+            std::cout << std::string(buildStack.size(), ' ') << "building CircleAreaLight" << std::endl;
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new CircleAreaLightEditor(t));
+            add(node);
         }
 
         void add(EditorSceneGraphNode * node) {
