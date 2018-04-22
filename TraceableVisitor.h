@@ -10,6 +10,8 @@ class AxisAlignedSlab;
 class TriangleMesh;
 class BoundingVolumeHierarchy;
 class BoundingVolume;
+class CircleAreaLight;
+class RectangleAreaLight;
 
 // Visitor object for a scene graph made of Traceable objects.
 //
@@ -40,6 +42,8 @@ class TraceableVisitor {
         virtual void handle( TriangleMesh & t );
         virtual void handle( BoundingVolumeHierarchy & t );
         virtual void handle( BoundingVolume & t );
+        virtual void handle( CircleAreaLight & t );
+        virtual void handle( RectangleAreaLight & t );
 };
 
 
