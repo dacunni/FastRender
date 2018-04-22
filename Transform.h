@@ -53,6 +53,7 @@ public:
 };
 
 // Composes two Transforms into one. Assumes t2 is applied before t1.
+Transform compose( const Transform & t1 );
 Transform compose( const Transform & t1, const Transform & t2 );
 Transform compose( const Transform & t1, const Transform & t2, const Transform & t3 );
 Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4 );

@@ -69,6 +69,11 @@ std::string Transform::toJSON() const
 //
 // Helpers
 //
+Transform compose( const Transform & t1 )
+{
+    return t1;
+}
+
 Transform compose( const Transform & t1, const Transform & t2 )
 {
     Transform c;
