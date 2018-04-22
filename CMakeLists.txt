@@ -8,76 +8,79 @@ find_package(GLUT REQUIRED)
 find_package(GLU REQUIRED)
 find_package(OpenGL REQUIRED)
 
+set(SRC_ROOT src)
+
 set(SRCS
-    AmbientOcclusionShader.cpp
-    Artifacts.cpp
-    AssetLoader.cpp
-    AxisAlignedSlab.cpp
-    BasicDiffuseSpecularShader.cpp
-    Boolean.cpp
-    BoundingVolume.cpp
-    BoundingVolumeHierarchy.cpp
-    CSG.cpp
-    Color.cpp
-    CookTorranceMaterial.cpp
-    Container.cpp
-    DirectAreaLightShader.cpp
-    DirectEnvironmentMapShader.cpp
-    DirectPointLightShader.cpp
-    DistributionSamplers.cpp
-    Editor.cpp
-    EditorSceneGraph.cpp
-    EnvironmentMap.cpp
-    FlatContainer.cpp
-    GeometryUtils.cpp
-    GoochShader.cpp
-    HDRImage.cpp
-    Image.cpp
-    ImageTracer.cpp
-    InspectionShader.cpp
-    Lights.cpp
-    Material.cpp
-    Matrix.cpp
-    OpenGLUtil.cpp
-    Plot2D.cpp
-    PreviewWindow.cpp
-    Quaternion.cpp
-    RGBImage.cpp
-    RandomNumberGenerator.cpp
-    Ray.cpp
-    Scene.cpp
-    Shader.cpp
-    ShaderProgram.cpp
-    SignedDistanceFunction.cpp
-    SimpleCamera.cpp
-    Sphere.cpp
-    SurfaceTexture.cpp
-    TMOctreeAccelerator.cpp
-    TestScenes.cpp
-    Timer.cpp
-    TraceLog.cpp
-    Traceable.cpp
-    TraceableVisitor.cpp
-    Transform.cpp
-    TriangleMesh.cpp
-    Vector.cpp
+    ${SRC_ROOT}/AmbientOcclusionShader.cpp
+    ${SRC_ROOT}/Artifacts.cpp
+    ${SRC_ROOT}/AssetLoader.cpp
+    ${SRC_ROOT}/AxisAlignedSlab.cpp
+    ${SRC_ROOT}/BasicDiffuseSpecularShader.cpp
+    ${SRC_ROOT}/Boolean.cpp
+    ${SRC_ROOT}/BoundingVolume.cpp
+    ${SRC_ROOT}/BoundingVolumeHierarchy.cpp
+    ${SRC_ROOT}/CSG.cpp
+    ${SRC_ROOT}/Color.cpp
+    ${SRC_ROOT}/CookTorranceMaterial.cpp
+    ${SRC_ROOT}/Container.cpp
+    ${SRC_ROOT}/DirectAreaLightShader.cpp
+    ${SRC_ROOT}/DirectEnvironmentMapShader.cpp
+    ${SRC_ROOT}/DirectPointLightShader.cpp
+    ${SRC_ROOT}/DistributionSamplers.cpp
+    ${SRC_ROOT}/Editor.cpp
+    ${SRC_ROOT}/EditorSceneGraph.cpp
+    ${SRC_ROOT}/EnvironmentMap.cpp
+    ${SRC_ROOT}/FlatContainer.cpp
+    ${SRC_ROOT}/GeometryUtils.cpp
+    ${SRC_ROOT}/GoochShader.cpp
+    ${SRC_ROOT}/HDRImage.cpp
+    ${SRC_ROOT}/Image.cpp
+    ${SRC_ROOT}/ImageTracer.cpp
+    ${SRC_ROOT}/InspectionShader.cpp
+    ${SRC_ROOT}/Lights.cpp
+    ${SRC_ROOT}/Material.cpp
+    ${SRC_ROOT}/Matrix.cpp
+    ${SRC_ROOT}/OpenGLUtil.cpp
+    ${SRC_ROOT}/Plot2D.cpp
+    ${SRC_ROOT}/PreviewWindow.cpp
+    ${SRC_ROOT}/Quaternion.cpp
+    ${SRC_ROOT}/RGBImage.cpp
+    ${SRC_ROOT}/RandomNumberGenerator.cpp
+    ${SRC_ROOT}/Ray.cpp
+    ${SRC_ROOT}/Scene.cpp
+    ${SRC_ROOT}/Shader.cpp
+    ${SRC_ROOT}/ShaderProgram.cpp
+    ${SRC_ROOT}/SignedDistanceFunction.cpp
+    ${SRC_ROOT}/SimpleCamera.cpp
+    ${SRC_ROOT}/Sphere.cpp
+    ${SRC_ROOT}/SurfaceTexture.cpp
+    ${SRC_ROOT}/TMOctreeAccelerator.cpp
+    ${SRC_ROOT}/TestScenes.cpp
+    ${SRC_ROOT}/Timer.cpp
+    ${SRC_ROOT}/TraceLog.cpp
+    ${SRC_ROOT}/Traceable.cpp
+    ${SRC_ROOT}/TraceableVisitor.cpp
+    ${SRC_ROOT}/Transform.cpp
+    ${SRC_ROOT}/TriangleMesh.cpp
+    ${SRC_ROOT}/Vector.cpp
     )
 
 ADD_LIBRARY(FastRender SHARED ${SRCS})
 
-ADD_EXECUTABLE (fr main.cpp)
-ADD_EXECUTABLE (fredit editormain.cpp)
-ADD_EXECUTABLE (test_materials test_materials.cpp)
-ADD_EXECUTABLE (test_render test_render.cpp)
-ADD_EXECUTABLE (test_ray_trace test_ray_trace.cpp)
-ADD_EXECUTABLE (test_samplers test_samplers.cpp)
-ADD_EXECUTABLE (test_random test_random.cpp)
+ADD_EXECUTABLE (fr ${SRC_ROOT}/main.cpp)
+ADD_EXECUTABLE (fredit ${SRC_ROOT}/editormain.cpp)
+ADD_EXECUTABLE (test_materials ${SRC_ROOT}/test_materials.cpp)
+ADD_EXECUTABLE (test_render ${SRC_ROOT}/test_render.cpp)
+ADD_EXECUTABLE (test_ray_trace ${SRC_ROOT}/test_ray_trace.cpp)
+ADD_EXECUTABLE (test_samplers ${SRC_ROOT}/test_samplers.cpp)
+ADD_EXECUTABLE (test_random ${SRC_ROOT}/test_random.cpp)
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated -O2")
 
 include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${ASSIMP_INCLUDE_DIRS})
 include_directories(${GLUT_INCLUDE_DIR})
+include_directories(.)
 
 link_directories(/usr/local/lib)
 
