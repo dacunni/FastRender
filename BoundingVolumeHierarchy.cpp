@@ -30,7 +30,8 @@ bool BoundingVolumeHierarchy::intersectsAny( const Ray & ray, float min_distance
 
 void BoundingVolumeHierarchy::build( std::shared_ptr<Container> container )
 {
-    buildBottomUp( container );
+    //buildBottomUp( container );
+    buildTopDown( container );
 }
 
 void BoundingVolumeHierarchy::buildBottomUp( std::shared_ptr<Container> container )
@@ -101,12 +102,70 @@ void BoundingVolumeHierarchy::buildBottomUp( std::shared_ptr<Container> containe
 
         std::cout << "objects.size = " << objects.size() << " best_volume = " << best_volume << std::endl; // TEMP
     }
+}
 
+#define COMPARE_FUNC(DIR) \
+    []( const std::shared_ptr<BoundingVolume> & a, const std::shared_ptr<BoundingVolume> & b ) { \
+                       return std::static_pointer_cast<AxisAlignedSlab>(a->bound)->DIR##mid() \
+                             < std::static_pointer_cast<AxisAlignedSlab>(b->bound)->DIR##mid(); }
+
+std::shared_ptr<BoundingVolume> BoundingVolumeHierarchy::buildNodeTopDown( std::list<std::shared_ptr<BoundingVolume> > & objects )
+{
+    //std::cout << "buildNodeTopDown size = " << objects.size() << std::endl;
+    assert(objects.size() > 0);
+
+    if(objects.size() == 1) {
+        return objects.front();
+    }
+
+    AxisAlignedSlab bounds;
+    for( auto & bv : objects ) {
+        bounds = merge(bounds, *std::static_pointer_cast<AxisAlignedSlab>(bv->bound));
+    }
+    
+    //std::cout << "Bound Dims: " << bounds.xdim() << " x " << bounds.ydim() << " x " << bounds.zdim() << std::endl;
+
+    auto comparex = COMPARE_FUNC(x);
+    auto comparey = COMPARE_FUNC(y);
+    auto comparez = COMPARE_FUNC(z);
+
+    float xd = bounds.xdim(), yd = bounds.ydim(), zd = bounds.zdim();
+
+    if(xd > yd && xd > zd) { /* printf("splitting on X\n"); */ objects.sort( comparex ); }
+    else if(yd > zd)       { /* printf("splitting on Y\n"); */ objects.sort( comparey ); }
+    else                   { /* printf("splitting on Z\n"); */ objects.sort( comparez ); }
+
+    std::list<std::shared_ptr<BoundingVolume> > objects2;
+
+    auto it = objects.begin();
+    std::advance(it, objects.size() / 2);
+    objects2.splice(objects2.end(), objects, it, objects.end());
+
+    //std::cout << "split " << objects.size() << ", " << objects2.size() << std::endl; // TEMP
+
+    auto left = buildNodeTopDown(objects);
+    auto right = buildNodeTopDown(objects2);
+
+    auto pair = std::make_shared<FlatContainer>();
+    pair->add( left );
+    pair->add( right );
+    return std::make_shared<BoundingVolume>(pair);
 }
 
 void BoundingVolumeHierarchy::buildTopDown( std::shared_ptr<Container> container )
 {
-    // IMPLEMENT ME
+    if( container->size() < 1 )
+        return;
+
+    std::list<std::shared_ptr<BoundingVolume> > objects;
+
+    // Create a BoundingVolume node for each object
+    const int num_objects = container->size();
+    for( int i = 0; i < num_objects; i++ ) {
+        objects.push_back( std::make_shared<BoundingVolume>( container->at(i) ) );
+    }
+
+    root = buildNodeTopDown( objects );
 }
 
 void BoundingVolumeHierarchy::print( FILE * file ) const
