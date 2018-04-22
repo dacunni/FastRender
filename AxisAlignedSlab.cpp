@@ -30,12 +30,8 @@ AxisAlignedSlab::AxisAlignedSlab()
 
 AxisAlignedSlab::AxisAlignedSlab( float xmin_default, float ymin_default, float zmin_default,
                                   float xmax_default, float ymax_default, float zmax_default )
-:   xmin( xmin_default ),
-    ymin( ymin_default ),
-    zmin( zmin_default ),
-    xmax( xmax_default ),
-    ymax( ymax_default ),
-    zmax( zmax_default )
+:   xmin( xmin_default ), ymin( ymin_default ), zmin( zmin_default ),
+    xmax( xmax_default ), ymax( ymax_default ), zmax( zmax_default )
 {
     correctMinMax();
 }
@@ -54,15 +50,9 @@ AxisAlignedSlab::AxisAlignedSlab( float xmin_default, float ymin_default, float 
 
 void AxisAlignedSlab::correctMinMax( void )
 {
-    if( xmin > xmax ) {
-        std::swap( xmin, xmax );
-    }
-    if( ymin > ymax ) {
-        std::swap( ymin, ymax );
-    }
-    if( zmin > zmax ) {
-        std::swap( zmin, zmax );
-    }
+    if( xmin > xmax ) { std::swap( xmin, xmax ); }
+    if( ymin > ymax ) { std::swap( ymin, ymax ); }
+    if( zmin > zmax ) { std::swap( zmin, zmax ); }
 }
 
 float AxisAlignedSlab::maxdim() const

@@ -23,9 +23,9 @@ public:
     
     void correctMinMax( void );
 
-    inline float xdim() const { return xmax - xmin; }
-    inline float ydim() const { return ymax - ymin; }
-    inline float zdim() const { return zmax - zmin; }
+    inline float xdim() const { return std::abs(xmax - xmin); }
+    inline float ydim() const { return std::abs(ymax - ymin); }
+    inline float zdim() const { return std::abs(zmax - zmin); }
     float maxdim() const;
 
     inline float xmid() const { return 0.5f * (xmin + xmax); }
