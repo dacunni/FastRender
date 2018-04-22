@@ -11,18 +11,23 @@ find_package(OpenGL REQUIRED)
 set(SRC_ROOT src)
 
 set(SRCS
+    ${SRC_ROOT}/traceable/Boolean.cpp
+    ${SRC_ROOT}/traceable/BoundingVolume.cpp
+    ${SRC_ROOT}/traceable/BoundingVolumeHierarchy.cpp
+    ${SRC_ROOT}/traceable/CSG.cpp
+    ${SRC_ROOT}/traceable/AxisAlignedSlab.cpp
+    ${SRC_ROOT}/traceable/Container.cpp
+    ${SRC_ROOT}/traceable/SignedDistanceFunction.cpp
+    ${SRC_ROOT}/traceable/Sphere.cpp
+    ${SRC_ROOT}/traceable/TMOctreeAccelerator.cpp
+    ${SRC_ROOT}/traceable/Traceable.cpp
+    ${SRC_ROOT}/traceable/TriangleMesh.cpp
     ${SRC_ROOT}/AmbientOcclusionShader.cpp
     ${SRC_ROOT}/Artifacts.cpp
     ${SRC_ROOT}/AssetLoader.cpp
-    ${SRC_ROOT}/AxisAlignedSlab.cpp
     ${SRC_ROOT}/BasicDiffuseSpecularShader.cpp
-    ${SRC_ROOT}/Boolean.cpp
-    ${SRC_ROOT}/BoundingVolume.cpp
-    ${SRC_ROOT}/BoundingVolumeHierarchy.cpp
-    ${SRC_ROOT}/CSG.cpp
     ${SRC_ROOT}/Color.cpp
     ${SRC_ROOT}/CookTorranceMaterial.cpp
-    ${SRC_ROOT}/Container.cpp
     ${SRC_ROOT}/DirectAreaLightShader.cpp
     ${SRC_ROOT}/DirectEnvironmentMapShader.cpp
     ${SRC_ROOT}/DirectPointLightShader.cpp
@@ -50,18 +55,13 @@ set(SRCS
     ${SRC_ROOT}/Scene.cpp
     ${SRC_ROOT}/Shader.cpp
     ${SRC_ROOT}/ShaderProgram.cpp
-    ${SRC_ROOT}/SignedDistanceFunction.cpp
     ${SRC_ROOT}/SimpleCamera.cpp
-    ${SRC_ROOT}/Sphere.cpp
     ${SRC_ROOT}/SurfaceTexture.cpp
-    ${SRC_ROOT}/TMOctreeAccelerator.cpp
     ${SRC_ROOT}/TestScenes.cpp
     ${SRC_ROOT}/Timer.cpp
     ${SRC_ROOT}/TraceLog.cpp
-    ${SRC_ROOT}/Traceable.cpp
     ${SRC_ROOT}/TraceableVisitor.cpp
     ${SRC_ROOT}/Transform.cpp
-    ${SRC_ROOT}/TriangleMesh.cpp
     ${SRC_ROOT}/Vector.cpp
     )
 
@@ -80,7 +80,10 @@ SET(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated -O2")
 include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${ASSIMP_INCLUDE_DIRS})
 include_directories(${GLUT_INCLUDE_DIR})
+
 include_directories(.)
+include_directories(src)
+include_directories(src/traceable)
 
 link_directories(/usr/local/lib)
 
