@@ -3,6 +3,19 @@
 %include <std_string.i>
 %include <std_shared_ptr.i>
 
+%rename(__getitem__) *::operator[];
+
+%ignore operator<<;
+%ignore operator+;
+%ignore operator+=;
+%ignore operator-;
+%ignore operator-=;
+%ignore operator*;
+%ignore operator*=;
+
+%ignore *::print;
+
+
 %feature("python:slot", "tp_str", functype="reprfunc") Vector4::toString;
 %feature("python:slot", "tp_str", functype="reprfunc") Matrix4x4::toString;
 %feature("python:slot", "tp_str", functype="reprfunc") Transform::toString;
