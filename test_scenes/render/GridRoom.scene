@@ -68,13 +68,15 @@ BUILD_SCENE(
     auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     auto mirror_material = std::make_shared<MirrorMaterial>();
     auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
+    auto cook_torrance_material = std::make_shared<CookTorranceMaterial>( 0.3, 0.3, 1.0, 0.1 );
 
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
     //mesh->material = mirror_material;
-    mesh->material = refractive_material;
+    //mesh->material = refractive_material;
     //mesh->material = white_material;
+    mesh->material = cook_torrance_material;
 
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 1.0 ),

@@ -4,6 +4,8 @@
 #include "Editor.h"
 #include "AmbientOcclusionShader.h"
 #include "BasicDiffuseSpecularShader.h"
+#include "DirectAreaLightShader.h"
+#include "DirectEnvironmentMapShader.h"
 #include "GoochShader.h"
 #include "ImageTracer.h"
 
@@ -244,13 +246,17 @@ void Editor::updateEditCamera()
 void Editor::renderEditCameraPerspective()
 {
     printf("Rendering edit camera perspective\n");
-    ImageTracer tracer(windowWidth, windowHeight, 1, 4);
-    //ImageTracer tracer(windowWidth, windowHeight, 1, 30);
+    //ImageTracer tracer(windowWidth, windowHeight, 1, 1);
+    //ImageTracer tracer(windowWidth, windowHeight, 1, 4);
+    ImageTracer tracer(windowWidth, windowHeight, 1, 30);
+    //ImageTracer tracer(windowWidth, windowHeight, 1, 100);
     tracer.camera = editCamera;
     tracer.scene = scene.get();
-    //tracer.shader = new AmbientOcclusionShader();
-    tracer.shader = new BasicDiffuseSpecularShader();
     //tracer.shader = new GoochShader();
+    //tracer.shader = new AmbientOcclusionShader();
+    tracer.shader = new DirectAreaLightShader();
+    //tracer.shader = new DirectEnvironmentMapShader();
+    //tracer.shader = new BasicDiffuseSpecularShader();
     tracer.scene->buildLightList();
     tracer.render();
 }

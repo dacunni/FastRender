@@ -34,8 +34,8 @@ public:
     EditorSceneGraph editorScene;
 
 protected:
-    unsigned int windowWidth = 600;
-    unsigned int windowHeight = 400;
+    unsigned int windowWidth = 512;
+    unsigned int windowHeight = 512;
 
 private:
     static void sViewportReshaped( int w, int h );
