@@ -127,7 +127,7 @@ test_materialsLDXXFLAGS = $(LDXXFLAGS) -L. -lFastRender
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
 TARGETS = libFastRender.so fr fredit
-#TARGETS += tests
+TARGETS += tests
 #TARGETS += benchmarks unittests
 #TARGETS += python_bindings
 
