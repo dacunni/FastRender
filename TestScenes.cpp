@@ -434,8 +434,12 @@ std::shared_ptr<TriangleMesh> loadMaterialTestModel( AssetLoader & loader )
     //auto mesh = loader.load( modelBasePath + "/uvsphere.ply" );
     //auto mesh = loader.loadMultiPartMerged( modelBasePath + "/test_objects/mori/testObj.obj" );
 #if 0
-    auto mesh = loader.loadMultiPartMerged( modelBasePath + "/test_objects/mitsuba/mitsuba.obj" ); // FIXME
+    auto mesh = loader.loadMultiPartMerged( modelBasePath + "/test_objects/mitsuba/mitsuba.obj" );
+#endif
+#if 0
     mesh->makeCanonical();
+#endif
+#if 1
     mesh->accelerator = new TMOctreeAccelerator( *mesh );
     mesh->accelerator->build();
 #endif

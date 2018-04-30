@@ -18,7 +18,7 @@ const std::string modelBasePath = "models";
 #include "test_scenes/render/GridRoom.scene"
 #include "test_scenes/render/MirrorSphereColoredSpheresArcLight.scene"
 #include "test_scenes/render/UVMesh.scene"
-
+#include "test_scenes/render/Hairball.scene"
 
 #include "test_scenes/materials/MaterialTestBase.scene"
 #include "test_scenes/materials/MaterialTestMontageBase.scene"
@@ -46,14 +46,15 @@ int main (int argc, char * const argv[])
     //GridRoomSceneWithTieFighter test(output_path);
     //MirrorSphereColoredSpheresArcLight test(output_path);
     //UVMesh test(output_path);
+    //TexturedMesh test(output_path);
+    //Hairball test(output_path);
+
     test.setup();
     test.buildScene();
     editor.scene = std::shared_ptr<Scene>(test.scene);
     editor.editorScene.build(*editor.scene);
     //editor.editorScene.print();
-
     editor.buildGpuBuffers();
-
     editor.start();
 
     return EXIT_SUCCESS;

@@ -66,7 +66,6 @@ class Material
         virtual bool isEmitter() { return emittance.r > 0.0 || emittance.g > 0.0 || emittance.b > 0.0; }
 
         virtual RGBColor diffuse( const RayIntersection & isect ) { return diffuseColor; }
-        virtual RGBColor specular( const RayIntersection & isect ) { return specularColor; }
 
         virtual float specularity() { return 0.0f; }
 

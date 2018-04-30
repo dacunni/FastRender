@@ -10,8 +10,7 @@ class RandomNumberGenerator;
 class SimpleCamera
 {
 public:
-    SimpleCamera( RandomNumberGenerator & rng,
-                  float xmin, float xmax, float ymin, float ymax,
+    SimpleCamera( float xmin, float xmax, float ymin, float ymax,
                   int image_width, int image_height );
     SimpleCamera( const SimpleCamera & c );
 
@@ -24,16 +23,15 @@ public:
                                   float & ymin, float & ymax );
     void jitterRays( bool jitter ) { jitter_rays = jitter; }
 
-    Vector4 vectorThrough( int row, int col );
-    Ray rayThrough( int row, int col );
+    Vector4 vectorThrough( RandomNumberGenerator & rng, int row, int col );
+    Ray rayThrough( RandomNumberGenerator & rng, int row, int col );
 	
     Transform transform;
 protected:
-    RandomNumberGenerator * rng;
     float xmin, xmax;
     float ymin, ymax;
     int image_width, image_height;
-    bool jitter_rays;
+    bool jitter_rays = true;
     float x_jitter_range;
     float y_jitter_range;
     float pixel_x_size;

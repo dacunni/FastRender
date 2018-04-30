@@ -12,7 +12,7 @@
 static Editor * self = nullptr;
 
 Editor::Editor()
-    :  editCamera(rng, editCameraParams.xmin, editCameraParams.xmax,
+    :  editCamera(editCameraParams.xmin, editCameraParams.xmax,
                   editCameraParams.ymin, editCameraParams.ymax,
                   windowWidth, windowHeight)
 {
@@ -254,9 +254,9 @@ void Editor::renderEditCameraPerspective()
     tracer.scene = scene.get();
     //tracer.shader = new GoochShader();
     //tracer.shader = new AmbientOcclusionShader();
-    tracer.shader = new DirectAreaLightShader();
+    //tracer.shader = new DirectAreaLightShader();
     //tracer.shader = new DirectEnvironmentMapShader();
-    //tracer.shader = new BasicDiffuseSpecularShader();
+    tracer.shader = new BasicDiffuseSpecularShader();
     tracer.scene->buildLightList();
     tracer.render();
 }
