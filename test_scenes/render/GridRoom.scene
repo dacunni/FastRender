@@ -37,8 +37,8 @@ BUILD_SCENE(
                               );
     tracer->rays_per_pixel = 30;
     //tracer->rays_per_pixel = 100;
-    float focal_plane_span = 0.5;
-    tracer->camera.setFocalPlaneDimensions( -focal_plane_span, focal_plane_span, -focal_plane_span, focal_plane_span );
+    float focal_plane_span = 1.0;
+    tracer->camera.setFocalPlaneDimensions( focal_plane_span, focal_plane_span );
 
     tracer->shader = new BasicDiffuseSpecularShader();
 );

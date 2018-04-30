@@ -48,7 +48,7 @@ void ObjectEditor::draw(SimpleCamera & camera,
     view = camera.transform.rev;
 
     float xmin, xmax, ymin, ymax;
-    camera.getFocalPlaneDimensions(xmin, xmax, ymin, ymax);
+    camera.getFocalPlaneExtents(xmin, xmax, ymin, ymax);
     projection.glProjection(xmin, xmax, ymin, ymax, 1.0, 1000.0);
 
     //printf("WORLD TRANSFORM:\n"); world.print();

@@ -10,6 +10,8 @@ class RandomNumberGenerator;
 class SimpleCamera
 {
 public:
+    SimpleCamera( float xdim, float ydim,
+                  int image_width, int image_height );
     SimpleCamera( float xmin, float xmax, float ymin, float ymax,
                   int image_width, int image_height );
     SimpleCamera( const SimpleCamera & c );
@@ -17,10 +19,8 @@ public:
     void setFieldOfView( float fovx, float fovy );
 
     void setFocalPlaneDimensions( float xdim, float ydim );
-    void setFocalPlaneDimensions( float xmin, float xmax,
-                                  float ymin, float ymax );
-    void getFocalPlaneDimensions( float & xmin, float & xmax,
-                                  float & ymin, float & ymax );
+    void setFocalPlaneExtents( float xmin, float xmax, float ymin, float ymax );
+    void getFocalPlaneExtents( float & xmin, float & xmax, float & ymin, float & ymax );
     void jitterRays( bool jitter ) { jitter_rays = jitter; }
 
     Vector4 vectorThrough( RandomNumberGenerator & rng, int row, int col );

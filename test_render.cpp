@@ -49,7 +49,7 @@ void testMesh1()
     //int imageSize = 1024;
     int imageWidth = imageSize * 2, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 25 );
-    tracer.camera.setFocalPlaneDimensions( -0.3, 0.3, -0.15, 0.15 );
+    tracer.camera.setFocalPlaneDimensions( 0.6, 0.3 );
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
 
