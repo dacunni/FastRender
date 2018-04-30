@@ -1,3 +1,4 @@
+#include <cmath>
 #include "SimpleCamera.h"
 #include "RandomNumberGenerator.h"
 
@@ -18,6 +19,20 @@ SimpleCamera::SimpleCamera( const SimpleCamera & c )
     jitter_rays(c.jitter_rays)
 {
     setFocalPlaneDimensions(c.xmin, c.xmax, c.ymin, c.ymax );
+}
+
+void SimpleCamera::setFieldOfView( float fovx, float fovy )
+{
+    float xdim = 2.0f * std::tan(fovx * 0.5f);
+    float ydim = 2.0f * std::tan(fovy * 0.5f);
+    setFocalPlaneDimensions(xdim, ydim);
+}
+
+void SimpleCamera::setFocalPlaneDimensions( float xdim, float ydim )
+{
+    float halfx = 0.5f * xdim;
+    float halfy = 0.5f * ydim;
+    setFocalPlaneDimensions(-halfx, halfx, -halfy, halfy);
 }
 
 void SimpleCamera::setFocalPlaneDimensions( float xmin, float xmax,

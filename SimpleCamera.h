@@ -15,6 +15,9 @@ public:
                   int image_width, int image_height );
     SimpleCamera( const SimpleCamera & c );
 
+    void setFieldOfView( float fovx, float fovy );
+
+    void setFocalPlaneDimensions( float xdim, float ydim );
     void setFocalPlaneDimensions( float xmin, float xmax,
                                   float ymin, float ymax );
     void getFocalPlaneDimensions( float & xmin, float & xmax,
