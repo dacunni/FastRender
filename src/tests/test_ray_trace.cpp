@@ -452,15 +452,13 @@ void testSimpleCameraNoJitter()
     const int w = 20, h = 20;
     Plot2D plot( output_path + "/simple_camera_no_jitter.png", plot_size, plot_size,
                  -1.0, 1.0, -1.0, 1.0 );
-    SimpleCamera camera( rng,
-                         -1.0, 1.0, -1.0, 1.0,
-                         w, h );
+    SimpleCamera camera( -1.0, 1.0, -1.0, 1.0, w, h );
     camera.jitterRays( false );
 
     Vector4 points[h*w];
     for( int ri = 0; ri < h; ri++ ) {
         for( int ci = 0; ci < w; ci++ ) {
-            points[ri * w + ci] = camera.vectorThrough( ri, ci );
+            points[ri * w + ci] = camera.vectorThrough( rng, ri, ci );
         }
     }
 
@@ -472,15 +470,13 @@ void testSimpleCamera()
     const int w = 20, h = 20;
     Plot2D plot( output_path + "/simple_camera.png", plot_size, plot_size,
                  -1.0, 1.0, -1.0, 1.0 );
-    SimpleCamera camera( rng,
-                         -1.0, 1.0, -1.0, 1.0,
-                         w, h );
+    SimpleCamera camera( -1.0, 1.0, -1.0, 1.0, w, h );
     camera.jitterRays( true );
 
     Vector4 points[h*w];
     for( int ri = 0; ri < h; ri++ ) {
         for( int ci = 0; ci < w; ci++ ) {
-            points[ri * w + ci] = camera.vectorThrough( ri, ci );
+            points[ri * w + ci] = camera.vectorThrough( rng, ri, ci );
         }
     }
 

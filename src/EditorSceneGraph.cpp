@@ -48,7 +48,7 @@ void ObjectEditor::draw(SimpleCamera & camera,
     view = camera.transform.rev;
 
     float xmin, xmax, ymin, ymax;
-    camera.getFocalPlaneDimensions(xmin, xmax, ymin, ymax);
+    camera.getFocalPlaneExtents(xmin, xmax, ymin, ymax);
     projection.glProjection(xmin, xmax, ymin, ymax, 1.0, 1000.0);
 
     //printf("WORLD TRANSFORM:\n"); world.print();
@@ -300,6 +300,54 @@ class CircleAreaLightEditor : public ObjectEditor {
         CircleAreaLight & obj;
 };
 
+class RectangleAreaLightEditor : public ObjectEditor {
+    public:
+        RectangleAreaLightEditor(RectangleAreaLight & o) : obj(o) {}
+        ~RectangleAreaLightEditor() {}
+
+        virtual std::string label() { return "Rectangle Area Light"; }
+        virtual Traceable & object() const { return obj; }
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram)
+        {
+            glGenVertexArrays(1, &vertexArray);
+            glGenBuffers(1, &vertexBuffer);
+            glBindVertexArray(vertexArray);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+            std::vector<Vertex> vertices;
+            float xe = obj.xdim / 2.0f;
+            float ze = obj.zdim / 2.0f;
+
+            Vertex::Normal normal{ .x = 0, .y = -1, .z = 0 };
+
+            vertices.push_back( { .position = { .x = -xe, .y = 0, .z = -ze }, .normal = normal } );
+            vertices.push_back( { .position = { .x = +xe, .y = 0, .z = -ze }, .normal = normal } );
+            vertices.push_back( { .position = { .x = +xe, .y = 0, .z = +ze }, .normal = normal } );
+
+            vertices.push_back( { .position = { .x = +xe, .y = 0, .z = +ze }, .normal = normal } );
+            vertices.push_back( { .position = { .x = -xe, .y = 0, .z = +ze }, .normal = normal } );
+            vertices.push_back( { .position = { .x = -xe, .y = 0, .z = -ze }, .normal = normal } );
+
+            numVertices = vertices.size();
+
+            glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, position));
+            glEnableVertexAttribArray(positionLoc);
+            GL_WARN_IF_ERROR();
+
+            auto normalLoc = shaderProgram.attribLocation("normal");
+            glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
+            glEnableVertexAttribArray(normalLoc);
+            GL_WARN_IF_ERROR();
+
+            glBindVertexArray(0);
+        }
+
+        RectangleAreaLight & obj;
+};
+
 
 class AxisAlignedSlabEditor : public ObjectEditor {
     public:
@@ -476,6 +524,11 @@ class EditorSceneGraphBuilder : public TraceableVisitor {
         virtual void handle( CircleAreaLight & t ) {
             std::cout << std::string(buildStack.size(), ' ') << "building CircleAreaLight" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new CircleAreaLightEditor(t));
+            add(node);
+        }
+        virtual void handle( RectangleAreaLight & t ) {
+            std::cout << std::string(buildStack.size(), ' ') << "building RectangleAreaLight" << std::endl;
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new RectangleAreaLightEditor(t));
             add(node);
         }
 

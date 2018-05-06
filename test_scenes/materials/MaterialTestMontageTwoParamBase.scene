@@ -1,14 +1,14 @@
 BEGIN_SCENE(MaterialTestMontageTwoParamBase)
 SETUP_SCENE(
-    int image_size = 256;
-    float aspect_ratio = 2;
+    const int image_size = 256;
+    const float aspect_ratio = 2;
     image_width = image_size * aspect_ratio;
     image_height = image_size;
     TestScene::setup();
     tracer->rays_per_pixel = 1;
-    float half_fov_y = 0.03;
-    float half_fov_x = aspect_ratio * half_fov_y;
-    tracer->camera.setFocalPlaneDimensions( -half_fov_x, half_fov_x, -half_fov_y, half_fov_y );
+    const float fov_y = 0.06;
+    const float fov_x = aspect_ratio * fov_y;
+    tracer->camera->setFocalPlaneDimensions( fov_x, fov_y );
 
     // Don't show the preview window, because we currently have no way to
     // make it close when complete. It will therefor force the first test

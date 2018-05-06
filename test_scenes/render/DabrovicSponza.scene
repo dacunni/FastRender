@@ -1,9 +1,19 @@
 BEGIN_SCENE( DabrovicSponza )
 SETUP_SCENE(
-    image_width = image_height = 100;
+#if 1 // TEMP testing new camera
+    float aspect_ratio = 2;
+    image_height = 200;
+    image_width = aspect_ratio * image_height;
     TestScene::setup();
     tracer->rays_per_pixel = 10;
-    tracer->camera.setFocalPlaneDimensions( -0.45, 0.45, -0.45, 0.45 );
+    OmniCamera * camera = new OmniCamera( M_PI * 2.0, M_PI, image_width, image_height );
+    tracer->camera = camera;
+#else
+    image_width = image_height = 200;
+    TestScene::setup();
+    tracer->rays_per_pixel = 10;
+    tracer->camera->setFocalPlaneDimensions( 0.9, 0.9 );
+#endif
 );
 BUILD_SCENE(
     auto mesh = loader.loadMultiPart( "models/dabrovic-sponza/sponza.obj" );
@@ -39,9 +49,9 @@ BUILD_SCENE(
     container->add( emitter );
 #endif
 
-    //tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->shader = new BasicDiffuseSpecularShader();
     //tracer->shader = new AmbientOcclusionShader();
-    tracer->shader = new GoochShader();
+    //tracer->shader = new GoochShader();
 
 #if 1
     tracer->setCameraTransform( compose( makeTranslation( 0.0, 5.0, 10.0 ),

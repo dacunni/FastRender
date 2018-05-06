@@ -11,8 +11,8 @@ BUILD_SCENE(
     container->add( floor );
 
     std::string modelPath = modelBasePath;
-    mesh = loader.load( modelPath + "/uvsphere.ply" );
-    //auto mesh = loader.load( modelPath + "/uvmonkey.ply" );
+    //mesh = loader.load( modelPath + "/uvsphere.ply" );
+    mesh = loader.load( modelPath + "/uvmonkey.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
     //mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     mesh->material = std::make_shared<DiffuseUVMaterial>();

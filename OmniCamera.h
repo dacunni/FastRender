@@ -1,16 +1,14 @@
-#ifndef _SIMPLECAMERA_H_
-#define _SIMPLECAMERA_H_
+#ifndef _OMNICAMERA_H_
+#define _OMNICAMERA_H_
 
 #include "Camera.h"
 
-class SimpleCamera : public Camera
+class OmniCamera : public Camera
 {
 public:
-    SimpleCamera( float xdim, float ydim,
-                  int image_width, int image_height );
-    SimpleCamera( float xmin, float xmax, float ymin, float ymax,
-                  int image_width, int image_height );
-    SimpleCamera( const SimpleCamera & c );
+    OmniCamera( float fovx, float fovy,
+                    int image_width, int image_height );
+    OmniCamera( const OmniCamera & c );
 
     virtual void setFieldOfView( float fovx, float fovy );
 
@@ -20,14 +18,16 @@ public:
 
     virtual Vector4 vectorThrough( RandomNumberGenerator & rng, int row, int col );
     virtual Ray rayThrough( RandomNumberGenerator & rng, int row, int col );
-	
+
 protected:
-    float xmin, xmax;
-    float ymin, ymax;
-    float x_jitter_range;
-    float y_jitter_range;
-    float pixel_x_size;
-    float pixel_y_size;
+    float fovx;
+    float fovy;
+
+    float el_min, el_max; // elevation
+    float az_min, az_max; // azimuth
 };
 
+
 #endif
+
+

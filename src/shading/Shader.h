@@ -33,7 +33,9 @@ class Shader
         RGBColor sampleAreaLight( const Scene & scene,
                                   const RayIntersection & intersection,
                                   RandomNumberGenerator & rng,
-                                  const AreaLight & light );
+                                  const AreaLight & light,
+                                  Vector4 & direction,
+                                  bool & hit );
         RGBColor sampleAreaLights( const Scene & scene,
                                    const RayIntersection & intersection,
                                    RandomNumberGenerator & rng );

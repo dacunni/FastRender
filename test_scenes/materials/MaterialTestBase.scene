@@ -2,16 +2,24 @@
 bool animateMaterialTests = false;
 bool stereoMaterialTests = false;
 bool showPreviewWindow = false;
+bool useOmniCamera = false;
 
 BEGIN_SCENE(MaterialTestBase)
 SETUP_SCENE(
-    // TEMP >>> Small images for fast testing
-    //image_width = image_height = 16;
-    //image_width = image_height = 64;
-    //image_width = image_height = 100;
-    // TEMP <<<
-    TestScene::setup();
-    tracer->rays_per_pixel = 5;
+    if( useOmniCamera ) {
+        float aspect_ratio = 2;
+        image_height = 256;
+        image_width = aspect_ratio * image_height;
+        TestScene::setup();
+        tracer->rays_per_pixel = 5;
+        OmniCamera * camera = new OmniCamera( M_PI * 2.0, M_PI, image_width, image_height );
+        tracer->camera = camera;
+    }
+    else {
+        //image_width = image_height = 64;
+        TestScene::setup();
+        tracer->rays_per_pixel = 5;
+    }
 
     // Don't show the preview window, because we currently have no way to
     // make it close when complete. It will therefor force the first test
@@ -50,14 +58,26 @@ SETUP_SCENE(
                     );});
     }
     else {
-        tracer->setCameraTransform( compose(
-            // move up a bit
-            makeTranslation( 0.0, 0.5, 0.0 ),
-            // rotate so we are looking down
-            makeRotation( -0.2, Vector4(1, 0, 0) ),
-            // back away from the origin
-            makeTranslation( 0.0, 0.0, 5.0 )
-            ) );
+        if(useOmniCamera) {
+            tracer->setCameraTransform( compose(
+                // move up a bit
+                makeTranslation( 0.0, 0.5, 0.0 ),
+                // rotate so we are looking down
+                makeRotation( -0.2, Vector4(1, 0, 0) ),
+                // back away from the origin
+                makeTranslation( 0.0, 0.0, 1.0 )
+                ) );
+        }
+        else {
+            tracer->setCameraTransform( compose(
+                // move up a bit
+                makeTranslation( 0.0, 0.5, 0.0 ),
+                // rotate so we are looking down
+                makeRotation( -0.2, Vector4(1, 0, 0) ),
+                // back away from the origin
+                makeTranslation( 0.0, 0.0, 5.0 )
+                ) );
+        }
     }
     //tracer->shader = new BasicDiffuseSpecularShader();
     tracer->shader = new AmbientOcclusionShader();
@@ -68,13 +88,12 @@ std::shared_ptr<Sphere> mirrorReference;
 BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10, -1, -10,
                                                      10, 0, 10 );
-    //auto floor_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
-    auto floor_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    auto floor_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    //auto floor_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
     container->add( floor, floor_material );
 
     mesh = loadMaterialTestModel( loader );
     auto bounds = mesh->getAxisAlignedBounds();
-
     mesh->transform = std::make_shared<Transform>();
 #if 1
     *mesh->transform = compose( makeScaling( 1.0 ),

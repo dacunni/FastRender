@@ -13,6 +13,9 @@ set(APP_SRC_ROOT src/app)
 set(TEST_SRC_ROOT src/tests)
 
 set(SRCS
+    ${SRC_ROOT}/cameras/Camera.cpp
+    ${SRC_ROOT}/cameras/SimpleCamera.cpp
+    ${SRC_ROOT}/cameras/OmniCamera.cpp
     ${SRC_ROOT}/geometry/Matrix.cpp
     ${SRC_ROOT}/geometry/Transform.cpp
     ${SRC_ROOT}/geometry/Vector.cpp

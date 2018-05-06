@@ -19,7 +19,7 @@ class ImageTracer
                      unsigned int rays_per_pixel = 30 );
         virtual ~ImageTracer();
 
-        void setCameraTransform( const Transform & xform ) { camera.transform = xform; }
+        void setCameraTransform( const Transform & xform ) { camera->transform = xform; }
         void setCameraTransform( const std::function<Transform(float)> & xform_cb ) { camera_transform_cb = xform_cb; }
 
         void setAnimationCallback( const std::function<void(float)> & anim_cb ) { animation_cb = anim_cb; }
@@ -36,10 +36,10 @@ class ImageTracer
                                     unsigned int ray_index );
 
         RandomNumberGenerator rng;
-        SimpleCamera camera;
+        Camera * camera = nullptr;
         Artifacts artifacts;
-        Scene * scene;
-        Shader * shader;
+        Scene * scene = nullptr;
+        Shader * shader = nullptr;
         unsigned int image_width;
         unsigned int image_height;
         unsigned int num_frames;

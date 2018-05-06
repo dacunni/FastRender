@@ -15,13 +15,12 @@ ImageTracer::ImageTracer( unsigned int w, unsigned int h,
     : rng(),
       image_width( w ),
       image_height( h ),
-      camera( rng, -0.15, 0.15, -0.15, 0.15, w, h ),
       artifacts( w, h ),
       rays_per_pixel( rayspp ),
       num_frames( nframes ),
       preview_window( artifacts )
 {
-
+    camera = new SimpleCamera( 0.3, 0.3, w, h );
 }
 
 ImageTracer::~ImageTracer()
@@ -184,7 +183,7 @@ void ImageTracer::beginFrame( unsigned int frame_index )
     }
 
     if( camera_transform_cb ) {
-        camera.transform = camera_transform_cb( anim_progress );
+        camera->transform = camera_transform_cb( anim_progress );
     }
     //camera.transform.print();
 
@@ -252,7 +251,7 @@ void ImageTracer::tracePixelRay( unsigned int row, unsigned int col,
                                  unsigned int ray_index )
 {
     //printf("tracePixelRay( row: %u, col: %u, ray_index: %u )\n");
-    Ray ray = camera.rayThrough( row, col );
+    Ray ray = camera->rayThrough( rng, row, col );
     RayIntersection intersection = RayIntersection();
     bool hit = scene->intersect( ray, intersection );
 
