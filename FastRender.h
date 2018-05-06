@@ -27,6 +27,7 @@
 #include "ImageTracer.h"
 #include "InspectionShader.h"
 #include "Lights.h"
+#include "Logger.h"
 #include "Material.h"
 #include "Matrix.h"
 #include "OmniCamera.h"

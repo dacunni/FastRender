@@ -31,6 +31,7 @@ OBJ = \
 	ImageTracer.o \
 	InspectionShader.o \
     Lights.o \
+    Logger.o \
 	Material.o \
 	Matrix.o \
     OmniCamera.o \

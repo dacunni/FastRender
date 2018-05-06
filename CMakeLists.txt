@@ -38,6 +38,7 @@ set(SRCS
     ImageTracer.cpp
     InspectionShader.cpp
     Lights.cpp
+    Logger.cpp
     Material.cpp
     Matrix.cpp
     OmniCamera.cpp
