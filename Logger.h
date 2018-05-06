@@ -18,7 +18,7 @@ class Logger
             Fatal,
             Debug
         };
-        static const std::string severityToString(Severity s);
+        static const std::string severityToString(Severity s, bool colorize = false);
 
         // Main log method. All others forms call this.
         virtual void log(Severity s, const std::string & msg);
