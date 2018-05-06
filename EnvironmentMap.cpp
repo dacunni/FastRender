@@ -109,6 +109,7 @@ HDRImageEnvironmentMap::HDRImageEnvironmentMap( const std::string & filename,
                                                 unsigned int w, unsigned int h )
     : image(filename, w, h)
 {
+    printf("HDR image environment map: %s (%u x %u)\n", filename.c_str(), w, h);
     updateStateFromImage();
 }
 

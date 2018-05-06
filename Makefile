@@ -10,6 +10,7 @@ OBJ = \
 	Boolean.o \
 	BoundingVolume.o \
 	BoundingVolumeHierarchy.o \
+    Camera.o \
     Color.o \
 	Container.o \
     CookTorranceMaterial.o \
@@ -31,6 +32,7 @@ OBJ = \
     Lights.o \
 	Material.o \
 	Matrix.o \
+    OmniCamera.o \
     OpenGLUtil.o \
 	Plot2D.o \
 	PreviewWindow.o \

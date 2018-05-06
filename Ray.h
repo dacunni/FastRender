@@ -32,6 +32,7 @@ public:
 class RGBRadianceSample {
 public:
     RGBRadianceSample() : color(0.0f, 0.0f, 0.0f) {}
+    RGBRadianceSample(const RGBColor & c) : color(c) {}
     ~RGBRadianceSample() {}
 
     RGBColor color;

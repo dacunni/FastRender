@@ -2,25 +2,22 @@
 #include "SimpleCamera.h"
 #include "RandomNumberGenerator.h"
 
-
 SimpleCamera::SimpleCamera( float xdim, float ydim,
                             int image_width, int image_height )
-    : image_width(image_width),
-      image_height(image_height)
+    : Camera(image_width, image_height)
 {
     setFocalPlaneDimensions(xdim, ydim);
 }
 
 SimpleCamera::SimpleCamera( float xmin, float xmax, float ymin, float ymax,
                             int image_width, int image_height )
-    : image_width(image_width),
-      image_height(image_height)
+    : Camera(image_width, image_height)
 {
     setFocalPlaneExtents(xmin, xmax, ymin, ymax);
 }
 
 SimpleCamera::SimpleCamera( const SimpleCamera & c ) 
-: image_width(c.image_width), image_height(c.image_height), jitter_rays(c.jitter_rays)
+    : Camera(c)
 {
     setFocalPlaneExtents(c.xmin, c.xmax, c.ymin, c.ymax);
 }

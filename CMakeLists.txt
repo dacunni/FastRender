@@ -17,6 +17,7 @@ set(SRCS
     Boolean.cpp
     BoundingVolume.cpp
     BoundingVolumeHierarchy.cpp
+    Camera.cpp
     CSG.cpp
     Color.cpp
     CookTorranceMaterial.cpp
@@ -38,6 +39,7 @@ set(SRCS
     Lights.cpp
     Material.cpp
     Matrix.cpp
+    OmniCamera.cpp
     OpenGLUtil.cpp
     Plot2D.cpp
     PreviewWindow.cpp

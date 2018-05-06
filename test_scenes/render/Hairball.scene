@@ -3,7 +3,7 @@ SETUP_SCENE(
     image_width = image_height = 512;
     TestScene::setup();
     tracer->rays_per_pixel = 10;
-    tracer->camera.setFocalPlaneDimensions( 0.9, 0.9 );
+    tracer->camera->setFocalPlaneDimensions( 0.9, 0.9 );
 );
 BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,

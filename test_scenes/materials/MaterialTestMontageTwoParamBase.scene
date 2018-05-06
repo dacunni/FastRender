@@ -8,7 +8,7 @@ SETUP_SCENE(
     tracer->rays_per_pixel = 1;
     const float fov_y = 0.06;
     const float fov_x = aspect_ratio * fov_y;
-    tracer->camera.setFocalPlaneDimensions( fov_x, fov_y );
+    tracer->camera->setFocalPlaneDimensions( fov_x, fov_y );
 
     // Don't show the preview window, because we currently have no way to
     // make it close when complete. It will therefor force the first test

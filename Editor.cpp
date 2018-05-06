@@ -250,7 +250,7 @@ void Editor::renderEditCameraPerspective()
     //ImageTracer tracer(windowWidth, windowHeight, 1, 4);
     ImageTracer tracer(windowWidth, windowHeight, 1, 30);
     //ImageTracer tracer(windowWidth, windowHeight, 1, 100);
-    tracer.camera = editCamera;
+    tracer.camera = &editCamera;
     tracer.scene = scene.get();
     //tracer.shader = new GoochShader();
     //tracer.shader = new AmbientOcclusionShader();

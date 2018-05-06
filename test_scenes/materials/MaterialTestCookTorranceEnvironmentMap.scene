@@ -9,7 +9,9 @@ std::shared_ptr<AreaLight> light;
 BUILD_SCENE(
     MaterialTestBase::buildScene();
     //scene->env_map = loadStPetersEnvironmentMap();
-    scene->env_map = loadRNLEnvironmentMap();
+    //scene->env_map = loadUffiziEnvironmentMap();
+    //scene->env_map = loadRNLEnvironmentMap();
+    scene->env_map = loadGraceEnvironmentMap();
 );
 END_SCENE()
 
@@ -135,6 +137,48 @@ BUILD_SCENE(
         auto mesh = meshAtIndex(mesh_index, param1, param2);
         float roughness = param1 * 0.1;
         meshes[mesh_index]->material = std::make_shared<CookTorranceMaterial>( 1.0-param2, 0.3, param2, roughness );
+    }
+    scene->env_map = loadStPetersEnvironmentMap();
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceEnvironmentMapSweepRoughnessFullVaryingSpecular, MaterialTestMontageTwoParamBase)
+SETUP_SCENE(
+    MaterialTestMontageTwoParamBase::setup();
+    //tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->shader = new DirectEnvironmentMapShader();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestMontageTwoParamBase::buildScene();
+    float param1; float param2;
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        auto mesh = meshAtIndex(mesh_index, param1, param2);
+        float roughness = param1;
+        auto material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, roughness );
+        material->specular = param2;
+        meshes[mesh_index]->material = material;
+    }
+    scene->env_map = loadStPetersEnvironmentMap();
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceEnvironmentMapSweepRoughnessLowVaryingSpecular, MaterialTestMontageTwoParamBase)
+SETUP_SCENE(
+    MaterialTestMontageTwoParamBase::setup();
+    //tracer->shader = new BasicDiffuseSpecularShader();
+    tracer->shader = new DirectEnvironmentMapShader();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestMontageTwoParamBase::buildScene();
+    float param1; float param2;
+    for( int mesh_index = 0; mesh_index < num_meshes; mesh_index++ ) {
+        auto mesh = meshAtIndex(mesh_index, param1, param2);
+        float roughness = param1 * 0.1;
+        auto material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, roughness );
+        material->specular = param2;
+        meshes[mesh_index]->material = material;
     }
     scene->env_map = loadStPetersEnvironmentMap();
 );

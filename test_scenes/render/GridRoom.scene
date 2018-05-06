@@ -35,10 +35,11 @@ BUILD_SCENE(
                                         makeRotation( -M_PI / 8, Vector4(1, 0, 0) ),
                                         makeTranslation( 0.0, 0.0, 1.5 ))
                               );
-    tracer->rays_per_pixel = 30;
+    tracer->rays_per_pixel = 1;
+    //tracer->rays_per_pixel = 30;
     //tracer->rays_per_pixel = 100;
     float focal_plane_span = 1.0;
-    tracer->camera.setFocalPlaneDimensions( focal_plane_span, focal_plane_span );
+    tracer->camera->setFocalPlaneDimensions( focal_plane_span, focal_plane_span );
 
     tracer->shader = new BasicDiffuseSpecularShader();
 );
