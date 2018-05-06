@@ -62,7 +62,6 @@ set(SRCS
     ${SRC_ROOT}/Ray.cpp
     ${SRC_ROOT}/Scene.cpp
     ${SRC_ROOT}/ShaderProgram.cpp
-    ${SRC_ROOT}/SimpleCamera.cpp
     ${SRC_ROOT}/SurfaceTexture.cpp
     ${SRC_ROOT}/TestScenes.cpp
     ${SRC_ROOT}/Timer.cpp
@@ -88,6 +87,7 @@ include_directories(${GLUT_INCLUDE_DIR})
 
 include_directories(.)
 include_directories(src)
+include_directories(src/cameras)
 include_directories(src/geometry)
 include_directories(src/shading)
 include_directories(src/traceable)
