@@ -3,6 +3,13 @@
 #include <unistd.h>
 #include "Logger.h"
 
+static Logger globalLogger;
+
+Logger & getLogger()
+{
+    return globalLogger;
+}
+
 // ANSI terminal emulator color control codes
 static const char * const ansi_red     = "\x1b[31m";
 static const char * const ansi_green   = "\x1b[32m";
@@ -38,7 +45,10 @@ const std::string Logger::severityToString(Severity s, bool colorize)
 void Logger::logToStout(Logger::Severity s, const std::string & msg)
 {
     const bool loggingToTerminal = isatty(STDOUT_FILENO);
-    std::cout<< severityToString(s, loggingToTerminal) << "\t" << msg << std::endl;
+
+    std::lock_guard<std::mutex> guard(mutex);
+    std::cout << severityToString(s, loggingToTerminal)
+              << "\t" << msg << std::endl;
 }
 
 void Logger::log(Logger::Severity s, const std::string & msg)

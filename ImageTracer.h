@@ -11,6 +11,8 @@
 #include "Timer.h"
 #include "PreviewWindow.h"
 
+class Logger;
+
 class ImageTracer
 {
     public:
@@ -80,6 +82,8 @@ class ImageTracer
         std::thread render_thread;
 
         PreviewWindow preview_window;
+
+        Logger & logger;
 };
 
 

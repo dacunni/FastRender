@@ -4,6 +4,7 @@
 #include <ostream>
 #include <string>
 #include <sstream>
+#include <mutex>
 
 class Logger
 {
@@ -65,6 +66,10 @@ class Logger
 
     protected:
         void logToStout(Severity s, const std::string & msg);
+
+        std::mutex mutex;
 };
+
+Logger & getLogger();
 
 #endif

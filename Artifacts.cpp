@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <algorithm>
+#include "Logger.h"
 #include "Vector.h"
 #include "Artifacts.h"
 #include "GeometryUtils.h"
@@ -19,7 +20,8 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
     width( imageWidth ),
     height( imageHeight ),
     frame_number( 0 ),
-    preview_window( *this )
+    preview_window( *this ),
+    logger( getLogger() )
 {
     intersections_file = fopen( (output_path + file_prefix + "/intersections.txt").c_str(), "w" );
 }
@@ -32,9 +34,9 @@ Artifacts::~Artifacts()
 
 void Artifacts::startNewFrame() 
 {
-    printf("Starting new frame artifacts\n");
-    printf("  output_path : %s\n", output_path.c_str());
-    printf("  file_prefix : %s\n", file_prefix.c_str());
+    logger.normalf("Starting new frame artifacts");
+    logger.normalf("  output_path : %s", output_path.c_str());
+    logger.normalf("  file_prefix : %s", file_prefix.c_str());
     if( frame_number > 0 )
         flush();
     resetImages();

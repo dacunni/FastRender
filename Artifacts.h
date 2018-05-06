@@ -20,6 +20,7 @@
 #include "Types.h"
 #include "PreviewWindow.h"
 
+class Logger;
 class Vector4;
 
 class Artifacts {
@@ -65,6 +66,7 @@ public:
 
     std::string file_prefix = "";
     
+    Logger & logger;
 };
 
 #endif /* defined(__FastRender__Artifacts__) */

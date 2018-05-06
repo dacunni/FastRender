@@ -16,6 +16,7 @@
 class Container;
 class Traceable;
 class TriangleMesh;
+class Logger;
 
 class AssetFileNotFoundException {};
 
@@ -23,8 +24,8 @@ typedef std::vector<std::shared_ptr<TriangleMesh>> TriangleMeshArray;
 
 class AssetLoader {
 public:
-    AssetLoader() {}
-    ~AssetLoader() {}
+    AssetLoader();
+    ~AssetLoader() = default;
     
     std::shared_ptr<TriangleMesh> load( const std::string & filename,
                                         bool build_accelerator = true ) throw(AssetFileNotFoundException);
@@ -36,6 +37,8 @@ public:
 protected:
     void loadTriangleArray( const std::string & filename,
                             TriangleMeshArray & array ) throw(AssetFileNotFoundException);
+
+    Logger & logger;
 };
 
 

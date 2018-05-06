@@ -15,19 +15,26 @@
 #include <assimp/Importer.hpp>
 
 #include "AssetLoader.h"
+#include "Logger.h"
 #include "TriangleMesh.h"
 #include "TMOctreeAccelerator.h"
 #include "AxisAlignedSlab.h"
 #include "FlatContainer.h"
 #include "BoundingVolumeHierarchy.h"
 
-const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string filename )
+AssetLoader::AssetLoader()
+    : logger(getLogger())
+{
+
+}
+
+const aiScene * loadAssimpScene( Logger & logger, Assimp::Importer & importer, const std::string filename )
     throw(AssetFileNotFoundException)
 {
     const aiScene * scene = nullptr;
     
     // NOTE: Scene is destroyed automatically when importer is destroyed!
-    printf("Assimp loading %s\n", filename.c_str());
+    logger.normalf("Assimp loading %s", filename.c_str());
     scene = importer.ReadFile( filename,
                                aiProcess_Triangulate
                                | aiProcess_FindInvalidData
@@ -38,22 +45,22 @@ const aiScene * loadAssimpScene( Assimp::Importer & importer, const std::string 
     importer.ApplyPostProcessing( aiProcess_CalcTangentSpace );
 
     if( !scene ) {
-        fprintf( stderr, "Failed to load %s\n", filename.c_str() );
+        logger.fatalf("Failed to load %s", filename.c_str());
         throw AssetFileNotFoundException();
     }
     
-    printf( "Loaded '%s' - # meshes -> %u\n", filename.c_str(), scene->mNumMeshes );
+    logger.debugf("Loaded '%s' - # meshes -> %u", filename.c_str(), scene->mNumMeshes);
 
     for( unsigned int mesh_index = 0; mesh_index < scene->mNumMeshes; ++mesh_index ) {
         aiMesh * mesh = scene->mMeshes[mesh_index];
         bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
-        printf( "Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d Tangents=%d UV=%d Bones=%d\n", mesh_index, 
-                (int) mesh->HasPositions(), mesh->mNumVertices,
-                (int) mesh->HasFaces(), mesh->mNumFaces,
-                (int) mesh->HasNormals(),
-                (int) mesh->HasTangentsAndBitangents(),
-                (int) has_uv,
-                (int) mesh->HasBones() );
+        logger.debugf("Mesh[%u] Has Positions=%d(%u) Faces=%d(%u) Normals=%d Tangents=%d UV=%d Bones=%d", mesh_index, 
+                     (int) mesh->HasPositions(), mesh->mNumVertices,
+                     (int) mesh->HasFaces(), mesh->mNumFaces,
+                     (int) mesh->HasNormals(),
+                     (int) mesh->HasTangentsAndBitangents(),
+                     (int) has_uv,
+                     (int) mesh->HasBones());
     }
     return scene;
 }
@@ -155,9 +162,9 @@ static void appendToTriangleArray( const aiScene * scene,
 void AssetLoader::loadTriangleArray( const std::string & filename,
                                      TriangleMeshArray & array ) throw(AssetFileNotFoundException)
 {
-    printf("Loading triangle mesh array\n");
+    logger.debug("Loading triangle mesh array\n");
     Assimp::Importer importer;
-    const aiScene * scene = loadAssimpScene( importer, filename );
+    const aiScene * scene = loadAssimpScene( logger, importer, filename );
     Transform baseTransform;
     appendToTriangleArray( scene, scene->mRootNode, array, baseTransform );
 }
@@ -166,7 +173,7 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
                                                  bool build_accelerator ) throw(AssetFileNotFoundException)
 {
     Assimp::Importer importer;
-    const aiScene * scene = loadAssimpScene( importer, filename );
+    const aiScene * scene = loadAssimpScene( logger, importer, filename );
     aiMesh ** meshes = scene->mMeshes;
     // FIXME - just getting the first mesh for now
     unsigned int mesh_index = 0;

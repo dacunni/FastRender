@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "ImageTracer.h"
+#include "Logger.h"
 
 // for intersection test logging
 #include "AxisAlignedSlab.h"
@@ -18,7 +19,8 @@ ImageTracer::ImageTracer( unsigned int w, unsigned int h,
       artifacts( w, h ),
       rays_per_pixel( rayspp ),
       num_frames( nframes ),
-      preview_window( artifacts )
+      preview_window( artifacts ),
+      logger( getLogger() )
 {
     camera = new SimpleCamera( 0.3, 0.3, w, h );
 }
@@ -67,22 +69,22 @@ void ImageTracer::renderThread()
 
     artifacts.startNewFrame();
 
-    printf("Tracing scene :  %u x %u frm %u rpp %u\n",
-           image_width, image_height,
-           num_frames, rays_per_pixel);
+    logger.normalf("Tracing scene :  %u x %u frm %u rpp %u",
+                  image_width, image_height,
+                  num_frames, rays_per_pixel);
 
     image_flush_timer.start();
     for( unsigned int frame = 0; frame < num_frames; ++frame ) {
-        printf("FRAME %4d / %4d\n", frame + 1, num_frames);
+        logger.normalf("FRAME %4d / %4d", frame + 1, num_frames);
         beginFrame( frame );
         if( traversal_nesting == SamplePosition ) {
             for( unsigned int sample_index = 0; sample_index < rays_per_pixel; sample_index++ ) {
                 for( unsigned int row = 0; row < image_height; ++row ) {
                     if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
-                        printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
-                               (float) (image_height * sample_index + row) / (image_height * rays_per_pixel) * 100.0f,
-                               num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
-                               image_flush_timer.elapsed());
+                        logger.normalf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)",
+                                       (float) (image_height * sample_index + row) / (image_height * rays_per_pixel) * 100.0f,
+                                       num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                                       image_flush_timer.elapsed());
                         artifacts.flush();
                         image_flush_timer.start(); // reset timer
                     }
@@ -112,10 +114,10 @@ void ImageTracer::renderThread()
                         ? image_width % tileSize : tileSize;
 
                     if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
-                        printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
-                               (float) gridRow / numGridRows * 100.0f,
-                               num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
-                               image_flush_timer.elapsed());
+                        logger.normalf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)",
+                                       (float) gridRow / numGridRows * 100.0f,
+                                       num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                                       image_flush_timer.elapsed());
                         artifacts.flush();
                         image_flush_timer.start(); // reset timer
                     }
@@ -133,10 +135,10 @@ void ImageTracer::renderThread()
         else if( traversal_nesting == PositionSample ) {
             for( unsigned int row = 0; row < image_height; ++row ) {
                 if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
-                    printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
-                           (float) row / image_height * 100.0f,
-                           num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
-                           image_flush_timer.elapsed());
+                    logger.normalf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)",
+                                   (float) row / image_height * 100.0f,
+                                   num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                                   image_flush_timer.elapsed());
                     artifacts.flush();
                     image_flush_timer.start(); // reset timer
                 }
@@ -153,18 +155,18 @@ void ImageTracer::renderThread()
             }
         }
         else {
-            fprintf(stderr, "ERROR: Unknown traversal nesting %d\n", (int) traversal_nesting);
+            logger.errorf("ERROR: Unknown traversal nesting %d", (int) traversal_nesting);
         }
         endFrame( frame );
     }
 
     artifacts.flush();
     
-    printf( "Intersection Complete, tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu\n",
-           AxisAlignedSlab::intersection_test_count,
-           Sphere::intersection_test_count,
-           TriangleMesh::intersection_test_count
-           );
+    logger.normalf("Intersection Complete, tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu",
+                   AxisAlignedSlab::intersection_test_count,
+                   Sphere::intersection_test_count,
+                   TriangleMesh::intersection_test_count
+                  );
 }
 
 void ImageTracer::beginFrame( unsigned int frame_index )
@@ -214,7 +216,7 @@ void ImageTracer::renderPixel( unsigned int row, unsigned int col, unsigned int 
     const float variance_threhshold = 5.0f;
     float pixel_variance = artifacts.pixelMaxChannelVariance( row, col );
     if( pixel_variance > variance_threhshold ) {
-        //printf("Variance exceeded (%f > %f) at (%u, %u), retrying\n", pixel_variance, variance_threhshold, row, col);
+        logger.debugf("Variance exceeded (%f > %f) at (%u, %u), retrying", pixel_variance, variance_threhshold, row, col);
         artifacts.resetPixelColor( row, col );
         beginRenderPixel( row, col );
         for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
