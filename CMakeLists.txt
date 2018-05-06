@@ -20,6 +20,7 @@ set(SRCS
     Camera.cpp
     CSG.cpp
     Color.cpp
+    Config.cpp
     CookTorranceMaterial.cpp
     Container.cpp
     DirectAreaLightShader.cpp

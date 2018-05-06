@@ -12,6 +12,7 @@ OBJ = \
 	BoundingVolumeHierarchy.o \
     Camera.o \
     Color.o \
+    Config.o \
 	Container.o \
     CookTorranceMaterial.o \
 	CSG.o \

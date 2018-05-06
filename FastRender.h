@@ -9,6 +9,7 @@
 #include "CSG.h"
 #include "Camera.h"
 #include "Color.h"
+#include "Config.h"
 #include "Container.h"
 #include "CookTorranceMaterial.h"
 #include "DirectAreaLightShader.h"
