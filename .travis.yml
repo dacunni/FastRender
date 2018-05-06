@@ -1,10 +1,11 @@
+sudo: required
+
 language: c++
-compiler:
-    - clang
-os:
-    - linux
+
+services:
+    - docker
+
 before_install:
-    - travis/install-imagemagick.sh
-script:
-    - make
+    - docker build -t fastrender .
+
 
