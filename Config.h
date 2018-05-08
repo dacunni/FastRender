@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 
+class Logger;
+
 class Config
 {
     public:
@@ -15,6 +17,7 @@ class Config
         void add(const std::string & key, const std::string & value);
         void clear();
         void print();
+        void log(Logger & logger);
 
     protected:
         using KeyValueMap = std::map<std::string, std::string>;

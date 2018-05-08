@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include "Config.h"
+#include "Logger.h"
 
 void Config::add(const std::string & key, const std::string & value)
 {
@@ -17,6 +18,13 @@ void Config::print()
 {
     for(auto & kv : keyValueMap) {
         std::cout << kv.first << ": " << kv.second << std::endl;
+    }
+}
+
+void Config::log(Logger & logger)
+{
+    for(auto & kv : keyValueMap) {
+        logger.normal() << kv.first << ": " << kv.second;
     }
 }
 
