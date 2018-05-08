@@ -88,6 +88,7 @@ class RegisterTest {
 
 // Prints a list of all tests in the test registry
 void printTests();
+void logTests(Logger & logger);
 
 // Calls the run() method on all tests in the registry
 void runTest( unsigned int index );

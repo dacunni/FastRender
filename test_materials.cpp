@@ -25,6 +25,14 @@ int main (int argc, char * const argv[])
     printf("Material Tests\n");
     fflush(stdout);
 
+    Config config;
+    loadConfigFromKeyValueFile("render.config", config);
+
+    auto logger = std::make_shared<FileLogger>("render.log");
+    logger->mirrorToStdout = config.get<bool>("MIRROR_LOGGING_TO_STDOUT");
+    setLogger(logger);
+
+    config.log(*logger);
     mkdir(output_path.c_str(), 0777);
 
     Timer total_run_timer;
@@ -60,6 +68,7 @@ int main (int argc, char * const argv[])
     else {
         // Run all tests
         printTests();
+        logTests(*logger);
         runTests();
     }
     

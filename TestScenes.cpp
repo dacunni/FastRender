@@ -40,6 +40,16 @@ void printTests() {
     }
 }
 
+// Logs a list of all tests in the test registry
+void logTests(Logger & logger) {
+    logger.normal() << "Tests (" << testRegistry.size() << ")";
+    unsigned int index = 0;
+    for( auto & test : testRegistry ) {
+        logger.normal()  << index << "  " << test->name;
+        index++;
+    }
+}
+
 void runTest( unsigned int index )
 {
     auto & test = testRegistry[index];
