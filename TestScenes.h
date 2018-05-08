@@ -6,6 +6,7 @@
 
 class Container;
 class FlatContainer;
+class Logger;
 
 void addSlabGrid( std::shared_ptr<Container> container );
 void addRandomSpheres( std::shared_ptr<Container> container, RandomNumberGenerator & rng, int numSpheres );
@@ -117,6 +118,7 @@ public:
     int anim_frames;
     AssetLoader loader;
     ImageTracer * tracer;
+    Logger & logger;
 };
 
 #define BEGIN_DERIVED_SCENE(TEST_NAME, PARENT) \

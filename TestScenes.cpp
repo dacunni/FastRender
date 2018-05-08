@@ -22,6 +22,7 @@
 #include "FlatContainer.h"
 #include "BasicDiffuseSpecularShader.h"
 #include "TestScenes.h"
+#include "Logger.h"
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -67,8 +68,10 @@ TestScene::TestScene( const std::string & output_path, const std::string & test_
     // TODO[DAC]: Figure out an easy way for tests to override these settings
     image_width(256),
     image_height(256),
-    anim_frames(1)
+    anim_frames(1),
+    logger(getLogger())
 {
+    logger.normal() << "TestScene name: " << name;
 }
 
 TestScene::~TestScene()
@@ -78,6 +81,10 @@ TestScene::~TestScene()
 
 void TestScene::setup()
 {
+    logger.normalf("Creating image tracer %d x %d, %d frames, %d rays per pixel",
+                   image_width, image_height, anim_frames, rays_per_pixel);
+    logger.normalf("Output directory: %s", output_dir.c_str());
+
     tracer = new ImageTracer( image_width, image_height,
                               anim_frames, rays_per_pixel );
 

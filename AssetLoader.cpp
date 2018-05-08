@@ -219,9 +219,8 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
     // TODO[DAC]: Make this configurable
     trimesh->makeCanonical();
 
-    printf("TriMesh bounds: ");
     auto bounds = trimesh->getAxisAlignedBounds();
-    bounds->print();
+    logger.normal() << "TriMesh bounds: " << bounds->toString();
 
     if( build_accelerator ) {
         TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );

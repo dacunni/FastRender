@@ -17,6 +17,7 @@
 class Traceable;
 class TraceLog;
 class EnvironmentMap;
+class Logger;
 
 class Scene 
 {
@@ -55,6 +56,7 @@ public:
 
     // Logging
     mutable TraceLog * trace_log = nullptr;
+    Logger & logger;
 };
 
 

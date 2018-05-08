@@ -14,10 +14,12 @@
 #include "Container.h"
 #include "Material.h"
 #include "EnvironmentMap.h"
+#include "Logger.h"
 
 Scene::Scene()
 : root(nullptr),
-  env_map(nullptr)
+  env_map(nullptr),
+  logger(getLogger())
 {
 
 }
@@ -105,7 +107,8 @@ void Scene::buildLightList()
     lights.clear();
     addLightsForTraceable( root );    
     // TODO[DAC]: Handle point lights buried within the scene hierarchy
-    printf("Found lights : %u area %u point\n", (unsigned int) lights.size(), (unsigned int) point_lights.size());
+    //printf("Found lights : %u area %u point\n", (unsigned int) lights.size(), (unsigned int) point_lights.size());
+    logger.normalf("Found lights : %u area %u point", (unsigned int) lights.size(), (unsigned int) point_lights.size());
 }
 
 void Scene::addLightsForTraceable( std::shared_ptr<Traceable> obj )
