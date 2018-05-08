@@ -1,13 +1,23 @@
 #include <iostream>
+#include <fstream>
 #include <cstdio>
 #include <unistd.h>
+#include <memory>
 #include "Logger.h"
 
-static Logger globalLogger;
+static std::shared_ptr<Logger> globalLogger;
 
 Logger & getLogger()
 {
-    return globalLogger;
+    if(!globalLogger) {
+        globalLogger = std::make_shared<Logger>();
+    }
+    return *globalLogger;
+}
+
+void setLogger(std::shared_ptr<Logger> logger)
+{
+    globalLogger = logger;
 }
 
 // ANSI terminal emulator color control codes
@@ -86,4 +96,22 @@ DFN_VARARG_LOG(errorf, Error);
 DFN_VARARG_LOG(fatalf, Fatal);
 DFN_VARARG_LOG(debugf, Debug);
 
+FileLogger::FileLogger(const std::string & filename)
+{
+    outFile.open(filename, std::ofstream::out | std::ofstream::trunc);
+    if(!outFile.good()) {
+        logToStout(Fatal, "Unable to open " + filename + " for writing");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void FileLogger::log(Severity s, const std::string & msg)
+{
+    if(mirrorToStdout) {
+        logToStout(s, msg);
+    }
+    std::lock_guard<std::mutex> guard(mutex);
+    outFile << severityToString(s, false)
+            << "\t" << msg << std::endl;
+}
 

@@ -759,10 +759,16 @@ int main (int argc, char * const argv[])
     printf("Render Tests\n");
     fflush(stdout);
 
-    mkdir(output_path.c_str(), 0777);
+    Config config;
+    loadConfigFromKeyValueFile("render.config", config);
 
-    Timer total_run_timer;
-    total_run_timer.start();
+    auto logger = std::make_shared<FileLogger>("render.log");
+    logger->mirrorToStdout = config.get<bool>("MIRROR_LOGGING_TO_STDOUT");
+    setLogger(logger);
+
+    config.log(*logger);
+
+    mkdir(output_path.c_str(), 0777);
 
     rng.seedCurrentTime();
 
@@ -815,7 +821,7 @@ int main (int argc, char * const argv[])
     //LogicalANDMeshes::run();
     //LogicalANDLensFocusLight::run();
 
-    SanMiguel::run();
+    //SanMiguel::run();
     //DabrovicSponza::run();
     //Hairball::run();
 
@@ -831,7 +837,7 @@ int main (int argc, char * const argv[])
     //GridRoomSceneWithSignedDistanceFunction::run();
 
     //RoomSceneWithSpheres::run();
-    //RoomSceneWithSpheresCookTorrance::run();
+    RoomSceneWithSpheresCookTorrance::run();
     //RoomSceneWithManyRefractiveSpheres::run();
 
     //SpheresPointLight::run();
@@ -848,8 +854,6 @@ int main (int argc, char * const argv[])
     //RefractiveSphereEmissiveObjectCaustic::run();
 #endif
     
-    total_run_timer.stop();
-    printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());
     fflush(stdout);
     return 0;
 }

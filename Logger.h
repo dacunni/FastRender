@@ -4,6 +4,7 @@
 #include <ostream>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <mutex>
 
 class Logger
@@ -70,6 +71,24 @@ class Logger
         std::mutex mutex;
 };
 
+class FileLogger : public Logger
+{
+    public:
+        FileLogger() = delete;
+        FileLogger(const std::string & filename);
+        FileLogger(const FileLogger &) = delete;
+        FileLogger(const FileLogger &&) = delete;
+        virtual ~FileLogger() = default;
+
+        virtual void log(Severity s, const std::string & msg);
+
+        bool mirrorToStdout = false;
+
+    protected:
+        std::ofstream outFile;
+};
+
 Logger & getLogger();
+void setLogger(std::shared_ptr<Logger> logger);
 
 #endif

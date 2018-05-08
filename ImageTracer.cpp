@@ -50,6 +50,11 @@ void ImageTracer::render()
 void ImageTracer::renderThread()
 {
     Timer image_flush_timer;
+    ProcessorTimer processor_timer;
+    WallClockTimer wall_clock_timer;
+
+    processor_timer.start();
+    wall_clock_timer.start();
 
     // Pixel order randomization
     std::vector<unsigned int> randomized_indices;
@@ -161,12 +166,17 @@ void ImageTracer::renderThread()
     }
 
     artifacts.flush();
+    processor_timer.stop();
+    wall_clock_timer.stop();
     
     logger.normalf("Intersection Complete, tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu",
                    AxisAlignedSlab::intersection_test_count,
                    Sphere::intersection_test_count,
                    TriangleMesh::intersection_test_count
                   );
+    logger.normal() << "Trace time: "
+        << wall_clock_timer.elapsed() << " s (wall), "
+        << processor_timer.elapsed() << " s (proc)";
 }
 
 void ImageTracer::beginFrame( unsigned int frame_index )
@@ -216,7 +226,7 @@ void ImageTracer::renderPixel( unsigned int row, unsigned int col, unsigned int 
     const float variance_threhshold = 5.0f;
     float pixel_variance = artifacts.pixelMaxChannelVariance( row, col );
     if( pixel_variance > variance_threhshold ) {
-        logger.debugf("Variance exceeded (%f > %f) at (%u, %u), retrying", pixel_variance, variance_threhshold, row, col);
+        logger.debugf("FF suppress: Variance exceeded (%.2f > %.2f) at (%u, %u), retrying", pixel_variance, variance_threhshold, row, col);
         artifacts.resetPixelColor( row, col );
         beginRenderPixel( row, col );
         for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
