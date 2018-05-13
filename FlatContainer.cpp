@@ -15,18 +15,18 @@
 
 FlatContainer::FlatContainer()
 {
-	
+
 }
 
 FlatContainer::~FlatContainer()
 {
     /*
-	for( std::vector<Traceable*>::const_iterator object = objects.begin(); object != objects.end(); ++object ) {
-		if( *object ) {
-			delete *object;
-		}
-	}
-    */
+       for( std::vector<Traceable*>::const_iterator object = objects.begin(); object != objects.end(); ++object ) {
+       if( *object ) {
+       delete *object;
+       }
+       }
+     */
 }
 
 void FlatContainer::print( FILE * file ) const
@@ -39,46 +39,46 @@ void FlatContainer::print( FILE * file ) const
 
 void FlatContainer::add( std::shared_ptr<Traceable> traceable )
 {
-	objects.push_back( traceable );
+    objects.push_back( traceable );
 }
 
 bool FlatContainer::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
     RayIntersection temp_isect = intersection;
     bool found_one = false;
-	
-	// Iterate over all of the traceable objects in the container, checking for the closest hit
-	for( std::vector<std::shared_ptr<Traceable>>::const_iterator object = objects.begin(); object != objects.end(); ++object ) {
-		// See if we hit each object
-		if( (*object)->intersectTransformed( ray, temp_isect ) ) {
-			if( found_one ) {
-				// If we already have an intersection, see if this one is closer
-				if( temp_isect.distance < intersection.distance ) {
-					intersection = temp_isect;
-				}
-			}
-			else {
-				// Simply record the first hit
+
+    // Iterate over all of the traceable objects in the container, checking for the closest hit
+    for(const auto & object : objects) {
+        // See if we hit each object
+        if(object->intersectTransformed(ray, temp_isect)) {
+            if(found_one) {
+                // If we already have an intersection, see if this one is closer
+                if(temp_isect.distance < intersection.distance) {
+                    intersection = temp_isect;
+                }
+            }
+            else {
+                // Simply record the first hit
                 intersection = temp_isect;
                 found_one = true;
-			}
-		}
-	}
-	
-	return found_one;
+            }
+        }
+    }
+
+    return found_one;
 }
 
 bool FlatContainer::intersectsAny( const Ray & ray, float min_distance ) const
 {
     // Iterate over all of the traceable objects in the container, checking for the closest hit
-	for( std::vector<std::shared_ptr<Traceable>>::const_iterator object = objects.begin(); object != objects.end(); ++object ) {
-		// See if we hit each object
-		if( (*object)->intersectsAnyTransformed( ray, min_distance ) ) {
+    for(const auto & object : objects) {
+        // See if we hit each object
+        if(object->intersectsAnyTransformed(ray, min_distance)) {
             return true;
-		}
-	}
-	
-	return false;
+        }
+    }
+
+    return false;
 }
 
 std::string FlatContainer::toJSON() const
