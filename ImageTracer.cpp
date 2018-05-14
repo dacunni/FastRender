@@ -226,7 +226,7 @@ void ImageTracer::renderPixel( unsigned int row, unsigned int col, unsigned int 
     const float variance_threhshold = 5.0f;
     float pixel_variance = artifacts.pixelMaxChannelVariance( row, col );
     if( pixel_variance > variance_threhshold ) {
-        logger.debugf("FF suppress: Variance exceeded (%.2f > %.2f) at (%u, %u), retrying", pixel_variance, variance_threhshold, row, col);
+        //logger.debugf("FF suppress: Variance exceeded (%.2f > %.2f) at (%u, %u), retrying", pixel_variance, variance_threhshold, row, col);
         artifacts.resetPixelColor( row, col );
         beginRenderPixel( row, col );
         for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {

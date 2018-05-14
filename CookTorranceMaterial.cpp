@@ -13,8 +13,7 @@ CookTorranceMaterial::CookTorranceMaterial()
     roughness(DEFAULT_ROUGHNESS),
     specular(DEFAULT_SPECULAR)
 {
-    diffuseColor.setRGB( 1.0f, 1.0f, 1.0f );
-    specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+    setAlbedo(makeConstantParamRGB(1, 1, 1));
     emittance.setRGB( 0.0f, 0.0f, 0.0f );
 }
 
@@ -23,8 +22,7 @@ CookTorranceMaterial::CookTorranceMaterial( float r, float g, float b )
     roughness(DEFAULT_ROUGHNESS),
     specular(DEFAULT_SPECULAR)
 { 
-    diffuseColor.setRGB( r, g, b ); 
-    specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+    setAlbedo(makeConstantParamRGB(r, g, b));
     emittance.setRGB( 0.0f, 0.0f, 0.0f );
 }
 
@@ -33,8 +31,7 @@ CookTorranceMaterial::CookTorranceMaterial( float r, float g, float b, float _ro
     roughness(_roughness),
     specular(DEFAULT_SPECULAR)
 { 
-    diffuseColor.setRGB( r, g, b ); 
-    specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+    setAlbedo(makeConstantParamRGB(r, g, b));
     emittance.setRGB( 0.0f, 0.0f, 0.0f );
 }
 

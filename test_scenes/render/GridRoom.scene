@@ -6,7 +6,10 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
-    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>();
+    //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 0.5, 0.5, 1.0 );
+    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 0.5, 0.5, 1.0, 1.0, 0.5, 0.5 );
 
     float dim = 1.0;
     container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, -0.1, dim ), checkerboard_material ); // floor
