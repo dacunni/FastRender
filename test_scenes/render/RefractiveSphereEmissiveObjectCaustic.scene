@@ -23,10 +23,8 @@ BUILD_SCENE(
 
     // Light
     auto cube = std::make_shared<AxisAlignedSlab>( 2.0, 2.5, -1.0,
-                                     4.0, 4.5,  1.0 );
-    cube->material = std::make_shared<Material>();
-    cube->material->emittance = RGBColor( 1.0, 1.0, 1.0 );
-    cube->material->emittance.scale( 5.0 );
+                                                   4.0, 4.5,  1.0 );
+    cube->material = std::make_shared<DiffuseEmitterMaterial>(RGBColor(1, 1, 1).scaled(5));
     container->add( cube );
 
     tracer->shader = new BasicDiffuseSpecularShader();

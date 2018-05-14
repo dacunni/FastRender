@@ -32,10 +32,10 @@ std::vector<TestRegistryEntryErased *> testRegistry;
 
 // Prints a list of all tests in the test registry
 void printTests() {
-    std::cout << "Tests (" << testRegistry.size() << ")" << std::endl;
+    printf("Tests (%u)\n", (unsigned int) testRegistry.size());
     unsigned int index = 0;
     for( auto & test : testRegistry ) {
-        std::cout << "\t" << index << "  " << test->name << std::endl;
+        printf("%3u : %s\n", index, test->name.c_str());
         index++;
     }
 }
