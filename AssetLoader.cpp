@@ -241,9 +241,7 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
     }
 
     if( build_accelerator ) {
-        TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );
-        trimesh_octree->build();
-        trimesh->accelerator = trimesh_octree;
+        addOctreeAccelerator(*trimesh);
     }
 
     return trimesh;
@@ -259,9 +257,7 @@ std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filen
     
     for( auto trimesh : array ) {
         if( build_accelerator ) {
-            TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );
-            trimesh_octree->build();
-            trimesh->accelerator = trimesh_octree;
+            addOctreeAccelerator(*trimesh);
         }
 
         container->add( trimesh );
@@ -355,9 +351,7 @@ std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::strin
     bounds->print();
 
     if( build_accelerator ) {
-        TMOctreeAccelerator * octree = new TMOctreeAccelerator( *ubermesh );
-        octree->build();
-        ubermesh->accelerator = octree;
+        addOctreeAccelerator(*ubermesh);
     }
 
     return ubermesh;

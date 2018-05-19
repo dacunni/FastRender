@@ -64,4 +64,6 @@ private:
     void childOrderForDirection( const Vector4 & d, unsigned int indices[8] ) const;
 };
 
+void addOctreeAccelerator( TriangleMesh & m );
+
 #endif /* defined(__FastRender__TMOctreeAccelerator__) */

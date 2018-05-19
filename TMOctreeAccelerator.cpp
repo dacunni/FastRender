@@ -384,3 +384,10 @@ void TMOctreeAccelerator::print( FILE * file )
     root.print( file );
 }
 
+void addOctreeAccelerator( TriangleMesh & m )
+{
+    auto octree = new TMOctreeAccelerator(m);
+    octree->build();
+    m.accelerator = octree;
+}
+
