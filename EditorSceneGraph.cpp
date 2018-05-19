@@ -206,12 +206,12 @@ class TriangleMeshEditor : public ObjectEditor {
 
             std::vector<Vertex> vertices;
             std::vector<uint32_t> indices;
-            vertices.reserve(obj.vertices.size());
-            indices.reserve(obj.triangles.size() * 3);
+            vertices.reserve(obj.mesh_data->vertices.size());
+            indices.reserve(obj.mesh_data->triangles.size() * 3);
 
-            for( unsigned int index = 0; index < obj.vertices.size(); index++ ) {
-                const auto & vertex = obj.vertices[index];
-                const auto & normal = obj.normals[index];
+            for( unsigned int index = 0; index < obj.mesh_data->vertices.size(); index++ ) {
+                const auto & vertex = obj.mesh_data->vertices[index];
+                const auto & normal = obj.mesh_data->normals[index];
                 vertices.push_back( {
                     .position = { .x = vertex.x,
                                   .y = vertex.y,
@@ -222,7 +222,7 @@ class TriangleMeshEditor : public ObjectEditor {
             }
             numVertices = vertices.size();
 
-            for( const auto & tri : obj.triangles ) {
+            for( const auto & tri : obj.mesh_data->triangles ) {
                 indices.push_back(tri.vi[0]);
                 indices.push_back(tri.vi[1]);
                 indices.push_back(tri.vi[2]);

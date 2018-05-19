@@ -72,11 +72,13 @@ static void const constructTriangleMesh( const aiMesh * mesh,
 {
     bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
 
-    trimesh.vertices.resize( mesh->mNumVertices );
-    trimesh.normals.resize( mesh->mNumVertices );
-    trimesh.triangles.resize( mesh->mNumFaces );
+    auto & mesh_data = trimesh.mesh_data;
+
+    mesh_data->vertices.resize( mesh->mNumVertices );
+    mesh_data->normals.resize( mesh->mNumVertices );
+    mesh_data->triangles.resize( mesh->mNumFaces );
     if( has_uv ) {
-        trimesh.textureUVCoords.resize( mesh->mNumVertices );
+        mesh_data->textureUVCoords.resize( mesh->mNumVertices );
     }
 
     for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
@@ -91,23 +93,23 @@ static void const constructTriangleMesh( const aiMesh * mesh,
         }
 
 #if 1
-        trimesh.vertices[vi] = mult( transform.fwd, Vector4( v.x, v.y, v.z, 1.0f ) );
-        trimesh.normals[vi] = mult( transform.fwd, Vector4( n.x, n.y, n.z, 0.0f ) );
+        mesh_data->vertices[vi] = mult( transform.fwd, Vector4( v.x, v.y, v.z, 1.0f ) );
+        mesh_data->normals[vi] = mult( transform.fwd, Vector4( n.x, n.y, n.z, 0.0f ) );
 #else
-        trimesh.vertices[vi].set( v.x, v.y, v.z );
-        trimesh.normals[vi].set( n.x, n.y, n.z );
+        mesh_data->vertices[vi].set( v.x, v.y, v.z );
+        mesh_data->normals[vi].set( n.x, n.y, n.z );
 #endif
         if( has_uv ) {
             const auto tc = mesh->mTextureCoords[0][vi];
-            trimesh.textureUVCoords[vi] = { tc.x, tc.y };
+            mesh_data->textureUVCoords[vi] = { tc.x, tc.y };
         }
     }
 
     for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {
         const auto t = mesh->mFaces[ti];
-        trimesh.triangles[ti].vi[0] = t.mIndices[0];
-        trimesh.triangles[ti].vi[1] = t.mIndices[1];
-        trimesh.triangles[ti].vi[2] = t.mIndices[2];
+        mesh_data->triangles[ti].vi[0] = t.mIndices[0];
+        mesh_data->triangles[ti].vi[1] = t.mIndices[1];
+        mesh_data->triangles[ti].vi[2] = t.mIndices[2];
     }
 }
 
@@ -169,29 +171,20 @@ void AssetLoader::loadTriangleArray( const std::string & filename,
     appendToTriangleArray( scene, scene->mRootNode, array, baseTransform );
 }
 
-std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
-                                                 bool build_accelerator ) throw(AssetFileNotFoundException)
+static void copy(TriangleMesh::MeshData & mesh_data, const aiMesh & mesh)
 {
-    Assimp::Importer importer;
-    const aiScene * scene = loadAssimpScene( logger, importer, filename );
-    aiMesh ** meshes = scene->mMeshes;
-    // FIXME - just getting the first mesh for now
-    unsigned int mesh_index = 0;
-    
-    aiMesh * mesh = meshes[mesh_index];
-    bool has_uv = mesh->GetNumUVChannels() > 0 && mesh->mNumUVComponents[0] >= 2;
-    auto trimesh = std::make_shared<TriangleMesh>();
-    
-    trimesh->vertices.resize( mesh->mNumVertices );
-    trimesh->normals.resize( mesh->mNumVertices );
-    trimesh->triangles.resize( mesh->mNumFaces );
+    bool has_uv = mesh.GetNumUVChannels() > 0 && mesh.mNumUVComponents[0] >= 2;
+
+    mesh_data.vertices.resize( mesh.mNumVertices );
+    mesh_data.normals.resize( mesh.mNumVertices );
+    mesh_data.triangles.resize( mesh.mNumFaces );
     if( has_uv ) {
-        trimesh->textureUVCoords.resize( mesh->mNumVertices );
+        mesh_data.textureUVCoords.resize( mesh.mNumVertices );
     }
- 
-    for( unsigned int vi = 0; vi < mesh->mNumVertices; ++vi ) {
-        const auto v = mesh->mVertices[vi];
-        auto n = mesh->mNormals[vi];
+
+    for( unsigned int vi = 0; vi < mesh.mNumVertices; ++vi ) {
+        const auto v = mesh.mVertices[vi];
+        auto n = mesh.mNormals[vi];
 
         // TEMP
         // FIXME[DAC]: This is a hacky fix, especially since normal vectors
@@ -200,27 +193,52 @@ std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
             n.x = n.y = n.z = 0.0f;
         }
 
-        trimesh->vertices[vi].set( v.x, v.y, v.z );
-        trimesh->normals[vi].set( n.x, n.y, n.z );
+        mesh_data.vertices[vi].set( v.x, v.y, v.z );
+        mesh_data.normals[vi].set( n.x, n.y, n.z );
         if( has_uv ) {
-            const auto tc = mesh->mTextureCoords[0][vi];
-            trimesh->textureUVCoords[vi] = { tc.x, tc.y };
+            const auto tc = mesh.mTextureCoords[0][vi];
+            mesh_data.textureUVCoords[vi] = { tc.x, tc.y };
         }
     }
 
-    for( unsigned int ti = 0; ti < mesh->mNumFaces; ++ti ) {
-        const auto t = mesh->mFaces[ti];
-        trimesh->triangles[ti].vi[0] = t.mIndices[0];
-        trimesh->triangles[ti].vi[1] = t.mIndices[1];
-        trimesh->triangles[ti].vi[2] = t.mIndices[2];
+    for( unsigned int ti = 0; ti < mesh.mNumFaces; ++ti ) {
+        const auto t = mesh.mFaces[ti];
+        mesh_data.triangles[ti].vi[0] = t.mIndices[0];
+        mesh_data.triangles[ti].vi[1] = t.mIndices[1];
+        mesh_data.triangles[ti].vi[2] = t.mIndices[2];
     }
+}
 
-    // Shift to the canonical position and size
-    // TODO[DAC]: Make this configurable
-    trimesh->makeCanonical();
+std::shared_ptr<TriangleMesh> AssetLoader::load( const std::string & filename,
+                                                 bool build_accelerator ) throw(AssetFileNotFoundException)
+{
+    auto trimesh = std::make_shared<TriangleMesh>();
 
-    auto bounds = trimesh->getAxisAlignedBounds();
-    logger.normal() << "TriMesh bounds: " << bounds->toString();
+    auto cached = meshDataCache.find(filename);
+
+    if(cached != meshDataCache.end()) {
+        logger.debug() << "Found mesh for " << filename << " in cache";
+        trimesh->mesh_data = cached->second;
+    }
+    else {
+        Assimp::Importer importer;
+        const aiScene * scene = loadAssimpScene( logger, importer, filename );
+        aiMesh ** meshes = scene->mMeshes;
+        // FIXME - just getting the first mesh for now
+        unsigned int mesh_index = 0;
+
+        aiMesh * mesh = meshes[mesh_index];
+        copy(*trimesh->mesh_data, *mesh);
+
+        // Shift to the canonical position and size
+        // TODO[DAC]: Make this configurable
+        trimesh->makeCanonical();
+
+        auto bounds = trimesh->getAxisAlignedBounds();
+        logger.normal() << "TriMesh bounds: " << bounds->toString();
+
+        meshDataCache[filename] = trimesh->mesh_data;
+    }
 
     if( build_accelerator ) {
         TMOctreeAccelerator * trimesh_octree = new TMOctreeAccelerator( *trimesh );
@@ -286,16 +304,16 @@ std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::strin
 
     // Find out how much we need to allocate
     for( auto mesh : array ) {
-        num_vertices += mesh->vertices.size();
-        num_normals += mesh->normals.size();
-        num_triangles += mesh->triangles.size();
+        num_vertices += mesh->mesh_data->vertices.size();
+        num_normals += mesh->mesh_data->normals.size();
+        num_triangles += mesh->mesh_data->triangles.size();
     }
 
     auto ubermesh = std::make_shared<TriangleMesh>();
 
-    ubermesh->vertices.resize( num_vertices );
-    ubermesh->normals.resize( num_normals );
-    ubermesh->triangles.resize( num_triangles );
+    ubermesh->mesh_data->vertices.resize( num_vertices );
+    ubermesh->mesh_data->normals.resize( num_normals );
+    ubermesh->mesh_data->triangles.resize( num_triangles );
 
     printf("Ubermesh vertices=%u normals=%u triangles=%u\n", num_vertices, num_normals, num_triangles);
 
@@ -308,20 +326,20 @@ std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::strin
     for( auto mesh : array ) {
         unsigned int part_vertex_start = vertex_index;
 
-        for( unsigned int vi = 0; vi < mesh->vertices.size(); vi++, vertex_index++ ) {
-            ubermesh->vertices[vertex_index] = mesh->vertices[vi];
+        for( unsigned int vi = 0; vi < mesh->mesh_data->vertices.size(); vi++, vertex_index++ ) {
+            ubermesh->mesh_data->vertices[vertex_index] = mesh->mesh_data->vertices[vi];
         }
-        for( unsigned int ni = 0; ni < mesh->normals.size(); ni++, normal_index++ ) {
-            ubermesh->normals[normal_index] = mesh->normals[ni];
+        for( unsigned int ni = 0; ni < mesh->mesh_data->normals.size(); ni++, normal_index++ ) {
+            ubermesh->mesh_data->normals[normal_index] = mesh->mesh_data->normals[ni];
         }
-        for( unsigned int ti = 0; ti < mesh->triangles.size(); ti++, triangle_index++ ) {
-            ubermesh->triangles[triangle_index].vi[0] = mesh->triangles[ti].vi[0] + part_vertex_start;
-            ubermesh->triangles[triangle_index].vi[1] = mesh->triangles[ti].vi[1] + part_vertex_start;
-            ubermesh->triangles[triangle_index].vi[2] = mesh->triangles[ti].vi[2] + part_vertex_start;
+        for( unsigned int ti = 0; ti < mesh->mesh_data->triangles.size(); ti++, triangle_index++ ) {
+            ubermesh->mesh_data->triangles[triangle_index].vi[0] = mesh->mesh_data->triangles[ti].vi[0] + part_vertex_start;
+            ubermesh->mesh_data->triangles[triangle_index].vi[1] = mesh->mesh_data->triangles[ti].vi[1] + part_vertex_start;
+            ubermesh->mesh_data->triangles[triangle_index].vi[2] = mesh->mesh_data->triangles[ti].vi[2] + part_vertex_start;
         }
     }
 
-    if( ubermesh->vertices.size() == 0 ) {
+    if( ubermesh->mesh_data->vertices.size() == 0 ) {
         return ubermesh;
     }
 

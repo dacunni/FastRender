@@ -12,10 +12,12 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <map>
+
+#include "TriangleMesh.h"
 
 class Container;
 class Traceable;
-class TriangleMesh;
 class Logger;
 
 class AssetFileNotFoundException {};
@@ -37,6 +39,8 @@ public:
 protected:
     void loadTriangleArray( const std::string & filename,
                             TriangleMeshArray & array ) throw(AssetFileNotFoundException);
+
+    std::map<std::string, std::shared_ptr<TriangleMesh::MeshData>> meshDataCache;
 
     Logger & logger;
 };
