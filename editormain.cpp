@@ -38,11 +38,11 @@ int main (int argc, char * const argv[])
     //SanMiguel test(output_path);
     //GridRoomSceneWithBunny test(output_path);
     //MaterialTestCookTorranceRoughness01WhiteAreaLight test(output_path);
-    MaterialTestCookTorranceRoughness05WhiteAreaLight test(output_path);
+    //MaterialTestCookTorranceRoughness05WhiteAreaLight test(output_path);
     //MaterialTestCookTorranceRoughness10WhiteAreaLight test(output_path);
     //MaterialTestCookTorranceRoughness05WhiteEnvironmentMap test(output_path);
     //MaterialTestCookTorranceAreaLightSweepRoughnessLowVaryingColors test(output_path);
-    //GridRoomSceneWithLunarLander test(output_path);
+    GridRoomSceneWithLunarLander test(output_path);
     //GridRoomSceneWithTieFighter test(output_path);
     //MirrorSphereColoredSpheresArcLight test(output_path);
     //UVMesh test(output_path);
