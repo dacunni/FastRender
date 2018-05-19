@@ -78,6 +78,10 @@ public:
                                                         // objects of this class
 };
 
+typedef std::vector<std::shared_ptr<TriangleMesh>> TriangleMeshArray;
+
+std::shared_ptr<TriangleMesh> combineMeshes( TriangleMeshArray & array );
+
 void makeTriangleMeshTetrahedron( TriangleMesh & mesh );
 void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size );
 

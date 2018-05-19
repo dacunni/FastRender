@@ -22,8 +22,6 @@ class Logger;
 
 class AssetFileNotFoundException {};
 
-typedef std::vector<std::shared_ptr<TriangleMesh>> TriangleMeshArray;
-
 class AssetLoader {
 public:
     AssetLoader();

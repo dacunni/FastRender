@@ -287,41 +287,6 @@ std::shared_ptr<Container> AssetLoader::loadMultiPart( const std::string & filen
     return container;
 }
 
-std::shared_ptr<TriangleMesh> combineMeshes( TriangleMeshArray & array )
-{
-    auto ubermesh = std::make_shared<TriangleMesh>();
-
-    for(auto mesh : array) {
-        auto & uber_data = *ubermesh->mesh_data;
-        auto & part_data = *mesh->mesh_data;
-
-        unsigned int part_vertex_start = uber_data.vertices.size();
-
-        std::copy(part_data.vertices.begin(), part_data.vertices.end(),
-                  std::back_inserter(uber_data.vertices));
-
-        std::copy(part_data.normals.begin(), part_data.normals.end(),
-                  std::back_inserter(uber_data.normals));
-
-        std::transform(part_data.triangles.begin(), part_data.triangles.end(),
-                       std::back_inserter(uber_data.triangles),
-                       [&](TriangleMesh::IndexTriangle & tri) {
-                           TriangleMesh::IndexTriangle offset_tri;
-                           offset_tri.vi[0] = tri.vi[0] + part_vertex_start;
-                           offset_tri.vi[1] = tri.vi[1] + part_vertex_start;
-                           offset_tri.vi[2] = tri.vi[2] + part_vertex_start;
-                           return offset_tri;
-                       });
-    }
-
-    printf("Ubermesh vertices=%u normals=%u triangles=%u\n",
-           (unsigned int) ubermesh->mesh_data->vertices.size(),
-           (unsigned int) ubermesh->mesh_data->normals.size(),
-           (unsigned int) ubermesh->mesh_data->triangles.size());
-
-    return ubermesh;
-}
-
 // Loads a multipart mesh and merges the pieces into a single mesh object
 std::shared_ptr<TriangleMesh> AssetLoader::loadMultiPartMerged( const std::string & filename,
                                                                 bool build_accelerator ) throw(AssetFileNotFoundException)
