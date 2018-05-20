@@ -337,7 +337,7 @@ int main (int argc, char * const argv[])
     validateBxDF(DiffuseMaterial(1.0, 1.0, 1.0));
     validateBxDF(DiffuseCheckerBoardMaterial(1.0, 1.0, 1.0));
     validateBxDF(DiffuseUVMaterial());
-    validateBxDF(MirrorMaterial(1.0, 1.0, 1.0));
+    validateBxDF(MirrorMaterial());
     validateBxDF(CookTorranceMaterial(1.0, 1.0, 1.0));
 
 

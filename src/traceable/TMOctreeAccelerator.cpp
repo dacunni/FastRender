@@ -73,7 +73,7 @@ void TMOctreeAccelerator::build()
             );
 #endif
     
-    for( auto ti = 0; ti < mesh.triangles.size(); ++ti ) {
+    for( auto ti = 0; ti < mesh.mesh_data->triangles.size(); ++ti ) {
         root.triangles.push_back( ti );
     }
     
@@ -126,9 +126,9 @@ void TMOctreeAccelerator::buildNode( Node * node )
     for( auto ti = 0; ti < node->triangles.size(); ++ti ) {
         unsigned char bins = 0x0;
         auto triangle_index = node->triangles[ ti ];
-        TriangleMesh::IndexTriangle & tri = mesh.triangles[ triangle_index ];
+        TriangleMesh::IndexTriangle & tri = mesh.mesh_data->triangles[ triangle_index ];
         for( unsigned int vi = 0; vi < 3; vi++ ) {
-            Vector4 & vertex = mesh.vertices[ tri.vi[ vi ] ];
+            Vector4 & vertex = mesh.mesh_data->vertices[ tri.vi[ vi ] ];
             
             if( vertex.x <= xsplit ) bins |= XLOW;
             if( vertex.x >= xsplit ) bins |= XHIGH;
@@ -382,5 +382,12 @@ void TMOctreeAccelerator::print( FILE * file )
 {
     fprintf( file, "Triangle Mesh Octree Accelerator:\n" );
     root.print( file );
+}
+
+void addOctreeAccelerator( TriangleMesh & m )
+{
+    auto octree = new TMOctreeAccelerator(m);
+    octree->build();
+    m.accelerator = octree;
 }
 

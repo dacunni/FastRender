@@ -12,6 +12,7 @@ OBJ = \
 	BoundingVolumeHierarchy.o \
     Camera.o \
     Color.o \
+    Config.o \
 	Container.o \
     CookTorranceMaterial.o \
 	CSG.o \
@@ -30,6 +31,7 @@ OBJ = \
 	ImageTracer.o \
 	InspectionShader.o \
     Lights.o \
+    Logger.o \
 	Material.o \
 	Matrix.o \
     OmniCamera.o \

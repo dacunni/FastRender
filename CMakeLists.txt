@@ -41,6 +41,7 @@ set(SRCS
     ${SRC_ROOT}/Artifacts.cpp
     ${SRC_ROOT}/AssetLoader.cpp
     ${SRC_ROOT}/Color.cpp
+    ${SRC_ROOT}/Config.cpp
     ${SRC_ROOT}/CookTorranceMaterial.cpp
     ${SRC_ROOT}/DistributionSamplers.cpp
     ${SRC_ROOT}/Editor.cpp
@@ -52,6 +53,7 @@ set(SRCS
     ${SRC_ROOT}/Image.cpp
     ${SRC_ROOT}/ImageTracer.cpp
     ${SRC_ROOT}/Lights.cpp
+    ${SRC_ROOT}/Logger.cpp
     ${SRC_ROOT}/Material.cpp
     ${SRC_ROOT}/OpenGLUtil.cpp
     ${SRC_ROOT}/Plot2D.cpp

@@ -9,38 +9,25 @@ static float DEFAULT_SPECULAR = 0.2;
 //static float DEFAULT_SPECULAR = 1.0; // TEMP
 
 CookTorranceMaterial::CookTorranceMaterial()
-  : Material(),
-    roughness(DEFAULT_ROUGHNESS),
-    specular(DEFAULT_SPECULAR)
-{
-    diffuseColor.setRGB( 1.0f, 1.0f, 1.0f );
-    specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-    emittance.setRGB( 0.0f, 0.0f, 0.0f );
-}
+    : CookTorranceMaterial(1, 1, 1, DEFAULT_ROUGHNESS)
+{ }
 
-CookTorranceMaterial::CookTorranceMaterial( float r, float g, float b )
-  : Material(),
-    roughness(DEFAULT_ROUGHNESS),
-    specular(DEFAULT_SPECULAR)
-{ 
-    diffuseColor.setRGB( r, g, b ); 
-    specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-    emittance.setRGB( 0.0f, 0.0f, 0.0f );
-}
+CookTorranceMaterial::CookTorranceMaterial(float r, float g, float b)
+    : CookTorranceMaterial(r, g, b, DEFAULT_ROUGHNESS)
+{ }
 
-CookTorranceMaterial::CookTorranceMaterial( float r, float g, float b, float _roughness )
+CookTorranceMaterial::CookTorranceMaterial(float r, float g, float b, float _roughness)
   : Material(),
     roughness(_roughness),
     specular(DEFAULT_SPECULAR)
 { 
-    diffuseColor.setRGB( r, g, b ); 
-    specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+    setAlbedo(makeConstantParamRGB(r, g, b));
     emittance.setRGB( 0.0f, 0.0f, 0.0f );
 }
 
 DistributionSample
-CookTorranceMaterial::sampleBxDF( RandomNumberGenerator & rng,
-                                  const RayIntersection & intersection ) const
+CookTorranceMaterial::sampleBxDF(RandomNumberGenerator & rng,
+                                 const RayIntersection & intersection) const
 {
     DistributionSample sample;
 #if 0
@@ -84,7 +71,7 @@ float beckmanNormalDistribution(float roughness, float NdH)
 }
 
 float
-CookTorranceMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const
+CookTorranceMaterial::BxDF(const Vector4 & normal, const Vector4 & wi, const Vector4 & wo) const
 {
     const float NdV = dot(normal, wi);
     const float NdL = dot(normal, wo);

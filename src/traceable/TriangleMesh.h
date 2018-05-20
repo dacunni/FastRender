@@ -64,16 +64,23 @@ public:
     virtual std::string toJSON() const;
     virtual void visit( TraceableVisitor & visitor );
 
-    VertexArray                     vertices;
-    NormalArray                     normals;
-    IndexTriangleArray              triangles;
-    TextureUVArray                  textureUVCoords;
+    struct MeshData {
+        VertexArray        vertices;
+        NormalArray        normals;
+        IndexTriangleArray triangles;
+        TextureUVArray     textureUVCoords;
+    };
+    std::shared_ptr<MeshData> mesh_data;
 
-    TriangleMeshAccelerator       * accelerator;        // Intersetion acceleration object (null if none)
+    TriangleMeshAccelerator * accelerator;              // Intersetion acceleration object (null if none)
     
     static unsigned long intersection_test_count;       // Counts the number of intersection tests against
                                                         // objects of this class
 };
+
+typedef std::vector<std::shared_ptr<TriangleMesh>> TriangleMeshArray;
+
+std::shared_ptr<TriangleMesh> combineMeshes( TriangleMeshArray & array );
 
 void makeTriangleMeshTetrahedron( TriangleMesh & mesh );
 void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size );

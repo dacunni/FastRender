@@ -6,6 +6,21 @@
 
 std::shared_ptr<Material> DEFAULT_MATERIAL = std::make_shared<DiffuseMaterial>();
 
+MaterialParamRGB makeConstantParamRGB(const RGBColor & c)
+{
+    return [c](const RayIntersection &) { return c; };
+}
+
+MaterialParamRGB makeConstantParamRGB(float r, float g, float b)
+{
+    return makeConstantParamRGB(RGBColor(r, g, b));
+}
+
+Material::Material()
+{
+    setAlbedo(makeConstantParamRGB(1, 1, 1));
+}
+
 float
 Material::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const
 {
@@ -80,16 +95,26 @@ DiffuseMaterial::sampleBxDF( RandomNumberGenerator & rng,
 #endif
 }
 
-RGBColor
-DiffuseCheckerBoardMaterial::diffuse( const RayIntersection & isect ) {
-    return (bool(int(floorf(isect.position.x / gridSize)) % 2) ^
-            //bool(int(floorf(isect.position.y / gridSize)) % 2) ^
-            bool(int(floorf(isect.position.z / gridSize)) % 2)
-            )
-        ?  diffuseColor 
-        : RGBColor(0.0f, 0.0f, 0.0f);
-        //?  RGBColor(1.0f, 0.0f, 0.0f)
-        //: RGBColor(0.0f, 1.0f, 0.0f);
+DiffuseCheckerBoardMaterial::DiffuseCheckerBoardMaterial()
+: DiffuseCheckerBoardMaterial(1, 1, 1, 0, 0, 0)
+{ }
+
+DiffuseCheckerBoardMaterial::DiffuseCheckerBoardMaterial(float r, float g, float b)
+: DiffuseCheckerBoardMaterial(r, g, b, 0, 0, 0)
+{ }
+
+DiffuseCheckerBoardMaterial::DiffuseCheckerBoardMaterial(float r1, float g1, float b1,
+                                                         float r2, float g2, float b2)
+: Material()
+{ 
+    RGBColor color1(r1, g1, b1);
+    RGBColor color2(r2, g2, b2);
+    setAlbedo([color1, color2, this](const RayIntersection & isect) {
+        return (bool(int(floorf(isect.position.x / gridSize)) % 2) ^
+                //bool(int(floorf(isect.position.y / gridSize)) % 2) ^
+                bool(int(floorf(isect.position.z / gridSize)) % 2))
+            ? color1 : color2;
+    });
 }
 
 float
@@ -98,20 +123,23 @@ DiffuseCheckerBoardMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, c
     return 1.0f / M_PI; // Perfectly diffuse
 }
 
-RGBColor
-DiffuseUVMaterial::diffuse( const RayIntersection & isect )
+DiffuseUVMaterial::DiffuseUVMaterial() : DiffuseMaterial()
 {
-    float u = clamp01(isect.u);
-    float v = clamp01(isect.v);
-    return RGBColor(u, v, 0.0f);
+    setAlbedo([this](const RayIntersection & isect) {
+        float u = clamp01(isect.u);
+        float v = clamp01(isect.v);
+        return RGBColor(u, v, 0.0f);
+    });
 }
 
-RGBColor
-DiffuseTextureMaterial::diffuse( const RayIntersection & isect )
+DiffuseTextureMaterial::DiffuseTextureMaterial( std::shared_ptr<SurfaceTexture> & tex )
+    : DiffuseMaterial(), texture(tex)
 {
-    float u = clamp01(isect.u);
-    float v = clamp01(isect.v);
-    return texture->image.sampleRGB(u, v);
+    setAlbedo([this](const RayIntersection & isect) {
+        float u = clamp01(isect.u);
+        float v = clamp01(isect.v);
+        return texture->image.sampleRGB(u, v);
+    });
 }
 
 DistributionSample

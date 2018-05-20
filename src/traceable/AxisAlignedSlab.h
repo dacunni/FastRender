@@ -44,6 +44,7 @@ public:
                                                         // objects of this class
     virtual void print( FILE * file = stdout ) const;
     virtual std::string toJSON() const;
+    virtual std::string toString() const;
     virtual void visit( TraceableVisitor & visitor );
 
 private:

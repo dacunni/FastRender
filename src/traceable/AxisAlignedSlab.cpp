@@ -250,6 +250,17 @@ void AxisAlignedSlab::print( FILE * file ) const
     printf( "AASlab: x: %f, %f y: %f, %f z: %f, %f\n", xmin, xmax, ymin, ymax, zmin, zmax );
 }
 
+std::string AxisAlignedSlab::toString() const
+{
+    std::stringstream ss;
+
+    ss << "x: " << xmin << ", " << xmax;
+    ss << " y: " << ymin << ", " << ymax;
+    ss << " z: " << zmin << ", " << zmax;
+
+    return ss.str();
+}
+
 std::string AxisAlignedSlab::toJSON() const
 {
     std::stringstream ss;
