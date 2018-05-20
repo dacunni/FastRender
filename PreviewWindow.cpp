@@ -14,7 +14,7 @@ static PreviewWindow * self = nullptr;
 PreviewWindow::PreviewWindow( Artifacts & a )
 : artifacts(a)
 {
-
+    std::fill(button_state, &button_state[4], GLUT_UP);
 }
 
 PreviewWindow::~PreviewWindow()
@@ -280,14 +280,44 @@ void PreviewWindow::keyPressed( unsigned char key, int x, int y )
     }
 }
 
+void PreviewWindow::printValuesAt( int win_x, int win_y )
+{
+    int window_width = glutGet(GLUT_WINDOW_WIDTH);
+    int windown_height = glutGet(GLUT_WINDOW_HEIGHT);
+    
+    int img_x = int(float(win_x) / float(window_width) * float(artifacts.width));
+    int img_y = int(float(win_y) / float(window_height) * float(artifacts.height));
+    int index = img_y * artifacts.width + img_x;
+
+    float3 color_accum = artifacts.pixel_color_accum[index];
+    float color_num_samples = artifacts.pixel_color_num_samples[index];
+    float3 color(color_accum.r / color_num_samples,
+                 color_accum.g / color_num_samples,
+                 color_accum.b / color_num_samples);
+    float3 normal = artifacts.pixel_normal[index];
+    float depth = artifacts.pixel_depth[index];
+    printf("win %3d %3d img %4d %4d : ", win_x, win_y, img_x, img_y);
+    printf("color %f %f %f  ", color.r, color.g, color.b);
+    printf("normal %f %f %f  ", normal.x, normal.y, normal.z);
+    printf("depth %f\n", depth);
+}
+
 void PreviewWindow::mouseButton( int button, int state, int x, int y )
 {
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        printValuesAt( x, y );
+    }
 
+    if(button < 5) {
+        button_state[button] = state;
+    }
 }
 
 void PreviewWindow::mouseMotionWhileButtonPressed( int x, int y )
 {
-
+    if(button_state[GLUT_LEFT_BUTTON] == GLUT_DOWN) {
+        printValuesAt( x, y );
+    }
 }
 
 void PreviewWindow::animTimer( int value )

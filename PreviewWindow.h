@@ -35,6 +35,8 @@ protected:
     int window_width;
     int window_height;
 
+    int button_state[5];
+
 private:
     static void sViewportReshaped( int w, int h );
     static void sRepaintViewport();
@@ -42,6 +44,8 @@ private:
     static void sMouseButton( int button, int state, int x, int y );
     static void sMouseMotionWhileButtonPressed( int x, int y );
     static void sAnimTimer( int value );
+
+    void printValuesAt( int win_x, int win_y );
 
     enum ImageArtifact {
         FramebufferImage = 0, NormalsImage, DepthImage,
