@@ -177,5 +177,11 @@ void HDRImageEnvironmentMap::maskInscribedCircle()
     image.maskUV([](float u, float v) { u -= 0.5f; v -= 0.5f; float r = 0.5f; return u*u + v*v <= r*r; });
 }
 
+RGBRadianceSample HotBoxEnvironmentMap::sample( const Ray & ray ) const
+{
+    RGBRadianceSample s;
+    s.color.r = s.color.g = s.color.b = radiance;
+    return s;
+}
 
 

@@ -16,6 +16,7 @@ std::string output_path = "testoutput";
 #include "test_scenes/materials/MaterialTestAreaLight.scene"
 #include "test_scenes/materials/MaterialTestArcLight.scene"
 #include "test_scenes/materials/MaterialTestHDREnvironmentMap.scene"
+#include "test_scenes/materials/MaterialTestHotBoxEnvironmentMap.scene"
 #include "test_scenes/materials/MaterialTestCookTorrancePointLight.scene"
 #include "test_scenes/materials/MaterialTestCookTorranceAreaLight.scene"
 #include "test_scenes/materials/MaterialTestCookTorranceEnvironmentMap.scene"

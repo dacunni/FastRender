@@ -84,8 +84,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                     Lo = Li;
                 }
                 else {
-                    Lo.scale(1.0f/sample.pdf_sample);
-                    Lo.scale(M_PI); // FIXME: This seems to be necessary
+                    Lo.scale(1.0f / sample.pdf_sample);
+                    Lo.scale(2.0 * M_PI); // FIXME: This seems to be necessary
                 }
                 diffuse_contrib.accum( Lo );
             }
@@ -101,8 +101,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                         Lo = Li;
                     }
                     else {
-                        Lo.scale(1.0f/sample.pdf_sample);
-                        Lo.scale(M_PI); // FIXME: This seems to be necessary
+                        Lo.scale(1.0f / sample.pdf_sample);
+                        Lo.scale(2.0 * M_PI); // FIXME: This seems to be necessary
                     }
                     diffuse_contrib.accum( Lo );
                 }

@@ -7,9 +7,9 @@ SETUP_SCENE(
 BUILD_SCENE(
     auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>();
-    //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
     //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 0.5, 0.5, 1.0 );
-    auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 0.5, 0.5, 1.0, 1.0, 0.5, 0.5 );
+    //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 0.5, 0.5, 1.0, 1.0, 0.5, 0.5 );
 
     float dim = 1.0;
     container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, -0.1, dim ), checkerboard_material ); // floor
@@ -38,8 +38,8 @@ BUILD_SCENE(
                                         makeRotation( -M_PI / 8, Vector4(1, 0, 0) ),
                                         makeTranslation( 0.0, 0.0, 1.5 ))
                               );
-    tracer->rays_per_pixel = 1;
-    //tracer->rays_per_pixel = 30;
+    //tracer->rays_per_pixel = 1;
+    tracer->rays_per_pixel = 30;
     //tracer->rays_per_pixel = 100;
     float focal_plane_span = 1.0;
     tracer->camera->setFocalPlaneDimensions( focal_plane_span, focal_plane_span );
