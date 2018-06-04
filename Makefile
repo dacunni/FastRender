@@ -232,6 +232,8 @@ unittests/transform: unittests/transform.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
 unittests/raysphere: unittests/raysphere.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
+unittests/bxdf: unittests/bxdf.cpp $(HDR) libFastRender.so
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
 
 
 #
