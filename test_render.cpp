@@ -774,22 +774,11 @@ int main (int argc, char * const argv[])
 
     // Tests
 #if 0
-    testSphereLight1();
-    testSphereLight2();
-    testSphereLight3();
-    testSphereLight4();
-    testReflection1();
-    testReflection2();
-    testReflection3();
     testMesh1();         // Stanford Bunny and Dragon
     testMesh2();         // Apollo lander
     //testMeshSanMiguel();      // TODO: slow - san miguel scene
     testMeshDabrovicSponza();
     //testHairball();   // TODO: slow
-    testPointLight1();
-    testPointLight2();
-    testPointLight3();
-    testPointLight4();
     testAnimTransforms1(); // Mirror Bunny and simple shapes
     testAnimTransforms2(); // 3 Spimming Cubes and point lights
     testAnimTransforms3(); // 3 Spinning Mirror Cubes
@@ -798,10 +787,6 @@ int main (int argc, char * const argv[])
     testCircleAreaLight1();   // Cube with circular area light
     testCircleAreaLight2();   // Area light proximity test
     testRectangleAreaLight1();   // Cube with rectangle area light
-    testRefraction1();  // Mixed scene with some refractive elements
-    testRefraction2();  // Mesh bunnies with varying IoR
-    testRefraction3();  // Spheres of varying IoR
-    testRefraction4();  // Refractive sphere with caustics
 #else
     if( argc > 1 ) {
         if( std::string(argv[1]) == "list" ) {

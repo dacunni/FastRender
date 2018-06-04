@@ -26,6 +26,9 @@ BUILD_SCENE(
     *light->transform = compose( makeRotation( M_PI * -0.2, Vector4(0, 0, 1) ),
                                  makeTranslation( Vector4( 0, light_distance, 0 ) ) );
     container->add( light );
+#elif 0
+    auto env_map = std::make_shared<HotBoxEnvironmentMap>();
+    scene->env_map = env_map;
 #else // Arc light environment map
     auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
     scene->env_map = env_map;
