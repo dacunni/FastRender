@@ -787,6 +787,16 @@ int main (int argc, char * const argv[])
     testCircleAreaLight1();   // Cube with circular area light
     testCircleAreaLight2();   // Area light proximity test
     testRectangleAreaLight1();   // Cube with rectangle area light
+#elif 1
+    // NEW scene file format
+    TestScene testScene("testoutput", "testname");
+    //bool ok = loadTestSceneFromFile("test_scenes/render/UVMesh.scn", testScene);
+    //bool ok = loadTestSceneFromFile("test_scenes/render/TexturedMesh.scn", testScene);
+    bool ok = loadTestSceneFromFile("test_scenes/render/SimpleCube.scn", testScene);
+    std::cout << "loadTestSceneFromFile -> " << ok << std::endl;
+    if(!ok) { exit(EXIT_FAILURE); }
+    testScene.render();
+
 #else
     if( argc > 1 ) {
         if( std::string(argv[1]) == "list" ) {

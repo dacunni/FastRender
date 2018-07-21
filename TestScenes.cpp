@@ -74,11 +74,6 @@ TestScene::TestScene( const std::string & output_path, const std::string & test_
     name(test_name),
     output_dir(output_path),
     tracer(nullptr),
-    rays_per_pixel(10),
-    // TODO[DAC]: Figure out an easy way for tests to override these settings
-    image_width(256),
-    image_height(256),
-    anim_frames(1),
     logger(getLogger())
 {
     logger.normal() << "TestScene name: " << name;
@@ -480,3 +475,346 @@ std::shared_ptr<HDRImageEnvironmentMap> loadGraceEnvironmentMap()
     return std::make_shared<HDRImageEnvironmentMap>("light_probes/debevec/grace_probe.float", 1000, 1000);
 }
 
+std::vector<std::string> tokenize(const std::string & s, const char * delim)
+{
+    std::vector<std::string> tokens;
+    std::vector<char> tokbuf;
+    std::copy(s.begin(), s.end(), back_inserter(tokbuf));
+    tokbuf.push_back('\0');
+
+    char * token = strtok(&tokbuf[0], delim);
+
+    while(token) {
+        tokens.push_back(token);
+        token = strtok(NULL, delim);
+    }
+
+    return std::move(tokens);
+}
+
+struct SceneBuildException : std::exception {
+    virtual const char * what() const noexcept {
+        return msg.c_str();
+    }
+    std::string msg;
+};
+struct ParamNotFoundException : SceneBuildException {
+    ParamNotFoundException(const std::string & p) {
+        msg = "Parameter not found: " + p;
+    }
+};
+struct InvalidArgumentListException : SceneBuildException {
+    InvalidArgumentListException() { msg = "Invalid argument list"; }
+};
+struct UnknownKeywordException : SceneBuildException {
+    UnknownKeywordException(const std::string & k) {
+        msg = "Unknown keyword: " + k;
+    }
+};
+struct UnknownShaderException : SceneBuildException {
+    UnknownShaderException(const std::string & s) {
+        msg = "Unknown shader: " + s;
+    }
+};
+struct UnknownMaterialException : SceneBuildException {
+    UnknownMaterialException(const std::string & m) {
+        msg = "Unknown material: " + m;
+    }
+};
+
+struct SceneFileElement
+{
+    std::vector<std::string> tokens;
+    std::vector<SceneFileElement> children;
+
+    SceneFileElement & param(const std::string & key) {
+        for(auto & child : children) {
+            if(child.tokens[0] == key)
+                return child;
+        }
+        getLogger().error() << "Unable to find param '" << key << "' to element '" << tokens[0] << "'";
+        throw ParamNotFoundException(key);
+    }
+
+    std::string & operator[](int i) { return tokens[i]; }
+
+    void print(int indent = 0) {
+        std::string keyword("<null>");
+        if(tokens.size() > 0) keyword = tokens[0];
+        std::cout << std::string(indent, ' ') << "SFE keyword " << keyword << " nchildren " << children.size() << "\n";
+        for(auto & child : children) {
+            child.print(indent + 4);
+        }
+    }
+};
+
+std::vector<float> getFloats(std::vector<std::string>::iterator first,
+                             std::vector<std::string>::iterator last)
+{
+    std::vector<float> values;
+    std::transform(first, last, back_inserter(values), [](std::string & s) { return std::stof(s); } );
+    return values;
+}
+
+std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
+{
+    auto & name = element[1];
+    if(name == "DiffuseUV") {
+        return std::make_shared<DiffuseUVMaterial>();
+    }
+    else if(name == "DiffuseTexture") {
+        std::string textureFileName = element.param("texture")[1];
+        auto texture = std::make_shared<SurfaceTexture>(textureFileName);
+        return std::make_shared<DiffuseTextureMaterial>(texture);
+    }
+    else if(name == "Diffuse") {
+        auto & albedoEl = element.param("albedo");
+        std::vector<float> albedoValues = getFloats(albedoEl.tokens.begin() + 1, albedoEl.tokens.begin() + 4);
+        return std::make_shared<DiffuseMaterial>(albedoValues[0], albedoValues[1], albedoValues[2]);
+    }
+    // TODO - all materials
+    else {
+        throw UnknownMaterialException(name);
+    }
+}
+
+Transform makeSingleTransform(SceneFileElement & element)
+{
+    auto & tokens = element.tokens;
+    auto & xfType = tokens[0];
+    if(xfType == "scale") {
+        if(tokens.size() == 2) { // s
+            return makeScaling(std::stof(tokens[1]));
+        }
+        else if(tokens.size() == 4) { // sx sy sz
+            std::vector<float> params = getFloats(tokens.begin() + 1, tokens.begin() + 4);
+            return makeScaling(params[0], params[1], params[2]);
+        }
+        else {
+            throw InvalidArgumentListException();
+        }
+    }
+    else if(xfType == "translate") {
+        if(tokens.size() == 4) { // dx dy dz
+            std::vector<float> params = getFloats(tokens.begin() + 1, tokens.begin() + 4);
+            return makeTranslation(params[0], params[1], params[2]);
+        }
+        else {
+            throw InvalidArgumentListException();
+        }
+    }
+    else if(xfType == "rotate") {
+        if(tokens.size() == 5) { // angle x y z
+            std::vector<float> params = getFloats(tokens.begin() + 1, tokens.begin() + 5);
+            const Vector4 axis(params[1], params[2], params[3]);
+            return makeRotation(params[0], axis);
+        }
+        else {
+            throw InvalidArgumentListException();
+        }
+    }
+    throw UnknownKeywordException(xfType);
+}
+
+std::shared_ptr<Transform> makeCompositeTransform(SceneFileElement & element)
+{
+    auto transform = std::make_shared<Transform>();
+
+    for(auto & child : element.children) {
+        *transform = compose(*transform, makeSingleTransform(child));
+    }
+    transform->print(); // TEMP
+
+    return transform;
+}
+
+void buildSceneElement(SceneFileElement & element, TestScene & testScene, Container & container)
+{
+    const auto & keyword = element.tokens[0];
+
+    if(keyword == "root") {
+        std::string outputPath = element.param("outputpath")[1];
+        std::string testName = element.param("testname")[1];
+
+        // TODO - move these and tracer creation into tracer element
+        //        if possible
+        // TODO - reasonable defaults
+        auto sizeEl = element.param("imagesize");
+        unsigned int imageWidth = std::stoi(sizeEl[1]);
+        unsigned int imageHeight = std::stoi(sizeEl[2]);
+        auto animEl = element.param("animframes");
+        unsigned int numAnimFrames = std::stoi(animEl[1]);
+        auto rppEl = element.param("raysperpixel");
+        unsigned int raysPerPixel = std::stoi(rppEl[1]);
+
+        // TODO - move this until after scene is read
+        testScene.tracer = new ImageTracer(imageWidth, imageHeight,
+                                           numAnimFrames, raysPerPixel);
+        testScene.tracer->artifacts.output_path = outputPath;
+        testScene.tracer->artifacts.file_prefix = testName + "_";
+
+        // HERE >>>
+        //testScene.image_width = imageWidth;
+        //testScene.image_height = imageHeight;
+        //testScene.rays_per_pixel = raysPerPixel;
+        //testScene.anim_frames = numAnimFrames;
+        //testScene.name = testName;
+        //testScene.output_dir = outputPath;
+        // HERE <<<
+
+        for(auto & child : element.children) {
+            buildSceneElement(child, testScene, container);
+        }
+    }
+    else if(keyword == "raysperpixel") {
+        testScene.rays_per_pixel = std::stoi(element[1]);
+    }
+    else if(keyword == "animframes") {
+        testScene.anim_frames = std::stoi(element[1]);
+    }
+    else if(keyword == "imagesize") {
+        testScene.image_width = std::stoi(element[1]);
+        testScene.image_height = std::stoi(element[2]);
+    }
+    else if(keyword == "camera") {
+        auto transformEl = element.param("transform");
+        auto transform = makeCompositeTransform(transformEl);
+        testScene.tracer->setCameraTransform(*transform);
+        // TODO - handle no transform present
+    }
+    else if(keyword == "tracer") {
+        auto shaderEl = element.param("shader");
+        auto shaderType = shaderEl[1];
+        if(shaderType == "BasicDiffuseSpecular") {
+            testScene.tracer->shader = new BasicDiffuseSpecularShader();
+        }
+        else {
+            throw UnknownShaderException(shaderType);
+        }
+    }
+    else if(keyword == "axisalignedslab") {
+        auto minEl = element.param("min");
+        auto maxEl = element.param("max");
+        std::vector<float> minCoord = getFloats(minEl.tokens.begin() + 1, minEl.tokens.begin() + 4);
+        std::vector<float> maxCoord = getFloats(maxEl.tokens.begin() + 1, maxEl.tokens.begin() + 4);
+        auto obj = std::make_shared<AxisAlignedSlab>(minCoord[0], minCoord[1], minCoord[2],
+                                                     maxCoord[0], maxCoord[1], maxCoord[2]);
+        obj->print();// TEMP
+        container.add(obj);
+    }
+    else if(keyword == "mesh") {
+        AssetLoader loader;
+        auto pathEl = element.param("path");
+        auto & path = pathEl[1];
+        auto mesh = loader.load(path);
+
+        auto materialEl = element.param("material");
+        mesh->material = makeMaterial(materialEl);
+        // TODO - handle no material present
+
+        auto transformEl = element.param("transform");
+        mesh->transform = makeCompositeTransform(transformEl);
+        // TODO - handle no transform present
+
+        mesh->print(); // TEMP
+        container.add(mesh);
+    }
+    else if(keyword == "circlearealight") {
+        auto radiusEl = element.param("radius");
+        float radius = std::stof(radiusEl[1]);
+        auto powerEl = element.param("power");
+        std::vector<float> powerFloats = getFloats(powerEl.tokens.begin() + 1, powerEl.tokens.begin() + 4);
+        RGBColor power(powerFloats[0], powerFloats[1], powerFloats[2]);
+        auto obj = std::make_shared<CircleAreaLight>(radius, power);
+
+        auto transformEl = element.param("transform");
+        obj->transform = makeCompositeTransform(transformEl);
+        // TODO - handle no transform present
+
+        container.add(obj);
+    }
+    else {
+        throw UnknownKeywordException(keyword);
+    }
+}
+
+bool buildScene(SceneFileElement & root, TestScene & testScene)
+{
+    auto container = std::make_shared<FlatContainer>();
+    testScene.scene = new Scene(); new Scene(); new Scene(); new Scene(); 
+    testScene.scene->root = container;
+
+    try {
+        buildSceneElement(root, testScene, *container);
+    }
+    catch(std::exception & e) {
+        std::cout << "Exception: " << e.what() << std::endl;
+        return false;
+    }
+    catch(...) {
+        std::cout << "Caught generic exception" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool loadTestSceneFromFile(const std::string & sceneFile, TestScene & testScene)
+{
+    auto & logger = getLogger();
+    
+    std::ifstream ifs(sceneFile, std::ios::in);
+    if(!ifs.good()) {
+        logger.error() << "Unable to open " << sceneFile;
+        return false;
+    }
+
+    std::vector<int> indentStack{0};
+    SceneFileElement rootElement;
+    rootElement.tokens.push_back("root");
+    std::vector<SceneFileElement*> elementStack;
+    SceneFileElement * element = &rootElement;
+
+    for(std::string line; std::getline(ifs, line); ) {
+        // Track indentation
+        auto indent = line.find_first_not_of(" ");
+        if(indent == std::string::npos)
+            continue;
+        std::cout << "LINE (in " << indent << ") : " << line << "\n";
+        if(indent > indentStack.back()) {
+            indentStack.push_back(indent);
+            elementStack.push_back(element);
+            element = &element->children.back();
+        }
+        else {
+            while(indent < indentStack.back() && indentStack.size() > 1) {
+                indentStack.pop_back();
+                element = elementStack.back();
+                elementStack.pop_back();
+            }
+        }
+
+        // Get tokens
+        auto tokens = tokenize(line, " ");
+        //std::cout << "TOKENS size " << tokens.size() << "\n";
+        if(tokens.size() == 0)
+            continue;
+
+        SceneFileElement child;
+        child.tokens = tokens;
+        element->children.push_back(child);
+
+        //auto & keyword = tokens[0];
+        //std::cout << "KEYWORD " << keyword << "\n";
+
+    }
+
+    rootElement.print();
+
+    if(!buildScene(rootElement, testScene)) {
+        logger.error() << "Unable to build scene from scene description";
+        return false;
+    }
+
+    return true;
+}

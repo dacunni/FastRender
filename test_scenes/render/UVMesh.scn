@@ -1,0 +1,37 @@
+
+axisalignedslab
+    min -10.0, +0.0, +10.0
+    max +10.0, -1.0, -10.0
+
+mesh
+    path models/uvmonkey.ply
+    material DiffuseUV
+    transform
+        scale 2 2 2
+        translate 0 0.2 1
+        rotate -0.785 0 1 0
+        rotate -0.628 1 0 0
+
+camera
+    transform
+        rotate -0.157 1 0 0
+        translate 0 0.2 10
+
+circlearealight
+    radius 2.0
+    power 2 2 2
+    transform
+        rotate 0.785 1 0 1
+        translate 0 10 0
+
+tracer
+    shader BasicDiffuseSpecular
+
+raysperpixel 20
+animframes 1
+imagesize 200 200
+
+outputpath testoutput
+testname UVMesh
+
+

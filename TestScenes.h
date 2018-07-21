@@ -113,10 +113,10 @@ public:
     std::shared_ptr<Container> container;
     std::string name;
     std::string output_dir;
-    int rays_per_pixel;
-    int image_width;
-    int image_height;
-    int anim_frames;
+    int rays_per_pixel = 10;
+    int image_width = 256;
+    int image_height = 256;
+    int anim_frames = 1;
     AssetLoader loader;
     ImageTracer * tracer;
     Logger & logger;
@@ -168,6 +168,6 @@ public:
 #define END_SCENE() \
     };
 
-
+bool loadTestSceneFromFile(const std::string & sceneFile, TestScene & scene);
 
 #endif
