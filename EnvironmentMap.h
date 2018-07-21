@@ -34,6 +34,16 @@ class EnvironmentMap {
         virtual bool canImportanceSample() const { return false; }
 };
 
+class UniformEnvironmentMap : public EnvironmentMap {
+    public:
+        UniformEnvironmentMap() = default;
+        virtual ~UniformEnvironmentMap() = default;
+
+        virtual RGBRadianceSample sample( const Ray & ray ) const { return radiance; }
+
+        RGBColor radiance = { 1.0f, 1.0f, 1.0f };
+};
+
 // Test pattern environment map
 //
 // Displays reference angles on the sphere at infinity
