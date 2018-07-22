@@ -25,7 +25,7 @@ class RGBColor {
     RGBColor scaled( float rs, float gs, float bs ) const { auto c(*this); c.scale(rs, gs, bs); return c; }
     void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
-    RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
+    inline RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
 
     void print() const;
 

@@ -11,8 +11,7 @@
 
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
-    RGBColor diffuse_contrib( 0.0, 0.0, 0.0 );
-    RGBColor specular_contrib( 0.0, 0.0, 0.0 );
+    RGBColor reflected_contrib( 0.0, 0.0, 0.0 );
     RGBColor direct_contrib( 0.0, 0.0, 0.0 );
     Ray new_ray;
     RayIntersection new_intersection;
@@ -37,15 +36,15 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     
     // Area lights
     if( sample_area_lights ) {
-        direct_contrib.accum( sampleAreaLights( scene, intersection, rng ) );
+        direct_contrib += sampleAreaLights( scene, intersection, rng );
     }
 
     // Point lights
-    direct_contrib.accum( samplePointLights( scene, intersection ) );
+    direct_contrib += samplePointLights( scene, intersection );
 
     // Environment map
     if( sample_env_maps ) {
-        direct_contrib.accum( sampleEnvironmentMap( scene, intersection, rng ) );
+        direct_contrib += sampleEnvironmentMap( scene, intersection, rng );
     }
 
     // TODO: Generalize environment map intersection / sampling to generic BRDF
@@ -61,10 +60,10 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                 if( new_intersection.distance != FLT_MAX ) {
                     shade( scene, rng, new_intersection );
                 }
-                specular_contrib.accum( new_intersection.sample.color );
+                reflected_contrib += new_intersection.sample.color;
             }
             else if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
-                specular_contrib.accum( new_intersection.sample.color );
+                reflected_contrib += new_intersection.sample.color;
             }
         }
         else { // General BxDF
@@ -84,15 +83,13 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                     Lo = Li;
                 }
                 else {
-                    Lo.scale(1.0f / sample.pdf_sample);
-                    Lo.scale(2.0 * M_PI); // FIXME: This seems to be necessary
+                    Lo.scale(2.0 * M_PI / sample.pdf_sample);
                 }
-                diffuse_contrib.accum( Lo );
+                reflected_contrib += Lo;
             }
             else if( !sample_env_maps
                      || (scene.env_map && !scene.env_map->canImportanceSample())
-                     || sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE
-                     )
+                     || sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE )
             {
                 if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
                     RGBColor Li = new_intersection.sample.color;
@@ -101,19 +98,15 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                         Lo = Li;
                     }
                     else {
-                        Lo.scale(1.0f / sample.pdf_sample);
-                        Lo.scale(2.0 * M_PI); // FIXME: This seems to be necessary
+                        Lo.scale(2.0 * M_PI / sample.pdf_sample);
                     }
-                    diffuse_contrib.accum( Lo );
+                    reflected_contrib += Lo;
                 }
             }
         }
     }
 
-    intersection.sample.color = diffuse_contrib;
-    intersection.sample.color += specular_contrib;
-    intersection.sample.color += intersection.material->emittance;
-    intersection.sample.color += direct_contrib;
+    intersection.sample.color += direct_contrib + reflected_contrib + intersection.material->emittance;
 }
 
 
