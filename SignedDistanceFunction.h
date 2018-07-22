@@ -17,8 +17,8 @@
 class SignedDistanceFunction : public Traceable
 {
 public:
-	SignedDistanceFunction() {}
-	virtual ~SignedDistanceFunction() {}
+	SignedDistanceFunction() = default;
+	virtual ~SignedDistanceFunction() = default;
 	
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;

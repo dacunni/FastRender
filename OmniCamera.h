@@ -7,7 +7,7 @@ class OmniCamera : public Camera
 {
 public:
     OmniCamera( float fovx, float fovy,
-                    int image_width, int image_height );
+                int image_width, int image_height );
     OmniCamera( const OmniCamera & c );
 
     virtual void setFieldOfView( float fovx, float fovy );

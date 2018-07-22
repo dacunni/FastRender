@@ -27,13 +27,6 @@ Transform::Transform( const Matrix4x4 & f, const Matrix4x4 & r )
 
 }
 
-// Destructors
-
-Transform::~Transform()
-{
-    
-}
-
 // Printing
 
 void Transform::print()

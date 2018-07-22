@@ -13,22 +13,6 @@
 #include "Ray.h"
 #include "TraceableVisitor.h"
 
-FlatContainer::FlatContainer()
-{
-
-}
-
-FlatContainer::~FlatContainer()
-{
-    /*
-       for( std::vector<Traceable*>::const_iterator object = objects.begin(); object != objects.end(); ++object ) {
-       if( *object ) {
-       delete *object;
-       }
-       }
-     */
-}
-
 void FlatContainer::print( FILE * file ) const
 {
     fprintf(file, "FlatContainer:\n");

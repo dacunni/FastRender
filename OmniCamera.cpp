@@ -3,7 +3,7 @@
 #include "RandomNumberGenerator.h"
 
 OmniCamera::OmniCamera( float fovx, float fovy,
-                                int image_width, int image_height )
+                        int image_width, int image_height )
     : Camera(image_width, image_height)
 {
     setFieldOfView(fovx, fovy);

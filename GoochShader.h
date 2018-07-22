@@ -15,12 +15,11 @@
 class GoochShader : public Shader
 {
     public:
-        GoochShader() {}
-        virtual ~GoochShader() {}
+        GoochShader() = default;
+        virtual ~GoochShader() = default;
 
         // Shade an intersection point
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
-    
 };
 
 

@@ -17,8 +17,8 @@
 class FlatContainer : public Container 
 {
 public:
-	FlatContainer();
-	virtual ~FlatContainer();
+	FlatContainer() = default;
+	virtual ~FlatContainer() = default;
 	
 	virtual void add( std::shared_ptr<Traceable> traceable );
     virtual std::shared_ptr<Traceable> at( int index ) const { return objects[ index ]; }

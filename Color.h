@@ -5,11 +5,6 @@
 #include <iosfwd>
 #include <cmath>
 
-#define RED_BIT   0x1
-#define GREEN_BIT 0x2
-#define BLUE_BIT  0x4
-#define RGB_BITS (RED_BIT | GREEN_BIT | BLUE_BIT)
-
 class RGBColor {
     public:
     RGBColor( float red, float green, float blue ) : r(red), g(green), b(blue) {}

@@ -19,10 +19,10 @@ class RandomNumberGenerator;
 class PointLight
 {
 public:
-    PointLight() {}
+    PointLight() = default;
     PointLight( const Vector4 & pos, const RGBColor & bp )
         : position(pos), band_power(bp) {}
-    ~PointLight() {}
+    ~PointLight() = default;
 
     Vector4  position;
     RGBColor band_power;
@@ -45,7 +45,7 @@ class AreaLight : public Traceable
 public:
     AreaLight() {}
     AreaLight( const RGBColor & emittance );
-    virtual ~AreaLight();
+    virtual ~AreaLight() = default;
 
     virtual bool isAreaLight() const { return true; }
 
@@ -61,7 +61,7 @@ class CircleAreaLight : public AreaLight
 public:
     CircleAreaLight();
     CircleAreaLight( float r, const RGBColor & emittance );
-    virtual ~CircleAreaLight();
+    virtual ~CircleAreaLight() = default;
 
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
     
@@ -79,7 +79,7 @@ class RectangleAreaLight : public AreaLight
 public:
     RectangleAreaLight();
     RectangleAreaLight( float xd, float zd, const RGBColor & emittance );
-    virtual ~RectangleAreaLight();
+    virtual ~RectangleAreaLight() = default;
 
     virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
     

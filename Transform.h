@@ -22,7 +22,7 @@ public:
     Transform( const Matrix4x4 & f, const Matrix4x4 & r );
 
     // Destructors
-    virtual ~Transform();
+    virtual ~Transform() = default;
 
     virtual void updateAnim( float t ) {}
     
@@ -46,7 +46,7 @@ class TimeVaryingTransform : public Transform
 public:
     TimeVaryingTransform( const std::function<Transform(float)> & cb )
         { update_cb = cb; }
-    virtual ~TimeVaryingTransform() {}
+    virtual ~TimeVaryingTransform() = default;
 
     virtual void updateAnim( float t ) { Transform xform = update_cb(t); fwd = xform.fwd; rev = xform.rev; };
     std::function<Transform(float)> update_cb;

@@ -6,7 +6,6 @@
 #include "TraceableVisitor.h"
 
 AreaLight::AreaLight( const RGBColor & emittance ) { material = std::make_shared<DiffuseEmitterMaterial>(emittance); }
-AreaLight::~AreaLight() {}
 
 // FIXME: This won't work for lights in containers that have transforms
 LightSample AreaLight::sampleSurfaceTransformed( RandomNumberGenerator & rng ) const
@@ -24,7 +23,6 @@ LightSample AreaLight::sampleSurfaceTransformed( RandomNumberGenerator & rng ) c
 
 CircleAreaLight::CircleAreaLight() : AreaLight(RGBColor(1, 1, 1)), radius(1.0) {}
 CircleAreaLight::CircleAreaLight( float r, const RGBColor & emittance ) : AreaLight(emittance), radius(r) {}
-CircleAreaLight::~CircleAreaLight() {}
 
 bool CircleAreaLight::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
@@ -86,7 +84,6 @@ void CircleAreaLight::visit( TraceableVisitor & visitor )
 
 RectangleAreaLight::RectangleAreaLight() : AreaLight(RGBColor(1, 1, 1)), xdim(1.0), zdim(1.0) {}
 RectangleAreaLight::RectangleAreaLight( float xd, float zd, const RGBColor & emittance ) : AreaLight(emittance), xdim(xd), zdim(zd) {}
-RectangleAreaLight::~RectangleAreaLight() {}
 
 bool RectangleAreaLight::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
