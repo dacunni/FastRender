@@ -22,7 +22,7 @@ ImageTracer::ImageTracer( unsigned int w, unsigned int h,
       preview_window( artifacts ),
       logger( getLogger() )
 {
-    camera = new SimpleCamera( 0.3, 0.3, w, h );
+    camera = std::make_shared<SimpleCamera>( 0.3, 0.3, w, h );
 }
 
 ImageTracer::~ImageTracer()

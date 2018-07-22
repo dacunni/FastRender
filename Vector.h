@@ -13,7 +13,7 @@ public:
 	inline Vector4();
 	inline Vector4( const Vector4 & a );
 	inline Vector4( float x, float y, float z, float w = 1.0f );
-	inline ~Vector4() {}
+	inline ~Vector4() = default;
 	
 	inline float & operator[]( int i );
 	inline const float & operator[]( int i ) const;

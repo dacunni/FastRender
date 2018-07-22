@@ -7,7 +7,7 @@
 class Scene;
 class Traceable;
 class ShaderProgram;
-class SimpleCamera;
+class Camera;
 class Matrix4x4;
 
 class ObjectEditor {
@@ -22,7 +22,7 @@ class ObjectEditor {
         };
 
         virtual std::string label();
-        virtual void draw(SimpleCamera & camera,
+        virtual void draw(Camera & camera,
                           ShaderProgram & shaderProgram,
                           const Matrix4x4 * nodeWorldMatrix = nullptr);
 
@@ -45,7 +45,7 @@ struct EditorSceneGraphNode {
     void print(unsigned int depth = 0);
 
     void buildGpuBuffers(ShaderProgram & shaderProgram);
-    void draw(SimpleCamera & camera,
+    void draw(Camera & camera,
               ShaderProgram & shaderProgram,
               const Matrix4x4 * parentWorldMatrix = nullptr);
 
@@ -62,7 +62,7 @@ public:
     void build( Traceable & traceable );
     void print();
     void buildGpuBuffers(ShaderProgram & shaderProgram);
-    void draw(SimpleCamera & camera, ShaderProgram & shaderProgram);
+    void draw(Camera & camera, ShaderProgram & shaderProgram);
 
     EditorSceneGraphNode * root;
 };

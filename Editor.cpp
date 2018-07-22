@@ -12,14 +12,14 @@
 static Editor * self = nullptr;
 
 Editor::Editor()
-    :  editCamera(editCameraParams.xmin, editCameraParams.xmax,
-                  editCameraParams.ymin, editCameraParams.ymax,
-                  windowWidth, windowHeight)
 {
     // FIXME: HACKHACK: Workaround for no user data pointer in GLUT. Assumes
     //        a single editor window.
     self = this;
 
+    editCamera = std::make_shared<SimpleCamera>(editCameraParams.xmin, editCameraParams.xmax,
+                                                editCameraParams.ymin, editCameraParams.ymax,
+                                                windowWidth, windowHeight);
     updateEditCamera();
 }
 
@@ -113,7 +113,7 @@ void Editor::repaintViewport()
         GLuint uColorLoc = wireMeshEdgeShaderProgram.uniformLocation("uColor");
         float gray = 0.8;
         glUniform4f(uColorLoc, gray, gray, gray, 1.0);
-        editorScene.draw(editCamera, wireMeshEdgeShaderProgram);
+        editorScene.draw(*editCamera, wireMeshEdgeShaderProgram);
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );  // Draw polygons filled
     }
     else {
@@ -123,11 +123,11 @@ void Editor::repaintViewport()
         GLuint uColorLoc = wireMeshEdgeShaderProgram.uniformLocation("uColor");
         float gray = 0.1;
         glUniform4f(uColorLoc, gray, gray, gray, 1.0);
-        editorScene.draw(editCamera, wireMeshEdgeShaderProgram);
+        editorScene.draw(*editCamera, wireMeshEdgeShaderProgram);
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );  // Draw polygons filled
         // solid
         defaultShaderProgram.use();
-        editorScene.draw(editCamera, defaultShaderProgram);
+        editorScene.draw(*editCamera, defaultShaderProgram);
     }
 
     glDisable( GL_DEPTH_TEST );
@@ -142,7 +142,7 @@ void Editor::keyPressed( unsigned char key, int x, int y )
     if(key == 'W') { drawWireframes = !drawWireframes; }
     // actions
     else if(key == 'R') { renderEditCameraPerspective(); return; }
-    else if(key == 'C') { std::cout << editCamera.transform.toJSON() << std::endl; return; }
+    else if(key == 'C') { std::cout << editCamera->transform.toJSON() << std::endl; return; }
 
     updateEditCamera();
     glutPostRedisplay();
@@ -240,7 +240,7 @@ void Editor::animTimer( int value )
 
 void Editor::updateEditCamera()
 {
-    editCamera.transform = cameraTransform();
+    editCamera->transform = cameraTransform();
 }
 
 void Editor::renderEditCameraPerspective()
@@ -250,7 +250,7 @@ void Editor::renderEditCameraPerspective()
     //ImageTracer tracer(windowWidth, windowHeight, 1, 4);
     ImageTracer tracer(windowWidth, windowHeight, 1, 30);
     //ImageTracer tracer(windowWidth, windowHeight, 1, 100);
-    tracer.camera = &editCamera;
+    tracer.camera = editCamera;
     tracer.scene = scene.get();
     //tracer.shader = new GoochShader();
     //tracer.shader = new AmbientOcclusionShader();

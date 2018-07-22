@@ -24,7 +24,7 @@ class RandomNumberGenerator
 {
 public:
 	RandomNumberGenerator();
-	~RandomNumberGenerator() {}
+	~RandomNumberGenerator() = default;
 	
 	inline float uniform01( void );
 	inline float uniformRange( float min, float max );

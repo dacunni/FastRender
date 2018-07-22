@@ -38,7 +38,7 @@ class ImageTracer
                                     unsigned int ray_index );
 
         RandomNumberGenerator rng;
-        Camera * camera = nullptr;
+        std::shared_ptr<Camera> camera;
         Artifacts artifacts;
         Scene * scene = nullptr;
         Shader * shader = nullptr;

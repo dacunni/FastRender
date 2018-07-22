@@ -6,7 +6,7 @@ SETUP_SCENE(
     image_width = aspect_ratio * image_height;
     TestScene::setup();
     tracer->rays_per_pixel = 10;
-    OmniCamera * camera = new OmniCamera( M_PI * 2.0, M_PI, image_width, image_height );
+    auto camera = std::make_shared<OmniCamera>( M_PI * 2.0, M_PI, image_width, image_height );
     tracer->camera = camera;
 #else
     image_width = image_height = 200;

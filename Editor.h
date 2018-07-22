@@ -78,7 +78,7 @@ private:
         float ymax = +0.15;
     } editCameraParams;
 
-    SimpleCamera editCamera;
+    std::shared_ptr<Camera> editCamera;
 
     int mouseButtonState[3] = { 
         GLUT_UP, // left

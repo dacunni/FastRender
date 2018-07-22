@@ -25,7 +25,7 @@ ObjectEditor::~ObjectEditor()
 
 std::string ObjectEditor::label() { return "Object"; }
 
-void ObjectEditor::draw(SimpleCamera & camera,
+void ObjectEditor::draw(Camera & camera,
                         ShaderProgram & shaderProgram,
                         const Matrix4x4 * nodeWorldMatrix)
 {
@@ -437,7 +437,7 @@ void EditorSceneGraphNode::buildGpuBuffers(ShaderProgram & shaderProgram) {
     }
 }
 
-void EditorSceneGraphNode::draw(SimpleCamera & camera,
+void EditorSceneGraphNode::draw(Camera & camera,
                                 ShaderProgram & shaderProgram,
                                 const Matrix4x4 * parentWorldMatrix) {
     Transform * thisTransform = editor->object().transform.get();
@@ -578,7 +578,7 @@ void EditorSceneGraph::buildGpuBuffers(ShaderProgram & shaderProgram)
     }
 }
 
-void EditorSceneGraph::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
+void EditorSceneGraph::draw(Camera & camera, ShaderProgram & shaderProgram)
 {
     if(root) {
         root->draw(camera, shaderProgram);
