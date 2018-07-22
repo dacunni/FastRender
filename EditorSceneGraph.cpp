@@ -275,9 +275,9 @@ class CircleAreaLightEditor : public ObjectEditor {
                 float angle2 = (step + 1) * dangle;
                 vertices.push_back( { .position = { .x = 0, .y = 0, .z = 0 },
                                       .normal = { .x = 0, .y = -1, .z = 0 } } );
-                vertices.push_back( { .position = { .x = cosf(angle1), .y = 0, .z = sinf(angle1) },
+                vertices.push_back( { .position = { .x = radius * cosf(angle1), .y = 0, .z = radius * sinf(angle1) },
                                       .normal = { .x = 0, .y = -1, .z = 0 } } );
-                vertices.push_back( { .position = { .x = cosf(angle2), .y = 0, .z = sinf(angle2) },
+                vertices.push_back( { .position = { .x = radius * cosf(angle2), .y = 0, .z = radius * sinf(angle2) },
                                       .normal = { .x = 0, .y = -1, .z = 0 } } );
             }
             numVertices = vertices.size();
