@@ -33,12 +33,7 @@ class RGBColor {
     bool isNonNegative() const { return r >= 0.0f && g >= 0.0f && b >= 0.0f; }
     bool isFinite() const { return std::isfinite(r) && std::isfinite(g) && std::isfinite(b); }
 
-    union {
-        struct {
-            float r, g, b;
-        };
-        float rgb[3];
-    };
+    float r, g, b;
 };
 
 inline RGBColor mult( const RGBColor & a, const RGBColor & b ) { return a.scaled(b.r, b.g, b.b); }
