@@ -14,8 +14,6 @@ ImageTracer::ImageTracer( unsigned int w, unsigned int h,
                           unsigned int nframes,
                           unsigned int rayspp )
     : rng(),
-      image_width( w ),
-      image_height( h ),
       artifacts( w, h ),
       rays_per_pixel( rayspp ),
       num_frames( nframes ),
@@ -52,6 +50,9 @@ void ImageTracer::renderThread()
     Timer image_flush_timer;
     ProcessorTimer processor_timer;
     WallClockTimer wall_clock_timer;
+
+    const unsigned int image_width = camera->imageWidth();
+    const unsigned int image_height = camera->imageHeight();
 
     processor_timer.start();
     wall_clock_timer.start();

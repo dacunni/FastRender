@@ -27,6 +27,9 @@ public:
     virtual Vector4 vectorThrough( RandomNumberGenerator & rng, int row, int col ) = 0;
     virtual Ray rayThrough( RandomNumberGenerator & rng, int row, int col ) = 0;
 
+    virtual int imageWidth() const { return image_width; }
+    virtual int imageHeight() const { return image_height; }
+
     Transform transform;
 protected:
     int image_width, image_height;

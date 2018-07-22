@@ -42,8 +42,6 @@ class ImageTracer
         Artifacts artifacts;
         Scene * scene = nullptr;
         Shader * shader = nullptr;
-        unsigned int image_width;
-        unsigned int image_height;
         unsigned int num_frames;
         unsigned int rays_per_pixel;
 
