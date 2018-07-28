@@ -36,7 +36,7 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     MaterialTestCookTorrancePointLight::buildScene();
-    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 0.3, 0.3, 0.01 );
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 0.0 );
 );
 END_SCENE()
 // ------------------------------------------------------------ 
