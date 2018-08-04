@@ -36,6 +36,21 @@ union ScalarArray3 {
     ScalarArray3(SCALAR _x, SCALAR _y, SCALAR _z) : x(_x), y(_y), z(_z) {}
     SCALAR & operator[](unsigned int i) { return data[i]; }
     const SCALAR & operator[](unsigned int i) const { return data[i]; }
+
+    ScalarArray3 operator+(const ScalarArray3 & o)
+        { return ScalarArray3(x + o.x, y + o.y, z + o.z); }
+    ScalarArray3 operator+=(const ScalarArray3 & o)
+        { *this = *this + o; return *this; }
+
+    ScalarArray3 operator*(const SCALAR m)
+        { return ScalarArray3(x * m, y * m, z * m); }
+    ScalarArray3 operator*=(const SCALAR m)
+        { *this = *this * m; return *this; }
+
+    ScalarArray3 operator/(const SCALAR d)
+        { return ScalarArray3(x / d, y / d, z / d); }
+    ScalarArray3 operator/=(const SCALAR d)
+        { *this = *this / d; return *this; }
 };
 
 typedef ScalarArray3<int> int3;
