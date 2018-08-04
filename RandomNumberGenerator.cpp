@@ -1,12 +1,3 @@
-/*
- *  RandomNumberGenerator.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 8/14/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
@@ -21,24 +12,9 @@
 using std::max;
 
 RandomNumberGenerator::RandomNumberGenerator()
+  : engine(device()),
+    distribution(0.0f, 1.0f)
 {
-    seedCurrentTime();
-}
-
-void RandomNumberGenerator::seedCurrentTime()
-{
-    switch(method) {
-        default:
-        case UnixRand:
-            srand( time( NULL ) );
-            break;
-#ifdef __APPLE__
-        case Arc4Random:
-            srand( time( NULL ) );
-            arc4random_stir();
-            break;
-#endif
-    }
 }
 
 void RandomNumberGenerator::uniformUnitCircle( float & x, float & y )
@@ -196,14 +172,6 @@ void RandomNumberGenerator::uniformTriangle3D( const Vector4 & v1,
     r = add( add( scale( v1, bary.u ),
                   scale( v2, bary.v ) ),
              scale( v3, bary.w ) );
-}
-
-void RandomNumberGenerator::buildCache()
-{
-    for( int i = 0; i < CACHE_SIZE; i++ ) {
-        cache[i] = uniform01Impl();
-    }
-    cache_next = 0;
 }
 
 

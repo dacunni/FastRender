@@ -770,8 +770,6 @@ int main (int argc, char * const argv[])
 
     mkdir(output_path.c_str(), 0777);
 
-    rng.seedCurrentTime();
-
     // Tests
 #if 0
     testMesh1();         // Stanford Bunny and Dragon

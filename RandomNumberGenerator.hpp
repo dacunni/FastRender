@@ -1,11 +1,3 @@
-//
-//  RandomNumberGenerator.hpp
-//  FastRender
-//
-//  Created by David Cunningham on 8/23/13.
-//
-//
-
 #ifndef FastRender_RandomNumberGenerator_hpp
 #define FastRender_RandomNumberGenerator_hpp
 
@@ -13,31 +5,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-inline float RandomNumberGenerator::uniform01Impl( void )
-{
-    const float one_over_RM = 1.0f / (float) RAND_MAX;
-
-    switch(method) {
-        default:
-        case UnixRand:
-            return (float) rand() * one_over_RM;
-            break;
-#ifdef __APPLE__
-        case Arc4Random:
-            u_int32_t r = arc4random_uniform(RAND_MAX + 1);
-            return (float) r * one_over_RM;
-            break;
-#endif
-    }
-}
-
 inline float RandomNumberGenerator::uniform01( void )
 {
-    if( cache_next >= CACHE_SIZE ) {
-        buildCache();
-    }
-    
-    return cache[ cache_next++ ];
+    return distribution(engine);
 }
 
 inline float RandomNumberGenerator::uniformRange( float min, float max )

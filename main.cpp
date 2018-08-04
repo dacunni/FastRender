@@ -164,8 +164,6 @@ int main (int argc, char * const argv[])
     Timer total_run_timer;
     total_run_timer.start();
 
-    rng.seedCurrentTime();
-
     testScene();
     
     total_run_timer.stop();
