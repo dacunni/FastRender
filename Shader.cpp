@@ -174,3 +174,9 @@ RGBColor Shader::reflectedRadiance( const RayIntersection & intersection,
     return Lo;
 }
 
+void NullShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
+{
+    intersection.sample.color = RGBColor(1.0, 1.0, 1.0);
+}
+
+

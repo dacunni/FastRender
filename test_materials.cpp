@@ -9,6 +9,7 @@ std::string output_path = "testoutput";
 #include "test_scenes/materials/MaterialTestBase.scene"
 #include "test_scenes/materials/MaterialTestMontageBase.scene"
 #include "test_scenes/materials/MaterialTestMontageTwoParamBase.scene"
+#include "test_scenes/materials/MaterialTestNullShader.scene"
 #include "test_scenes/materials/MaterialTestAmbientOcclusion.scene"
 #include "test_scenes/materials/MaterialTestGooch.scene"
 #include "test_scenes/materials/MaterialTestInspection.scene"

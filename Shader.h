@@ -49,5 +49,15 @@ class Shader
                                     const Vector4 & lightDirection );
 };
 
+// Shader that does nothing
+class NullShader : public Shader
+{
+    public:
+        NullShader() = default;
+        virtual ~NullShader() = default;
+
+        virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
+};
+
 
 #endif
