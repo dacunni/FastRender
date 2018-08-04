@@ -15,6 +15,7 @@ const std::string modelBasePath = "models";
 #include "test_scenes/render/BunnyEtcDiffusePointLights.scene"
 #include "test_scenes/render/RefractiveSpheresAndCubes.scene"
 #include "test_scenes/render/RefractiveSpheresVaryingIOR.scene"
+#include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
 #include "test_scenes/render/MirrorSphereColoredSpheresArcLight.scene"
 #include "test_scenes/render/UVMesh.scene"
@@ -42,12 +43,13 @@ int main (int argc, char * const argv[])
     //MaterialTestCookTorranceRoughness10WhiteAreaLight test(output_path);
     //MaterialTestCookTorranceRoughness05WhiteEnvironmentMap test(output_path);
     //MaterialTestCookTorranceAreaLightSweepRoughnessLowVaryingColors test(output_path);
-    GridRoomSceneWithLunarLander test(output_path);
+    //GridRoomSceneWithLunarLander test(output_path);
     //GridRoomSceneWithTieFighter test(output_path);
     //MirrorSphereColoredSpheresArcLight test(output_path);
     //UVMesh test(output_path);
     //TexturedMesh test(output_path);
     //Hairball test(output_path);
+    RoomSceneWithSpheres test(output_path);
 
     test.setup();
     test.buildScene();

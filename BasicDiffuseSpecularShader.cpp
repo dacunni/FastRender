@@ -101,6 +101,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
                         Lo.scale(2.0 * M_PI / sample.pdf_sample);
                     }
                     reflected_contrib += Lo;
+                    //printf("Li %f Lo %f pdf %f\n", Li.r, Lo.r, sample.pdf_sample); // TEMP
                 }
             }
         }

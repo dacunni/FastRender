@@ -36,6 +36,16 @@ BUILD_SCENE(
 );
 END_SCENE()
 // ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness003WhiteEnvironmentMap, MaterialTestCookTorranceEnvironmentMap)
+SETUP_SCENE(
+    MaterialTestCookTorranceEnvironmentMap::setup();
+);
+BUILD_SCENE(
+    MaterialTestCookTorranceEnvironmentMap::buildScene();
+    mesh->material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 0.03 );
+);
+END_SCENE()
+// ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestCookTorranceRoughness01WhiteEnvironmentMap, MaterialTestCookTorranceEnvironmentMap)
 SETUP_SCENE(
     MaterialTestCookTorranceEnvironmentMap::setup();
@@ -73,8 +83,7 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(MaterialTestCookTorranceEnvironmentMapSweepRoughnessFull, MaterialTestMontageBase)
 SETUP_SCENE(
     MaterialTestMontageBase::setup();
-    //tracer->shader = new BasicDiffuseSpecularShader();
-    tracer->shader = new DirectEnvironmentMapShader();
+    tracer->shader = new BasicDiffuseSpecularShader();
     tracer->rays_per_pixel = 30;
 );
 BUILD_SCENE(
@@ -141,6 +150,7 @@ BUILD_SCENE(
 );
 END_SCENE()
 
+#if 0
 BEGIN_DERIVED_SCENE(MaterialTestCookTorranceEnvironmentMapSweepRoughnessFullVaryingSpecular, MaterialTestMontageTwoParamBase)
 SETUP_SCENE(
     MaterialTestMontageTwoParamBase::setup();
@@ -182,6 +192,7 @@ BUILD_SCENE(
     scene->env_map = loadStPetersEnvironmentMap();
 );
 END_SCENE()
+#endif
 
 BEGIN_DERIVED_SCENE(MaterialTestCookTorranceEnvironmentMapSweepRoughnessLowVaryingFresnel, MaterialTestMontageTwoParamBase)
 SETUP_SCENE(

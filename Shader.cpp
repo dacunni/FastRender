@@ -135,15 +135,20 @@ RGBColor Shader::sampleEnvironmentMap( const Scene & scene,
 
     // Shoot a ray to see if we intersect the scene. If we don't, then sample the environment map
     Ray shadow_ray = isamp.ray;
+#if 1
     RayIntersection shadow_isect;
     shadow_isect.min_distance = EPSILON;
     if( s_dot_n >= 0.0f && !scene.intersect( shadow_ray, shadow_isect ) ) {
+#else // FIXME - why doesn't this work? Probably because Scene::intersectsAny returns true if it hits the env map
+    if( s_dot_n >= 0.0f && !scene.intersectsAny( shadow_ray, EPSILON ) ) {
+#endif
         // Not in shadow
         auto sample = envmap.sample(isamp.ray);
         RGBColor Li = sample.color;
         RGBColor Lo = reflectedRadiance(intersection, Li, isamp.ray.direction);
         Lo.scale(1.0f / isamp.pdf);
-        Lo.scale(M_PI); // TEMP
+        //Lo.scale(M_PI); // TEMP
+        Lo.scale(2.0 * M_PI); // TEMP
         return Lo;
     }
 

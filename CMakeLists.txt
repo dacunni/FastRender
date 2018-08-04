@@ -41,6 +41,7 @@ set(SRCS
     Logger.cpp
     Material.cpp
     Matrix.cpp
+    Microfacet.cpp
     OmniCamera.cpp
     OpenGLUtil.cpp
     Plot2D.cpp

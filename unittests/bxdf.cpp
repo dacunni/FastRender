@@ -150,6 +150,9 @@ const auto diffuseCheckerBW         = DiffuseCheckerBoardMaterial(0.0, 0.0, 0.0,
 const auto diffuseUV                = DiffuseUVMaterial();
 const auto mirror                   = MirrorMaterial();
 const auto cookTorranceDefaultWhite = CookTorranceMaterial(1.0, 1.0, 1.0);
+const auto cookTorranceDefaultWhiteRough00 = CookTorranceMaterial(1.0, 1.0, 1.0, 0.0);
+const auto cookTorranceDefaultWhiteRough05 = CookTorranceMaterial(1.0, 1.0, 1.0, 0.5);
+const auto cookTorranceDefaultWhiteRough10 = CookTorranceMaterial(1.0, 1.0, 1.0, 1.0);
 
 TEST(ValidateBxDFNonNegative, IsNonNegative) {
     EXPECT_TRUE(bxdfIsNonNegative(diffuseWhite));
@@ -185,6 +188,9 @@ TEST(ValidateBxDFConservesEnergy, IsNonNegative) {
     EXPECT_TRUE(bxdfConservesEnergy(diffuseUV));
     EXPECT_TRUE(bxdfConservesEnergy(mirror));
     EXPECT_TRUE(bxdfConservesEnergy(cookTorranceDefaultWhite));
+    EXPECT_TRUE(bxdfConservesEnergy(cookTorranceDefaultWhiteRough00));
+    EXPECT_TRUE(bxdfConservesEnergy(cookTorranceDefaultWhiteRough05));
+    EXPECT_TRUE(bxdfConservesEnergy(cookTorranceDefaultWhiteRough10));
 }
 
 } // namespace

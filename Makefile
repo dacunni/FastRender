@@ -34,6 +34,7 @@ OBJ = \
     Logger.o \
 	Material.o \
 	Matrix.o \
+    Microfacet.o \
     OmniCamera.o \
     OpenGLUtil.o \
 	Plot2D.o \
