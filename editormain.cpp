@@ -31,7 +31,7 @@ int main (int argc, char * const argv[])
 {
     Editor editor;
 
-    editor.init();
+    editor.init("Editor");
 
     //BunnyEtcDiffusePointLights test(output_path);
     //RefractiveSpheresVaryingIOR test(output_path);

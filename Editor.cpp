@@ -9,14 +9,8 @@
 #include "GoochShader.h"
 #include "ImageTracer.h"
 
-static Editor * self = nullptr;
-
 Editor::Editor()
 {
-    // FIXME: HACKHACK: Workaround for no user data pointer in GLUT. Assumes
-    //        a single editor window.
-    self = this;
-
     editCamera = std::make_shared<SimpleCamera>(editCameraParams.xmin, editCameraParams.xmax,
                                                 editCameraParams.ymin, editCameraParams.ymax,
                                                 windowWidth, windowHeight);
@@ -28,44 +22,28 @@ Editor::~Editor()
 
 }
 
-void Editor::init() 
+void Editor::init(const std::string & title) 
 {
-    // Dummy params for glutInit()
-    int argc = 1;
-    const char *argv[] = { "" };
+    printf("Initializing editor window\n");
 
-    glutInit( &argc, const_cast<char **>(argv) );
-    glutInitDisplayMode(GLUT_DOUBLE              // Double buffered
-                        | GLUT_RGBA | GLUT_DEPTH
-                        | GLUT_3_2_CORE_PROFILE  // Core profile context
-                       );
-    glutInitWindowSize(windowWidth, windowHeight);
-    glutInitWindowPosition(0, 0);
-    glutCreateWindow("FastRender Editor");
-    
+    OpenGLWindow::init(title);
+
     std::string shaderPath = "shaders/";
 
+    // Solid rendering shader
     std::string defaultVertexShader = shaderPath + "basic.vs";
     std::string defaultFragmentShader = shaderPath + "gooch.fs";
     //std::string defaultFragmentShader = shaderPath + "normals.fs";
     defaultShaderProgram.loadFilesVertexFragment(defaultVertexShader, defaultFragmentShader);
 
+    // Wire mesh shader
     std::string wireMeshEdgeVertexShader = shaderPath + "basic.vs";
     std::string wireMeshEdgeFragmentShader = shaderPath + "wireframe.fs";
     wireMeshEdgeShaderProgram.loadFilesVertexFragment(wireMeshEdgeVertexShader, wireMeshEdgeFragmentShader);
 
     GL_WARN_IF_ERROR();
 
-    glutIgnoreKeyRepeat(1);
-
-    glutReshapeFunc(sViewportReshaped);
-    glutDisplayFunc(sRepaintViewport);
-    glutKeyboardFunc(sKeyPressed);
-    glutKeyboardUpFunc(sKeyReleased);
-    glutMouseFunc(sMouseButton);
-    glutMotionFunc(sMouseMotionWhileButtonPressed);
-
-    glutTimerFunc(update_rate_sec * 1000, sAnimTimer, 0);
+    addTimerCallback( update_rate_sec * 1000, [&](){ this->animTimer(); } );
 }
 
 void Editor::buildGpuBuffers()
@@ -73,30 +51,12 @@ void Editor::buildGpuBuffers()
     editorScene.buildGpuBuffers(defaultShaderProgram);
 }
 
-void Editor::start()
-{
-    runTimer.start();
-    glutMainLoop();
-}
-
-// Static functions to use as GLUT callbacks. These delegate to their
-// corresponding instance member functions in Editor.
-void Editor::sViewportReshaped( int w, int h ) { self->viewportReshaped( w, h ); }
-void Editor::sRepaintViewport() { self->repaintViewport(); }
-void Editor::sKeyPressed( unsigned char key, int x, int y ) { self->keyPressed( key, x, y ); }
-void Editor::sKeyReleased( unsigned char key, int x, int y ) { self->keyReleased(key, x, y); }
-void Editor::sMouseButton( int button, int state, int x, int y ) { self->mouseButton( button, state, x, y ); }
-void Editor::sMouseMotionWhileButtonPressed( int x, int y ) { self->mouseMotionWhileButtonPressed( x, y ); }
-void Editor::sAnimTimer( int value ) { self->animTimer( value ); }
-
 // Callback
 
 void Editor::viewportReshaped( int w, int h )
 {
-    windowWidth = w;
-    windowHeight = h;
     glViewport( 0, 0, w, h );
-    glutPostRedisplay();
+    postRedisplay();
 }
 
 void Editor::repaintViewport()
@@ -131,13 +91,11 @@ void Editor::repaintViewport()
     }
 
     glDisable( GL_DEPTH_TEST );
-    glutSwapBuffers();
+    swapBuffers();
 }
 
 void Editor::keyPressed( unsigned char key, int x, int y )
 {
-    keyState[key] = 1;
-
     // options
     if(key == 'W') { drawWireframes = !drawWireframes; }
     // actions
@@ -145,19 +103,17 @@ void Editor::keyPressed( unsigned char key, int x, int y )
     else if(key == 'C') { std::cout << editCamera->transform.toJSON() << std::endl; return; }
 
     updateEditCamera();
-    glutPostRedisplay();
+    postRedisplay();
 }
 
 void Editor::keyReleased( unsigned char key, int x, int y ) 
 {
-    keyState[key] = 0;
+
 }
 
-void Editor::mouseButton( int button, int state, int x, int y )
+void Editor::mouseButton( MouseButton button, MouseButtonState state, int x, int y )
 {
-    mouseButtonState[button] = state;
-    mouseLastX = x;
-    mouseLastY = y;
+
 }
 
 void Editor::mouseMotionWhileButtonPressed( int x, int y )
@@ -166,14 +122,11 @@ void Editor::mouseMotionWhileButtonPressed( int x, int y )
     int dy = y - mouseLastY;
 
     // Rotation
-    if( mouseButtonState[GLUT_LEFT_BUTTON] == GLUT_DOWN ) {
+    if( mouseLeftDown() ) {
         editCameraParams.yRotation -= editCameraParams.mouseRotationSpeed * (float) dx;
         editCameraParams.xRotation -= editCameraParams.mouseRotationSpeed * (float) dy;
-        glutPostRedisplay();
+        postRedisplay();
     }
-
-    mouseLastX = x;
-    mouseLastY = y;
 }
 
 Transform Editor::cameraTranslation()
@@ -212,20 +165,20 @@ void Editor::userTimerUpdate( double timeNow, double deltaTime )
 {
     // Camera controls
     //   Translation
-    if( keyState['w'] ) { editCameraParams.position += cameraForward() * editCameraParams.translationSpeed * deltaTime; glutPostRedisplay(); }
-    if( keyState['s'] ) { editCameraParams.position -= cameraForward() * editCameraParams.translationSpeed * deltaTime; glutPostRedisplay(); }
-    if( keyState['a'] ) { editCameraParams.position -= cameraRight() * editCameraParams.translationSpeed * deltaTime; glutPostRedisplay(); }
-    if( keyState['d'] ) { editCameraParams.position += cameraRight() * editCameraParams.translationSpeed * deltaTime; glutPostRedisplay(); }
-    if( keyState['r'] ) { editCameraParams.position += cameraUp() * editCameraParams.translationSpeed * deltaTime; glutPostRedisplay(); }
-    if( keyState['f'] ) { editCameraParams.position -= cameraUp() * editCameraParams.translationSpeed * deltaTime; glutPostRedisplay(); }
+    if( keyIsPressed('w') ) { editCameraParams.position += cameraForward() * editCameraParams.translationSpeed * deltaTime; postRedisplay(); }
+    if( keyIsPressed('s') ) { editCameraParams.position -= cameraForward() * editCameraParams.translationSpeed * deltaTime; postRedisplay(); }
+    if( keyIsPressed('a') ) { editCameraParams.position -= cameraRight() * editCameraParams.translationSpeed * deltaTime; postRedisplay(); }
+    if( keyIsPressed('d') ) { editCameraParams.position += cameraRight() * editCameraParams.translationSpeed * deltaTime; postRedisplay(); }
+    if( keyIsPressed('r') ) { editCameraParams.position += cameraUp() * editCameraParams.translationSpeed * deltaTime; postRedisplay(); }
+    if( keyIsPressed('f') ) { editCameraParams.position -= cameraUp() * editCameraParams.translationSpeed * deltaTime; postRedisplay(); }
     //   Rotation
-    if( keyState['q'] ) { editCameraParams.yRotation += editCameraParams.keyboardRotationSpeed * deltaTime; glutPostRedisplay(); }
-    if( keyState['e'] ) { editCameraParams.yRotation -= editCameraParams.keyboardRotationSpeed * deltaTime; glutPostRedisplay(); }
-    if( keyState['y'] ) { editCameraParams.xRotation += editCameraParams.keyboardRotationSpeed * deltaTime; glutPostRedisplay(); }
-    if( keyState['h'] ) { editCameraParams.xRotation -= editCameraParams.keyboardRotationSpeed * deltaTime; glutPostRedisplay(); }
+    if( keyIsPressed('q') ) { editCameraParams.yRotation += editCameraParams.keyboardRotationSpeed * deltaTime; postRedisplay(); }
+    if( keyIsPressed('e') ) { editCameraParams.yRotation -= editCameraParams.keyboardRotationSpeed * deltaTime; postRedisplay(); }
+    if( keyIsPressed('y') ) { editCameraParams.xRotation += editCameraParams.keyboardRotationSpeed * deltaTime; postRedisplay(); }
+    if( keyIsPressed('h') ) { editCameraParams.xRotation -= editCameraParams.keyboardRotationSpeed * deltaTime; postRedisplay(); }
 }
 
-void Editor::animTimer( int value )
+void Editor::animTimer()
 {
     double elapsedTime = runTimer.elapsed();
     double deltaTime = elapsedTime - animTime;
@@ -234,8 +187,8 @@ void Editor::animTimer( int value )
     userTimerUpdate( elapsedTime, deltaTime );
     updateEditCamera();
 
-    glutPostRedisplay();
-    glutTimerFunc( update_rate_sec * 1000, sAnimTimer, 0 );
+    postRedisplay();
+    addTimerCallback( update_rate_sec * 1000, [&](){ this->animTimer(); } );
 }
 
 void Editor::updateEditCamera()

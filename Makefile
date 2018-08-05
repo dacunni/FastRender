@@ -37,6 +37,7 @@ OBJ = \
     Microfacet.o \
     OmniCamera.o \
     OpenGLUtil.o \
+    OpenGLWindow.o \
 	Plot2D.o \
 	PreviewWindow.o \
 	Quaternion.o \

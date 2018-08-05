@@ -6,45 +6,37 @@
 //
 //
 
-#ifndef __FastRender__PreviewWindow__
-#define __FastRender__PreviewWindow__
+#ifndef __PREVIEWWINDOW__
+#define __PREVIEWWINDOW__
 
 #include <memory>
 #include <vector>
 
-#include "OpenGLUtil.h"
+#include "OpenGLWindow.h"
 #include "ShaderProgram.h"
 
 class Artifacts;
 
-class PreviewWindow {
+class PreviewWindow : public OpenGLWindow {
 public:
+    PreviewWindow() = delete;
     PreviewWindow( Artifacts & a );
-    virtual ~PreviewWindow();
+    virtual ~PreviewWindow() = default;
     
-    void init();
-
-    void viewportReshaped( int w, int h );
-    void repaintViewport();
-    void keyPressed( unsigned char key, int x, int y );
-    void mouseButton( int button, int state, int x, int y );
-    void mouseMotionWhileButtonPressed( int x, int y );
-    void animTimer( int value );
+    virtual void init( const std::string & title ) override;
 
 protected:
-    int window_width;
-    int window_height;
+    // Callbacks
+    virtual void viewportReshaped( int w, int h ) override;
+    virtual void repaintViewport() override;
+    virtual void keyPressed( unsigned char key, int x, int y ) override;
+    virtual void mouseButton( MouseButton button, MouseButtonState state, int x, int y ) override;
+    virtual void mouseMotionWhileButtonPressed( int x, int y ) override;
 
-    int button_state[5];
+    // Timer callbacks
+    void animTimer();
 
 private:
-    static void sViewportReshaped( int w, int h );
-    static void sRepaintViewport();
-    static void sKeyPressed( unsigned char key, int x, int y );
-    static void sMouseButton( int button, int state, int x, int y );
-    static void sMouseMotionWhileButtonPressed( int x, int y );
-    static void sAnimTimer( int value );
-
     void printValuesAt( int win_x, int win_y );
 
     enum ImageArtifact {
@@ -56,20 +48,19 @@ private:
 
     ShaderProgram imgShaderProgram;
 
-    GLuint img_vao = 0;
-    GLuint img_vbo = 0;
+    GLuint img_vao       = 0;
+    GLuint img_vbo       = 0;
     GLuint pixelAccumTex = 0;
     GLuint pixelCountTex = 0;
 
-    //float update_rate_sec = 0.3;
-    float update_rate_sec = 0.03;
+    float update_rate_sec = 1.0f / 20.0f; // 20 FPS
     
     // Image adjustments
-    float gain = 1.0f;
+    float gain                 = 1.0f;
     float gainAdjustMultiplier = 1.15;
-    float bias = 0.0f;
-    float biasAdjustIncrement = 0.05;
-    bool flagUnnaturalValues = false;
+    float bias                 = 0.0f;
+    float biasAdjustIncrement  = 0.05;
+    bool flagUnnaturalValues   = false;
 };
 
-#endif /* defined(__FastRender__PreviewWindow__) */
+#endif

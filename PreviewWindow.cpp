@@ -9,41 +9,17 @@
 #include "Artifacts.h"
 #include "PreviewWindow.h"
 
-static PreviewWindow * self = nullptr;
-
 PreviewWindow::PreviewWindow( Artifacts & a )
 : artifacts(a)
 {
-    std::fill(button_state, &button_state[4], GLUT_UP);
-}
-
-PreviewWindow::~PreviewWindow()
-{
 
 }
 
-void PreviewWindow::init() 
+void PreviewWindow::init(const std::string & title) 
 {
     printf("Initializing preview window\n");
 
-    // FIXME: HACKHACK: Workaround for no user data pointer in GLUT. Assumes
-    //        a single preview window.
-    self = this;
-
-    int argc = 1;
-    const char *argv[] = { "" };
-
-    window_width = artifacts.width;
-    window_height = artifacts.height;
-
-    glutInit( &argc, const_cast<char **>(argv) );
-    glutInitDisplayMode( GLUT_DOUBLE              // Double buffered
-                         | GLUT_RGBA | GLUT_DEPTH
-                         | GLUT_3_2_CORE_PROFILE  // Core profile context
-                         );
-    glutInitWindowSize( window_width, window_height );
-    glutInitWindowPosition( 0, 0 );
-    glutCreateWindow("FastRender");
+    OpenGLWindow::init(title);
     
     // Create shaders
     std::string vertexShader = R"glsl(
@@ -156,31 +132,13 @@ void PreviewWindow::init()
 
     GL_WARN_IF_ERROR();
 
-    glutReshapeFunc( sViewportReshaped );
-    glutDisplayFunc( sRepaintViewport );
-    glutKeyboardFunc( sKeyPressed );
-    glutMouseFunc( sMouseButton );
-    glutMotionFunc( sMouseMotionWhileButtonPressed );
-
-    glutTimerFunc( update_rate_sec * 1000, sAnimTimer, 0 );
-    glutMainLoop();
+    addTimerCallback( update_rate_sec * 1000, [&](){ this->animTimer(); } );
 }
-
-// Static functions to use as GLUT callbacks. These delegate to their
-// corresponding instance member functions in PreviewWindow.
-void PreviewWindow::sViewportReshaped( int w, int h ) { self->viewportReshaped( w, h ); }
-void PreviewWindow::sRepaintViewport() { self->repaintViewport(); }
-void PreviewWindow::sKeyPressed( unsigned char key, int x, int y ) { self->keyPressed( key, x, y ); }
-void PreviewWindow::sMouseButton( int button, int state, int x, int y ) { self->mouseButton( button, state, x, y ); }
-void PreviewWindow::sMouseMotionWhileButtonPressed( int x, int y ) { self->mouseMotionWhileButtonPressed( x, y ); }
-void PreviewWindow::sAnimTimer( int value ) { self->animTimer( value ); }
 
 // Callback
 
 void PreviewWindow::viewportReshaped( int w, int h )
 {
-    window_width = w;
-    window_height = h;
     glViewport( 0, 0, w, h );
 }
 
@@ -243,7 +201,7 @@ void PreviewWindow::repaintViewport()
     GL_WARN_IF_ERROR();
 
     //glDisable( GL_DEPTH_TEST );
-    glutSwapBuffers();
+    swapBuffers();
 }
 
 void PreviewWindow::keyPressed( unsigned char key, int x, int y )
@@ -252,41 +210,38 @@ void PreviewWindow::keyPressed( unsigned char key, int x, int y )
         // Cycle through images
         case ' ':
             activeImage = (ImageArtifact) ((int) (activeImage + 1) % NumImageArtifacts);
-            glutPostRedisplay();
+            postRedisplay();
             break;
         // Multiplicative image adjustment
         case 'q':
             gain /= gainAdjustMultiplier;
-            glutPostRedisplay();
+            postRedisplay();
             break;
         case 'w':
             gain *= gainAdjustMultiplier;
-            glutPostRedisplay();
+            postRedisplay();
             break;
         // Additive image adjustment
         case 'a':
             bias -= biasAdjustIncrement;
-            glutPostRedisplay();
+            postRedisplay();
             break;
         case 's':
             bias += biasAdjustIncrement;
-            glutPostRedisplay();
+            postRedisplay();
             break;
         // Flag values that are impossible (negatives, ...)
         case 'f':
             flagUnnaturalValues = !flagUnnaturalValues;
-            glutPostRedisplay();
+            postRedisplay();
             break;
     }
 }
 
 void PreviewWindow::printValuesAt( int win_x, int win_y )
 {
-    int window_width = glutGet(GLUT_WINDOW_WIDTH);
-    int windown_height = glutGet(GLUT_WINDOW_HEIGHT);
-    
-    int img_x = int(float(win_x) / float(window_width) * float(artifacts.width));
-    int img_y = int(float(win_y) / float(window_height) * float(artifacts.height));
+    int img_x = int(float(win_x) / float(windowWidth) * float(artifacts.width));
+    int img_y = int(float(win_y) / float(windowHeight) * float(artifacts.height));
     int index = img_y * artifacts.width + img_x;
 
     float3 color_accum = artifacts.pixel_color_accum[index];
@@ -302,28 +257,24 @@ void PreviewWindow::printValuesAt( int win_x, int win_y )
     printf("depth %f\n", depth);
 }
 
-void PreviewWindow::mouseButton( int button, int state, int x, int y )
+void PreviewWindow::mouseButton( MouseButton button, MouseButtonState state, int x, int y )
 {
-    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    if(button == MouseLeftButton && state == MouseButtonDown) {
         printValuesAt( x, y );
-    }
-
-    if(button < 5) {
-        button_state[button] = state;
     }
 }
 
 void PreviewWindow::mouseMotionWhileButtonPressed( int x, int y )
 {
-    if(button_state[GLUT_LEFT_BUTTON] == GLUT_DOWN) {
+    if(mouseLeftDown()) {
         printValuesAt( x, y );
     }
 }
 
-void PreviewWindow::animTimer( int value )
+void PreviewWindow::animTimer()
 {
-    glutPostRedisplay();
-    glutTimerFunc( update_rate_sec * 1000, sAnimTimer, 0 );
+    postRedisplay();
+    addTimerCallback( update_rate_sec * 1000, [&](){ this->animTimer(); } );
 }
 
 

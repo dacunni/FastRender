@@ -20,7 +20,6 @@ Artifacts::Artifacts( unsigned int imageWidth, unsigned int imageHeight )
     width( imageWidth ),
     height( imageHeight ),
     frame_number( 0 ),
-    preview_window( *this ),
     logger( getLogger() )
 {
     intersections_file = fopen( (output_path + file_prefix + "/intersections.txt").c_str(), "w" );
@@ -41,10 +40,6 @@ void Artifacts::startNewFrame()
         flush();
     resetImages();
     frame_number++;
-
-    if( show_preview_window && frame_number == 1 ) {
-        //preview_window.init();
-    }
 }
 
 void Artifacts::resetImages()

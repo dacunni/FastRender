@@ -33,7 +33,8 @@ void ImageTracer::render()
 #if 1
     render_thread = std::thread(&ImageTracer::renderThread, this);
     if( show_preview_window ) {
-        preview_window.init();
+        preview_window.init("Preview");
+        preview_window.start();
     }
     // Probably never get here when preview window takes over the main thread
     render_thread.join();

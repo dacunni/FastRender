@@ -2,50 +2,41 @@
 #define __EDITOR_H__
 
 #include <memory>
-#include "OpenGLUtil.h"
+
+#include "OpenGLWindow.h"
 #include "EditorSceneGraph.h"
 #include "ShaderProgram.h"
-#include "Timer.h"
 #include "SimpleCamera.h"
 #include "RandomNumberGenerator.h"
 
-class Editor {
+class Editor : public OpenGLWindow {
 public:
     Editor();
     virtual ~Editor();
     
-    void init();
+    virtual void init( const std::string & title ) override;
+
     void buildGpuBuffers();
-    void start();
-
-    void renderEditCameraPerspective();
-
-    // Callbacks
-    void viewportReshaped( int w, int h );
-    void repaintViewport();
-    void keyPressed( unsigned char key, int x, int y );
-    void keyReleased( unsigned char key, int x, int y );
-    void mouseButton( int button, int state, int x, int y );
-    void mouseMotionWhileButtonPressed( int x, int y );
-    void animTimer( int value );
-    void userTimerUpdate( double timeNow, double deltaTime );
 
     std::shared_ptr<Scene> scene;
     EditorSceneGraph editorScene;
 
 protected:
-    unsigned int windowWidth = 512;
-    unsigned int windowHeight = 512;
+    // Callbacks
+    virtual void viewportReshaped( int w, int h ) override;
+    virtual void repaintViewport() override;
+    virtual void keyPressed( unsigned char key, int x, int y ) override;
+    virtual void keyReleased( unsigned char key, int x, int y ) override;
+    virtual void mouseButton( MouseButton button, MouseButtonState state, int x, int y ) override;
+    virtual void mouseMotionWhileButtonPressed( int x, int y ) override;
+
+    // Timer callbacks
+    void animTimer();
+    void userTimerUpdate( double timeNow, double deltaTime );
+
+    void renderEditCameraPerspective();
 
 private:
-    static void sViewportReshaped( int w, int h );
-    static void sRepaintViewport();
-    static void sKeyPressed( unsigned char key, int x, int y );
-    static void sKeyReleased( unsigned char key, int x, int y );
-    static void sMouseButton( int button, int state, int x, int y );
-    static void sMouseMotionWhileButtonPressed( int x, int y );
-    static void sAnimTimer( int value );
-
     Transform cameraTranslation();
     Transform cameraRotation();
     Transform cameraTransform();
@@ -58,7 +49,6 @@ private:
     ShaderProgram wireMeshEdgeShaderProgram;
 
     float update_rate_sec = 1.0f / 20.0f; // 20 FPS
-    WallClockTimer runTimer;
     double animTime = 0.0;
 
     // Editor camera
@@ -79,15 +69,6 @@ private:
     } editCameraParams;
 
     std::shared_ptr<Camera> editCamera;
-
-    int mouseButtonState[3] = { 
-        GLUT_UP, // left
-        GLUT_UP, // right
-        GLUT_UP  // middle
-    };
-    unsigned char keyState[256] = {0};
-    int mouseLastX = -1;
-    int mouseLastY = -1;
 
     RandomNumberGenerator rng;
 

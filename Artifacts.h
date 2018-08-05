@@ -18,7 +18,6 @@
 #include <Magick++.h>
 
 #include "Types.h"
-#include "PreviewWindow.h"
 
 class Logger;
 class Vector4;
@@ -56,9 +55,6 @@ public:
     std::vector<float> pixel_depth;
     std::vector<double> time_unnormalized_image;
     FILE * intersections_file;
-
-    bool show_preview_window = false;
-    PreviewWindow preview_window;
 
     unsigned int width;
     unsigned int height;
