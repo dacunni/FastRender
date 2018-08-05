@@ -12,6 +12,7 @@
 #include <vector>
 #include "Traceable.h"
 #include "Vector.h"
+#include "Types.h"
 
 class TriangleMeshAccelerator;
 
@@ -26,16 +27,13 @@ public:
         unsigned int vi[3];
     };
 
-    struct TextureUV {
-        float u, v;
-    };
+    using VertexArray        = std::vector<Vector4>;
+    using NormalArray        = std::vector<Vector4>;
+    using IndexTriangleArray = std::vector<IndexTriangle>;
 
-    typedef std::vector< Vector4 >       VertexArray;
-    typedef std::vector< Vector4 >       NormalArray;
-    typedef std::vector< IndexTriangle > IndexTriangleArray;
     // List of indices into the IndexTriangleArray
-    typedef std::vector< unsigned int >  TriangleIndexArray;
-    typedef std::vector< TextureUV >     TextureUVArray;
+    using TriangleIndexArray = std::vector<unsigned int>;
+    using TextureUVArray     = std::vector<float2>;
     
     TriangleMesh();
     virtual ~TriangleMesh();
@@ -78,7 +76,7 @@ public:
                                                         // objects of this class
 };
 
-typedef std::vector<std::shared_ptr<TriangleMesh>> TriangleMeshArray;
+using TriangleMeshArray = std::vector<std::shared_ptr<TriangleMesh>>;
 
 std::shared_ptr<TriangleMesh> combineMeshes( TriangleMeshArray & array );
 

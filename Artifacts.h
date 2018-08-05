@@ -40,7 +40,7 @@ public:
 
     float pixelMaxChannelVariance( unsigned int row, unsigned int col );
 
-    typedef std::unique_ptr<Magick::Image> ImagePtr;
+    using ImagePtr = std::unique_ptr<Magick::Image>;
     
     std::string output_path;
     ImagePtr image = nullptr;
