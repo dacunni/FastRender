@@ -189,10 +189,10 @@ RefractiveMaterial::sampleBxDF( RandomNumberGenerator & rng,
     float fresnel = 1.0f; // default to total internal reflection if refract() returns
     // a zero length vector
     if( refracted.magnitude() > 0.0001 ) {
-        fresnel = Fresnel::Dialectric( dot( from_dir, intersection.normal ),
-                                       dot( refracted, intersection.normal.negated() ),
-                                       index_in,
-                                       index_out );
+        fresnel = Fresnel::Dialectric::Unpolarized( dot( from_dir, intersection.normal ),
+                                                    dot( refracted, intersection.normal.negated() ),
+                                                    index_in,
+                                                    index_out );
     }
 
     const float draw = rng.uniform01();

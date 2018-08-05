@@ -3,15 +3,26 @@
 
 namespace Fresnel {
 
-float Dialectric( float cos_i, float cos_t, float n_i, float n_t );
-float DialectricParallel( float cos_i, float cos_t, float n_i, float n_t );
-float DialectricPerpendicular( float cos_i, float cos_t, float n_i, float n_t );
-float DialectricSnell( float cos_i, float n_i, float n_t );
-float DialectricParallelSnell( float cos_i, float n_i, float n_t );
-float DialectricPerpendicularSnell( float cos_i, float n_i, float n_t );
-float DialectricSchlick( float F0, float cos_t );
+float Schlick( float F0, float cos_t );
 
-float Conductor( float cos_i, float n, float k );
+namespace Dialectric {
+
+float Unpolarized( float cos_i, float cos_t, float n_i, float n_t );
+float Parallel( float cos_i, float cos_t, float n_i, float n_t );
+float Perpendicular( float cos_i, float cos_t, float n_i, float n_t );
+float Snell( float cos_i, float n_i, float n_t );
+float ParallelSnell( float cos_i, float n_i, float n_t );
+float PerpendicularSnell( float cos_i, float n_i, float n_t );
+float AtNormal( float n_i, float n_t, float k_t );
+
+}; // Dialectric
+
+namespace Conductor {
+
+float Unpolarized( float cos_i, float n, float k );
+float AtNormal( float n_i, float n_t );
+
+}; // Conductor
 
 }; // Fresnel
 

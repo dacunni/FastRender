@@ -61,7 +61,7 @@ CookTorranceMaterial::BxDF(const Vector4 & normal, const Vector4 & wi, const Vec
     // Fresnel: Fraction of light reflected
     // TODO: Derive F0 from the indices of refraction
     // TODO: Use proper formulation of F for conductors
-    float F = Fresnel::DialectricSchlick(F0(), VdH);
+    float F = Fresnel::Schlick(F0(), VdH);
 
     // Geometric shadowing
     float G = Microfacet::GeometryShadowing::Implicit(NdV, NdL);

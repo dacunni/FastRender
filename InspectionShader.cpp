@@ -19,10 +19,10 @@ void InspectionShader::shade( Scene & scene, RandomNumberGenerator & rng, RayInt
                 Vector4 refracted = refract( from_dir, intersection.normal, index_in, index_out );
                 float fresnel = 1.0f;
                 if( refracted.magnitude() > 0.0001 ) {
-                    fresnel = Fresnel::Dialectric( dot( from_dir, intersection.normal ),
-                                                   dot( refracted, intersection.normal.negated() ),
-                                                   index_in,
-                                                   index_out );
+                    fresnel = Fresnel::Dialectric::Unpolarized( dot( from_dir, intersection.normal ),
+                                                                dot( refracted, intersection.normal.negated() ),
+                                                                index_in,
+                                                                index_out );
                 }
                 color = RGBColor( fresnel, fresnel, fresnel );
             }
@@ -30,7 +30,7 @@ void InspectionShader::shade( Scene & scene, RandomNumberGenerator & rng, RayInt
         case FresnelConductor:
             {
                 float absorptionCoeff = 2.0; // FIXME: material specific
-                float fresnel = Fresnel::Conductor( dot( from_dir, intersection.normal ), index_out, absorptionCoeff );
+                float fresnel = Fresnel::Conductor::Unpolarized( dot( from_dir, intersection.normal ), index_out, absorptionCoeff );
                 color = RGBColor( fresnel, fresnel, fresnel );
             }
             break;

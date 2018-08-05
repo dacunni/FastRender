@@ -13,7 +13,8 @@ class Traceable;
 class Material;
 extern std::shared_ptr<Material> DEFAULT_MATERIAL;
 
-const float EPSILON = 0.01;
+//const float EPSILON = 0.01;
+const float EPSILON = 0.001;
 
 class Ray {
 public:
