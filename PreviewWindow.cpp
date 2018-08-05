@@ -19,6 +19,9 @@ void PreviewWindow::init(const std::string & title)
 {
     printf("Initializing preview window\n");
 
+    windowWidth = artifacts.width;
+    windowHeight = artifacts.height;
+
     OpenGLWindow::init(title);
     
     // Create shaders
