@@ -27,7 +27,7 @@ void testFresnelDialectric1()
     float da = 0.05;
     for( float angle1 = -M_PI / 2.0; angle1 <= M_PI / 2.0; angle1 += da ) {
         for( float angle2 = -M_PI / 2.0; angle2 <= M_PI / 2.0; angle2 += da ) {
-            float f = fresnelDialectric( cos(angle1+da/2.0), cos(angle2+da/2.0), n1, n2 );
+            float f = Fresnel::Dialectric( cos(angle1+da/2.0), cos(angle2+da/2.0), n1, n2 );
             plot.strokeColor( f, f, f );
             plot.fillColor( f, f, f );
             plot.addPoint( angle1, angle2 );
@@ -46,7 +46,7 @@ void testFresnelDialectric2()
     float dc = 0.01;
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
         for( float cos2 = 0.0; cos2 <= 1.0; cos2 += dc ) {
-            float f = fresnelDialectric( cos1+dc/2.0, cos2+dc/2.0, n1, n2 );
+            float f = Fresnel::Dialectric( cos1+dc/2.0, cos2+dc/2.0, n1, n2 );
             plot.strokeColor( f, f, f );
             plot.fillColor( f, f, f );
             plot.addPoint( cos1, cos2 );
@@ -66,27 +66,27 @@ void testFresnelDialectric3()
     float dc = 0.01;
 
     float last_cos1 = 0.0;
-    float last_f = fresnelDialectricSnell( 0.0, n1, n2 );
+    float last_f = Fresnel::DialectricSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricSnell( cos1, n1, n2 );
+        float f = Fresnel::DialectricSnell( cos1, n1, n2 );
         plot.strokeColor( 0, 0, 0 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
         last_f = f;
     }
     last_cos1 = 0.0;
-    last_f = fresnelDialectricParallelSnell( 0.0, n1, n2 );
+    last_f = Fresnel::DialectricParallelSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricParallelSnell( cos1, n1, n2 );
+        float f = Fresnel::DialectricParallelSnell( cos1, n1, n2 );
         plot.strokeColor( 0, 0, 1 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
         last_f = f;
     }
     last_cos1 = 0.0;
-    last_f = fresnelDialectricPerpendicularSnell( 0.0, n1, n2 );
+    last_f = Fresnel::DialectricPerpendicularSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricPerpendicularSnell( cos1, n1, n2 );
+        float f = Fresnel::DialectricPerpendicularSnell( cos1, n1, n2 );
         plot.strokeColor( 1, 0, 0 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
@@ -105,27 +105,27 @@ void testFresnelDialectric4()
     float dc = 0.01;
 
     float last_cos1 = 0.0;
-    float last_f = fresnelDialectricSnell( 0.0, n1, n2 );
+    float last_f = Fresnel::DialectricSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricSnell( cos1, n1, n2 );
+        float f = Fresnel::DialectricSnell( cos1, n1, n2 );
         plot.strokeColor( 0, 0, 0 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
         last_f = f;
     }
     last_cos1 = 0.0;
-    last_f = fresnelDialectricParallelSnell( 0.0, n1, n2 );
+    last_f = Fresnel::DialectricParallelSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricParallelSnell( cos1, n1, n2 );
+        float f = Fresnel::DialectricParallelSnell( cos1, n1, n2 );
         plot.strokeColor( 0, 0, 1 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
         last_f = f;
     }
     last_cos1 = 0.0;
-    last_f = fresnelDialectricPerpendicularSnell( 0.0, n1, n2 );
+    last_f = Fresnel::DialectricPerpendicularSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricPerpendicularSnell( cos1, n1, n2 );
+        float f = Fresnel::DialectricPerpendicularSnell( cos1, n1, n2 );
         plot.strokeColor( 1, 0, 0 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
@@ -258,12 +258,12 @@ void testRefractAnglesHelper( const Vector4 & o, Traceable & obj, Plot2D & plot,
 
         Vector4 refracted = refract( in, ri.normal, n1, n2 );
 
-        //r = scale(r, fresnelDialectric( dot( in, ri.normal ),
+        //r = scale(r, Fresnel::Dialectric( dot( in, ri.normal ),
         //                                dot( r, ri.normal.negated() ),
         //                                n1, n2 ) );
         float cos_in = dot( in, ri.normal );
         float cos_out = dot( refracted, ri.normal.negated() );
-        float f = fresnelDialectric( cos_in, cos_out, n1, n2 );
+        float f = Fresnel::Dialectric( cos_in, cos_out, n1, n2 );
         refracted = scale(refracted, 1.0 - f);
 
         // Mark rays that saw total internal reflection
@@ -798,7 +798,7 @@ int main (int argc, char * const argv[])
     total_run_timer.start();
 
     // Tests
-#if 0
+#if 1
     testRayIntersect();
     testReflectAngles();
     testSnellAngles();

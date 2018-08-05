@@ -31,6 +31,7 @@ set(SRCS
     EditorSceneGraph.cpp
     EnvironmentMap.cpp
     FlatContainer.cpp
+    Fresnel.cpp
     GeometryUtils.cpp
     GoochShader.cpp
     HDRImage.cpp

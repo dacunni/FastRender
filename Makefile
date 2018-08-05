@@ -24,6 +24,7 @@ OBJ = \
     EditorSceneGraph.o \
 	EnvironmentMap.o \
 	FlatContainer.o \
+    Fresnel.o \
 	GeometryUtils.o \
 	GoochShader.o \
     HDRImage.o \

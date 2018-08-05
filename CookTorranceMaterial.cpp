@@ -4,6 +4,7 @@
 #include "RandomNumberGenerator.h"
 #include "GeometryUtils.h"
 #include "Microfacet.h"
+#include "Fresnel.h"
 
 static const float DEFAULT_ROUGHNESS = 0.1;
 
@@ -60,14 +61,14 @@ CookTorranceMaterial::BxDF(const Vector4 & normal, const Vector4 & wi, const Vec
     // Fresnel: Fraction of light reflected
     // TODO: Derive F0 from the indices of refraction
     // TODO: Use proper formulation of F for conductors
-    float F = fresnelDialectricSchlick(F0(), VdH);
+    float F = Fresnel::DialectricSchlick(F0(), VdH);
 
     // Geometric shadowing
-    float G = GeometryShadowing::Implicit(NdV, NdL);
+    float G = Microfacet::GeometryShadowing::Implicit(NdV, NdL);
 
     // Normal distribution function
     float D = roughness < MIN_ROUGHNESS
-        ? 0.0f : NormalDistribution::BlinnPhong(roughness, NdH);
+        ? 0.0f : Microfacet::NormalDistribution::BlinnPhong(roughness, NdH);
 
     float bxdf = F * G * D / (4.0f * NdV * NdL);
 

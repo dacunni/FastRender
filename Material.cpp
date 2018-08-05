@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "RandomNumberGenerator.h"
 #include "GeometryUtils.h"
+#include "Fresnel.h"
 
 std::shared_ptr<Material> DEFAULT_MATERIAL = std::make_shared<DiffuseMaterial>();
 
@@ -188,10 +189,10 @@ RefractiveMaterial::sampleBxDF( RandomNumberGenerator & rng,
     float fresnel = 1.0f; // default to total internal reflection if refract() returns
     // a zero length vector
     if( refracted.magnitude() > 0.0001 ) {
-        fresnel = fresnelDialectric( dot( from_dir, intersection.normal ),
-                                     dot( refracted, intersection.normal.negated() ),
-                                     index_in,
-                                     index_out );
+        fresnel = Fresnel::Dialectric( dot( from_dir, intersection.normal ),
+                                       dot( refracted, intersection.normal.negated() ),
+                                       index_in,
+                                       index_out );
     }
 
     const float draw = rng.uniform01();

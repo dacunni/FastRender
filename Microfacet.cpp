@@ -4,6 +4,8 @@
 
 #include "Microfacet.h"
 
+namespace Microfacet {
+
 namespace GeometryShadowing {
 
 float Implicit(float NdV, float NdL)
@@ -53,5 +55,7 @@ float BlinnPhong(float roughness, float NdH)
 }
 
 }; // NormalDistribution
+
+}; // Microfacet
 
 
