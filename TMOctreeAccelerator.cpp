@@ -334,7 +334,7 @@ bool TMOctreeAccelerator::Node::intersectsAny( const Ray & ray, float min_distan
         // For leaf nodes, we check for intersections with the triangle list
         RayIntersection isect;
         isect.min_distance = min_distance;
-        return mesh.intersectsTriangles( ray, triangles, isect, TriangleMesh::FAST_ISECT_TEST );
+        return mesh.intersectsAnyTriangles( ray, triangles, isect );
     }
     else {
         bool found_isect = false;

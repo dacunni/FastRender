@@ -76,7 +76,7 @@ bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
     
     RayIntersection intersection;
     intersection.min_distance = min_distance;
-    return intersectsTriangles( ray, mesh_data->triangles, intersection, FAST_ISECT_TEST );
+    return intersectsAnyTriangles( ray, mesh_data->triangles, intersection );
 }
 
 //
@@ -136,7 +136,7 @@ inline bool TriangleMesh::intersectsTriangle( const Ray & ray, const IndexTriang
 // Find the ray intersection with the triangles in the supplied mesh
 //
 bool TriangleMesh::intersectsTriangles( const Ray & ray, const IndexTriangleArray & vtri,
-                                        RayIntersection & intersection, IsectBehavior behavior ) const
+                                        RayIntersection & intersection ) const
 {
     float t, best_t = FLT_MAX;
     bool hit = false;
@@ -145,19 +145,13 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const IndexTriangleArra
 
     // Test for intersection against all triangles
     for( const IndexTriangle & tri : vtri ) {
-        bool hit_tri = intersectsTriangle( ray, tri, intersection.min_distance, t );
-
-        if( hit_tri ) {
-            if( behavior == FAST_ISECT_TEST ) {
-                return true;
-            }
-            else if( t < best_t ) {
-                best_tri = &tri;
-                best_t = t;
-                hit = true;
-            }
+        if( intersectsTriangle( ray, tri, intersection.min_distance, t )
+            && t < best_t ) {
+            best_tri = &tri;
+            best_t = t;
+            hit = true;
         }
-    } // for
+    }
 
     if( hit ) {
         populateIntersection( ray, *best_tri, best_t, intersection );
@@ -166,12 +160,26 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const IndexTriangleArra
     return hit;
 }
 
+bool TriangleMesh::intersectsAnyTriangles( const Ray & ray, const IndexTriangleArray & vtri,
+                                           RayIntersection & intersection ) const
+{
+    float t;
+
+    for( const IndexTriangle & tri : vtri ) {
+        if( intersectsTriangle( ray, tri, intersection.min_distance, t ) ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 //
 // Find the ray intersection with the triangles in the supplied mesh
 // using the provided indices into the triangles list.
 //
 bool TriangleMesh::intersectsTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
-                                        RayIntersection & intersection, IsectBehavior behavior ) const
+                                        RayIntersection & intersection ) const
 {
     auto & triangles = mesh_data->triangles;
 
@@ -184,25 +192,35 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const TriangleIndexArra
     for( const unsigned int index : triangle_indices ) {
         const IndexTriangle & tri = triangles[index];
 
-        bool hit_tri = intersectsTriangle( ray, tri, intersection.min_distance, t );
-
-        if( hit_tri ) {
-            if( behavior == FAST_ISECT_TEST ) {
-                return true;
-            }
-            else if( t < best_t ) {
+        if( intersectsTriangle( ray, tri, intersection.min_distance, t )
+            && t < best_t ) {
                 best_tri = &tri;
                 best_t = t;
                 hit = true;
-            }
         }
-    } // for
+    }
 
     if( hit ) {
         populateIntersection( ray, *best_tri, best_t, intersection );
     }
     
     return hit;
+}
+
+bool TriangleMesh::intersectsAnyTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
+                                           RayIntersection & intersection ) const
+{
+    auto & triangles = mesh_data->triangles;
+    float t;
+
+    for( const unsigned int index : triangle_indices ) {
+        const IndexTriangle & tri = triangles[index];
+        if( intersectsTriangle( ray, tri, intersection.min_distance, t ) ) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 inline void TriangleMesh::populateIntersection( const Ray & ray,

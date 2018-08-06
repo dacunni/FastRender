@@ -44,15 +44,19 @@ public:
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;    
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
     
-    // Helper for intersect() and related methods
-    enum IsectBehavior { CLOSEST_ISECT, FAST_ISECT_TEST };
     inline bool intersectsTriangle( const Ray & ray, const IndexTriangle & tri,
                              float min_distance,
                              float & t ) const;
+
     bool intersectsTriangles( const Ray & ray, const IndexTriangleArray & vtri,
-                              RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
+                              RayIntersection & intersection ) const;
+    bool intersectsAnyTriangles( const Ray & ray, const IndexTriangleArray & vtri,
+                                 RayIntersection & intersection ) const;
     bool intersectsTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
-                              RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
+                              RayIntersection & intersection ) const;
+    bool intersectsAnyTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
+                                 RayIntersection & intersection ) const;
+
     inline void populateIntersection( const Ray & ray, const IndexTriangle & tri,
                                       float t, RayIntersection & intersection ) const;
 
