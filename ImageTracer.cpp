@@ -216,76 +216,79 @@ void ImageTracer::endFrame( unsigned int frame_index )
 
 void ImageTracer::renderPixel( unsigned int row, unsigned int col, unsigned int num_rays )
 {
-    beginRenderPixel( row, col );
-    for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
-        pixel_color.setRGB( 0.0, 0.0, 0.0 );
-        tracePixelRay( row, col, ray_index );
-        artifacts.accumPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
-    }
-    endRenderPixel( row, col );
-    // FIXME: HACK - Trying to deal with fireflies by retrying if we see a lot of variance
-#if SUPPRESS_FIREFLIES
+    // Intersect rays with scene to get color and other measurements
+    auto multirec = tracePixelRays( row, col, num_rays );
+
+#if SUPPRESS_FIREFLIES // FIXME: HACK - Trying to deal with fireflies by retrying if we see a lot of variance
     const float variance_threhshold = 5.0f;
-    float pixel_variance = artifacts.pixelMaxChannelVariance( row, col );
+    float pixel_variance = multirec.maxColorChannelVariance();
     if( pixel_variance > variance_threhshold ) {
         //logger.debugf("FF suppress: Variance exceeded (%.2f > %.2f) at (%u, %u), retrying", pixel_variance, variance_threhshold, row, col);
-        artifacts.resetPixelColor( row, col );
-        beginRenderPixel( row, col );
-        for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
-            pixel_color.setRGB( 0.0, 0.0, 0.0 );
-            tracePixelRay( row, col, ray_index );
-            artifacts.accumPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
-        }
-        endRenderPixel( row, col );
+        multirec = tracePixelRays( row, col, num_rays );
     }
 #endif // SUPPRESS_FIREFLIES
+
+    // Update output artifacts
+    artifacts.setAccumPixelColor( row, col, multirec.color_sum, multirec.color_sq_sum, num_rays );
+    artifacts.setPixelTime( row, col, multirec.timer.elapsed() );
+    artifacts.setPixelNormal( row, col, multirec.normal );
+    artifacts.setPixelDepth( row, col, multirec.distance );
 }
 
-void ImageTracer::beginRenderPixel( unsigned int row, unsigned int col )
+ImageTracer::MultiHitRecord
+ImageTracer::tracePixelRays( unsigned int row, unsigned int col, unsigned int num_rays )
 {
-    pixel_render_timer.start();
-    pixel_color.setRGB( 0.0, 0.0, 0.0 );
-    pixel_normal.set( 0.0, 0.0, 0.0 );
-    pixel_distance = 0.0f;
-    num_hits = 0;
-}
+    MultiHitRecord multirec;
 
-void ImageTracer::endRenderPixel( unsigned int row, unsigned int col )
-{
-    pixel_render_timer.stop();
-    artifacts.accumPixelTime( row, col, pixel_render_timer.elapsed() );
-    if( traversal_nesting == PositionSample ) {
-        pixel_color.scale( 1.0f / rays_per_pixel );
+    multirec.timer.start();
+    for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
+        tracePixelRay( row, col, multirec );
     }
-    artifacts.setPixelNormal( row, col, pixel_normal );
-    artifacts.setPixelDepth( row, col, pixel_distance );
+    multirec.timer.stop();
+
+    return multirec;
 }
 
-void ImageTracer::tracePixelRay( unsigned int row, unsigned int col,
-                                 unsigned int ray_index )
+ImageTracer::HitRecord
+ImageTracer::tracePixelRay( unsigned int row, unsigned int col )
 {
-    //printf("tracePixelRay( row: %u, col: %u, ray_index: %u )\n");
+    HitRecord rec;
+
     Ray ray = camera->rayThrough( rng, row, col );
     RayIntersection intersection = RayIntersection();
-    bool hit = scene->intersect( ray, intersection );
 
-    if( !hit ) {
-        hit = scene->intersectEnvMap( ray, intersection );
+    rec.hit = scene->intersect( ray, intersection );
+
+    if( !rec.hit ) {
+        rec.hit = scene->intersectEnvMap( ray, intersection );
     }
 
-    if( hit ) {
-        num_hits++;
-
-        if( num_hits == 1 ) { // first hit
-            pixel_normal = intersection.normal;
-            pixel_distance = intersection.distance;
-            //intersection.position.fprintCSV( artifacts.intersections_file );
-        }
+    if( rec.hit ) {
+        rec.normal = intersection.normal;
+        rec.distance = intersection.distance;
 
         if( intersection.distance != FLT_MAX ) {
             shader->shade( *scene, rng, intersection );
         }
-        pixel_color.accum( intersection.sample.color );
+        rec.color = intersection.sample.color;
+    }
+
+    return rec;
+}
+
+void ImageTracer::tracePixelRay( unsigned int row, unsigned int col,
+                                 MultiHitRecord & multirec  )
+{
+    auto rec = tracePixelRay(row, col);
+
+    if( rec.hit ) {
+        multirec.num_hits++;
+        if( multirec.num_hits == 1) {
+            multirec.normal = rec.normal;
+            multirec.distance = rec.distance;
+        }
+        multirec.color_sum.accum( rec.color );
+        multirec.color_sq_sum.accum( rec.color * rec.color );
     }
 }
 

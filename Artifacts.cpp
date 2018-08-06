@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "Logger.h"
 #include "Vector.h"
+#include "Color.h"
 #include "Artifacts.h"
 #include "GeometryUtils.h"
 
@@ -165,6 +166,14 @@ void Artifacts::accumPixelColorRGB( unsigned int row, unsigned int col, float r,
     pixel_color_accum[pindex]    += float3(r, g, b);
     pixel_color_sq_accum[pindex] += float3(r * r, g * g, b * b);
     pixel_color_num_samples[pindex]++;
+}
+
+void Artifacts::setAccumPixelColor( unsigned int row, unsigned int col, const RGBColor & color_sum, const RGBColor & color_sq_sum, unsigned int num_samples )
+{
+    const auto pindex = row * width + col;
+    pixel_color_accum[pindex]       = float3(color_sum.r, color_sum.g, color_sum.b);
+    pixel_color_sq_accum[pindex]    = float3(color_sq_sum.r, color_sq_sum.g, color_sq_sum.b);
+    pixel_color_num_samples[pindex] = num_samples;
 }
 
 void Artifacts::resetPixelColor( unsigned int row, unsigned int col )

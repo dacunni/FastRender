@@ -21,6 +21,7 @@
 
 class Logger;
 class Vector4;
+class RGBColor;
 
 class Artifacts {
 public:
@@ -32,6 +33,7 @@ public:
     void resetPixelColor( unsigned int row, unsigned int col );
     void accumPixelColorMono( unsigned int row, unsigned int col, float value );
     void accumPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b );
+    void setAccumPixelColor( unsigned int row, unsigned int col, const RGBColor & color_sum, const RGBColor & color_sq_sum, unsigned int num_samples );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );
     void setPixelDepth( unsigned int row, unsigned int col, float depth );
     void accumPixelTime( unsigned int row, unsigned int col, float value );

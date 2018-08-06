@@ -20,6 +20,9 @@ class RGBColor {
     RGBColor scaled( float rs, float gs, float bs ) const { auto c(*this); c.scale(rs, gs, bs); return c; }
     void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
+    float channelMin() const { return std::min(r, std::min(g, b)); }
+    float channelMax() const { return std::max(r, std::max(g, b)); }
+
     inline RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
 
     void print() const;
@@ -37,9 +40,15 @@ inline RGBColor mult( float s, const RGBColor & a ) { return a.scaled(s); }
 
 inline RGBColor operator+( const RGBColor & a, const RGBColor & b )
     { return RGBColor(a.r + b.r, a.g + b.g, a.b + b.b); }
+
+inline RGBColor operator-( const RGBColor & a, const RGBColor & b )
+    { return RGBColor(a.r - b.r, a.g - b.g, a.b - b.b); }
+
 inline RGBColor operator*( const RGBColor & a, const RGBColor & b ) { return a.scaled(b.r, b.g, b.b); }
 inline RGBColor operator*( const RGBColor & a, float s ) { return a.scaled(s); }
 inline RGBColor operator*( float s, const RGBColor & a ) { return a.scaled(s); }
+
+inline RGBColor operator/( const RGBColor & a, float s ) { return a.scaled(1.0f / s); }
 
 std::ostream & operator<<( std::ostream & o, const RGBColor & c );
 
