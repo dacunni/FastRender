@@ -8,8 +8,8 @@ double timeNowAsDouble();
 
 class ProcessorTimer {
 public:
-    ProcessorTimer() : running(false), valid(false) {}
-    ~ProcessorTimer() {}
+    ProcessorTimer() = default;
+    ~ProcessorTimer() = default;
     
     void start();
     void stop();
@@ -18,22 +18,24 @@ public:
 protected:
     clock_t start_time;
     clock_t end_time;
-    bool running;
-    bool valid;
+    bool running = false;
+    bool valid   = false;
 };
 
 class WallClockTimer {
 public:
-    WallClockTimer() : running(false), valid(false) {}
-    ~WallClockTimer() {}
+    WallClockTimer() = default;
+    ~WallClockTimer() = default;
+
     void start();
     void stop();
     double elapsed();
+
 protected:
     struct timeval start_time;
     struct timeval end_time;
-    bool running;
-    bool valid;
+    bool running = false;
+    bool valid   = false;
 };
 
 #endif
