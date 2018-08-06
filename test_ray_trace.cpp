@@ -521,7 +521,7 @@ void testRayObjectTiming(Traceable & traceable, const char * name, bool test_any
     RayIntersection isect;
     bool hit;
 
-    Timer timer;
+    WallClockTimer timer;
     timer.start();
     for( int i = 0; i < num_rays; i++ ) {
         int j = i % pool_size;
@@ -597,7 +597,7 @@ void testVectorTiming()
     }
 
     std::map<std::string, float> results;
-    Timer timer;
+    ProcessorTimer timer;
 
     // Member functions
     timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
@@ -717,7 +717,7 @@ void testMatrixTiming()
     }
 
     std::map<std::string, float> results;
-    Timer timer;
+    ProcessorTimer timer;
 
     // Functions between matrices and vectors
     timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
@@ -764,7 +764,7 @@ void testEnvironmentMapImportanceSamplingTiming()
     std::vector<RayIntersection> intersections;
     makeRayIntersectionPool(intersections, pool_size);
 
-    Timer timer;
+    ProcessorTimer timer;
     timer.start();
     for( int i = 0; i < num_samples; i++ ) {
         int j = i % pool_size;
@@ -794,7 +794,7 @@ int main (int argc, char * const argv[])
 
     mkdir(output_path.c_str(), 0777);
 
-    Timer total_run_timer;
+    WallClockTimer total_run_timer;
     total_run_timer.start();
 
     // Tests

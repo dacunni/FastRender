@@ -6,10 +6,6 @@
 
 double timeNowAsDouble();
 
-// FIXME - Audit uses of Timer and make change them to use
-//         the appropriate specific timer implementation
-//         and deprecate Timer
-
 class ProcessorTimer {
 public:
     ProcessorTimer() : running(false), valid(false) {}
@@ -25,8 +21,6 @@ protected:
     bool running;
     bool valid;
 };
-
-using Timer = ProcessorTimer;
 
 class WallClockTimer {
 public:

@@ -233,7 +233,7 @@ int main (int argc, char * const argv[])
 
     mkdir(output_path.c_str(), 0777);
 
-    Timer total_run_timer;
+    WallClockTimer total_run_timer;
     total_run_timer.start();
 
 #if 1

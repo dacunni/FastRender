@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 #include "Color.h"
 
 void RGBColor::print() const
@@ -14,3 +15,6 @@ std::ostream & operator<<( std::ostream & o, const RGBColor & c )
         << std::setprecision(5)
         << "RGB(" << c.r << ", " << c.g << ", " << c.b << ")";
 }
+
+float RGBColor::channelMin() const { return std::min(r, std::min(g, b)); }
+float RGBColor::channelMax() const { return std::max(r, std::max(g, b)); }

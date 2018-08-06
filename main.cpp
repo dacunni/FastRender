@@ -13,7 +13,7 @@ Scene * buildScene()
     Scene * scene = new Scene();
 
     printf( "Building scene\n" );
-    Timer build_scene_timer;
+    WallClockTimer build_scene_timer;
     build_scene_timer.start();
 	auto container = std::make_shared<FlatContainer>();
 	
@@ -161,7 +161,7 @@ int main (int argc, char * const argv[])
 {
     printf("FastRender\n");
     fflush(stdout);
-    Timer total_run_timer;
+    WallClockTimer total_run_timer;
     total_run_timer.start();
 
     testScene();

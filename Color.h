@@ -20,8 +20,8 @@ class RGBColor {
     RGBColor scaled( float rs, float gs, float bs ) const { auto c(*this); c.scale(rs, gs, bs); return c; }
     void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
-    float channelMin() const { return std::min(r, std::min(g, b)); }
-    float channelMax() const { return std::max(r, std::max(g, b)); }
+    float channelMin() const;
+    float channelMax() const;
 
     inline RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
 

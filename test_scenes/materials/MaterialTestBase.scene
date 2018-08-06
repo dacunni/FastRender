@@ -89,7 +89,8 @@ BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10, -1, -10,
                                                      10, 0, 10 );
     //auto floor_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
-    auto floor_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    //auto floor_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    auto floor_material = std::make_shared<DiffuseCheckerBoardMaterial>( 0.2, 0.2, 0.2, 0.8, 0.8, 0.8 );
     container->add( floor, floor_material );
 
     mesh = loadMaterialTestModel( loader );

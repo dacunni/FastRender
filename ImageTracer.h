@@ -36,12 +36,12 @@ class ImageTracer
 
         // Record of a series of ray traces. Accumulates color and squared color
         struct MultiHitRecord {
-            Timer        timer;
-            RGBColor     color_sum;
-            RGBColor     color_sq_sum;
-            Vector4      normal;
-            float        distance = 0.0f;
-            unsigned int num_hits = 0;
+            ProcessorTimer  timer;
+            RGBColor        color_sum;
+            RGBColor        color_sq_sum;
+            Vector4         normal;
+            float           distance = 0.0f;
+            unsigned int    num_hits = 0;
 
             float maxColorChannelVariance() const {
                 if(num_hits < 1)

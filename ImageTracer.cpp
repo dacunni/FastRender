@@ -48,7 +48,7 @@ void ImageTracer::render()
 
 void ImageTracer::renderThread()
 {
-    Timer image_flush_timer;
+    WallClockTimer image_flush_timer;
     ProcessorTimer processor_timer;
     WallClockTimer wall_clock_timer;
 
