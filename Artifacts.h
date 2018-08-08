@@ -18,9 +18,10 @@
 #include <Magick++.h>
 
 #include "Types.h"
-#include "PreviewWindow.h"
 
+class Logger;
 class Vector4;
+class RGBColor;
 
 class Artifacts {
 public:
@@ -32,6 +33,7 @@ public:
     void resetPixelColor( unsigned int row, unsigned int col );
     void accumPixelColorMono( unsigned int row, unsigned int col, float value );
     void accumPixelColorRGB( unsigned int row, unsigned int col, float r, float g, float b );
+    void setAccumPixelColor( unsigned int row, unsigned int col, const RGBColor & color_sum, const RGBColor & color_sq_sum, unsigned int num_samples );
     void setPixelNormal( unsigned int row, unsigned int col, const Vector4 & n );
     void setPixelDepth( unsigned int row, unsigned int col, float depth );
     void accumPixelTime( unsigned int row, unsigned int col, float value );
@@ -40,7 +42,7 @@ public:
 
     float pixelMaxChannelVariance( unsigned int row, unsigned int col );
 
-    typedef std::unique_ptr<Magick::Image> ImagePtr;
+    using ImagePtr = std::unique_ptr<Magick::Image>;
     
     std::string output_path;
     ImagePtr image = nullptr;
@@ -56,15 +58,13 @@ public:
     std::vector<double> time_unnormalized_image;
     FILE * intersections_file;
 
-    bool show_preview_window = false;
-    PreviewWindow preview_window;
-
     unsigned int width;
     unsigned int height;
     unsigned int frame_number;
 
     std::string file_prefix = "";
     
+    Logger & logger;
 };
 
 #endif /* defined(__FastRender__Artifacts__) */

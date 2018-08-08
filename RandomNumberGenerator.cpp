@@ -1,12 +1,3 @@
-/*
- *  RandomNumberGenerator.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 8/14/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
@@ -21,24 +12,9 @@
 using std::max;
 
 RandomNumberGenerator::RandomNumberGenerator()
+  : engine(device()),
+    distribution(0.0f, 1.0f)
 {
-    seedCurrentTime();
-}
-
-void RandomNumberGenerator::seedCurrentTime()
-{
-    switch(method) {
-        default:
-        case UnixRand:
-            srand( time( NULL ) );
-            break;
-#ifdef __APPLE__
-        case Arc4Random:
-            srand( time( NULL ) );
-            arc4random_stir();
-            break;
-#endif
-    }
 }
 
 void RandomNumberGenerator::uniformUnitCircle( float & x, float & y )
@@ -118,7 +94,25 @@ void RandomNumberGenerator::cosineUnitHalfSphere( float & x, float & y, float & 
 void RandomNumberGenerator::cosineUnitHalfSphere( Vector4 & v )
 {
     cosineUnitHalfSphere( v.x, v.y, v.z );
-    v.w = 1.0;
+    v.w = 1.0f;
+}
+
+void RandomNumberGenerator::beckmanNDF( float roughness, float & x, float & y, float & z )
+{
+    if(roughness <= 0.0f) { x = y = 0.0f; z = 1.0f; }
+    const float u1 = uniform01(), u2 = uniform01();
+    const float phi = 2.0 * M_PI * u2;
+    const float theta = atanf(sqrtf(-roughness * roughness * std::log(u1)));
+    const float sin_theta = std::sin(theta);
+    x = sin_theta * std::cos(phi);
+    y = sin_theta * std::sin(phi);
+    z = std::cos(theta);
+}
+
+void RandomNumberGenerator::beckmanNDF( float roughness, Vector4 & v )
+{
+    beckmanNDF( roughness, v.x, v.y, v.z );
+    v.w = 1.0f;
 }
 
 // Generate a random 3D point within the unit cube
@@ -178,14 +172,6 @@ void RandomNumberGenerator::uniformTriangle3D( const Vector4 & v1,
     r = add( add( scale( v1, bary.u ),
                   scale( v2, bary.v ) ),
              scale( v3, bary.w ) );
-}
-
-void RandomNumberGenerator::buildCache()
-{
-    for( int i = 0; i < CACHE_SIZE; i++ ) {
-        cache[i] = uniform01Impl();
-    }
-    cache_next = 0;
 }
 
 

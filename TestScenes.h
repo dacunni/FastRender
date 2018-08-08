@@ -6,6 +6,7 @@
 
 class Container;
 class FlatContainer;
+class Logger;
 
 void addSlabGrid( std::shared_ptr<Container> container );
 void addRandomSpheres( std::shared_ptr<Container> container, RandomNumberGenerator & rng, int numSpheres );
@@ -87,6 +88,7 @@ class RegisterTest {
 
 // Prints a list of all tests in the test registry
 void printTests();
+void logTests(Logger & logger);
 
 // Calls the run() method on all tests in the registry
 void runTest( unsigned int index );
@@ -117,6 +119,7 @@ public:
     int anim_frames;
     AssetLoader loader;
     ImageTracer * tracer;
+    Logger & logger;
 };
 
 #define BEGIN_DERIVED_SCENE(TEST_NAME, PARENT) \
@@ -159,6 +162,7 @@ public:
 #define BUILD_SCENE(BODY) \
     virtual void buildScene() { \
         BODY; \
+        scene->root = container; \
     }
 
 #define END_SCENE() \

@@ -2,6 +2,7 @@
 #define _RAY_H_
 
 #include <memory>
+#include <string>
 #include <float.h>
 
 #include "Vector.h"
@@ -12,13 +13,16 @@ class Traceable;
 class Material;
 extern std::shared_ptr<Material> DEFAULT_MATERIAL;
 
-const float EPSILON = 0.01;
+//const float EPSILON = 0.01;
+const float EPSILON = 0.001;
 
 class Ray {
 public:
     Ray() : depth(1) {}
     Ray( const Vector4 & o, const Vector4 & d ) : origin(o), direction(d), depth(1) {}
     ~Ray() {}
+
+    std::string toString() const;
 
     Vector4 origin;
     Vector4 direction;
@@ -29,6 +33,7 @@ public:
 class RGBRadianceSample {
 public:
     RGBRadianceSample() : color(0.0f, 0.0f, 0.0f) {}
+    RGBRadianceSample(const RGBColor & c) : color(c) {}
     ~RGBRadianceSample() {}
 
     RGBColor color;

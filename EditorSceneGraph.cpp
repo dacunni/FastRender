@@ -9,6 +9,8 @@
 #include "TriangleMesh.h"
 #include "ShaderProgram.h"
 #include "SimpleCamera.h"
+#include "BoundingVolume.h"
+#include "BoundingVolumeHierarchy.h"
 
 ObjectEditor::ObjectEditor()
 {
@@ -20,10 +22,14 @@ ObjectEditor::~ObjectEditor()
     glDeleteBuffers(1, &vertexBuffer);
     glDeleteBuffers(1, &indexBuffer);
 }
+
 std::string ObjectEditor::label() { return "Object"; }
-void ObjectEditor::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
+
+void ObjectEditor::draw(Camera & camera,
+                        ShaderProgram & shaderProgram,
+                        const Matrix4x4 * nodeWorldMatrix)
 {
-    printf("VAO %u VBO %u IBO %u numVertices %u numIndices %u\n", vertexArray, vertexBuffer, indexBuffer, numVertices, numIndices);
+    //printf("VAO %u VBO %u IBO %u numVertices %u numIndices %u\n", vertexArray, vertexBuffer, indexBuffer, numVertices, numIndices);
 
     GLuint worldLoc = shaderProgram.uniformLocation("world");
     GLuint viewLoc = shaderProgram.uniformLocation("view");
@@ -34,11 +40,16 @@ void ObjectEditor::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
     Matrix4x4 projection;
 
     world.identity();
-    if(object().transform)
-        world = object().transform->fwd;
+    if(nodeWorldMatrix)
+        world = *nodeWorldMatrix;
+    //if(object().transform)
+    //    world = mult(world, object().transform->fwd);
     view.identity();
     view = camera.transform.rev;
-    projection.glProjectionSymmetric(0.2, 0.2, 0.25, 200.0); // TODO - real camera projection
+
+    float xmin, xmax, ymin, ymax;
+    camera.getFocalPlaneExtents(xmin, xmax, ymin, ymax);
+    projection.glProjection(xmin, xmax, ymin, ymax, 1.0, 1000.0);
 
     //printf("WORLD TRANSFORM:\n"); world.print();
     //printf("VIEW:\n"); view.print();
@@ -148,8 +159,32 @@ class FlatContainerEditor : public ObjectEditor {
 
         virtual std::string label() { return "Flat Container"; }
         virtual Traceable & object() const { return obj; }
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram) {}
 
         FlatContainer & obj;
+};
+
+class BoundingVolumeEditor : public ObjectEditor {
+    public:
+        BoundingVolumeEditor(BoundingVolume & o) : obj(o) {}
+        ~BoundingVolumeEditor() {}
+
+        virtual std::string label() { return "Bounding Volume"; }
+        virtual Traceable & object() const { return obj; }
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram) {}
+
+        BoundingVolume & obj;
+};
+
+class BoundingVolumeHierarchyEditor : public ObjectEditor {
+    public:
+        BoundingVolumeHierarchyEditor(BoundingVolumeHierarchy & o) : obj(o) {}
+        ~BoundingVolumeHierarchyEditor() {}
+
+        virtual std::string label() { return "Bounding Volume Hierarchy"; }
+        virtual Traceable & object() const { return obj; }
+
+        BoundingVolumeHierarchy & obj;
 };
 
 class TriangleMeshEditor : public ObjectEditor {
@@ -171,12 +206,12 @@ class TriangleMeshEditor : public ObjectEditor {
 
             std::vector<Vertex> vertices;
             std::vector<uint32_t> indices;
-            vertices.reserve(obj.vertices.size());
-            indices.reserve(obj.triangles.size() * 3);
+            vertices.reserve(obj.mesh_data->vertices.size());
+            indices.reserve(obj.mesh_data->triangles.size() * 3);
 
-            for( unsigned int index = 0; index < obj.vertices.size(); index++ ) {
-                const auto & vertex = obj.vertices[index];
-                const auto & normal = obj.normals[index];
+            for( unsigned int index = 0; index < obj.mesh_data->vertices.size(); index++ ) {
+                const auto & vertex = obj.mesh_data->vertices[index];
+                const auto & normal = obj.mesh_data->normals[index];
                 vertices.push_back( {
                     .position = { .x = vertex.x,
                                   .y = vertex.y,
@@ -187,7 +222,7 @@ class TriangleMeshEditor : public ObjectEditor {
             }
             numVertices = vertices.size();
 
-            for( const auto & tri : obj.triangles ) {
+            for( const auto & tri : obj.mesh_data->triangles ) {
                 indices.push_back(tri.vi[0]);
                 indices.push_back(tri.vi[1]);
                 indices.push_back(tri.vi[2]);
@@ -214,6 +249,105 @@ class TriangleMeshEditor : public ObjectEditor {
 
         TriangleMesh & obj;
 };
+
+class CircleAreaLightEditor : public ObjectEditor {
+    public:
+        CircleAreaLightEditor(CircleAreaLight & o) : obj(o) {}
+        ~CircleAreaLightEditor() {}
+
+        virtual std::string label() { return "Circle Area Light"; }
+        virtual Traceable & object() const { return obj; }
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram)
+        {
+            glGenVertexArrays(1, &vertexArray);
+            glGenBuffers(1, &vertexBuffer);
+            glBindVertexArray(vertexArray);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+            unsigned int numSteps = 20;
+            std::vector<Vertex> vertices;
+            vertices.reserve(numSteps);
+
+            float radius = obj.radius;
+            float dangle = 2.0f * M_PI / (float) numSteps;
+            for(unsigned int step = 0; step < numSteps; step++) {
+                float angle1 = step * dangle;
+                float angle2 = (step + 1) * dangle;
+                vertices.push_back( { .position = { .x = 0, .y = 0, .z = 0 },
+                                      .normal = { .x = 0, .y = -1, .z = 0 } } );
+                vertices.push_back( { .position = { .x = radius * cosf(angle1), .y = 0, .z = radius * sinf(angle1) },
+                                      .normal = { .x = 0, .y = -1, .z = 0 } } );
+                vertices.push_back( { .position = { .x = radius * cosf(angle2), .y = 0, .z = radius * sinf(angle2) },
+                                      .normal = { .x = 0, .y = -1, .z = 0 } } );
+            }
+            numVertices = vertices.size();
+
+            glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, position));
+            glEnableVertexAttribArray(positionLoc);
+            GL_WARN_IF_ERROR();
+
+            auto normalLoc = shaderProgram.attribLocation("normal");
+            glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
+            glEnableVertexAttribArray(normalLoc);
+            GL_WARN_IF_ERROR();
+
+            glBindVertexArray(0);
+        }
+
+        CircleAreaLight & obj;
+};
+
+class RectangleAreaLightEditor : public ObjectEditor {
+    public:
+        RectangleAreaLightEditor(RectangleAreaLight & o) : obj(o) {}
+        ~RectangleAreaLightEditor() {}
+
+        virtual std::string label() { return "Rectangle Area Light"; }
+        virtual Traceable & object() const { return obj; }
+        virtual void buildGpuBuffers(ShaderProgram & shaderProgram)
+        {
+            glGenVertexArrays(1, &vertexArray);
+            glGenBuffers(1, &vertexBuffer);
+            glBindVertexArray(vertexArray);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+            std::vector<Vertex> vertices;
+            float xe = obj.xdim / 2.0f;
+            float ze = obj.zdim / 2.0f;
+
+            Vertex::Normal normal{ .x = 0, .y = -1, .z = 0 };
+
+            vertices.push_back( { .position = { .x = -xe, .y = 0, .z = -ze }, .normal = normal } );
+            vertices.push_back( { .position = { .x = +xe, .y = 0, .z = -ze }, .normal = normal } );
+            vertices.push_back( { .position = { .x = +xe, .y = 0, .z = +ze }, .normal = normal } );
+
+            vertices.push_back( { .position = { .x = +xe, .y = 0, .z = +ze }, .normal = normal } );
+            vertices.push_back( { .position = { .x = -xe, .y = 0, .z = +ze }, .normal = normal } );
+            vertices.push_back( { .position = { .x = -xe, .y = 0, .z = -ze }, .normal = normal } );
+
+            numVertices = vertices.size();
+
+            glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+            auto positionLoc = shaderProgram.attribLocation("position");
+            glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, position));
+            glEnableVertexAttribArray(positionLoc);
+            GL_WARN_IF_ERROR();
+
+            auto normalLoc = shaderProgram.attribLocation("normal");
+            glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
+            glEnableVertexAttribArray(normalLoc);
+            GL_WARN_IF_ERROR();
+
+            glBindVertexArray(0);
+        }
+
+        RectangleAreaLight & obj;
+};
+
 
 class AxisAlignedSlabEditor : public ObjectEditor {
     public:
@@ -303,10 +437,23 @@ void EditorSceneGraphNode::buildGpuBuffers(ShaderProgram & shaderProgram) {
     }
 }
 
-void EditorSceneGraphNode::draw(SimpleCamera & camera, ShaderProgram & shaderProgram) {
-    editor->draw(camera, shaderProgram);
+void EditorSceneGraphNode::draw(Camera & camera,
+                                ShaderProgram & shaderProgram,
+                                const Matrix4x4 * parentWorldMatrix) {
+    Transform * thisTransform = editor->object().transform.get();
+    Matrix4x4 * thisWorldMatrix = nullptr;
+    
+    if(thisTransform) { thisWorldMatrix = &thisTransform->fwd; }
+
+    Matrix4x4 nodeWorldMatrix;
+    if(thisWorldMatrix && parentWorldMatrix) { nodeWorldMatrix = mult(*parentWorldMatrix, *thisWorldMatrix); }
+    else if(thisWorldMatrix)                 { nodeWorldMatrix = *thisWorldMatrix; }
+    else if(parentWorldMatrix)               { nodeWorldMatrix = *parentWorldMatrix; }
+    else                                     { nodeWorldMatrix.identity(); }
+
+    editor->draw(camera, shaderProgram, &nodeWorldMatrix);
     for(auto & child : children) {
-        child->draw(camera, shaderProgram);
+        child->draw(camera, shaderProgram, &nodeWorldMatrix);
     }
 }
 
@@ -320,7 +467,7 @@ class EditorSceneGraphBuilder : public TraceableVisitor {
         }
 
         virtual void handle( FlatContainer & t ) {
-            //std::cout << std::string(buildStack.size(), '\t') << "building FlatContainer" << std::endl;
+            std::cout << std::string(buildStack.size(), ' ') << "building FlatContainer" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new FlatContainerEditor(t));
             if(!sceneGraph.root) { sceneGraph.root = node; }
             else { add(node); }
@@ -331,18 +478,57 @@ class EditorSceneGraphBuilder : public TraceableVisitor {
             buildStack.pop_back();
         }
         virtual void handle( Sphere & t ) {
-            //std::cout << std::string(buildStack.size(), '\t') << "building Sphere" << std::endl;
+            std::cout << std::string(buildStack.size(), ' ') << "building Sphere" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new SphereEditor(t));
             add(node);
         }
         virtual void handle( AxisAlignedSlab & t ) {
-            //std::cout << std::string(buildStack.size(), '\t') << "building AxisAlignedSlab" << std::endl;
+            std::cout << std::string(buildStack.size(), ' ') << "building AxisAlignedSlab" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new AxisAlignedSlabEditor(t));
             add(node);
         }
         virtual void handle( TriangleMesh & t ) {
-            //std::cout << std::string(buildStack.size(), '\t') << "building TriangleMesh" << std::endl;
+            std::cout << std::string(buildStack.size(), ' ') << "building TriangleMesh" << std::endl;
             EditorSceneGraphNode * node = new EditorSceneGraphNode(new TriangleMeshEditor(t));
+            add(node);
+#if 0 // TEMP - show bounding boxes; warning, leaks memory!
+            {
+            auto bounds = new AxisAlignedSlab(*t.getAxisAlignedBounds());
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new AxisAlignedSlabEditor(*bounds));
+            add(node);
+            }
+#endif
+        }
+        virtual void handle( BoundingVolumeHierarchy & t ) {
+            std::cout << std::string(buildStack.size(), ' ') << "building BoundingVolumeHierarchy" << std::endl;
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new BoundingVolumeHierarchyEditor(t));
+            add(node);
+            if(t.root) {
+                buildStack.push_back(node);
+                walk(*t.root);
+                buildStack.pop_back();
+            }
+        }
+        virtual void handle( BoundingVolume & t ) {
+            std::cout << std::string(buildStack.size(), ' ') << "building BoundingVolume" << std::endl;
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new BoundingVolumeEditor(t));
+            add(node);
+            if(t.object) {
+                buildStack.push_back(node);
+                walk(*t.object);
+                // DEBUG: show bounding volume
+                //walk(*t.bound);
+                buildStack.pop_back();
+            }
+        }
+        virtual void handle( CircleAreaLight & t ) {
+            std::cout << std::string(buildStack.size(), ' ') << "building CircleAreaLight" << std::endl;
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new CircleAreaLightEditor(t));
+            add(node);
+        }
+        virtual void handle( RectangleAreaLight & t ) {
+            std::cout << std::string(buildStack.size(), ' ') << "building RectangleAreaLight" << std::endl;
+            EditorSceneGraphNode * node = new EditorSceneGraphNode(new RectangleAreaLightEditor(t));
             add(node);
         }
 
@@ -367,13 +553,13 @@ EditorSceneGraph::~EditorSceneGraph()
 
 void EditorSceneGraph::build( Scene & scene )
 {
-    std::cout << "SCENE" << std::endl; // TEMP
+    //std::cout << "SCENE" << std::endl; // TEMP
     build(*scene.root);
 }
 
 void EditorSceneGraph::build( Traceable & traceable )
 {
-    std::cout << "TRACEABLE" << std::endl; // TEMP
+    //std::cout << "TRACEABLE " << &traceable << std::endl; // TEMP
     EditorSceneGraphBuilder builder(*this);
     builder.walk(traceable);
 }
@@ -392,7 +578,7 @@ void EditorSceneGraph::buildGpuBuffers(ShaderProgram & shaderProgram)
     }
 }
 
-void EditorSceneGraph::draw(SimpleCamera & camera, ShaderProgram & shaderProgram)
+void EditorSceneGraph::draw(Camera & camera, ShaderProgram & shaderProgram)
 {
     if(root) {
         root->draw(camera, shaderProgram);

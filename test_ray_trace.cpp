@@ -27,7 +27,7 @@ void testFresnelDialectric1()
     float da = 0.05;
     for( float angle1 = -M_PI / 2.0; angle1 <= M_PI / 2.0; angle1 += da ) {
         for( float angle2 = -M_PI / 2.0; angle2 <= M_PI / 2.0; angle2 += da ) {
-            float f = fresnelDialectric( cos(angle1+da/2.0), cos(angle2+da/2.0), n1, n2 );
+            float f = Fresnel::Dialectric::Unpolarized( cos(angle1+da/2.0), cos(angle2+da/2.0), n1, n2 );
             plot.strokeColor( f, f, f );
             plot.fillColor( f, f, f );
             plot.addPoint( angle1, angle2 );
@@ -46,7 +46,7 @@ void testFresnelDialectric2()
     float dc = 0.01;
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
         for( float cos2 = 0.0; cos2 <= 1.0; cos2 += dc ) {
-            float f = fresnelDialectric( cos1+dc/2.0, cos2+dc/2.0, n1, n2 );
+            float f = Fresnel::Dialectric::Unpolarized( cos1+dc/2.0, cos2+dc/2.0, n1, n2 );
             plot.strokeColor( f, f, f );
             plot.fillColor( f, f, f );
             plot.addPoint( cos1, cos2 );
@@ -66,27 +66,27 @@ void testFresnelDialectric3()
     float dc = 0.01;
 
     float last_cos1 = 0.0;
-    float last_f = fresnelDialectricSnell( 0.0, n1, n2 );
+    float last_f = Fresnel::Dialectric::Snell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricSnell( cos1, n1, n2 );
+        float f = Fresnel::Dialectric::Snell( cos1, n1, n2 );
         plot.strokeColor( 0, 0, 0 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
         last_f = f;
     }
     last_cos1 = 0.0;
-    last_f = fresnelDialectricParallelSnell( 0.0, n1, n2 );
+    last_f = Fresnel::Dialectric::ParallelSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricParallelSnell( cos1, n1, n2 );
+        float f = Fresnel::Dialectric::ParallelSnell( cos1, n1, n2 );
         plot.strokeColor( 0, 0, 1 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
         last_f = f;
     }
     last_cos1 = 0.0;
-    last_f = fresnelDialectricPerpendicularSnell( 0.0, n1, n2 );
+    last_f = Fresnel::Dialectric::PerpendicularSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricPerpendicularSnell( cos1, n1, n2 );
+        float f = Fresnel::Dialectric::PerpendicularSnell( cos1, n1, n2 );
         plot.strokeColor( 1, 0, 0 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
@@ -105,27 +105,27 @@ void testFresnelDialectric4()
     float dc = 0.01;
 
     float last_cos1 = 0.0;
-    float last_f = fresnelDialectricSnell( 0.0, n1, n2 );
+    float last_f = Fresnel::Dialectric::Snell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricSnell( cos1, n1, n2 );
+        float f = Fresnel::Dialectric::Snell( cos1, n1, n2 );
         plot.strokeColor( 0, 0, 0 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
         last_f = f;
     }
     last_cos1 = 0.0;
-    last_f = fresnelDialectricParallelSnell( 0.0, n1, n2 );
+    last_f = Fresnel::Dialectric::ParallelSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricParallelSnell( cos1, n1, n2 );
+        float f = Fresnel::Dialectric::ParallelSnell( cos1, n1, n2 );
         plot.strokeColor( 0, 0, 1 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
         last_f = f;
     }
     last_cos1 = 0.0;
-    last_f = fresnelDialectricPerpendicularSnell( 0.0, n1, n2 );
+    last_f = Fresnel::Dialectric::PerpendicularSnell( 0.0, n1, n2 );
     for( float cos1 = 0.0; cos1 <= 1.0; cos1 += dc ) {
-        float f = fresnelDialectricPerpendicularSnell( cos1, n1, n2 );
+        float f = Fresnel::Dialectric::PerpendicularSnell( cos1, n1, n2 );
         plot.strokeColor( 1, 0, 0 );
         plot.drawLine( last_cos1, last_f, cos1, f );
         last_cos1 = cos1;
@@ -258,12 +258,12 @@ void testRefractAnglesHelper( const Vector4 & o, Traceable & obj, Plot2D & plot,
 
         Vector4 refracted = refract( in, ri.normal, n1, n2 );
 
-        //r = scale(r, fresnelDialectric( dot( in, ri.normal ),
+        //r = scale(r, Fresnel::Dialectric( dot( in, ri.normal ),
         //                                dot( r, ri.normal.negated() ),
         //                                n1, n2 ) );
         float cos_in = dot( in, ri.normal );
         float cos_out = dot( refracted, ri.normal.negated() );
-        float f = fresnelDialectric( cos_in, cos_out, n1, n2 );
+        float f = Fresnel::Dialectric::Unpolarized( cos_in, cos_out, n1, n2 );
         refracted = scale(refracted, 1.0 - f);
 
         // Mark rays that saw total internal reflection
@@ -452,15 +452,13 @@ void testSimpleCameraNoJitter()
     const int w = 20, h = 20;
     Plot2D plot( output_path + "/simple_camera_no_jitter.png", plot_size, plot_size,
                  -1.0, 1.0, -1.0, 1.0 );
-    SimpleCamera camera( rng,
-                         -1.0, 1.0, -1.0, 1.0,
-                         w, h );
+    SimpleCamera camera( -1.0, 1.0, -1.0, 1.0, w, h );
     camera.jitterRays( false );
 
     Vector4 points[h*w];
     for( int ri = 0; ri < h; ri++ ) {
         for( int ci = 0; ci < w; ci++ ) {
-            points[ri * w + ci] = camera.vectorThrough( ri, ci );
+            points[ri * w + ci] = camera.vectorThrough( rng, ri, ci );
         }
     }
 
@@ -472,15 +470,13 @@ void testSimpleCamera()
     const int w = 20, h = 20;
     Plot2D plot( output_path + "/simple_camera.png", plot_size, plot_size,
                  -1.0, 1.0, -1.0, 1.0 );
-    SimpleCamera camera( rng,
-                         -1.0, 1.0, -1.0, 1.0,
-                         w, h );
+    SimpleCamera camera( -1.0, 1.0, -1.0, 1.0, w, h );
     camera.jitterRays( true );
 
     Vector4 points[h*w];
     for( int ri = 0; ri < h; ri++ ) {
         for( int ci = 0; ci < w; ci++ ) {
-            points[ri * w + ci] = camera.vectorThrough( ri, ci );
+            points[ri * w + ci] = camera.vectorThrough( rng, ri, ci );
         }
     }
 
@@ -525,7 +521,7 @@ void testRayObjectTiming(Traceable & traceable, const char * name, bool test_any
     RayIntersection isect;
     bool hit;
 
-    Timer timer;
+    WallClockTimer timer;
     timer.start();
     for( int i = 0; i < num_rays; i++ ) {
         int j = i % pool_size;
@@ -601,7 +597,7 @@ void testVectorTiming()
     }
 
     std::map<std::string, float> results;
-    Timer timer;
+    ProcessorTimer timer;
 
     // Member functions
     timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
@@ -721,7 +717,7 @@ void testMatrixTiming()
     }
 
     std::map<std::string, float> results;
-    Timer timer;
+    ProcessorTimer timer;
 
     // Functions between matrices and vectors
     timer.start(); for( unsigned long i = 0; i < num_iterations; ++i ) {
@@ -768,7 +764,7 @@ void testEnvironmentMapImportanceSamplingTiming()
     std::vector<RayIntersection> intersections;
     makeRayIntersectionPool(intersections, pool_size);
 
-    Timer timer;
+    ProcessorTimer timer;
     timer.start();
     for( int i = 0; i < num_samples; i++ ) {
         int j = i % pool_size;
@@ -798,13 +794,11 @@ int main (int argc, char * const argv[])
 
     mkdir(output_path.c_str(), 0777);
 
-    Timer total_run_timer;
+    WallClockTimer total_run_timer;
     total_run_timer.start();
 
-    rng.seedCurrentTime();
-
     // Tests
-#if 0
+#if 1
     testRayIntersect();
     testReflectAngles();
     testSnellAngles();
@@ -830,10 +824,10 @@ int main (int argc, char * const argv[])
 #else
     //testVectorTiming();
     //testMatrixTiming();
-    //testRaySphereTiming();
+    testRaySphereTiming();
     //testRayAxisAlignedSlabTiming();
     //testRayMeshBunnyTiming();
-    testRayMeshOctreeBunnyTiming();
+    //testRayMeshOctreeBunnyTiming();
     //testEnvironmentMapImportanceSamplingTiming();
 #endif
     

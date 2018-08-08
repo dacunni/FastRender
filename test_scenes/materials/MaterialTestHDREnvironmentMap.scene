@@ -30,6 +30,20 @@ BUILD_SCENE(
 END_SCENE()
 
 // ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteHDRUniformEnvironmentMap, MaterialTestHDREnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHDREnvironmentMap::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+);
+BUILD_SCENE(
+    MaterialTestHDREnvironmentMap::buildScene();
+    mesh->material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    //mesh->material = std::make_shared<DiffuseMaterial>( 0.9, 0.9, 0.9 );
+    scene->env_map = std::make_shared<UniformEnvironmentMap>();
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhiteHDREnvironmentMap, MaterialTestHDREnvironmentMap)
 SETUP_SCENE(
     MaterialTestHDREnvironmentMap::setup();

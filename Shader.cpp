@@ -65,20 +65,24 @@ RGBColor Shader::samplePointLights( const Scene & scene,
 RGBColor Shader::sampleAreaLight( const Scene & scene,
                                   const RayIntersection & intersection,
                                   RandomNumberGenerator & rng,
-                                  const AreaLight & light )
+                                  const AreaLight & light,
+                                  Vector4 & direction,
+                                  bool & hit )
 {
     auto sample = light.sampleSurfaceTransformed( rng );
     auto to_light = subtract( sample.position, intersection.position );
 
     if( dot( to_light, intersection.normal ) <= 0.0 ) {
+        hit = false;
         return RGBColor(0.0f, 0.0, 0.0f);
     }
 
     float dist_sq_to_light = to_light.magnitude_sq();
-    auto direction = to_light.normalized();
+    direction = to_light.normalized();
     direction.makeDirection();
 
     if( inShadow( scene, intersection, to_light ) ) {
+        hit = false;
         return RGBColor(0.0f, 0.0f, 0.0f);
     }
 
@@ -86,6 +90,7 @@ RGBColor Shader::sampleAreaLight( const Scene & scene,
     color.scale( clampedDot( sample.normal, direction.negated() ) ); // account for projected area of the light
     // FIXME - Should there be a distance falloff? Things seem too bright for objects close to lights if we do
     //color.scale( 1.0f / dist_sq_to_light ); // distance falloff
+    hit = true;
     return color;
 }
 
@@ -97,11 +102,13 @@ RGBColor Shader::sampleAreaLights( const Scene & scene,
     for( const auto & light : scene.area_lights ) {
         auto sample = light->sampleSurfaceTransformed( rng );
         auto toLight = subtract( sample.position, intersection.position );
-        auto direction = toLight.normalized();
-        direction.makeDirection();
+        Vector4 direction;
+        bool hit = false;
 
-        RGBColor Li = sampleAreaLight( scene, intersection, rng, *light ); 
-        totalRadiance += reflectedRadiance(intersection, Li, direction);
+        RGBColor Li = sampleAreaLight( scene, intersection, rng, *light, direction, hit ); 
+        if(hit) {
+            totalRadiance += reflectedRadiance(intersection, Li, direction);
+        }
     }
 
     return totalRadiance;
@@ -128,15 +135,20 @@ RGBColor Shader::sampleEnvironmentMap( const Scene & scene,
 
     // Shoot a ray to see if we intersect the scene. If we don't, then sample the environment map
     Ray shadow_ray = isamp.ray;
+#if 1
     RayIntersection shadow_isect;
     shadow_isect.min_distance = EPSILON;
     if( s_dot_n >= 0.0f && !scene.intersect( shadow_ray, shadow_isect ) ) {
+#else // FIXME - why doesn't this work? Probably because Scene::intersectsAny returns true if it hits the env map
+    if( s_dot_n >= 0.0f && !scene.intersectsAny( shadow_ray, EPSILON ) ) {
+#endif
         // Not in shadow
         auto sample = envmap.sample(isamp.ray);
         RGBColor Li = sample.color;
         RGBColor Lo = reflectedRadiance(intersection, Li, isamp.ray.direction);
         Lo.scale(1.0f / isamp.pdf);
-        Lo.scale(M_PI); // TEMP
+        //Lo.scale(M_PI); // TEMP
+        Lo.scale(2.0 * M_PI); // TEMP
         return Lo;
     }
 
@@ -157,6 +169,14 @@ RGBColor Shader::reflectedRadiance( const RayIntersection & intersection,
     RGBColor specular = RGBColor(ks * bxdf);
     RGBColor Lo = (diffuse + specular) * Li * cos_r_n;
 
+    assert(Lo.isFinite());
+
     return Lo;
 }
+
+void NullShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
+{
+    intersection.sample.color = RGBColor(1.0, 1.0, 1.0);
+}
+
 

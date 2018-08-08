@@ -1,56 +1,67 @@
-//
-//  Timer.cpp
-//  FastRender
-//
-//  Created by David Cunningham on 8/4/13.
-//
-//
-
+#include <stdio.h>
 #include <stdlib.h>
 #include "Timer.h"
 
-double Timer::toDouble( const struct timeval & tm ){
+static double toDouble( const struct timeval & tm )
+{
     return (double) tm.tv_sec + (double) tm.tv_usec * 1.0e-6;
 }
 
-void Timer::start()
+double timeNowAsDouble()
 {
-#if USE_PROCESS_TIMER
+    struct timeval tm = {};
+    gettimeofday( &tm, NULL );
+    return toDouble( tm );
+}
+
+void ProcessorTimer::start()
+{
     start_time = clock();
-#else
-    gettimeofday( &start_time, NULL );
-#endif
     running = true;
     valid = true;
 }
 
-void Timer::stop()
+void ProcessorTimer::stop()
 {
-#if USE_PROCESS_TIMER
     end_time = clock();
-#else
-    gettimeofday( &end_time, NULL );
-#endif
     running = false;
 }
 
-double Timer::elapsed()
+double ProcessorTimer::elapsed()
 {
     if( !valid ) {
         return 0.0;
     }
     
     if( running ) {
-#if USE_PROCESS_TIMER
         end_time = clock();
-#else
-        gettimeofday( &end_time, NULL );
-#endif
     }
     
-#if USE_PROCESS_TIMER
     return (double) (end_time - start_time) / CLOCKS_PER_SEC;
-#else
+}
+
+void WallClockTimer::start()
+{
+    gettimeofday( &start_time, NULL );
+    running = true;
+    valid = true;
+}
+
+void WallClockTimer::stop()
+{
+    gettimeofday( &end_time, NULL );
+    running = false;
+}
+
+double WallClockTimer::elapsed()
+{
+    if( !valid ) {
+        return 0.0;
+    }
+    
+    if( running ) {
+        gettimeofday( &end_time, NULL );
+    }
+    
     return toDouble( end_time ) - toDouble( start_time );
-#endif
 }

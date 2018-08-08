@@ -17,11 +17,6 @@ HDRImage::HDRImage( const std::string & filename, unsigned int w, unsigned int h
     loadDataFromFile(filename, w, h);
 }
 
-HDRImage::~HDRImage()
-{
-
-}
-
 void HDRImage::loadDataFromFile( const std::string & filename,
                                  unsigned int w, unsigned int h)
 {

@@ -5,8 +5,8 @@ SETUP_SCENE(
     tracer->rays_per_pixel = 30;
 );
 BUILD_SCENE(
-    //auto mesh = loader.loadMultiPart( "models/san-miguel/san-miguel.obj" );
-    auto mesh = loader.loadMultiPartMerged( "models/san-miguel/san-miguel.obj" );
+    auto mesh = loader.loadMultiPart( "models/san-miguel/san-miguel.obj" );
+    //auto mesh = loader.loadMultiPartMerged( "models/san-miguel/san-miguel.obj" );
     //auto bounds = mesh->getAxisAlignedBounds();
     mesh->transform = std::make_shared<Transform>();
     //float scale = 35.0;
@@ -17,6 +17,7 @@ BUILD_SCENE(
                                // makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
     container->add( mesh );
 
+#if 0
     auto s = std::make_shared<Sphere>( -1.25, 0.25, 0.75, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(1, 1, 0);
     container->add( s );
@@ -26,6 +27,7 @@ BUILD_SCENE(
     s = std::make_shared<Sphere>( 0.0, 0.25, 3.0, 0.25 );
     s->material = std::make_shared<DiffuseMaterial>(0, 1, 1);
     container->add( s );
+#endif
 
     scene->addPointLight( PointLight( Vector4( 20.0, 20.0, -15.0 ),
         RGBColor( 1.0, 1.0, 1.0 ).scaled(150.0) ) );

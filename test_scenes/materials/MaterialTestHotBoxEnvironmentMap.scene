@@ -1,0 +1,112 @@
+
+BEGIN_DERIVED_SCENE(MaterialTestHotBoxEnvironmentMap, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    //tracer->shader = new DirectEnvironmentMapShader();
+    //tracer->rays_per_pixel = 30;
+    tracer->rays_per_pixel = 100;
+);
+BUILD_SCENE(
+    mesh = loadMaterialTestModel( loader );
+    auto bounds = mesh->getAxisAlignedBounds();
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 1.0 ),
+                                makeTranslation( Vector4( 0.0, -bounds->ymin, 0.0 ) ) );
+    float albedo = 0.9;
+    auto material = std::make_shared<DiffuseMaterial>( albedo, albedo, albedo );
+    container->add( mesh, material );
+
+    float sradius = 0.15;
+    float xoffset = 0.5; float zoffset = 0.5;
+    diffuseReference = std::make_shared<Sphere>( xoffset, sradius, zoffset, sradius );
+    container->add( diffuseReference, std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 ) );
+    mirrorReference = std::make_shared<Sphere>( -xoffset, sradius, zoffset, sradius );
+    container->add( mirrorReference, std::make_shared<MirrorMaterial>() );
+
+    scene->env_map = std::make_shared<HotBoxEnvironmentMap>(1.0);
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHotBoxDiffuse, MaterialTestHotBoxEnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHotBoxEnvironmentMap::setup();
+);
+BUILD_SCENE(
+    MaterialTestHotBoxEnvironmentMap::buildScene();
+    float albedo = 0.9;
+    auto material = std::make_shared<DiffuseMaterial>( albedo, albedo, albedo );
+    mesh->material = material;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHotBoxMirror, MaterialTestHotBoxEnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHotBoxEnvironmentMap::setup();
+);
+BUILD_SCENE(
+    MaterialTestHotBoxEnvironmentMap::buildScene();
+    auto material = std::make_shared<MirrorMaterial>();
+    mesh->material = material;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHotBoxRefract, MaterialTestHotBoxEnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHotBoxEnvironmentMap::setup();
+);
+BUILD_SCENE(
+    MaterialTestHotBoxEnvironmentMap::buildScene();
+    auto material = std::make_shared<RefractiveMaterial>(N_WATER);
+    mesh->material = material;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHotBoxCookTorranceRoughness00, MaterialTestHotBoxEnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHotBoxEnvironmentMap::setup();
+);
+BUILD_SCENE(
+    MaterialTestHotBoxEnvironmentMap::buildScene();
+    auto material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 0.0 );
+    mesh->material = material;
+);
+END_SCENE()
+
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHotBoxCookTorranceRoughness01, MaterialTestHotBoxEnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHotBoxEnvironmentMap::setup();
+);
+BUILD_SCENE(
+    MaterialTestHotBoxEnvironmentMap::buildScene();
+    auto material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 0.1 );
+    mesh->material = material;
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHotBoxCookTorranceRoughness05, MaterialTestHotBoxEnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHotBoxEnvironmentMap::setup();
+);
+BUILD_SCENE(
+    MaterialTestHotBoxEnvironmentMap::buildScene();
+    auto material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 0.5 );
+    mesh->material = material;
+);
+END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(MaterialTestHotBoxCookTorranceRoughness10, MaterialTestHotBoxEnvironmentMap)
+SETUP_SCENE(
+    MaterialTestHotBoxEnvironmentMap::setup();
+);
+BUILD_SCENE(
+    MaterialTestHotBoxEnvironmentMap::buildScene();
+    auto material = std::make_shared<CookTorranceMaterial>( 1.0, 1.0, 1.0, 1.0 );
+    mesh->material = material;
+);
+END_SCENE()

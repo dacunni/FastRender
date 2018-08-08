@@ -1,11 +1,3 @@
-/*
- *  GeometryUtils.h
- *  FastRender
- *
- *  Created by David Cunningham on 12/18/2015
- *  Copyright 2015 __MyCompanyName__. All rights reserved.
- *
- */
 #ifndef _GEOMETRY_UTILS_H_
 #define _GEOMETRY_UTILS_H_
 
@@ -43,19 +35,6 @@ Vector4 interpolate( const Vector4 & v0,
                      const Vector4 & v1,
                      const Vector4 & v2,
                      const BarycentricCoordinate & bary );
-
-// -----------------------------------------------------------------------------
-// Fresnel Equations
-//
-float fresnelDialectric( float cos_i, float cos_t, float n_i, float n_t );
-float fresnelDialectricParallel( float cos_i, float cos_t, float n_i, float n_t );
-float fresnelDialectricPerpendicular( float cos_i, float cos_t, float n_i, float n_t );
-float fresnelDialectricSnell( float cos_i, float n_i, float n_t );
-float fresnelDialectricParallelSnell( float cos_i, float n_i, float n_t );
-float fresnelDialectricPerpendicularSnell( float cos_i, float n_i, float n_t );
-float fresnelDialectricSchlick( float F0, float cos_t );
-
-float fresnelConductor( float cos_i, float n, float k );
 
 // -----------------------------------------------------------------------------
 // Snell's Law

@@ -8,11 +8,20 @@
  */
 
 #include <typeinfo>
+#include <sstream>
 
 #include "Ray.h"
 #include "Material.h"
 #include "Scene.h"
 
+std::string Ray::toString() const
+{
+    std::stringstream ss;
+    ss << "ray"
+       << " o: " << origin.toString()
+       << " d: " << direction.toString();
+    return ss.str();
+}
 
 void trace( Ray & ray, Scene & scene, RayIntersection & intersection, Sample & sample )
 {

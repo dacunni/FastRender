@@ -1,14 +1,7 @@
-/*
- *  ImageTracer.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 1/22/16.
- *  Copyright 2016 __MyCompanyName__. All rights reserved.
- *
- */
 #include <iostream>
 
 #include "ImageTracer.h"
+#include "Logger.h"
 
 // for intersection test logging
 #include "AxisAlignedSlab.h"
@@ -21,15 +14,13 @@ ImageTracer::ImageTracer( unsigned int w, unsigned int h,
                           unsigned int nframes,
                           unsigned int rayspp )
     : rng(),
-      image_width( w ),
-      image_height( h ),
-      camera( rng, -0.15, 0.15, -0.15, 0.15, w, h ),
       artifacts( w, h ),
       rays_per_pixel( rayspp ),
       num_frames( nframes ),
-      preview_window( artifacts )
+      preview_window( artifacts ),
+      logger( getLogger() )
 {
-
+    camera = std::make_shared<SimpleCamera>( 0.3, 0.3, w, h );
 }
 
 ImageTracer::~ImageTracer()
@@ -42,7 +33,8 @@ void ImageTracer::render()
 #if 1
     render_thread = std::thread(&ImageTracer::renderThread, this);
     if( show_preview_window ) {
-        preview_window.init();
+        preview_window.init("Preview");
+        preview_window.start();
     }
     // Probably never get here when preview window takes over the main thread
     render_thread.join();
@@ -56,7 +48,15 @@ void ImageTracer::render()
 
 void ImageTracer::renderThread()
 {
-    Timer image_flush_timer;
+    WallClockTimer image_flush_timer;
+    ProcessorTimer processor_timer;
+    WallClockTimer wall_clock_timer;
+
+    const unsigned int image_width = camera->imageWidth();
+    const unsigned int image_height = camera->imageHeight();
+
+    processor_timer.start();
+    wall_clock_timer.start();
 
     // Pixel order randomization
     std::vector<unsigned int> randomized_indices;
@@ -76,22 +76,22 @@ void ImageTracer::renderThread()
 
     artifacts.startNewFrame();
 
-    printf("Tracing scene :  %u x %u frm %u rpp %u\n",
-           image_width, image_height,
-           num_frames, rays_per_pixel);
+    logger.normalf("Tracing scene :  %u x %u frm %u rpp %u",
+                  image_width, image_height,
+                  num_frames, rays_per_pixel);
 
     image_flush_timer.start();
     for( unsigned int frame = 0; frame < num_frames; ++frame ) {
-        printf("FRAME %4d / %4d\n", frame + 1, num_frames);
+        logger.normalf("FRAME %4d / %4d", frame + 1, num_frames);
         beginFrame( frame );
         if( traversal_nesting == SamplePosition ) {
             for( unsigned int sample_index = 0; sample_index < rays_per_pixel; sample_index++ ) {
                 for( unsigned int row = 0; row < image_height; ++row ) {
                     if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
-                        printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
-                               (float) (image_height * sample_index + row) / (image_height * rays_per_pixel) * 100.0f,
-                               num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
-                               image_flush_timer.elapsed());
+                        logger.normalf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)",
+                                       (float) (image_height * sample_index + row) / (image_height * rays_per_pixel) * 100.0f,
+                                       num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                                       image_flush_timer.elapsed());
                         artifacts.flush();
                         image_flush_timer.start(); // reset timer
                     }
@@ -121,10 +121,10 @@ void ImageTracer::renderThread()
                         ? image_width % tileSize : tileSize;
 
                     if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
-                        printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
-                               (float) gridRow / numGridRows * 100.0f,
-                               num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
-                               image_flush_timer.elapsed());
+                        logger.normalf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)",
+                                       (float) gridRow / numGridRows * 100.0f,
+                                       num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                                       image_flush_timer.elapsed());
                         artifacts.flush();
                         image_flush_timer.start(); // reset timer
                     }
@@ -142,10 +142,10 @@ void ImageTracer::renderThread()
         else if( traversal_nesting == PositionSample ) {
             for( unsigned int row = 0; row < image_height; ++row ) {
                 if( image_flush_timer.elapsed() > min_flush_period_seconds ) {
-                    printf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)\n",
-                           (float) row / image_height * 100.0f,
-                           num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
-                           image_flush_timer.elapsed());
+                    logger.normalf("Flushing artifacts (progress: frame = %.2f %% anim = %.2f %% elapsed = %f)",
+                                   (float) row / image_height * 100.0f,
+                                   num_frames > 1 ? (float) frame / (num_frames - 1) * 100.0f : 0.0f,
+                                   image_flush_timer.elapsed());
                     artifacts.flush();
                     image_flush_timer.start(); // reset timer
                 }
@@ -162,18 +162,23 @@ void ImageTracer::renderThread()
             }
         }
         else {
-            fprintf(stderr, "ERROR: Unknown traversal nesting %d\n", (int) traversal_nesting);
+            logger.errorf("ERROR: Unknown traversal nesting %d", (int) traversal_nesting);
         }
         endFrame( frame );
     }
 
     artifacts.flush();
+    processor_timer.stop();
+    wall_clock_timer.stop();
     
-    printf( "Intersection Complete, tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu\n",
-           AxisAlignedSlab::intersection_test_count,
-           Sphere::intersection_test_count,
-           TriangleMesh::intersection_test_count
-           );
+    logger.normalf("Intersection Complete, tests: AASlab: %lu Sphere: %lu TriangleMesh: %lu",
+                   AxisAlignedSlab::intersection_test_count,
+                   Sphere::intersection_test_count,
+                   TriangleMesh::intersection_test_count
+                  );
+    logger.normal() << "Trace time: "
+        << wall_clock_timer.elapsed() << " s (wall), "
+        << processor_timer.elapsed() << " s (proc)";
 }
 
 void ImageTracer::beginFrame( unsigned int frame_index )
@@ -192,9 +197,13 @@ void ImageTracer::beginFrame( unsigned int frame_index )
     }
 
     if( camera_transform_cb ) {
-        camera.transform = camera_transform_cb( anim_progress );
+        camera->transform = camera_transform_cb( anim_progress );
     }
     //camera.transform.print();
+
+    if( animation_cb ) {
+        animation_cb( anim_progress );
+    }
 
     scene->updateAnim( anim_progress );
 }
@@ -207,76 +216,79 @@ void ImageTracer::endFrame( unsigned int frame_index )
 
 void ImageTracer::renderPixel( unsigned int row, unsigned int col, unsigned int num_rays )
 {
-    beginRenderPixel( row, col );
-    for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
-        pixel_color.setRGB( 0.0, 0.0, 0.0 );
-        tracePixelRay( row, col, ray_index );
-        artifacts.accumPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
-    }
-    endRenderPixel( row, col );
-    // FIXME: HACK - Trying to deal with fireflies by retrying if we see a lot of variance
-#if SUPPRESS_FIREFLIES
+    // Intersect rays with scene to get color and other measurements
+    auto multirec = tracePixelRays( row, col, num_rays );
+
+#if SUPPRESS_FIREFLIES // FIXME: HACK - Trying to deal with fireflies by retrying if we see a lot of variance
     const float variance_threhshold = 5.0f;
-    float pixel_variance = artifacts.pixelMaxChannelVariance( row, col );
+    float pixel_variance = multirec.maxColorChannelVariance();
     if( pixel_variance > variance_threhshold ) {
-        //printf("Variance exceeded (%f > %f) at (%u, %u), retrying\n", pixel_variance, variance_threhshold, row, col);
-        artifacts.resetPixelColor( row, col );
-        beginRenderPixel( row, col );
-        for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
-            pixel_color.setRGB( 0.0, 0.0, 0.0 );
-            tracePixelRay( row, col, ray_index );
-            artifacts.accumPixelColorRGB( row, col, pixel_color.r, pixel_color.g, pixel_color.b );
-        }
-        endRenderPixel( row, col );
+        //logger.debugf("FF suppress: Variance exceeded (%.2f > %.2f) at (%u, %u), retrying", pixel_variance, variance_threhshold, row, col);
+        multirec = tracePixelRays( row, col, num_rays );
     }
 #endif // SUPPRESS_FIREFLIES
+
+    // Update output artifacts
+    artifacts.setAccumPixelColor( row, col, multirec.color_sum, multirec.color_sq_sum, num_rays );
+    artifacts.setPixelTime( row, col, multirec.timer.elapsed() );
+    artifacts.setPixelNormal( row, col, multirec.normal );
+    artifacts.setPixelDepth( row, col, multirec.distance );
 }
 
-void ImageTracer::beginRenderPixel( unsigned int row, unsigned int col )
+ImageTracer::MultiHitRecord
+ImageTracer::tracePixelRays( unsigned int row, unsigned int col, unsigned int num_rays )
 {
-    pixel_render_timer.start();
-    pixel_color.setRGB( 0.0, 0.0, 0.0 );
-    pixel_normal.set( 0.0, 0.0, 0.0 );
-    pixel_distance = 0.0f;
-    num_hits = 0;
-}
+    MultiHitRecord multirec;
 
-void ImageTracer::endRenderPixel( unsigned int row, unsigned int col )
-{
-    pixel_render_timer.stop();
-    artifacts.accumPixelTime( row, col, pixel_render_timer.elapsed() );
-    if( traversal_nesting == PositionSample ) {
-        pixel_color.scale( 1.0f / rays_per_pixel );
+    multirec.timer.start();
+    for( unsigned int ray_index = 0; ray_index < num_rays; ++ray_index ) {
+        tracePixelRay( row, col, multirec );
     }
-    artifacts.setPixelNormal( row, col, pixel_normal );
-    artifacts.setPixelDepth( row, col, pixel_distance );
+    multirec.timer.stop();
+
+    return multirec;
 }
 
-void ImageTracer::tracePixelRay( unsigned int row, unsigned int col,
-                                 unsigned int ray_index )
+ImageTracer::HitRecord
+ImageTracer::tracePixelRay( unsigned int row, unsigned int col )
 {
-    //printf("tracePixelRay( row: %u, col: %u, ray_index: %u )\n");
-    Ray ray = camera.rayThrough( row, col );
+    HitRecord rec;
+
+    Ray ray = camera->rayThrough( rng, row, col );
     RayIntersection intersection = RayIntersection();
-    bool hit = scene->intersect( ray, intersection );
 
-    if( !hit ) {
-        hit = scene->intersectEnvMap( ray, intersection );
+    rec.hit = scene->intersect( ray, intersection );
+
+    if( !rec.hit ) {
+        rec.hit = scene->intersectEnvMap( ray, intersection );
     }
 
-    if( hit ) {
-        num_hits++;
-
-        if( num_hits == 1 ) { // first hit
-            pixel_normal = intersection.normal;
-            pixel_distance = intersection.distance;
-            //intersection.position.fprintCSV( artifacts.intersections_file );
-        }
+    if( rec.hit ) {
+        rec.normal = intersection.normal;
+        rec.distance = intersection.distance;
 
         if( intersection.distance != FLT_MAX ) {
             shader->shade( *scene, rng, intersection );
         }
-        pixel_color.accum( intersection.sample.color );
+        rec.color = intersection.sample.color;
+    }
+
+    return rec;
+}
+
+void ImageTracer::tracePixelRay( unsigned int row, unsigned int col,
+                                 MultiHitRecord & multirec  )
+{
+    auto rec = tracePixelRay(row, col);
+
+    if( rec.hit ) {
+        multirec.num_hits++;
+        if( multirec.num_hits == 1) {
+            multirec.normal = rec.normal;
+            multirec.distance = rec.distance;
+        }
+        multirec.color_sum.accum( rec.color );
+        multirec.color_sq_sum.accum( rec.color * rec.color );
     }
 }
 

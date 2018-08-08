@@ -1,29 +1,43 @@
-/*
- *  SimpleCamera.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 8/14/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
+#include <cmath>
 #include "SimpleCamera.h"
 #include "RandomNumberGenerator.h"
 
-
-SimpleCamera::SimpleCamera( RandomNumberGenerator & rng,
-                            float xmin, float xmax, float ymin, float ymax,
+SimpleCamera::SimpleCamera( float xdim, float ydim,
                             int image_width, int image_height )
-    : rng(rng),
-      image_width(image_width),
-      image_height(image_height),
-      jitter_rays(true)
+    : Camera(image_width, image_height)
 {
-    setFocalPlaneDimensions( xmin, xmax, ymin, ymax );
+    setFocalPlaneDimensions(xdim, ydim);
 }
 
-void SimpleCamera::setFocalPlaneDimensions( float xmin, float xmax,
-                                            float ymin, float ymax )
+SimpleCamera::SimpleCamera( float xmin, float xmax, float ymin, float ymax,
+                            int image_width, int image_height )
+    : Camera(image_width, image_height)
+{
+    setFocalPlaneExtents(xmin, xmax, ymin, ymax);
+}
+
+SimpleCamera::SimpleCamera( const SimpleCamera & c ) 
+    : Camera(c)
+{
+    setFocalPlaneExtents(c.xmin, c.xmax, c.ymin, c.ymax);
+}
+
+void SimpleCamera::setFieldOfView( float fovx, float fovy )
+{
+    float xdim = 2.0f * std::tan(std::abs(fovx) * 0.5f);
+    float ydim = 2.0f * std::tan(std::abs(fovy) * 0.5f);
+    setFocalPlaneDimensions(xdim, ydim);
+}
+
+void SimpleCamera::setFocalPlaneDimensions( float xdim, float ydim )
+{
+    float halfx = 0.5f * xdim;
+    float halfy = 0.5f * ydim;
+    setFocalPlaneExtents(-halfx, halfx, -halfy, halfy);
+}
+
+void SimpleCamera::setFocalPlaneExtents( float xmin, float xmax,
+                                         float ymin, float ymax )
 {
     this->xmin = xmin;
     this->xmax = xmax;
@@ -35,26 +49,35 @@ void SimpleCamera::setFocalPlaneDimensions( float xmin, float xmax,
     y_jitter_range = 0.5f * pixel_y_size;
 }
 
-Ray SimpleCamera::rayThrough( int row, int col )
+void SimpleCamera::getFocalPlaneExtents( float & xmin, float & xmax,
+                                         float & ymin, float & ymax )
+{
+    xmin = this->xmin;
+    xmax = this->xmax;
+    ymin = this->ymin;
+    ymax = this->ymax;
+}
+
+Ray SimpleCamera::rayThrough( RandomNumberGenerator & rng, int row, int col )
 {
     Ray ray;
 
-    ray.origin = mult( transform.fwd, Vector4( 0.0, 0.0, 0.0) );
-    ray.direction = mult( transform.fwd, vectorThrough( row, col ) );
+    ray.origin = mult(transform.fwd, Vector4(0.0, 0.0, 0.0));
+    ray.direction = mult(transform.fwd, vectorThrough(rng, row, col));
     ray.direction.assertIsUnity();
 
     return ray;
 }
 
-Vector4 SimpleCamera::vectorThrough( int row, int col )
+Vector4 SimpleCamera::vectorThrough( RandomNumberGenerator & rng, int row, int col )
 {
     Vector4 direction;
 
     direction.x = (float) col * pixel_x_size + xmin;
     direction.y = (float) (image_height - row - 1) * pixel_y_size + ymin;
     if( jitter_rays ) {
-        float x_jitter = rng.uniformRange( -0.5f * x_jitter_range, 0.5f * x_jitter_range );
-        float y_jitter = rng.uniformRange( -0.5f * y_jitter_range, 0.5f * y_jitter_range );
+        float x_jitter = rng.uniformRange(-0.5f * x_jitter_range, 0.5f * x_jitter_range);
+        float y_jitter = rng.uniformRange(-0.5f * y_jitter_range, 0.5f * y_jitter_range);
         direction.x += x_jitter;
         direction.y += y_jitter;
     }

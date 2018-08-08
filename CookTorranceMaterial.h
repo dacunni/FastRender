@@ -11,16 +11,17 @@ class CookTorranceMaterial : public Material
         CookTorranceMaterial( float r, float g, float b, float roughness );
         virtual ~CookTorranceMaterial() {}
 
-        virtual float specularity() { return specular; }
+        virtual float specularity() { return F0(); }
+
+        float F0() const { return fresnel_F0; }
+        void setFresnelAtNormal(float f0) { fresnel_F0 = f0; }
 
         virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const;
-        // TODO
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
 
         float roughness; // [0, 1]
-        // TODO: figure out how to expose specular in a meaningful way
-        float specular; // fraction of light reflected by specular reflection
+        float fresnel_F0 = 0.3;
 };
 
 

@@ -71,6 +71,15 @@ bool Sphere::intersect( const Ray & ray, RayIntersection & intersection ) const
     return true;
 }
 
+std::string Sphere::toString() const
+{
+    std::stringstream ss;
+    ss << "sphere"
+       << " c: " << center.toString()
+       << " r: " << radius;
+    return ss.str();
+}
+
 std::string Sphere::toJSON() const
 {
     std::stringstream ss;

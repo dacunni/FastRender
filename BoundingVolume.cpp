@@ -11,6 +11,7 @@
 #include "BoundingVolume.h"
 #include "Ray.h"
 #include "AxisAlignedSlab.h"
+#include "TraceableVisitor.h"
 
 BoundingVolume::BoundingVolume( std::shared_ptr<Traceable> o )
 {
@@ -51,7 +52,8 @@ void BoundingVolume::buildAxisAligned( std::shared_ptr<Traceable> o )
     }
     
     object = o;    
-    bound = o->getAxisAlignedBounds();
+    //bound = o->getAxisAlignedBounds();
+    bound = o->getTransformedAxisAlignedBounds();
 }
 
 std::shared_ptr<AxisAlignedSlab> BoundingVolume::getAxisAlignedBounds() const
@@ -62,9 +64,19 @@ std::shared_ptr<AxisAlignedSlab> BoundingVolume::getAxisAlignedBounds() const
 void BoundingVolume::print( FILE * file ) const
 {
     if( bound ) {
-        printf("Bound:\n");
+        fprintf(file, "Bound:\n");
         bound->print( file );
+        if(object) {
+            auto objTypeName = object->className();
+            fprintf(file, "Object:\n");
+            object->print();
+        }
     }
+}
+
+void BoundingVolume::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
 }
 
 

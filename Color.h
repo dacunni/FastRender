@@ -5,11 +5,6 @@
 #include <iosfwd>
 #include <cmath>
 
-#define RED_BIT   0x1
-#define GREEN_BIT 0x2
-#define BLUE_BIT  0x4
-#define RGB_BITS (RED_BIT | GREEN_BIT | BLUE_BIT)
-
 class RGBColor {
     public:
     RGBColor( float red, float green, float blue ) : r(red), g(green), b(blue) {}
@@ -25,7 +20,10 @@ class RGBColor {
     RGBColor scaled( float rs, float gs, float bs ) const { auto c(*this); c.scale(rs, gs, bs); return c; }
     void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
-    RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
+    float channelMin() const;
+    float channelMax() const;
+
+    inline RGBColor operator+=( const RGBColor & c ) { accum(c); return *this; }
 
     void print() const;
 
@@ -33,12 +31,7 @@ class RGBColor {
     bool isNonNegative() const { return r >= 0.0f && g >= 0.0f && b >= 0.0f; }
     bool isFinite() const { return std::isfinite(r) && std::isfinite(g) && std::isfinite(b); }
 
-    union {
-        struct {
-            float r, g, b;
-        };
-        float rgb[3];
-    };
+    float r, g, b;
 };
 
 inline RGBColor mult( const RGBColor & a, const RGBColor & b ) { return a.scaled(b.r, b.g, b.b); }
@@ -47,9 +40,15 @@ inline RGBColor mult( float s, const RGBColor & a ) { return a.scaled(s); }
 
 inline RGBColor operator+( const RGBColor & a, const RGBColor & b )
     { return RGBColor(a.r + b.r, a.g + b.g, a.b + b.b); }
+
+inline RGBColor operator-( const RGBColor & a, const RGBColor & b )
+    { return RGBColor(a.r - b.r, a.g - b.g, a.b - b.b); }
+
 inline RGBColor operator*( const RGBColor & a, const RGBColor & b ) { return a.scaled(b.r, b.g, b.b); }
 inline RGBColor operator*( const RGBColor & a, float s ) { return a.scaled(s); }
 inline RGBColor operator*( float s, const RGBColor & a ) { return a.scaled(s); }
+
+inline RGBColor operator/( const RGBColor & a, float s ) { return a.scaled(1.0f / s); }
 
 std::ostream & operator<<( std::ostream & o, const RGBColor & c );
 

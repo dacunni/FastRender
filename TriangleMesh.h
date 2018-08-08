@@ -12,6 +12,7 @@
 #include <vector>
 #include "Traceable.h"
 #include "Vector.h"
+#include "Types.h"
 
 class TriangleMeshAccelerator;
 
@@ -26,16 +27,13 @@ public:
         unsigned int vi[3];
     };
 
-    struct TextureUV {
-        float u, v;
-    };
+    using VertexArray        = std::vector<Vector4>;
+    using NormalArray        = std::vector<Vector4>;
+    using IndexTriangleArray = std::vector<IndexTriangle>;
 
-    typedef std::vector< Vector4 >       VertexArray;
-    typedef std::vector< Vector4 >       NormalArray;
-    typedef std::vector< IndexTriangle > IndexTriangleArray;
     // List of indices into the IndexTriangleArray
-    typedef std::vector< unsigned int >  TriangleIndexArray;
-    typedef std::vector< TextureUV >     TextureUVArray;
+    using TriangleIndexArray = std::vector<unsigned int>;
+    using TextureUVArray     = std::vector<float2>;
     
     TriangleMesh();
     virtual ~TriangleMesh();
@@ -46,33 +44,45 @@ public:
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;    
     virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
     
-    // Helper for intersect() and related methods
-    enum IsectBehavior { CLOSEST_ISECT, FAST_ISECT_TEST };
     inline bool intersectsTriangle( const Ray & ray, const IndexTriangle & tri,
                              float min_distance,
                              float & t ) const;
+
     bool intersectsTriangles( const Ray & ray, const IndexTriangleArray & vtri,
-                              RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
+                              RayIntersection & intersection ) const;
+    bool intersectsAnyTriangles( const Ray & ray, const IndexTriangleArray & vtri,
+                                 RayIntersection & intersection ) const;
     bool intersectsTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
-                              RayIntersection & intersection, IsectBehavior behavior = CLOSEST_ISECT ) const;
+                              RayIntersection & intersection ) const;
+    bool intersectsAnyTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
+                                 RayIntersection & intersection ) const;
+
     inline void populateIntersection( const Ray & ray, const IndexTriangle & tri,
                                       float t, RayIntersection & intersection ) const;
 
     virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const;
 
+    virtual std::string toString() const;
     virtual std::string toJSON() const;
     virtual void visit( TraceableVisitor & visitor );
 
-    VertexArray                     vertices;
-    NormalArray                     normals;
-    IndexTriangleArray              triangles;
-    TextureUVArray                  textureUVCoords;
+    struct MeshData {
+        VertexArray        vertices;
+        NormalArray        normals;
+        IndexTriangleArray triangles;
+        TextureUVArray     textureUVCoords;
+    };
+    std::shared_ptr<MeshData> mesh_data;
 
-    TriangleMeshAccelerator       * accelerator;        // Intersetion acceleration object (null if none)
+    TriangleMeshAccelerator * accelerator;              // Intersetion acceleration object (null if none)
     
     static unsigned long intersection_test_count;       // Counts the number of intersection tests against
                                                         // objects of this class
 };
+
+using TriangleMeshArray = std::vector<std::shared_ptr<TriangleMesh>>;
+
+std::shared_ptr<TriangleMesh> combineMeshes( TriangleMeshArray & array );
 
 void makeTriangleMeshTetrahedron( TriangleMesh & mesh );
 void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size );

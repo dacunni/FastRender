@@ -6,7 +6,10 @@ SETUP_SCENE(
 );
 BUILD_SCENE(
     auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>();
     auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 1.0, 1.0, 1.0 );
+    //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 0.5, 0.5, 1.0 );
+    //auto checkerboard_material = std::make_shared<DiffuseCheckerBoardMaterial>( 0.5, 0.5, 1.0, 1.0, 0.5, 0.5 );
 
     float dim = 1.0;
     container->add( std::make_shared<AxisAlignedSlab>( -dim, 0.0, -dim, dim, -0.1, dim ), checkerboard_material ); // floor
@@ -23,6 +26,9 @@ BUILD_SCENE(
     *light->transform = compose( makeRotation( M_PI * -0.2, Vector4(0, 0, 1) ),
                                  makeTranslation( Vector4( 0, light_distance, 0 ) ) );
     container->add( light );
+#elif 0
+    auto env_map = std::make_shared<HotBoxEnvironmentMap>();
+    scene->env_map = env_map;
 #else // Arc light environment map
     auto env_map = std::make_shared<ArcLightEnvironmentMap>( Vector4(0, 1, 0), M_PI / 2.0 );
     scene->env_map = env_map;
@@ -35,10 +41,11 @@ BUILD_SCENE(
                                         makeRotation( -M_PI / 8, Vector4(1, 0, 0) ),
                                         makeTranslation( 0.0, 0.0, 1.5 ))
                               );
+    //tracer->rays_per_pixel = 1;
     tracer->rays_per_pixel = 30;
     //tracer->rays_per_pixel = 100;
-    float focal_plane_span = 0.5;
-    tracer->camera.setFocalPlaneDimensions( -focal_plane_span, focal_plane_span, -focal_plane_span, focal_plane_span );
+    float focal_plane_span = 1.0;
+    tracer->camera->setFocalPlaneDimensions( focal_plane_span, focal_plane_span );
 
     tracer->shader = new BasicDiffuseSpecularShader();
 );
@@ -68,13 +75,15 @@ BUILD_SCENE(
     auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
     auto mirror_material = std::make_shared<MirrorMaterial>();
     auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
+    auto cook_torrance_material = std::make_shared<CookTorranceMaterial>( 0.3, 0.3, 1.0, 0.1 );
 
     std::string modelPath = modelBasePath + "/stanford/bunny/reconstruction";
     auto mesh = loader.load( modelPath + "/bun_zipper_res2.ply" );
     auto bounds = mesh->getAxisAlignedBounds();
     //mesh->material = mirror_material;
     //mesh->material = refractive_material;
-    mesh->material = white_material;
+    //mesh->material = white_material;
+    mesh->material = cook_torrance_material;
 
     mesh->transform = std::make_shared<Transform>();
     *mesh->transform = compose( makeScaling( 1.0 ),
@@ -110,7 +119,35 @@ BUILD_SCENE(
     container->add( mesh );
 );
 END_SCENE()
+// ------------------------------------------------------------ 
+BEGIN_DERIVED_SCENE(GridRoomSceneWithLunarLander, GridRoomScene)
+SETUP_SCENE(
+    GridRoomScene::setup();
+);
+BUILD_SCENE(
+    GridRoomScene::buildScene();
+    auto white_material = std::make_shared<DiffuseMaterial>( 1.0, 1.0, 1.0 );
+    auto mirror_material = std::make_shared<MirrorMaterial>();
+    auto refractive_material = std::make_shared<RefractiveMaterial>( N_PLEXIGLAS );
 
+    //auto mesh = loader.load( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    //auto mesh = loader.loadMultiPart( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    auto mesh = loader.loadMultiPartMerged( modelBasePath + "/nasa/lunarlandernofoil-c/lunarlandernofoil_carbajal.3ds" );
+    //auto bounds = mesh->getAxisAlignedBounds();
+    mesh->material = white_material;
+    //mesh->print();
+
+#if 1
+    mesh->transform = std::make_shared<Transform>();
+    *mesh->transform = compose( makeScaling( 0.25 ),
+                                //makeScaling( 4.0 ),
+                                //makeTranslation( Vector4( 0.0, 0.25, 0.0 ) ),
+                                makeRotation( M_PI, Vector4( 1, 0, 0 ) )
+                                );
+#endif
+    container->add( mesh );
+);
+END_SCENE()
 // ------------------------------------------------------------ 
 BEGIN_DERIVED_SCENE(GridRoomSceneWithTexturedMonkey, GridRoomScene)
 SETUP_SCENE(

@@ -1,42 +1,29 @@
-/*
- *  SimpleCamera.h
- *  FastRender
- *
- *  Created by David Cunningham on 8/14/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
 #ifndef _SIMPLECAMERA_H_
 #define _SIMPLECAMERA_H_
 
-#include "Ray.h"
-#include "Transform.h"
-#include "Vector.h"
+#include "Camera.h"
 
-class RandomNumberGenerator;
-
-class SimpleCamera
+class SimpleCamera : public Camera
 {
 public:
-    SimpleCamera( RandomNumberGenerator & rng,
-                  float xmin, float xmax, float ymin, float ymax,
+    SimpleCamera( float xdim, float ydim,
                   int image_width, int image_height );
+    SimpleCamera( float xmin, float xmax, float ymin, float ymax,
+                  int image_width, int image_height );
+    SimpleCamera( const SimpleCamera & c );
 
-    void setFocalPlaneDimensions( float xmin, float xmax,
-                                  float ymin, float ymax );
-    void jitterRays( bool jitter ) { jitter_rays = jitter; }
+    virtual void setFieldOfView( float fovx, float fovy );
 
-    Vector4 vectorThrough( int row, int col );
-    Ray rayThrough( int row, int col );
+    virtual void setFocalPlaneDimensions( float xdim, float ydim );
+    virtual void setFocalPlaneExtents( float xmin, float xmax, float ymin, float ymax );
+    virtual void getFocalPlaneExtents( float & xmin, float & xmax, float & ymin, float & ymax );
+
+    virtual Vector4 vectorThrough( RandomNumberGenerator & rng, int row, int col );
+    virtual Ray rayThrough( RandomNumberGenerator & rng, int row, int col );
 	
-    Transform transform;
 protected:
-    RandomNumberGenerator & rng;
     float xmin, xmax;
     float ymin, ymax;
-    int image_width, image_height;
-    bool jitter_rays;
     float x_jitter_range;
     float y_jitter_range;
     float pixel_x_size;
@@ -44,5 +31,3 @@ protected:
 };
 
 #endif
-
-

@@ -2,53 +2,77 @@
 #define __EDITOR_H__
 
 #include <memory>
-#include "OpenGLUtil.h"
+
+#include "OpenGLWindow.h"
 #include "EditorSceneGraph.h"
 #include "ShaderProgram.h"
+#include "SimpleCamera.h"
+#include "RandomNumberGenerator.h"
 
-class Editor {
+class Editor : public OpenGLWindow {
 public:
     Editor();
     virtual ~Editor();
     
-    void init();
-    void buildGpuBuffers();
-    void start();
+    virtual void init( const std::string & title ) override;
 
-    void viewportReshaped( int w, int h );
-    void repaintViewport();
-    void keyPressed( unsigned char key, int x, int y );
-    void mouseButton( int button, int state, int x, int y );
-    void mouseMotionWhileButtonPressed( int x, int y );
-    void animTimer( int value );
+    void buildGpuBuffers();
 
     std::shared_ptr<Scene> scene;
     EditorSceneGraph editorScene;
 
 protected:
-    unsigned int windowWidth = 600;
-    unsigned int windowHeight = 400;
+    // Callbacks
+    virtual void viewportReshaped( int w, int h ) override;
+    virtual void repaintViewport() override;
+    virtual void keyPressed( unsigned char key, int x, int y ) override;
+    virtual void keyReleased( unsigned char key, int x, int y ) override;
+    virtual void mouseButton( MouseButton button, MouseButtonState state, int x, int y ) override;
+    virtual void mouseMotionWhileButtonPressed( int x, int y ) override;
+
+    // Timer callbacks
+    void animTimer();
+    void userTimerUpdate( double timeNow, double deltaTime );
+
+    void renderEditCameraPerspective();
 
 private:
-    static void sViewportReshaped( int w, int h );
-    static void sRepaintViewport();
-    static void sKeyPressed( unsigned char key, int x, int y );
-    static void sMouseButton( int button, int state, int x, int y );
-    static void sMouseMotionWhileButtonPressed( int x, int y );
-    static void sAnimTimer( int value );
+    Transform cameraTranslation();
+    Transform cameraRotation();
+    Transform cameraTransform();
+    Vector4 cameraForward();
+    Vector4 cameraRight();
+    Vector4 cameraUp();
+    void updateEditCamera();
 
     ShaderProgram defaultShaderProgram;
+    ShaderProgram wireMeshEdgeShaderProgram;
 
-    // TODO - remnants of PreviewWindow heritage. change appropriately
-    GLuint img_shader_program = 0;
-    GLuint img_vertex_shader = 0;
-    GLuint img_fragment_shader = 0;
-    GLuint img_vao = 0;
-    GLuint img_vbo = 0;
-    GLuint pixelAccumTex = 0;
-    GLuint pixelCountTex = 0;
+    float update_rate_sec = 1.0f / 20.0f; // 20 FPS
+    double animTime = 0.0;
 
-    float update_rate_sec = 0.3;
+    // Editor camera
+    struct EditCameraParams {
+        // Transform
+        Vector4 position = Vector4( 0.0, 0.0, 25.0 );
+        float xRotation = 0.0;
+        float yRotation = 0.0;
+        // Control speed
+        float translationSpeed = 5.0;
+        float keyboardRotationSpeed = 0.25;
+        float mouseRotationSpeed = 0.001;
+        // Camera Parameters
+        float xmin = -0.15;
+        float xmax = +0.15;
+        float ymin = -0.15;
+        float ymax = +0.15;
+    } editCameraParams;
+
+    std::shared_ptr<Camera> editCamera;
+
+    RandomNumberGenerator rng;
+
+    bool drawWireframes = false;
 };
 
 #endif

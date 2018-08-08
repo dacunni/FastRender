@@ -7,9 +7,17 @@ TraceableVisitor::~TraceableVisitor() {}
 
 void TraceableVisitor::walk( Traceable & t ) { t.visit(*this); }
 
-void TraceableVisitor::handle( Traceable & t ) { std::cout << "WARNING: Traceable *default* handler - " << t.className() << std::endl; }
-void TraceableVisitor::handle( FlatContainer & t ) { std::cout << "FlatContainer handler" << std::endl; }
-void TraceableVisitor::handle( Sphere & t ) { std::cout << "Sphere handler" << std::endl; }
-void TraceableVisitor::handle( AxisAlignedSlab & t ) { std::cout << "AxisAlignedSlab handler" << std::endl; }
-void TraceableVisitor::handle( TriangleMesh & t ) { std::cout << "TriangleMesh handler" << std::endl; }
+void TraceableVisitor::handle( Traceable & t )               { std::cout << "WARNING: Traceable *default* handler - " << t.className() << std::endl; }
+
+#define TV_HANDLE_IMPL(TRACEABLE_CLASS) \
+    void TraceableVisitor::handle( TRACEABLE_CLASS & t ) { std::cout << "WARNING: " << #TRACEABLE_CLASS << " default handler" << std::endl; }
+
+TV_HANDLE_IMPL( FlatContainer )
+TV_HANDLE_IMPL( Sphere )
+TV_HANDLE_IMPL( AxisAlignedSlab )
+TV_HANDLE_IMPL( TriangleMesh )
+TV_HANDLE_IMPL( BoundingVolumeHierarchy )
+TV_HANDLE_IMPL( BoundingVolume )
+TV_HANDLE_IMPL( CircleAreaLight )
+TV_HANDLE_IMPL( RectangleAreaLight )
 

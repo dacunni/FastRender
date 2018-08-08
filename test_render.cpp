@@ -49,7 +49,7 @@ void testMesh1()
     //int imageSize = 1024;
     int imageWidth = imageSize * 2, imageHeight = imageSize;
     ImageTracer tracer( imageWidth, imageHeight, 1, 25 );
-    tracer.camera.setFocalPlaneDimensions( -0.3, 0.3, -0.15, 0.15 );
+    tracer.camera->setFocalPlaneDimensions( 0.6, 0.3 );
     Scene * scene = new Scene();
 	auto container = std::make_shared<FlatContainer>();
 
@@ -759,31 +759,24 @@ int main (int argc, char * const argv[])
     printf("Render Tests\n");
     fflush(stdout);
 
+    Config config;
+    loadConfigFromKeyValueFile("render.config", config);
+
+    auto logger = std::make_shared<FileLogger>("render.log");
+    logger->mirrorToStdout = config.get<bool>("MIRROR_LOGGING_TO_STDOUT");
+    setLogger(logger);
+
+    config.log(*logger);
+
     mkdir(output_path.c_str(), 0777);
-
-    Timer total_run_timer;
-    total_run_timer.start();
-
-    rng.seedCurrentTime();
 
     // Tests
 #if 0
-    testSphereLight1();
-    testSphereLight2();
-    testSphereLight3();
-    testSphereLight4();
-    testReflection1();
-    testReflection2();
-    testReflection3();
     testMesh1();         // Stanford Bunny and Dragon
     testMesh2();         // Apollo lander
     //testMeshSanMiguel();      // TODO: slow - san miguel scene
     testMeshDabrovicSponza();
     //testHairball();   // TODO: slow
-    testPointLight1();
-    testPointLight2();
-    testPointLight3();
-    testPointLight4();
     testAnimTransforms1(); // Mirror Bunny and simple shapes
     testAnimTransforms2(); // 3 Spimming Cubes and point lights
     testAnimTransforms3(); // 3 Spinning Mirror Cubes
@@ -792,64 +785,46 @@ int main (int argc, char * const argv[])
     testCircleAreaLight1();   // Cube with circular area light
     testCircleAreaLight2();   // Area light proximity test
     testRectangleAreaLight1();   // Cube with rectangle area light
-    testRefraction1();  // Mixed scene with some refractive elements
-    testRefraction2();  // Mesh bunnies with varying IoR
-    testRefraction3();  // Spheres of varying IoR
-    testRefraction4();  // Refractive sphere with caustics
 #else
-    //testMesh1();         // Stanford Bunny and Dragon
-    //testAnimTransforms1(); // Mirror Bunny and simple shapes
-    //testAnimTransforms3(); // 3 Spinning Mirror Cubes
-    //testRefraction2();  // Mesh bunnies with varying IoR
-    //testRefraction3();  // Spheres of varying IoR
-    //RefractProfile::run();
-    //testCircleAreaLight1();   // Cube with circular area light
-    //testCircleAreaLight2();   // Area light proximity test
-    //testRectangleAreaLight1();   // Cube with rectangle area light
-    //testAnimLights1();
-    //testLogicalANDLensFocusLight();
-    //testMeshDabrovicSponza();
+    if( argc > 1 ) {
+        if( std::string(argv[1]) == "list" ) {
+            printTests();
+            exit(EXIT_SUCCESS);
+        }
+        else {
+            // Run a specific test
 
-    //LogicalBase::run();
-    //LogicalANDSpheres::run();
-    //LogicalANDMeshes::run();
-    //LogicalANDLensFocusLight::run();
+#if 0       // TODO - replicate these features in render tests
+            if( argc > 2 && std::string(argv[2]) == "animate" ) {
+                animateMaterialTests = true;
+            }
+            if( argc > 2 && std::string(argv[2]) == "stereo" ) {
+                stereoMaterialTests = true;
+            }
+            if( argc > 2 && std::string(argv[2]) == "preview" ) {
+                showPreviewWindow = true;
+            }
+#endif
+            int first, last;
+            if(sscanf(argv[1], "%d-%d", &first, &last) == 2) {
+                for(int index = first; index <= last; index++) {
+                    runTest(index);
+                }
+            }
+            else {
+                runTest(atoi(argv[1]));
+            }
+        }
+    }
+    else {
+        // Run all tests
+        printTests();
+        logTests(*logger);
+        runTests();
+    }
 
-    //SanMiguel::run();
-    //DabrovicSponza::run();
-    //Hairball::run();
-
-    //AmbientOcclusionBase::run();
-    //AmbientOcclusionSpheres::run();
-    //AmbientOcclusionCubes::run();
-    //AmbientOcclusionColoredCubes::run();
-    //AmbientOcclusionStanfordBunny::run();
-    //AmbientOcclusionStanfordDragon::run();
-    //AmbientOcclusionStanfordHappyBuddha::run();
-
-    //GridRoomSceneWithTexturedMonkey::run();
-    //GridRoomSceneWithSignedDistanceFunction::run();
-
-    //RoomSceneWithSpheres::run();
-    //RoomSceneWithSpheresCookTorrance::run();
-    //RoomSceneWithManyRefractiveSpheres::run();
-
-    //SpheresPointLight::run();
-    //SpheresColoredPointLights::run();
-    //BunnyEtcDiffusePointLights::run();
-    //BunnyEtcVariousMaterialsPointLights::run();
-    //EmissiveSphereLight::run();
-
-    //MirrorSphereColoredSpheresArcLight::run();
-
-    //RefractiveSpheresAndCubes::run();
-    //RefractiveBunniesVaryingIOR::run();
-    RefractiveSpheresVaryingIOR::run();
-    //RefractiveSphereEmissiveObjectCaustic::run();
 #endif
     
-    total_run_timer.stop();
-    printf("Done - Run time = %f seconds\n", total_run_timer.elapsed());
     fflush(stdout);
     return 0;
 }

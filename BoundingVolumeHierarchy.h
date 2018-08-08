@@ -9,6 +9,7 @@
 #ifndef __FastRender__BoundingVolumeHierarchy__
 #define __FastRender__BoundingVolumeHierarchy__
 
+#include <list>
 #include "BoundingVolume.h"
 #include "Container.h"
 
@@ -24,8 +25,10 @@ public:
     void build( std::shared_ptr<Container> container );
     void buildBottomUp( std::shared_ptr<Container> container );
     void buildTopDown( std::shared_ptr<Container> container );
+    std::shared_ptr<BoundingVolume> buildNodeTopDown( std::list<std::shared_ptr<BoundingVolume> > & objects );
 
     virtual void print( FILE * file = stdout ) const;
+    virtual void visit( TraceableVisitor & visitor );
 
     std::shared_ptr<BoundingVolume> root = nullptr;
 };

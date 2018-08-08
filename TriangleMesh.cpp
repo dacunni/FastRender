@@ -17,7 +17,8 @@
 unsigned long TriangleMesh::intersection_test_count = 0;
 
 TriangleMesh::TriangleMesh()
-:   accelerator(nullptr)
+:   mesh_data(std::make_shared<MeshData>()),
+    accelerator(nullptr)
 {
 
 }
@@ -28,45 +29,31 @@ TriangleMesh::~TriangleMesh()
         delete accelerator;
 }
 
+// Fit in unit cube centered at origin
 void TriangleMesh::makeCanonical()
 {
     std::shared_ptr<AxisAlignedSlab> bounds( getAxisAlignedBounds() );
     //printf("makeCanonical: Initial bounds: "); bounds->print();
 
     float maxdim = bounds->maxdim();
-    float xdim = bounds->xdim();
-    float ydim = bounds->ydim();
-    float zdim = bounds->zdim();
-
-    //printf("dim xd=%f yd=%f zd=%f max=%f\n",
-    //       xdim, ydim, zdim, maxdim);
 
     // Shift to center around the origin
-    float xshift = -bounds->xmin - xdim * 0.5;
-    float yshift = -bounds->ymin - ydim * 0.5;
-    float zshift = -bounds->zmin - zdim * 0.5;
-
-    //printf("shift xs=%f ys=%f zs=%f\n",
-    //       xshift, yshift, zshift);
+    float xshift = -bounds->xmid();
+    float yshift = -bounds->ymid();
+    float zshift = -bounds->zmid();
 
     // Scale to unit size along dimension with largest extent
     float scale = 1.0 / maxdim;
-    float xscale = scale * xdim / maxdim;
-    float yscale = scale * ydim / maxdim;
-    float zscale = scale * zdim / maxdim;
 
-    //printf("scale=%f xs=%f ys=%f zs=%f\n",
-    //       scale, xscale, yscale, zscale);
-
+    auto & vertices = mesh_data->vertices;
     const unsigned int num_verts = vertices.size();
     for( unsigned int vi = 0; vi < num_verts; ++vi ) {
-        vertices[vi][0] = (vertices[vi][0] + xshift) * xscale;
-        vertices[vi][1] = (vertices[vi][1] + yshift) * yscale;
-        vertices[vi][2] = (vertices[vi][2] + zshift) * zscale;
+        vertices[vi][0] = (vertices[vi][0] + xshift) * scale;
+        vertices[vi][1] = (vertices[vi][1] + yshift) * scale;
+        vertices[vi][2] = (vertices[vi][2] + zshift) * scale;
     }
 
-    //bounds.reset( getAxisAlignedBounds() );
-    //printf("makeCanonical: Final bounds: "); bounds->print();
+    bounds = getAxisAlignedBounds();
 }
 
 //
@@ -79,7 +66,7 @@ bool TriangleMesh::intersect( const Ray & ray, RayIntersection & intersection ) 
     if( accelerator )
         return accelerator->intersect( ray, intersection );
     
-    return intersectsTriangles( ray, triangles, intersection );
+    return intersectsTriangles( ray, mesh_data->triangles, intersection );
 }
 
 bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
@@ -89,7 +76,7 @@ bool TriangleMesh::intersectsAny( const Ray & ray, float min_distance ) const
     
     RayIntersection intersection;
     intersection.min_distance = min_distance;
-    return intersectsTriangles( ray, triangles, intersection, FAST_ISECT_TEST );
+    return intersectsAnyTriangles( ray, mesh_data->triangles, intersection );
 }
 
 //
@@ -104,6 +91,7 @@ inline bool TriangleMesh::intersectsTriangle( const Ray & ray, const IndexTriang
     Vector4 e1, e2;     // edge vectors
     Vector4 P, Q, T;
     const float epsilon = 1.0e-6;
+    auto & vertices = mesh_data->vertices;
 
     // Compute edge vectors
     subtract( vertices[tri.vi[1]], vertices[tri.vi[0]], e1 );
@@ -148,7 +136,7 @@ inline bool TriangleMesh::intersectsTriangle( const Ray & ray, const IndexTriang
 // Find the ray intersection with the triangles in the supplied mesh
 //
 bool TriangleMesh::intersectsTriangles( const Ray & ray, const IndexTriangleArray & vtri,
-                                        RayIntersection & intersection, IsectBehavior behavior ) const
+                                        RayIntersection & intersection ) const
 {
     float t, best_t = FLT_MAX;
     bool hit = false;
@@ -157,19 +145,13 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const IndexTriangleArra
 
     // Test for intersection against all triangles
     for( const IndexTriangle & tri : vtri ) {
-        bool hit_tri = intersectsTriangle( ray, tri, intersection.min_distance, t );
-
-        if( hit_tri ) {
-            if( behavior == FAST_ISECT_TEST ) {
-                return true;
-            }
-            else if( t < best_t ) {
-                best_tri = &tri;
-                best_t = t;
-                hit = true;
-            }
+        if( intersectsTriangle( ray, tri, intersection.min_distance, t )
+            && t < best_t ) {
+            best_tri = &tri;
+            best_t = t;
+            hit = true;
         }
-    } // for
+    }
 
     if( hit ) {
         populateIntersection( ray, *best_tri, best_t, intersection );
@@ -178,13 +160,29 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const IndexTriangleArra
     return hit;
 }
 
+bool TriangleMesh::intersectsAnyTriangles( const Ray & ray, const IndexTriangleArray & vtri,
+                                           RayIntersection & intersection ) const
+{
+    float t;
+
+    for( const IndexTriangle & tri : vtri ) {
+        if( intersectsTriangle( ray, tri, intersection.min_distance, t ) ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 //
 // Find the ray intersection with the triangles in the supplied mesh
 // using the provided indices into the triangles list.
 //
 bool TriangleMesh::intersectsTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
-                                        RayIntersection & intersection, IsectBehavior behavior ) const
+                                        RayIntersection & intersection ) const
 {
+    auto & triangles = mesh_data->triangles;
+
     float t, best_t = FLT_MAX;
     bool hit = false;
 
@@ -194,19 +192,13 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const TriangleIndexArra
     for( const unsigned int index : triangle_indices ) {
         const IndexTriangle & tri = triangles[index];
 
-        bool hit_tri = intersectsTriangle( ray, tri, intersection.min_distance, t );
-
-        if( hit_tri ) {
-            if( behavior == FAST_ISECT_TEST ) {
-                return true;
-            }
-            else if( t < best_t ) {
+        if( intersectsTriangle( ray, tri, intersection.min_distance, t )
+            && t < best_t ) {
                 best_tri = &tri;
                 best_t = t;
                 hit = true;
-            }
         }
-    } // for
+    }
 
     if( hit ) {
         populateIntersection( ray, *best_tri, best_t, intersection );
@@ -215,11 +207,31 @@ bool TriangleMesh::intersectsTriangles( const Ray & ray, const TriangleIndexArra
     return hit;
 }
 
+bool TriangleMesh::intersectsAnyTriangles( const Ray & ray, const TriangleIndexArray & triangle_indices,
+                                           RayIntersection & intersection ) const
+{
+    auto & triangles = mesh_data->triangles;
+    float t;
+
+    for( const unsigned int index : triangle_indices ) {
+        const IndexTriangle & tri = triangles[index];
+        if( intersectsTriangle( ray, tri, intersection.min_distance, t ) ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 inline void TriangleMesh::populateIntersection( const Ray & ray,
                                                 const IndexTriangle & tri,
                                                 float t,
                                                 RayIntersection & intersection ) const
 {
+    auto & vertices = mesh_data->vertices;
+    auto & normals = mesh_data->normals;
+    auto & textureUVCoords = mesh_data->textureUVCoords;
+
     // Compute edge vectors
     // FIXME: This is redudant computation, but it is happening in another
     //        function. Should we just pass them around?
@@ -280,6 +292,8 @@ inline void TriangleMesh::populateIntersection( const Ray & ray,
 
 std::shared_ptr<AxisAlignedSlab> TriangleMesh::getAxisAlignedBounds() const
 {
+    auto & vertices = mesh_data->vertices;
+
     if( vertices.empty() )
         return nullptr;
     
@@ -290,68 +304,103 @@ std::shared_ptr<AxisAlignedSlab> TriangleMesh::getAxisAlignedBounds() const
     bb->zmin = bb->zmax = vertices[0].z;
     
     for( auto vi : vertices ) {
-        if( vi.x < bb->xmin )
-            bb->xmin = vi.x;
-        if( vi.x > bb->xmax )
-            bb->xmax = vi.x;
-        if( vi.y < bb->ymin )
-            bb->ymin = vi.y;
-        if( vi.y > bb->ymax )
-            bb->ymax = vi.y;
-        if( vi.z < bb->zmin )
-            bb->zmin = vi.z;
-        if( vi.z > bb->zmax )
-            bb->zmax = vi.z;
+        if( vi.x < bb->xmin ) bb->xmin = vi.x;
+        if( vi.x > bb->xmax ) bb->xmax = vi.x;
+        if( vi.y < bb->ymin ) bb->ymin = vi.y;
+        if( vi.y > bb->ymax ) bb->ymax = vi.y;
+        if( vi.z < bb->zmin ) bb->zmin = vi.z;
+        if( vi.z > bb->zmax ) bb->zmax = vi.z;
     }
     
     return bb;
 }
 
+std::shared_ptr<TriangleMesh> combineMeshes( TriangleMeshArray & array )
+{
+    auto ubermesh = std::make_shared<TriangleMesh>();
+
+    for(auto mesh : array) {
+        auto & uber_data = *ubermesh->mesh_data;
+        auto & part_data = *mesh->mesh_data;
+
+        unsigned int part_vertex_start = uber_data.vertices.size();
+
+        std::copy(part_data.vertices.begin(), part_data.vertices.end(),
+                  std::back_inserter(uber_data.vertices));
+
+        std::copy(part_data.normals.begin(), part_data.normals.end(),
+                  std::back_inserter(uber_data.normals));
+
+        std::transform(part_data.triangles.begin(), part_data.triangles.end(),
+                       std::back_inserter(uber_data.triangles),
+                       [&](TriangleMesh::IndexTriangle & tri) {
+                           TriangleMesh::IndexTriangle offset_tri;
+                           offset_tri.vi[0] = tri.vi[0] + part_vertex_start;
+                           offset_tri.vi[1] = tri.vi[1] + part_vertex_start;
+                           offset_tri.vi[2] = tri.vi[2] + part_vertex_start;
+                           return offset_tri;
+                       });
+    }
+
+    printf("Ubermesh vertices=%u normals=%u triangles=%u\n",
+           (unsigned int) ubermesh->mesh_data->vertices.size(),
+           (unsigned int) ubermesh->mesh_data->normals.size(),
+           (unsigned int) ubermesh->mesh_data->triangles.size());
+
+    return ubermesh;
+}
+
 
 void makeTriangleMeshTetrahedron( TriangleMesh & mesh )
 {
-    mesh.vertices.resize( 4 );
-    mesh.triangles.resize( 4 );
+    auto & vertices = mesh.mesh_data->vertices;
+    auto & triangles = mesh.mesh_data->triangles;
+
+    vertices.resize( 4 );
+    triangles.resize( 4 );
     
-    mesh.vertices[0] = Vector4( 0.0, 0.5, 0.0 );
-    mesh.vertices[1] = Vector4( -0.5, -0.5, 0.0 );
-    mesh.vertices[2] = Vector4( 0.5, -0.5, 0.0 );
-    mesh.vertices[3] = Vector4( 0.0, 0.0, 1.0 );
+    vertices[0] = Vector4( 0.0, 0.5, 0.0 );
+    vertices[1] = Vector4( -0.5, -0.5, 0.0 );
+    vertices[2] = Vector4( 0.5, -0.5, 0.0 );
+    vertices[3] = Vector4( 0.0, 0.0, 1.0 );
     
     // TODO - make the winding order consistent
-    mesh.triangles[0].vi[0] = 0;
-    mesh.triangles[0].vi[1] = 1;
-    mesh.triangles[0].vi[2] = 2;
-    mesh.triangles[1].vi[0] = 1;
-    mesh.triangles[1].vi[1] = 2;
-    mesh.triangles[1].vi[2] = 3;
-    mesh.triangles[2].vi[0] = 0;
-    mesh.triangles[2].vi[1] = 1;
-    mesh.triangles[2].vi[2] = 3;
-    mesh.triangles[3].vi[0] = 0;
-    mesh.triangles[3].vi[1] = 3;
-    mesh.triangles[3].vi[2] = 2;
+    triangles[0].vi[0] = 0;
+    triangles[0].vi[1] = 1;
+    triangles[0].vi[2] = 2;
+    triangles[1].vi[0] = 1;
+    triangles[1].vi[1] = 2;
+    triangles[1].vi[2] = 3;
+    triangles[2].vi[0] = 0;
+    triangles[2].vi[1] = 1;
+    triangles[2].vi[2] = 3;
+    triangles[3].vi[0] = 0;
+    triangles[3].vi[1] = 3;
+    triangles[3].vi[2] = 2;
 }
 
 void makeTriangleMeshGroundPlatform( TriangleMesh & mesh, float size )
 {
-    mesh.vertices.resize( 4 );
-    mesh.triangles.resize( 2 );
+    auto & vertices = mesh.mesh_data->vertices;
+    auto & triangles = mesh.mesh_data->triangles;
+
+    vertices.resize( 4 );
+    triangles.resize( 2 );
     
     float yoffset = -5.0; // TEMP
     
-    mesh.vertices[0] = Vector4( -size / 2.0, yoffset, -size / 2.0 );
-    mesh.vertices[1] = Vector4( -size / 2.0, yoffset, size / 2.0 );
-    mesh.vertices[2] = Vector4( size / 2.0, yoffset, size / 2.0 );
-    mesh.vertices[3] = Vector4( size / 2.0, yoffset, -size / 2.0 );
+    vertices[0] = Vector4( -size / 2.0, yoffset, -size / 2.0 );
+    vertices[1] = Vector4( -size / 2.0, yoffset, size / 2.0 );
+    vertices[2] = Vector4( size / 2.0, yoffset, size / 2.0 );
+    vertices[3] = Vector4( size / 2.0, yoffset, -size / 2.0 );
     
     // TODO - make the winding order consistent
-    mesh.triangles[0].vi[0] = 0;
-    mesh.triangles[0].vi[1] = 1;
-    mesh.triangles[0].vi[2] = 2;
-    mesh.triangles[1].vi[0] = 1;
-    mesh.triangles[1].vi[1] = 3;
-    mesh.triangles[1].vi[2] = 2;
+    triangles[0].vi[0] = 0;
+    triangles[0].vi[1] = 1;
+    triangles[0].vi[2] = 2;
+    triangles[1].vi[0] = 1;
+    triangles[1].vi[1] = 3;
+    triangles[1].vi[2] = 2;
 }
 
 std::string TriangleMesh::IndexTriangle::toJSON() const
@@ -366,6 +415,18 @@ std::string TriangleMesh::IndexTriangle::toJSON() const
     return ss.str();
 }
 
+std::string TriangleMesh::toString() const
+{
+    std::stringstream ss;
+
+    ss << "trimesh"
+       << " vertices: " << mesh_data->vertices.size()
+       << " normals: " << mesh_data->normals.size()
+       << " triangles: " << mesh_data->triangles.size();
+
+    return ss.str();
+}
+
 std::string TriangleMesh::toJSON() const
 {
     std::stringstream ss;
@@ -373,20 +434,20 @@ std::string TriangleMesh::toJSON() const
     ss << "{\"type\":\"TriangleMesh\",";
 
     ss << "\"vertices\":" << "[";
-    for( auto vi = vertices.begin(); vi != vertices.end(); ++vi ) {
-        if( vi != vertices.begin() ) { ss << ","; }
+    for( auto vi = mesh_data->vertices.begin(); vi != mesh_data->vertices.end(); ++vi ) {
+        if( vi != mesh_data->vertices.begin() ) { ss << ","; }
         ss << vi->toJSON();
     }
     ss << "],";
     ss << "\"normals\":" << "[";
-    for( auto ni = normals.begin(); ni != normals.end(); ++ni ) {
-        if( ni != normals.begin() ) { ss << ","; }
+    for( auto ni = mesh_data->normals.begin(); ni != mesh_data->normals.end(); ++ni ) {
+        if( ni != mesh_data->normals.begin() ) { ss << ","; }
         ss << ni->toJSON();
     }
     ss << "],";
     ss << "\"triangles\":" << "[";
-    for( auto ti = triangles.begin(); ti != triangles.end(); ++ti ) {
-        if( ti != triangles.begin() ) { ss << ","; }
+    for( auto ti = mesh_data->triangles.begin(); ti != mesh_data->triangles.end(); ++ti ) {
+        if( ti != mesh_data->triangles.begin() ) { ss << ","; }
         ss << ti->toJSON();
     }
     ss << "]";

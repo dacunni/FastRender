@@ -3,9 +3,9 @@
 #include "Ray.h"
 #include "Material.h"
 #include "RandomNumberGenerator.h"
+#include "TraceableVisitor.h"
 
 AreaLight::AreaLight( const RGBColor & emittance ) { material = std::make_shared<DiffuseEmitterMaterial>(emittance); }
-AreaLight::~AreaLight() {}
 
 // FIXME: This won't work for lights in containers that have transforms
 LightSample AreaLight::sampleSurfaceTransformed( RandomNumberGenerator & rng ) const
@@ -23,7 +23,6 @@ LightSample AreaLight::sampleSurfaceTransformed( RandomNumberGenerator & rng ) c
 
 CircleAreaLight::CircleAreaLight() : AreaLight(RGBColor(1, 1, 1)), radius(1.0) {}
 CircleAreaLight::CircleAreaLight( float r, const RGBColor & emittance ) : AreaLight(emittance), radius(r) {}
-CircleAreaLight::~CircleAreaLight() {}
 
 bool CircleAreaLight::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
@@ -77,9 +76,14 @@ float CircleAreaLight::area() const
     return M_PI * radius * radius;
 }
 
+void CircleAreaLight::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
+}
+
+
 RectangleAreaLight::RectangleAreaLight() : AreaLight(RGBColor(1, 1, 1)), xdim(1.0), zdim(1.0) {}
 RectangleAreaLight::RectangleAreaLight( float xd, float zd, const RGBColor & emittance ) : AreaLight(emittance), xdim(xd), zdim(zd) {}
-RectangleAreaLight::~RectangleAreaLight() {}
 
 bool RectangleAreaLight::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
@@ -132,5 +136,10 @@ LightSample RectangleAreaLight::sampleSurface( RandomNumberGenerator & rng ) con
 float RectangleAreaLight::area() const
 {
     return xdim * zdim;
+}
+
+void RectangleAreaLight::visit( TraceableVisitor & visitor )
+{
+    visitor.handle(*this);
 }
 

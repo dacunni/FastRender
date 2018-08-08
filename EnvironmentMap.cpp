@@ -29,7 +29,6 @@ RGBRadianceSample TestPatternEnvironmentMap::sample( const Ray & ray ) const
     float el = 90.0f * asinf( ray.direction.z ) / (M_PI / 2.0f);
     float az = 90.0f * atanf( ray.direction.y / ray.direction.x ) / (M_PI / 2.0f);
 
-    //s.color.r = s.color.g = s.color.b = 0.75f;
     s.color.r = s.color.g = s.color.b = 1.0f;
 
     const float tick1 = 0.01f;
@@ -109,6 +108,7 @@ HDRImageEnvironmentMap::HDRImageEnvironmentMap( const std::string & filename,
                                                 unsigned int w, unsigned int h )
     : image(filename, w, h)
 {
+    printf("HDR image environment map: %s (%u x %u)\n", filename.c_str(), w, h);
     updateStateFromImage();
 }
 
@@ -176,5 +176,11 @@ void HDRImageEnvironmentMap::maskInscribedCircle()
     image.maskUV([](float u, float v) { u -= 0.5f; v -= 0.5f; float r = 0.5f; return u*u + v*v <= r*r; });
 }
 
+RGBRadianceSample HotBoxEnvironmentMap::sample( const Ray & ray ) const
+{
+    RGBRadianceSample s;
+    s.color.r = s.color.g = s.color.b = radiance;
+    return s;
+}
 
 

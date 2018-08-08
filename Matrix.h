@@ -47,6 +47,7 @@ public:
                        float near, float far );
 
 	void print() const;
+    std::string toString() const;
     std::string toJSON() const;
 	
 	float data[16];

@@ -1,14 +1,6 @@
-/*
- *  Matrix.cpp
- *  FastRender
- *
- *  Created by David Cunningham on 7/21/12.
- *  Copyright 2012 __MyCompanyName__. All rights reserved.
- *
- */
-
 #include <math.h>
 #include <stdio.h>
+#include <cassert>
 #include <sstream>
 
 #include "Matrix.h"
@@ -100,6 +92,16 @@ void Matrix4x4::print() const
 	}
 }
 
+std::string Matrix4x4::toString() const
+{
+    std::stringstream ss;
+    ss << at(0,0) << "," << at(0,1) << "," << at(0,2) << "," << at(0,3) << "; "
+       << at(1,0) << "," << at(1,1) << "," << at(1,2) << "," << at(1,3) << "; "
+       << at(2,0) << "," << at(2,1) << "," << at(2,2) << "," << at(2,3) << "; "
+       << at(3,0) << "," << at(3,1) << "," << at(3,2) << "," << at(3,3);
+    return ss.str();
+}
+
 std::string Matrix4x4::toJSON() const
 {
     std::stringstream ss;
@@ -117,6 +119,8 @@ std::string Matrix4x4::toJSON() const
 // TODO - handle R being the same as one of A or B
 void mult( const Matrix4x4 & A, const Matrix4x4 & B, Matrix4x4 & R )
 {
+    assert(&A != &R && &B != &R);
+
 	for( int r = 0; r < 4; r++ ) {
 		for( int c = 0; c < 4; c++ ) {
 			R.at( r, c ) = A.at( r, 0 ) * B.at( 0, c )

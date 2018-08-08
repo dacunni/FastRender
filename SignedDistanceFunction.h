@@ -17,13 +17,13 @@
 class SignedDistanceFunction : public Traceable
 {
 public:
-	SignedDistanceFunction() {}
-	virtual ~SignedDistanceFunction() {}
+	SignedDistanceFunction() = default;
+	virtual ~SignedDistanceFunction() = default;
 	
 	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
 	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
-    typedef std::function<float(const Vector4&)> ValueFunctionType;
+    using ValueFunctionType = std::function<float(const Vector4&)>;
 
     ValueFunctionType valueFunction;
 

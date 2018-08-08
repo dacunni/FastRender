@@ -1,11 +1,12 @@
 BEGIN_SCENE( RefractiveBunniesVaryingIOR )
 SETUP_SCENE(
-    int image_size = 320;
-    image_width = image_size * 4;
+    int image_size = 100;
+    float aspect_ratio = 4.0f;
+    image_width = image_size * aspect_ratio;
     image_height = image_size;
     TestScene::setup();
-    tracer->rays_per_pixel = 100;
-    tracer->camera.setFocalPlaneDimensions( -0.45, 0.45, -0.15, 0.15 );
+    tracer->rays_per_pixel = 30;
+    tracer->camera->setFocalPlaneDimensions( 0.3 * aspect_ratio, 0.3 );
 );
 BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,

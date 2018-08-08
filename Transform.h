@@ -22,7 +22,7 @@ public:
     Transform( const Matrix4x4 & f, const Matrix4x4 & r );
 
     // Destructors
-    virtual ~Transform();
+    virtual ~Transform() = default;
 
     virtual void updateAnim( float t ) {}
     
@@ -33,6 +33,7 @@ public:
     void invert() { Matrix4x4 r = rev; rev = fwd; fwd = r; }
 
     void print();
+    std::string toString() const;
     std::string toJSON() const;
     
     // Members
@@ -45,13 +46,14 @@ class TimeVaryingTransform : public Transform
 public:
     TimeVaryingTransform( const std::function<Transform(float)> & cb )
         { update_cb = cb; }
-    virtual ~TimeVaryingTransform() {}
+    virtual ~TimeVaryingTransform() = default;
 
     virtual void updateAnim( float t ) { Transform xform = update_cb(t); fwd = xform.fwd; rev = xform.rev; };
     std::function<Transform(float)> update_cb;
 };
 
 // Composes two Transforms into one. Assumes t2 is applied before t1.
+Transform compose( const Transform & t1 );
 Transform compose( const Transform & t1, const Transform & t2 );
 Transform compose( const Transform & t1, const Transform & t2, const Transform & t3 );
 Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4 );

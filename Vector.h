@@ -13,7 +13,7 @@ public:
 	inline Vector4();
 	inline Vector4( const Vector4 & a );
 	inline Vector4( float x, float y, float z, float w = 1.0f );
-	inline ~Vector4() {}
+	inline ~Vector4() = default;
 	
 	inline float & operator[]( int i );
 	inline const float & operator[]( int i ) const;
@@ -38,6 +38,7 @@ public:
 	
 	void print() const;
     void fprintCSV( FILE * file ) const;
+    std::string toString() const;
     std::string toJSON() const;
 
     // Assert methods
@@ -67,15 +68,18 @@ inline Vector4 cross( const Vector4 & a, const Vector4 & b );
 inline void    add( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 add( const Vector4 & a, const Vector4 & b );
 inline Vector4 operator+( const Vector4 & a, const Vector4 & b ) { return add(a, b); }
+inline Vector4 operator+=( Vector4 & a, const Vector4 & b ) { a = add(a, b); return a; }
 
 inline void    subtract( const Vector4 & a, const Vector4 & b, Vector4 & r );
 inline Vector4 subtract( const Vector4 & a, const Vector4 & b );
 inline Vector4 operator-( const Vector4 & a, const Vector4 & b ) { return subtract(a, b); }
+inline Vector4 operator-=( Vector4 & a, const Vector4 & b ) { a = subtract(a, b); return a; }
 
 inline void    scale( const Vector4 & a, float s, Vector4 & r );
 inline Vector4 scale( const Vector4 & a, float s );
 inline Vector4 operator*( const Vector4 & a, float s ) { return scale(a, s); }
 inline Vector4 operator*( float s, const Vector4 & a ) { return scale(a, s); }
+inline Vector4 operator*=( Vector4 & a, float s ) { a = scale(a, s); return a; }
 
 inline Vector4 blend( const Vector4 & a, float s, const Vector4 & b, float t );
 

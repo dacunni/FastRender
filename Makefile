@@ -10,7 +10,9 @@ OBJ = \
 	Boolean.o \
 	BoundingVolume.o \
 	BoundingVolumeHierarchy.o \
+    Camera.o \
     Color.o \
+    Config.o \
 	Container.o \
     CookTorranceMaterial.o \
 	CSG.o \
@@ -22,6 +24,7 @@ OBJ = \
     EditorSceneGraph.o \
 	EnvironmentMap.o \
 	FlatContainer.o \
+    Fresnel.o \
 	GeometryUtils.o \
 	GoochShader.o \
     HDRImage.o \
@@ -29,9 +32,13 @@ OBJ = \
 	ImageTracer.o \
 	InspectionShader.o \
     Lights.o \
+    Logger.o \
 	Material.o \
 	Matrix.o \
+    Microfacet.o \
+    OmniCamera.o \
     OpenGLUtil.o \
+    OpenGLWindow.o \
 	Plot2D.o \
 	PreviewWindow.o \
 	Quaternion.o \
@@ -65,7 +72,8 @@ freditOBJ = $(OBJ) \
 
 test_randomOBJ = $(OBJ) test_random.o
 test_renderOBJ = $(OBJ) test_render.o
-test_materialsOBJ = $(OBJ) test_materials.o
+#test_materialsOBJ = $(OBJ) test_materials.o
+test_materialsOBJ = test_materials.o
 test_ray_traceOBJ = $(OBJ) test_ray_trace.o
 test_samplersOBJ = $(OBJ) test_samplers.o
 
@@ -77,13 +85,13 @@ UNAME_S := $(shell uname -s)
 INC = -I.
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
-CXXFLAGS += -O2
-#CXXFLAGS += -O3
+#CXXFLAGS += -O2
+CXXFLAGS += -O3
 #CXXFLAGS += -ffast-math
 # Uncomment to enable symbols
 CXXFLAGS += -g
 # Uncomment to disable asserts
-#CXXFLAGS += -DNDEBUG
+CXXFLAGS += -DNDEBUG
 
 ifeq ($(UNAME_S),Darwin)
     CXXFLAGS += -mmacosx-version-min=10.10
@@ -134,14 +142,15 @@ freditLDXXFLAGS = $(LDXXFLAGS) -framework GLUT -framework OpenGL
 test_randomLDXXFLAGS = $(LDXXFLAGS)
 test_samplersLDXXFLAGS = $(LDXXFLAGS)
 test_renderLDXXFLAGS = $(LDXXFLAGS)
-test_materialsLDXXFLAGS = $(LDXXFLAGS)
+test_materialsLDXXFLAGS = $(LDXXFLAGS) -L. -lFastRender
 test_ray_traceLDXXFLAGS = $(LDXXFLAGS)
 
-#all: fr tests
-#all: fr fredit tests libFastRender.so benchmarks unittests
-all: tests
-#all: fr fredit tests libFastRender.so benchmarks unittests
-#all: fr fredit tests python_bindings
+TARGETS = libFastRender.so fr fredit
+TARGETS += tests
+#TARGETS += benchmarks unittests
+#TARGETS += python_bindings
+
+all: $(TARGETS)
 
 # Stash object files away in a separate directory so we don't have 
 # to look at them
@@ -238,6 +247,8 @@ unittests/transform: unittests/transform.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
 unittests/raysphere: unittests/raysphere.cpp $(HDR) libFastRender.so
 	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
+unittests/bxdf: unittests/bxdf.cpp $(HDR) libFastRender.so
+	g++ -o $@ $< $(CXXFLAGS) $(INC) $(UNITTEST_LDXXFLAGS)
 
 
 #
@@ -246,7 +257,7 @@ unittests/raysphere: unittests/raysphere.cpp $(HDR) libFastRender.so
 PYTHON_BINDING_OBJ = FastRender_wrap.o $(OBJ)
 PYTHON_BINDING_OBJ_IN_DIR = $(addprefix $(OBJDIR)/, $(PYTHON_BINDING_OBJ))
 FastRender_wrap.cpp: FastRender.i $(HDR)
-	swig -python -c++ -o FastRender_wrap.cpp $(INC) FastRender.i 
+	swig -python -c++ -builtin -o FastRender_wrap.cpp $(INC) FastRender.i 
 $(OBJDIR)/FastRender_wrap.o: FastRender_wrap.cpp
 	g++ -o $(OBJDIR)/FastRender_wrap.o -c FastRender_wrap.cpp $(CXXFLAGS) $(INC) `python-config --includes`
 _FastRender.so: $(PYTHON_BINDING_OBJ_IN_DIR)

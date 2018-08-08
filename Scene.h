@@ -17,6 +17,7 @@
 class Traceable;
 class TraceLog;
 class EnvironmentMap;
+class Logger;
 
 class Scene 
 {
@@ -24,23 +25,31 @@ public:
 	Scene();
 	~Scene();
 
+    // Update the scene state for a given point in time
     void updateAnim( float t );
 
-	bool intersect( const Ray & ray, RayIntersection & intersection ) const;
-	bool intersectsAny( const Ray & ray, float min_distance ) const;
-	bool intersectEnvMap( const Ray & ray, RayIntersection & intersection ) const;
+    // Ray-scene intersection
+    bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+    bool intersectsAny( const Ray & ray, float min_distance ) const;
+    bool intersectEnvMap( const Ray & ray, RayIntersection & intersection ) const;
 
+    // Lights
     void addPointLight( const PointLight & light ) { point_lights.push_back(light); }
-
     void buildLightList();
     // Helper for buildLightList
     void addLightsForTraceable( std::shared_ptr<Traceable> obj );
 
+    // Logging
     void startLogging( TraceLog * log ) { trace_log = log; }
     void stopLogging() { trace_log = nullptr; }
     void logIntersect( const Ray & ray, const RayIntersection & intersection, bool hit ) const;
 
+    // Members
+
+    // The root of the scene graph
     std::shared_ptr<Traceable> root;
+
+    // At most one environment map may be bound to the scene
     std::shared_ptr<EnvironmentMap> env_map;
 
     // Lights are just traceables that have a non-zero emittance. They are part
@@ -55,6 +64,7 @@ public:
 
     // Logging
     mutable TraceLog * trace_log = nullptr;
+    Logger & logger;
 };
 
 

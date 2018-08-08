@@ -23,10 +23,14 @@ public:
     
     void correctMinMax( void );
 
-    inline float xdim() const { return xmax - xmin; }
-    inline float ydim() const { return ymax - ymin; }
-    inline float zdim() const { return zmax - zmin; }
+    inline float xdim() const { return std::abs(xmax - xmin); }
+    inline float ydim() const { return std::abs(ymax - ymin); }
+    inline float zdim() const { return std::abs(zmax - zmin); }
     float maxdim() const;
+
+    inline float xmid() const { return 0.5f * (xmin + xmax); }
+    inline float ymid() const { return 0.5f * (ymin + ymax); }
+    inline float zmid() const { return 0.5f * (zmin + zmax); }
 
     inline float volume() const { return xdim() * ydim() * zdim(); }
     
@@ -40,6 +44,7 @@ public:
                                                         // objects of this class
     virtual void print( FILE * file = stdout ) const;
     virtual std::string toJSON() const;
+    virtual std::string toString() const;
     virtual void visit( TraceableVisitor & visitor );
 
 private:

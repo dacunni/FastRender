@@ -33,7 +33,9 @@ class Shader
         RGBColor sampleAreaLight( const Scene & scene,
                                   const RayIntersection & intersection,
                                   RandomNumberGenerator & rng,
-                                  const AreaLight & light );
+                                  const AreaLight & light,
+                                  Vector4 & direction,
+                                  bool & hit );
         RGBColor sampleAreaLights( const Scene & scene,
                                    const RayIntersection & intersection,
                                    RandomNumberGenerator & rng );
@@ -45,6 +47,16 @@ class Shader
         RGBColor reflectedRadiance( const RayIntersection & intersection,
                                     const RGBColor & Li,
                                     const Vector4 & lightDirection );
+};
+
+// Shader that does nothing
+class NullShader : public Shader
+{
+    public:
+        NullShader() = default;
+        virtual ~NullShader() = default;
+
+        virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
 };
 
 

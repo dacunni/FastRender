@@ -153,7 +153,42 @@ void testCosineHalfSphere()
         rot = mult( xform.fwd, v );
         plot_rot.addPoint( rot.x, rot.y );
     }
+}
 
+void testBeckmanNDF(float roughness)
+{
+    char plot_down_z_name[1024], plot_down_y_name[1024], plot_rot_name[1024];
+    sprintf(plot_down_z_name, "%s/beckman_ndf_%3.2f__down_z.png", output_path.c_str(), roughness);
+    sprintf(plot_down_y_name, "%s/beckman_ndf_%3.2f__down_y.png", output_path.c_str(), roughness);
+    //sprintf(plot_rot_name,    "%s/beckman_ndf_%3.2f__rot.png",    output_path.c_str(), roughness);
+    Plot2D plot_down_z( plot_down_z_name, plot_size, plot_size );
+    Plot2D plot_down_y( plot_down_y_name, plot_size, plot_size );
+    //Plot2D plot_rot   ( plot_rot_name,    plot_size, plot_size );
+    Transform xform = makeRotation( 0.5, Vector4( 1.0f, 1.0f, 1.0f ) );
+    Vector4 v, rot;
+
+    for( auto i = 0; i < points_per_plot; i++ ) {
+        rng.beckmanNDF( roughness, v );
+        plot_down_z.addPoint( v.x, v.y );
+        plot_down_y.addPoint( v.x, v.z );
+        //rot = mult( xform.fwd, v );
+        //plot_rot.addPoint( rot.x, rot.y );
+    }
+}
+
+void testBeckmanNDF()
+{
+    testBeckmanNDF(0.0f);
+    testBeckmanNDF(0.02f);
+    testBeckmanNDF(0.05f);
+    testBeckmanNDF(0.1f);
+    testBeckmanNDF(0.2f);
+    testBeckmanNDF(0.3f);
+    testBeckmanNDF(0.4f);
+    testBeckmanNDF(0.6f);
+    testBeckmanNDF(0.8f);
+    testBeckmanNDF(1.0f);
+    testBeckmanNDF(1.2f);
 }
 
 // TEMP - trying to see if i can uniformly generate a random number on a triangle
@@ -198,10 +233,8 @@ int main (int argc, char * const argv[])
 
     mkdir(output_path.c_str(), 0777);
 
-    Timer total_run_timer;
+    WallClockTimer total_run_timer;
     total_run_timer.start();
-
-    rng.seedCurrentTime();
 
 #if 1
     testUniformSquare();
@@ -212,11 +245,12 @@ int main (int argc, char * const argv[])
     testUniformVolumeUnitSphere();
     testCosineDistribution();
     testCosineHalfSphere();
+    testBeckmanNDF();
 
     testBasicTriangle2D();
     testBasicTriangle3D();
 #else
-    testUniformCircle();
+    testBeckmanNDF();
 #endif
     
     total_run_timer.stop();

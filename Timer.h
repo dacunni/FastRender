@@ -1,42 +1,41 @@
-//
-//  Timer.h
-//  FastRender
-//
-//  Created by David Cunningham on 8/4/13.
-//
-//
-
-#ifndef __FastRender__Timer__
-#define __FastRender__Timer__
+#ifndef __TIMER__
+#define __TIMER__
 
 #include <sys/time.h>
 #include <time.h>
 
-#define USE_PROCESS_TIMER 1
+double timeNowAsDouble();
 
-class Timer {
+class ProcessorTimer {
 public:
-    Timer() : running(false), valid(false) {}
-    ~Timer() {}
+    ProcessorTimer() = default;
+    ~ProcessorTimer() = default;
     
     void start();
     void stop();
     double elapsed();
     
-    static double toDouble( const struct timeval & tm );
-    
 protected:
-    
-#if USE_PROCESS_TIMER
     clock_t start_time;
     clock_t end_time;
-#else
-    struct timeval start_time;
-    struct timeval end_time;
-#endif
-    bool running;
-    bool valid;
-    
+    bool running = false;
+    bool valid   = false;
 };
 
-#endif /* defined(__FastRender__Timer__) */
+class WallClockTimer {
+public:
+    WallClockTimer() = default;
+    ~WallClockTimer() = default;
+
+    void start();
+    void stop();
+    double elapsed();
+
+protected:
+    struct timeval start_time;
+    struct timeval end_time;
+    bool running = false;
+    bool valid   = false;
+};
+
+#endif

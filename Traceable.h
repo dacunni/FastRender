@@ -29,10 +29,15 @@ public:
     // Returns null if not implemented
     virtual std::shared_ptr<AxisAlignedSlab> getAxisAlignedBounds() const { return std::shared_ptr<AxisAlignedSlab>(); }
 
+    // Return axis aligned bounds of transformed object
+    // Returns bounds around transformed bounding volume by default. Children may reimplement for a tigher fit.
+    virtual std::shared_ptr<AxisAlignedSlab> getTransformedAxisAlignedBounds() const;
+
     virtual bool isAreaLight() const { return false; }
 
     std::string className() const;
     virtual void print( FILE * file = stdout ) const;
+    virtual std::string toString() const;
     virtual std::string toJSON() const;
     virtual void visit( TraceableVisitor & visitor );
 

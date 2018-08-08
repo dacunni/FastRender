@@ -27,13 +27,6 @@ Transform::Transform( const Matrix4x4 & f, const Matrix4x4 & r )
 
 }
 
-// Destructors
-
-Transform::~Transform()
-{
-    
-}
-
 // Printing
 
 void Transform::print()
@@ -43,6 +36,15 @@ void Transform::print()
     fwd.print();
     printf("rev:\n");
     rev.print();
+}
+
+std::string Transform::toString() const
+{
+    std::stringstream ss;
+    ss << "trans"
+       << " fwd: " << fwd.toString()
+       << " rev: " << fwd.toString();
+    return ss.str();
 }
 
 std::string Transform::toJSON() const
@@ -60,6 +62,11 @@ std::string Transform::toJSON() const
 //
 // Helpers
 //
+Transform compose( const Transform & t1 )
+{
+    return t1;
+}
+
 Transform compose( const Transform & t1, const Transform & t2 )
 {
     Transform c;

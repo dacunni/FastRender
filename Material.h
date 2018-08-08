@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <functional>
 #include "Color.h"
 #include "Ray.h"
 #include "SurfaceTexture.h"
@@ -13,6 +14,14 @@
 #define USE_COSINE_SAMPLING
 
 class RandomNumberGenerator;
+
+template<typename ValueType>
+using MaterialParam = std::function<ValueType(const RayIntersection &)>;
+using MaterialParamRGB = MaterialParam<RGBColor>;
+using MaterialParamScalar = MaterialParam<float>;
+
+MaterialParamRGB makeConstantParamRGB(const RGBColor & c);
+MaterialParamRGB makeConstantParamRGB(float r, float g, float b);
 
 // The result of sampling a PDF. Useful in importance sampling BxDFs
 //   Distributions that are characterized by a Dirac delta (zero
@@ -49,8 +58,8 @@ class DistributionSample
 class Material 
 {
     public:
-        Material() {}
-        virtual ~Material() {}
+        Material();
+        virtual ~Material() = default;
 
         std::string name() const { return typeid(*this).name(); }
 
@@ -65,15 +74,14 @@ class Material
         // FIXME - stopgap
         virtual bool isEmitter() { return emittance.r > 0.0 || emittance.g > 0.0 || emittance.b > 0.0; }
 
-        virtual RGBColor diffuse( const RayIntersection & isect ) { return diffuseColor; }
-        virtual RGBColor specular( const RayIntersection & isect ) { return specularColor; }
+        RGBColor diffuse( const RayIntersection & isect ) { return albedo(isect); }
 
         virtual float specularity() { return 0.0f; }
 
-        // Reflectances
-        // FIXME - not realistic. need a more generic, physically-based reflection model. gotta start somewhere, though
-        RGBColor diffuseColor;
-        RGBColor specularColor;
+        void setAlbedo(MaterialParamRGB param) { albedo = param; }
+
+        MaterialParamRGB albedo;
+
         RGBColor emittance;
 
         float index_of_refraction = 1.0f;
@@ -88,16 +96,14 @@ class DiffuseMaterial : public Material
 {
     public:
         DiffuseMaterial() : Material() {
-            diffuseColor.setRGB( 1.0f, 1.0f, 1.0f );
-            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            setAlbedo(makeConstantParamRGB(1, 1, 1));
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
         }
         DiffuseMaterial( float r, float g, float b ) : Material() { 
-            diffuseColor.setRGB( r, g, b ); 
-            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
+            setAlbedo(makeConstantParamRGB(r, g, b));
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
         }
-        virtual ~DiffuseMaterial() {}
+        virtual ~DiffuseMaterial() = default;
 
         virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
@@ -108,26 +114,18 @@ class DiffuseEmitterMaterial : public DiffuseMaterial
 {
     public:
         DiffuseEmitterMaterial( const RGBColor & e ) : DiffuseMaterial() { emittance = e; }
-        virtual ~DiffuseEmitterMaterial() {}
+        virtual ~DiffuseEmitterMaterial() = default;
 };
 
 class DiffuseCheckerBoardMaterial : public Material 
 {
     public:
-        DiffuseCheckerBoardMaterial() : Material() {
-            diffuseColor.setRGB( 1.0f, 1.0f, 1.0f );
-            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-            emittance.setRGB( 0.0f, 0.0f, 0.0f );
-        }
-        DiffuseCheckerBoardMaterial( float r, float g, float b ) : Material() { 
-            diffuseColor.setRGB( r, g, b ); 
-            specularColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-            emittance.setRGB( 0.0f, 0.0f, 0.0f );
-        }
-        virtual ~DiffuseCheckerBoardMaterial() {}
+        DiffuseCheckerBoardMaterial();
+        DiffuseCheckerBoardMaterial(float r, float g, float b);
+        DiffuseCheckerBoardMaterial(float r1, float g1, float b1,
+                                    float r2, float g2, float b2);
+        virtual ~DiffuseCheckerBoardMaterial() = default;
         
-        virtual RGBColor diffuse( const RayIntersection & isect );
-
         virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const;
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
                                                const RayIntersection & intersection ) const;
@@ -139,20 +137,16 @@ class DiffuseCheckerBoardMaterial : public Material
 class DiffuseUVMaterial : public DiffuseMaterial 
 {
     public:
-        DiffuseUVMaterial() : DiffuseMaterial() {}
-        virtual ~DiffuseUVMaterial() {}
-        
-        virtual RGBColor diffuse( const RayIntersection & isect );
+        DiffuseUVMaterial();
+        virtual ~DiffuseUVMaterial() = default;
 };
 
 class DiffuseTextureMaterial : public DiffuseMaterial
 {
     public:
-        DiffuseTextureMaterial( std::shared_ptr<SurfaceTexture> & tex ) : DiffuseMaterial(), texture(tex) {}
-        virtual ~DiffuseTextureMaterial() {}
+        DiffuseTextureMaterial(std::shared_ptr<SurfaceTexture> & tex);
+        virtual ~DiffuseTextureMaterial() = default;
         
-        virtual RGBColor diffuse( const RayIntersection & isect );
-
         std::shared_ptr<SurfaceTexture> texture;
 };
 
@@ -160,21 +154,12 @@ class MirrorMaterial : public Material
 {
     public:
         MirrorMaterial() : Material() { 
-            init( 1.0f, 1.0f, 1.0f ); 
-        }
-        MirrorMaterial( float r, float g, float b ) : Material() { 
-            init( r, g, b );
-        }
-
-        void init( float r, float g, float b )
-        {
-            diffuseColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-            specularColor.setRGB( r, g, b ); 
+            setAlbedo(makeConstantParamRGB(0, 0, 0));
             emittance.setRGB( 0.0f, 0.0f, 0.0f );
             perfect_reflector = true;
         }
 
-        virtual ~MirrorMaterial() {}
+        virtual ~MirrorMaterial() = default;
 
         virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const { return 1.0f; }
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
@@ -185,25 +170,15 @@ class RefractiveMaterial : public Material
 {
     public:
         RefractiveMaterial() : Material() { 
-            init( 1.0f, 1.0f, 1.0f ); 
-        }
-        RefractiveMaterial( float index ) : Material() { 
-            init( 1.0f, 1.0f, 1.0f ); 
-            index_of_refraction = index;
-        }
-        RefractiveMaterial( float r, float g, float b ) : Material() { 
-            init( r, g, b );
-        }
-
-        void init( float r, float g, float b )
-        {
-            diffuseColor.setRGB( 0.0f, 0.0f, 0.0f ); 
-            specularColor.setRGB( r, g, b ); 
-            emittance.setRGB( 0.0f, 0.0f, 0.0f );
+            setAlbedo(makeConstantParamRGB(0, 0, 0));
+            emittance.setRGB(0.0f, 0.0f, 0.0f);
             perfect_refractor = true;
         }
+        RefractiveMaterial( float index ) : RefractiveMaterial() {
+            index_of_refraction = index;
+        }
 
-        virtual ~RefractiveMaterial() {}
+        virtual ~RefractiveMaterial() = default;
 
         virtual float BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const { return 1.0f; }
         virtual DistributionSample sampleBxDF( RandomNumberGenerator & rng,
