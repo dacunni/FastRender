@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <mutex>
 #include <map>
 #include <typeinfo>
 
@@ -46,14 +47,27 @@ void OpenGLWindow::init( const std::string & title )
     glutInit( &argc, const_cast<char **>(argv) );
     glutInitDisplayMode(GLUT_DOUBLE              // Double buffered
                         | GLUT_RGBA | GLUT_DEPTH
+#ifdef __APPLE__
                         | GLUT_3_2_CORE_PROFILE  // Core profile context
+#endif
                        );
+#ifdef FREEGLUT
+    glutInitContextProfile(GLUT_CORE_PROFILE);
+    glutInitContextVersion(4, 1);
+    //glutInitContextFlags(GLUT_DEBUG);
+#endif
     glutInitWindowSize(windowWidth, windowHeight);
     glutInitWindowPosition(0, 0);
     windowId = glutCreateWindow(title.c_str());
     windowIdToSelfPtr[windowId] = this;
 
     GL_WARN_IF_ERROR();
+
+    std::string glVersion   = (const char *) glGetString(GL_VERSION);
+    std::string glslVersion = (const char *) glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    std::cout << "OpenGL version: " << glVersion << std::endl;
+    std::cout << "GLSL version:   " << glVersion << std::endl;
 
     glutIgnoreKeyRepeat(1);
 

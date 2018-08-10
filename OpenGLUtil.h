@@ -10,14 +10,17 @@
 #define _OPENGL_UTIL_H_
 
 #ifdef __APPLE__
-#include <OpenGL/gl3.h>     // Core OpenGL 3.x+
-#include <GLUT/glut.h>      // GLUT + OpenGL
+#  include <OpenGL/gl3.h>     // Core OpenGL 3.x+
+#  include <GLUT/glut.h>      // GLUT + OpenGL
 #else
-#define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <GL/glcorearb.h>
-#include <GL/glut.h>
+#  define GL_GLEXT_PROTOTYPES
+#  include <GL/gl.h>
+#  include <GL/glext.h>
+#  include <GL/glcorearb.h>
+#  include <GL/glut.h>
+#  ifdef __linux__
+#    include <GL/freeglut_ext.h>
+#  endif
 #endif
 
 #define GL_WARN_IF_ERROR() warnIfError( __FUNCTION__, __LINE__ )
