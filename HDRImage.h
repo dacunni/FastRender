@@ -1,6 +1,7 @@
 #ifndef _HDRIMAGE_H_
 #define _HDRIMAGE_H_
 
+#include <functional>
 #include <string>
 
 #include "Image.h"

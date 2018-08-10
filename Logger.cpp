@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstdio>
 #include <unistd.h>
+#include <stdarg.h>
 #include <memory>
 #include "Logger.h"
 

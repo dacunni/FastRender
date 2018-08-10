@@ -1,6 +1,8 @@
 #ifndef __OPENGLWINDOW_H__
 #define __OPENGLWINDOW_H__
 
+#include <functional>
+
 #include "OpenGLUtil.h"
 #include "Timer.h"
 

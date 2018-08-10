@@ -7,6 +7,7 @@
 //
 
 #include <algorithm>
+#include <cmath>
 
 // Using the Open Asset Import Library ("assimp" - http://assimp.sourceforge.net/ )
 //#include <assimp/assimp.hpp>
@@ -88,7 +89,7 @@ static void const constructTriangleMesh( const aiMesh * mesh,
         // TEMP
         // FIXME[DAC]: This is a hacky fix, especially since normal vectors
         //             should never be zero length. The bug is probably in assimp.
-        if( isnan(n.x) ) {
+        if( std::isnan(n.x) ) {
             n.x = n.y = n.z = 0.0f;
         }
 
@@ -189,7 +190,7 @@ static void copy(TriangleMesh::MeshData & mesh_data, const aiMesh & mesh)
         // TEMP
         // FIXME[DAC]: This is a hacky fix, especially since normal vectors
         //             should never be zero length. The bug is probably in assimp.
-        if( isnan(n.x) ) {
+        if( std::isnan(n.x) ) {
             n.x = n.y = n.z = 0.0f;
         }
 

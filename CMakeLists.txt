@@ -45,6 +45,7 @@ set(SRCS
     Microfacet.cpp
     OmniCamera.cpp
     OpenGLUtil.cpp
+    OpenGLWindow.cpp
     Plot2D.cpp
     PreviewWindow.cpp
     Quaternion.cpp
