@@ -63,7 +63,7 @@ void TMOctreeAccelerator::build()
     debug_average_depth = 0;
 #endif
     auto full_bounds = mesh.getAxisAlignedBounds();
-    root.bounds = *full_bounds;
+    rootBounds = *full_bounds;
     
 #ifdef DEBUG_BUILD_TREE
     printf( "#### bb: %5f:%5f, %5f:%5f, %5f:%5f):\n",
@@ -77,7 +77,7 @@ void TMOctreeAccelerator::build()
         root.triangles.push_back( ti );
     }
     
-    buildNode( &root );
+    buildNode( &root, rootBounds );
 #ifdef DEBUG_BUILD_TREE
     debug_num_leaves = debug_num_nodes - debug_num_inner_nodes;
     debug_average_depth /= (float) debug_num_nodes;
@@ -90,7 +90,7 @@ void TMOctreeAccelerator::build()
 #endif
 }
 
-void TMOctreeAccelerator::buildNode( Node * node )
+void TMOctreeAccelerator::buildNode( Node * node, const AxisAlignedSlab & bounds )
 {
 #ifdef DEBUG_BUILD_TREE
     debug_num_nodes++;
@@ -115,9 +115,9 @@ void TMOctreeAccelerator::buildNode( Node * node )
     }
     
     // Determine splitting planes
-    float xsplit = (node->bounds.xmin + node->bounds.xmax) * 0.5f;
-    float ysplit = (node->bounds.ymin + node->bounds.ymax) * 0.5f;
-    float zsplit = (node->bounds.zmin + node->bounds.zmax) * 0.5f;
+    float xsplit = (bounds.xmin + bounds.xmax) * 0.5f;
+    float ysplit = (bounds.ymin + bounds.ymax) * 0.5f;
+    float zsplit = (bounds.zmin + bounds.zmax) * 0.5f;
     
     // Bitfields to mark where each triangle falls
     enum { XLOW = 0x1, XHIGH = 0x2, YLOW = 0x4, YHIGH = 0x8, ZLOW = 0x10, ZHIGH = 0x20 };
@@ -224,18 +224,8 @@ void TMOctreeAccelerator::buildNode( Node * node )
 #ifdef DEBUG_BUILD_TREE
             printf("children @ %u = %lu\n", ci, (unsigned long) node->children[ci]->triangles.size());
 #endif
-            Node * child = node->children[ci];
-            // Set the bounding box for the child node
-            child->bounds = node->bounds;
-            if( ci & XBIT ) child->bounds.xmin = xsplit;
-            else            child->bounds.xmax = xsplit;
-            if( ci & YBIT ) child->bounds.ymin = ysplit;
-            else            child->bounds.ymax = ysplit;
-            if( ci & ZBIT ) child->bounds.zmin = zsplit;
-            else            child->bounds.zmax = zsplit;
-
             // Recursively build child
-            buildNode( child );
+            buildNode( node->children[ci], childBounds( bounds, ci ) );
         }
     }
 #ifdef DEBUG_BUILD_TREE
@@ -247,13 +237,24 @@ void TMOctreeAccelerator::buildNode( Node * node )
 bool TMOctreeAccelerator::intersect( const Ray & ray, RayIntersection & intersection ) const
 {
     unsigned int indices[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    // Early rejection test for bounding box intersection
+    if( !rootBounds.intersectsAny( ray, intersection.min_distance ) ) {
+        return false;
+    }
+
     childOrderForDirection( ray.direction, indices );
-    return root.intersect( ray, intersection, mesh, 0, indices );
+    return root.intersect( ray, intersection, mesh, rootBounds, 0, indices );
 }
 
 bool TMOctreeAccelerator::intersectsAny( const Ray & ray, float min_distance ) const
 {
-    return root.intersectsAny( ray, min_distance, mesh, 0 );
+    // Early rejection test for bounding box intersection
+    if( !rootBounds.intersectsAny( ray, min_distance ) ) {
+        return false;
+    }
+
+    return root.intersectsAny( ray, min_distance, mesh, rootBounds, 0 );
 }
 
 void TMOctreeAccelerator::childOrderForDirection( const Vector4 & d, unsigned int indices[8] ) const
@@ -282,14 +283,11 @@ void TMOctreeAccelerator::childOrderForDirection( const Vector4 & d, unsigned in
 }
 
 bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & intersection,
-                                           TriangleMesh & mesh, unsigned int level,
+                                           TriangleMesh & mesh,
+                                           const AxisAlignedSlab & bounds,
+                                           unsigned int level,
                                            unsigned int indices[8] ) const
 {
-    // Early rejection test for bounding box intersection
-    if( !bounds.intersectsAny( ray, intersection.min_distance ) ) {
-        return false;
-    } 
-
 #if DEBUG_VISUALIZE_HIERARCHY_LEVEL > 0
     if( (bounds.intersect( ray, intersection ) && level > DEBUG_VISUALIZE_HIERARCHY_LEVEL)) {
         return true;
@@ -310,7 +308,12 @@ bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & in
         for( unsigned int index = 0; index < 8; index++ ) {
             unsigned int ci = indices[index];
             if( children[ci] ) {
-                if( children[ci]->intersect( ray, intersection, mesh, level + 1, indices ) ) {
+                auto child_bounds = childBounds( bounds, ci ); 
+                // Early rejection test for bounding box intersection
+                if( !child_bounds.intersectsAny( ray, intersection.min_distance ) ) {
+                    continue;
+                }
+                if( children[ci]->intersect( ray, intersection, mesh, child_bounds, level + 1, indices ) ) {
                     found_isect = true;
                     break;
                 }
@@ -321,14 +324,11 @@ bool TMOctreeAccelerator::Node::intersect( const Ray & ray, RayIntersection & in
 }
 
 bool TMOctreeAccelerator::Node::intersectsAny( const Ray & ray, float min_distance,
-                                               TriangleMesh & mesh, unsigned int level ) const
+                                               TriangleMesh & mesh,
+                                               const AxisAlignedSlab & bounds,
+                                               unsigned int level ) const
 {
     bool isleaf = triangles.size() > 0;
-
-    // Early rejection test for bounding box intersection
-    if( !bounds.intersectsAny( ray, min_distance ) ) {
-        return false;
-    } 
 
     if( isleaf ) {
         // For leaf nodes, we check for intersections with the triangle list
@@ -343,7 +343,12 @@ bool TMOctreeAccelerator::Node::intersectsAny( const Ray & ray, float min_distan
         // contain any triangles during construction
         for( unsigned int ci = 0; ci < 8; ci++ ) {
             if( children[ci] ) {
-                if( children[ci]->intersectsAny( ray, min_distance, mesh, level + 1 ) ) {
+                auto child_bounds = childBounds( bounds, ci ); 
+                // Early rejection test for bounding box intersection
+                if( !child_bounds.intersectsAny( ray, min_distance ) ) {
+                    continue;
+                }
+                if( children[ci]->intersectsAny( ray, min_distance, mesh, child_bounds, level + 1 ) ) {
                     return true;
                 }
             }
@@ -354,7 +359,8 @@ bool TMOctreeAccelerator::Node::intersectsAny( const Ray & ray, float min_distan
 }
 
 
-void TMOctreeAccelerator::Node::print( FILE * file, unsigned int level )
+void TMOctreeAccelerator::Node::print( FILE * file, unsigned int level,
+                                       const AxisAlignedSlab & bounds )
 {
     bool isleaf = triangles.size() > 0;
     std::string prefix( level, '\t' );
@@ -372,7 +378,8 @@ void TMOctreeAccelerator::Node::print( FILE * file, unsigned int level )
                          ((ci & XBIT) ? "XH" : "XL"),
                          ((ci & YBIT) ? "YH" : "YL"),
                          ((ci & ZBIT) ? "ZH" : "ZL") );
-                children[ci]->print( file, level + 1 );
+                auto child_bounds = childBounds( bounds, ci ); 
+                children[ci]->print( file, level + 1, child_bounds );
             }
         }
     }
@@ -381,7 +388,7 @@ void TMOctreeAccelerator::Node::print( FILE * file, unsigned int level )
 void TMOctreeAccelerator::print( FILE * file )
 {
     fprintf( file, "Triangle Mesh Octree Accelerator:\n" );
-    root.print( file );
+    root.print( file, 0, rootBounds );
 }
 
 void addOctreeAccelerator( TriangleMesh & m )
