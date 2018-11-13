@@ -86,6 +86,7 @@ INC = -I.
 INC += -I/usr/local/include
 INC += -I/usr/include/ImageMagick
 INC += -I/usr/local/include/ImageMagick-6
+INC += -Iexternal/stb
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 #CXXFLAGS += -O2

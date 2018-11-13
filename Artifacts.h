@@ -11,11 +11,7 @@
 
 #include <memory>
 #include <vector>
-
-// ImageMagick stuff. We get compile-time warnings if we don't define these manually
-#define MAGICKCORE_QUANTUM_DEPTH 16
-#define MAGICKCORE_HDRI_ENABLE 0
-#include <Magick++.h>
+#include <string>
 
 #include "Types.h"
 
@@ -42,14 +38,7 @@ public:
 
     float pixelMaxChannelVariance( unsigned int row, unsigned int col );
 
-    using ImagePtr = std::unique_ptr<Magick::Image>;
-    
     std::string output_path;
-    ImagePtr image = nullptr;
-    ImagePtr normal_image = nullptr;
-    ImagePtr depth_image = nullptr;
-    ImagePtr time_image = nullptr;
-    ImagePtr stddev_image = nullptr;
     std::vector<float3> pixel_color_accum;
     std::vector<float3> pixel_color_sq_accum; // squares of pixel values for variance calculation
     std::vector<unsigned int> pixel_color_num_samples;
