@@ -11,11 +11,9 @@
 #include <algorithm>
 #include <cassert>
 
-// ImageMagick stuff. We get compile-time warnings if we don't define these manually
-#define MAGICKCORE_QUANTUM_DEPTH 16
-#define MAGICKCORE_HDRI_ENABLE 0
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
-#include <Magick++.h>
 #include "RGBImage.h"
 #include "Color.h"
 
@@ -72,36 +70,25 @@ void RGBImage::loadDataFromRawFile( const std::string & filename,
 
 void RGBImage::loadDataFromImageFile( const std::string & filename )
 {
-    Magick::Image imImage;
-    imImage.read( filename );
+    int w = 0, h = 0, numComponents = 3;
 
-    const unsigned int w = imImage.columns();
-    const unsigned int h = imImage.rows();
-    const unsigned int numPixels = w * h;
-    const unsigned short pixelMax = (1 << MAGICKCORE_QUANTUM_DEPTH) - 1;
+#if 1
+    unsigned char * stbiData = stbi_load(filename.c_str(), &w, &h, &numComponents, 3);
+    const unsigned int numElements = w * h * 3;
+    data.resize(numElements);
 
-    const Magick::PixelPacket * pixelCache = imImage.getPixels(0, 0, w, h);
-    data.resize(numPixels * 3);
-
-    // TEMP >>>
-    //Magick::Image sanity( Magick::Geometry(w, h), "black" );
-    //sanity.magick("png");
-    //Magick::PixelPacket * sanityCache = sanity.setPixels(0, 0, w, h);
-    // TEMP <<<
-
-    for( unsigned int pi = 0; pi < numPixels; pi++ ) {
-        data[pi * 3 + 0] = (float) pixelCache[pi].red / pixelMax;
-        data[pi * 3 + 1] = (float) pixelCache[pi].green / pixelMax;
-        data[pi * 3 + 2] = (float) pixelCache[pi].blue / pixelMax;
-        // TEMP >>>
-        //sanityCache[pi].red = data[pi * 3 + 0] * pixelMax;
-        //sanityCache[pi].green = data[pi * 3 + 1] * pixelMax;
-        //sanityCache[pi].blue = data[pi * 3 + 2] * pixelMax;
-        // TEMP <<<
+    for(unsigned int pi = 0; pi < numElements; pi++) {
+        data[pi] = (float) stbiData[pi] / 255.0f;
     }
-    // TEMP >>>
-    //sanity.write("sanity.png");
-    // TEMP <<<
+#elif 1
+    // TODO[DAC]: Compare the correctness of stbi_loadf(), since it does gamma correction
+    //            for LDR images.
+    float * stbiData = stbi_loadf(filename.c_str(), &w, &h, &numComponents, 3);
+    const unsigned int numElements = w * h * 3;
+    data.resize(numElements);
+    std::copy(stbiData, stbiData + numElements, data.begin());
+#endif
+    stbi_image_free(stbiData);
 
     width = w;
     height = h;
