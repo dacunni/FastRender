@@ -23,9 +23,7 @@ set(SRCS
     Config.cpp
     CookTorranceMaterial.cpp
     Container.cpp
-    DirectAreaLightShader.cpp
-    DirectEnvironmentMapShader.cpp
-    DirectPointLightShader.cpp
+    DirectLightingShaders.cpp
     DistributionSamplers.cpp
     Editor.cpp
     EditorSceneGraph.cpp
@@ -45,6 +43,7 @@ set(SRCS
     Microfacet.cpp
     OmniCamera.cpp
     OpenGLUtil.cpp
+    OpenGLWindow.cpp
     Plot2D.cpp
     PreviewWindow.cpp
     Quaternion.cpp
@@ -84,6 +83,7 @@ SET(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated -O2")
 include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${ASSIMP_INCLUDE_DIRS})
 include_directories(${GLUT_INCLUDE_DIR})
+include_directories(external/stb)
 
 link_directories(/usr/local/lib)
 

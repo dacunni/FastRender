@@ -4,8 +4,7 @@
 #include "Editor.h"
 #include "AmbientOcclusionShader.h"
 #include "BasicDiffuseSpecularShader.h"
-#include "DirectAreaLightShader.h"
-#include "DirectEnvironmentMapShader.h"
+#include "DirectLightingShaders.h"
 #include "GoochShader.h"
 #include "ImageTracer.h"
 

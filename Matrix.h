@@ -29,15 +29,8 @@ public:
                float d30, float d31, float d32, float d33 );
 	~Matrix4x4() {}
 	
-	inline float & at( int r, int c ) 
-	{ 
-		return data[r * 4 + c]; 
-	}
-
-	inline float at( int r, int c ) const
-	{
-		return data[r * 4 + c];
-	}
+	inline float & at( int r, int c )       { return data[r * 4 + c]; }
+	inline float   at( int r, int c ) const { return data[r * 4 + c]; }
     
 	void identity();
 	

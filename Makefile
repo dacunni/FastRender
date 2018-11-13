@@ -16,9 +16,7 @@ OBJ = \
 	Container.o \
     CookTorranceMaterial.o \
 	CSG.o \
-    DirectAreaLightShader.o \
-    DirectEnvironmentMapShader.o \
-    DirectPointLightShader.o \
+    DirectLightingShaders.o \
 	DistributionSamplers.o \
     Editor.o \
     EditorSceneGraph.o \
