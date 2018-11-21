@@ -23,11 +23,6 @@ Traceable::Traceable()
 
 }
 
-Traceable::~Traceable()
-{
-
-}
-
 void Traceable::updateAnim( float t )
 {
     if( transform ) {

@@ -13,8 +13,8 @@ class Vector4;
 class Shader 
 {
     public:
-        Shader() {}
-        virtual ~Shader() {}
+        Shader() = default;
+        virtual ~Shader() = default;
 
         // Shade an intersection point
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection ) = 0;

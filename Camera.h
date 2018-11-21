@@ -12,6 +12,7 @@ class Camera
 public:
     Camera( int image_width, int image_height );
     Camera( const Camera & c ) = default;
+    virtual ~Camera() = default;
 
     void jitterRays( bool jitter ) { jitter_rays = jitter; }
 

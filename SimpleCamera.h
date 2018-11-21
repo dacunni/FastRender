@@ -11,6 +11,7 @@ public:
     SimpleCamera( float xmin, float xmax, float ymin, float ymax,
                   int image_width, int image_height );
     SimpleCamera( const SimpleCamera & c );
+    virtual ~SimpleCamera() = default;
 
     virtual void setFieldOfView( float fovx, float fovy );
 

@@ -11,14 +11,15 @@ class RGBColor {
     RGBColor( float whiteness ) : r(whiteness), g(whiteness), b(whiteness) {}
     RGBColor( const RGBColor & c ) : r(c.r), g(c.g), b(c.b) {}
     RGBColor() : r(0.0f), g(0.0f), b(0.0f) {}
-    ~RGBColor() {}
+    ~RGBColor() = default;
 
     void setRGB( float red, float green, float blue ) { r = red; g = green; b = blue; }
     void scale( float s ) { r *= s; g *= s; b *= s; }
     void scale( float rs, float gs, float bs ) { r *= rs; g *= gs; b *= bs; }
+    void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
+
     RGBColor scaled( float s ) const { auto c(*this); c.scale(s); return c; }
     RGBColor scaled( float rs, float gs, float bs ) const { auto c(*this); c.scale(rs, gs, bs); return c; }
-    void accum( const RGBColor & c ) { r += c.r; g += c.g; b += c.b; }
 
     float channelMin() const;
     float channelMax() const;
@@ -35,8 +36,8 @@ class RGBColor {
 };
 
 inline RGBColor mult( const RGBColor & a, const RGBColor & b ) { return a.scaled(b.r, b.g, b.b); }
-inline RGBColor mult( const RGBColor & a, float s ) { return a.scaled(s); }
-inline RGBColor mult( float s, const RGBColor & a ) { return a.scaled(s); }
+inline RGBColor mult( const RGBColor & a, float s )            { return a.scaled(s); }
+inline RGBColor mult( float s, const RGBColor & a )            { return a.scaled(s); }
 
 inline RGBColor operator+( const RGBColor & a, const RGBColor & b )
     { return RGBColor(a.r + b.r, a.g + b.g, a.b + b.b); }
@@ -45,8 +46,8 @@ inline RGBColor operator-( const RGBColor & a, const RGBColor & b )
     { return RGBColor(a.r - b.r, a.g - b.g, a.b - b.b); }
 
 inline RGBColor operator*( const RGBColor & a, const RGBColor & b ) { return a.scaled(b.r, b.g, b.b); }
-inline RGBColor operator*( const RGBColor & a, float s ) { return a.scaled(s); }
-inline RGBColor operator*( float s, const RGBColor & a ) { return a.scaled(s); }
+inline RGBColor operator*( const RGBColor & a, float s )            { return a.scaled(s); }
+inline RGBColor operator*( float s, const RGBColor & a )            { return a.scaled(s); }
 
 inline RGBColor operator/( const RGBColor & a, float s ) { return a.scaled(1.0f / s); }
 

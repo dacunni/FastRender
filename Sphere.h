@@ -18,7 +18,7 @@ public:
 	Sphere() {}
 	Sphere( const Vector4 & c, float r ) : center(c), radius(r) {}
 	Sphere( float x, float y, float z, float r ) : center(x, y, z), radius(r) {}
-	virtual ~Sphere() {}
+	virtual ~Sphere() = default;
 
     bool intersectHelper( const Ray & ray, float & dist1, float & dist2 ) const;
 	

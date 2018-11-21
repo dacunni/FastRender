@@ -9,6 +9,7 @@ public:
     OmniCamera( float fovx, float fovy,
                 int image_width, int image_height );
     OmniCamera( const OmniCamera & c );
+    virtual ~OmniCamera() = default;
 
     virtual void setFieldOfView( float fovx, float fovy );
 

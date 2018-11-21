@@ -15,8 +15,8 @@ public:
 	inline Vector4( float x, float y, float z, float w = 1.0f );
 	inline ~Vector4() = default;
 	
-	inline float & operator[]( int i );
-	inline const float & operator[]( int i ) const;
+	inline       float & operator[]( int i )       { return data[i]; }
+	inline const float & operator[]( int i ) const { return data[i]; }
 
     inline bool operator==( const Vector4 & o ) const {
         return (w == 0.0f && x == o.x && y == o.y && z == o.z) ||

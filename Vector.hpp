@@ -27,16 +27,6 @@ inline Vector4::Vector4( float xn, float yn, float zn, float wn )
 	w = wn;
 }
 
-inline float & Vector4::operator[]( int i )
-{
-    return data[i];
-}
-
-inline const float & Vector4::operator[]( int i ) const
-{
-    return data[i];
-}
-
 inline void Vector4::set( float xn, float yn, float zn, float wn )
 {
 	x = xn;

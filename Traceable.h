@@ -16,7 +16,7 @@ class TraceableVisitor;
 class Traceable {
 public:
 	Traceable();
-    virtual ~Traceable();
+    virtual ~Traceable() = default;
 
     virtual void updateAnim( float t );
 	
