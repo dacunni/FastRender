@@ -760,7 +760,9 @@ int main (int argc, char * const argv[])
     fflush(stdout);
 
     Config config;
-    loadConfigFromKeyValueFile("render.config", config);
+    if(!loadConfigFromKeyValueFile("render.config", config)) {
+        return EXIT_FAILURE;
+    }
 
     auto logger = std::make_shared<FileLogger>("render.log");
     logger->mirrorToStdout = config.get<bool>("MIRROR_LOGGING_TO_STDOUT");

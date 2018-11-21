@@ -121,6 +121,8 @@ bool loadConfigFromKeyValueFile(const std::string & fileName, Config & config)
         config.add(key, value);
     }
 
+    std::cerr << "Config file loaded '" << fileName << "'" << std::endl;
+
     return true;
 }
 
