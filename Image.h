@@ -10,7 +10,7 @@ class Image {
     public:
         Image();
         Image( unsigned int w, unsigned int h, unsigned int c );
-        virtual ~Image();
+        virtual ~Image() = default;
 
         void sizeDataToConfig();
 

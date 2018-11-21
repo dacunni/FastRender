@@ -10,40 +10,24 @@ class Quaternion
     public:
         inline Quaternion();
         inline Quaternion( const Vector4 & a );
-        inline Quaternion( float x, float y, float z, float w = 1.0f );
+        inline Quaternion( float x, float y, float z, float r = 1.0f );
         inline Quaternion( const Quaternion & a );
         inline ~Quaternion() {}
 
-        inline float & operator[]( int i ) 
-        { 
-            return data[i]; 
-        }
+        inline       float & operator[]( int i )       { return data[i]; }
+        inline const float & operator[]( int i ) const { return data[i]; }
 
-        inline const float & operator[]( int i ) const
-        { 
-            return data[i]; 
-        }
-
-        // IMPLEMENT ME
         inline void set( float x, float y, float z, float r );
-        // IMPLEMENT ME
+
         inline Quaternion conjugate();
 
         void print() const;
         void fprintCSV( FILE * file ) const;
 
         union {
-            // array format (vector components first)
-            float data[4];
-            // named components
-            struct {
-                float x, y, z, r;
-            };
-            // vector + scalar format
-            struct {
-                float v[3];
-                float _;
-            };
+            float data[4]; // array format (vector components first)
+            struct { float x, y, z, r; };    // named components
+            struct { float v[3],  _; }; // vector + scalar format
         };
 };
 

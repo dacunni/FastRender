@@ -34,6 +34,11 @@ inline void Quaternion::set( float xn, float yn, float zn, float rn )
 	data[3] = rn;
 }
 
+inline Quaternion Quaternion::conjugate()
+{
+    return Quaternion( -x, -y, -z, r );
+}
+
 inline void mult( const Quaternion & q, const Quaternion & p, Quaternion & r )
 {
     // IMPLEMENT ME

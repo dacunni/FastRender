@@ -11,7 +11,6 @@ class DirectPointLightShader : public Shader
         virtual ~DirectPointLightShader() = default;
 
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
-
 };
 
 // Only renders direct light from area lights
@@ -22,7 +21,6 @@ class DirectAreaLightShader : public Shader
         virtual ~DirectAreaLightShader() = default;
 
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
-
 };
 
 // Only renders direct light from an environment map
@@ -33,7 +31,6 @@ class DirectEnvironmentMapShader : public Shader
         virtual ~DirectEnvironmentMapShader() = default;
 
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
-
 };
 
 #endif

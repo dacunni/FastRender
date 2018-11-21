@@ -100,4 +100,4 @@ public:
     TriangleMesh                  & mesh;
 };
 
-#endif /* defined(__FastRender__TriangleMesh__) */
+#endif

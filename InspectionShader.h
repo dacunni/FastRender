@@ -8,8 +8,8 @@
 class InspectionShader : public Shader
 {
     public:
-        InspectionShader() {}
-        virtual ~InspectionShader() {}
+        InspectionShader() = default;
+        virtual ~InspectionShader() = default;
 
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
 

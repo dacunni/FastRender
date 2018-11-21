@@ -29,11 +29,6 @@ Image::Image( unsigned int w, unsigned int h, unsigned int c )
     data.resize(width * height * channels);
 }
 
-Image::~Image()
-{
-
-}
-
 void Image::sizeDataToConfig()
 {
     data.resize(width * height * channels);

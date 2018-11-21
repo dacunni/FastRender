@@ -29,7 +29,5 @@ class HDRImage : public Image {
                                unsigned int w, unsigned int h);
 };
 
-
-
 #endif
 

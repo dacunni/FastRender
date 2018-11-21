@@ -16,28 +16,28 @@
 
 class SignedDistanceFunction : public Traceable
 {
-public:
-	SignedDistanceFunction() = default;
-	virtual ~SignedDistanceFunction() = default;
-	
-	virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
-	virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
+    public:
+        SignedDistanceFunction() = default;
+        virtual ~SignedDistanceFunction() = default;
 
-    using ValueFunctionType = std::function<float(const Vector4&)>;
+        virtual bool intersectsAny( const Ray & ray, float min_distance ) const;
+        virtual bool intersect( const Ray & ray, RayIntersection & intersection ) const;
 
-    ValueFunctionType valueFunction;
+        using ValueFunctionType = std::function<float(const Vector4&)>;
 
-    inline bool walkRay( const Ray & ray,
-                         float tInit,
-                         float & signedDistance,
-                         float & t,
-                         Vector4 & position ) const;
+        ValueFunctionType valueFunction;
 
-    inline void populateIntersection( const Ray & ray,
-                                      float signedDistance,
-                                      float t,
-                                      const Vector4 & position,
-                                      RayIntersection & intersection ) const;
+        inline bool walkRay( const Ray & ray,
+                             float tInit,
+                             float & signedDistance,
+                             float & t,
+                             Vector4 & position ) const;
+
+        inline void populateIntersection( const Ray & ray,
+                                          float signedDistance,
+                                          float t,
+                                          const Vector4 & position,
+                                          RayIntersection & intersection ) const;
 };
 
 // Common SDF shapes
