@@ -52,13 +52,15 @@ public:
     std::function<Transform(float)> update_cb;
 };
 
-// Composes two Transforms into one. Assumes t2 is applied before t1.
+// Composes multiple Transforms into one. Last transform is applied first.
 Transform compose( const Transform & t1 );
 Transform compose( const Transform & t1, const Transform & t2 );
-Transform compose( const Transform & t1, const Transform & t2, const Transform & t3 );
-Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4 );
-Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4, const Transform & t5 );
-Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4, const Transform & t5, const Transform & t6 );
+
+// Variadic expansion of compose() to N transforms
+template<typename... Args>
+Transform compose( const Transform & t1, Args... args ) {
+    return compose( t1, compose( args... ) );
+}
 
 // Builds a rotation Transform from an axis and angle
 Transform makeRotation( float angle, const Vector4 & axis );

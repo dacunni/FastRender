@@ -75,26 +75,6 @@ Transform compose( const Transform & t1, const Transform & t2 )
     return c;
 }
 
-Transform compose( const Transform & t1, const Transform & t2, const Transform & t3 )
-{
-    return compose( t1, compose( t2, t3 ) );
-}
-
-Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4 )
-{
-    return compose( compose( t1, t2 ), compose( t3, t4 ) );
-}
-
-Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4, const Transform & t5 )
-{
-    return compose( compose( t1, t2 ), compose( t3, t4 ), t5 );
-}
-
-Transform compose( const Transform & t1, const Transform & t2, const Transform & t3, const Transform & t4, const Transform & t5, const Transform & t6 )
-{
-    return compose( compose( t1, t2 ), compose( t3, t4 ), compose( t5, t6 ) );
-}
-
 // Create a rotation Transform from angle and axis
 Transform makeRotation( float angle, const Vector4 & axis )
 {
