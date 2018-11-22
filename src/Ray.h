@@ -20,7 +20,7 @@ class Ray {
 public:
     Ray() : depth(1) {}
     Ray( const Vector4 & o, const Vector4 & d ) : origin(o), direction(d), depth(1) {}
-    ~Ray() {}
+    ~Ray() = default;
 
     std::string toString() const;
 
@@ -34,7 +34,7 @@ class RGBRadianceSample {
 public:
     RGBRadianceSample() : color(0.0f, 0.0f, 0.0f) {}
     RGBRadianceSample(const RGBColor & c) : color(c) {}
-    ~RGBRadianceSample() {}
+    ~RGBRadianceSample() = default;
 
     RGBColor color;
 };
@@ -45,7 +45,7 @@ public:
         : min_distance(0.0f), distance(FLT_MAX),
           material(DEFAULT_MATERIAL) // So we can assume there is always a material in tracing logic
     {}
-    ~RayIntersection() {}
+    ~RayIntersection() = default;
 
     Vector4 fromDirection() const;
 
