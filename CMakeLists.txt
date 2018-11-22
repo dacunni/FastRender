@@ -115,6 +115,7 @@ TARGET_LINK_LIBRARIES (test_samplers FastRender ${LIBS})
 TARGET_LINK_LIBRARIES (test_random FastRender ${LIBS})
 
 ADD_CUSTOM_TARGET(link_shaders ALL COMMAND ${CMAKE_COMMAND} -E create_symlink ../shaders shaders)
+ADD_CUSTOM_TARGET(link_textures ALL COMMAND ${CMAKE_COMMAND} -E create_symlink ../textures textures)
 ADD_CUSTOM_TARGET(link_test_scenes ALL COMMAND ${CMAKE_COMMAND} -E create_symlink ../test_scenes test_scenes)
 ADD_CUSTOM_TARGET(link_models ALL COMMAND ${CMAKE_COMMAND} -E create_symlink ../models models)
 ADD_CUSTOM_TARGET(link_light_probes ALL COMMAND ${CMAKE_COMMAND} -E create_symlink ../light_probes light_probes)
