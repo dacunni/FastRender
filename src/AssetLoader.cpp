@@ -164,7 +164,7 @@ static void appendToTriangleArray( const aiScene * scene,
 void AssetLoader::loadTriangleArray( const std::string & filename,
                                      TriangleMeshArray & array ) throw(AssetFileNotFoundException)
 {
-    logger.debug("Loading triangle mesh array\n");
+    logger.debug("Loading triangle mesh array");
     Assimp::Importer importer;
     const aiScene * scene = loadAssimpScene( logger, importer, filename );
     Transform baseTransform;

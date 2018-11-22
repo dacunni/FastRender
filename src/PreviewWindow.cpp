@@ -47,6 +47,10 @@ void PreviewWindow::init(const std::string & title)
         uniform bool flagUnnatural;
         in vec2 vUV;
         out vec4 color;
+
+        // TODO - make controls for these
+        const bool showCalibrationOverlay = false;
+        const bool doGammaCorrection = false;
          
         void main() {
             if( grayInRed ) {
@@ -56,14 +60,38 @@ void PreviewWindow::init(const std::string & title)
             else {
                 color = texture( pixelAccum, vUV );
             }
-
+    
             if( divideByCount ) {
                 // Divide pixel accumulation buffer by sample count to get pixel color
                 color = color / texture( pixelCount, vUV ).r;
             }
 
+            if( showCalibrationOverlay ) {
+                if( vUV.t > 0.95 ) {
+                    // gradient
+                    color.rgb = vec3( vUV.s );
+                }
+                else if( vUV.t > 0.9 ) {
+                    // gamma check
+                    if( vUV.t > 0.915 && vUV.t < 0.935 ) {
+                        // middle gray
+                        color.rgb = vec3( 0.5 );
+                    }
+                    else {
+                        // checkerboard with average value of middle gray
+                        bvec2 odd = bvec2( ivec2( gl_FragCoord.xy ) % 2 );
+                        color.rgb = vec3( odd.x ^^ odd.y );
+                    }
+                }
+            }
+
             // Image adjustments
-            color = (color + bias) * gain;
+            color.rgb = (color.rgb + bias) * gain;
+
+            // Gamma correction
+            if( doGammaCorrection ) {
+                color.rgb = pow( color.rgb, vec3(1 / 2.4) );
+            }
 
             if( flagUnnatural ) {
                 if( any(lessThan(color.rgb, vec3(0.0))) ) {
