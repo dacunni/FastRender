@@ -16,14 +16,13 @@ OBJ = \
 	Container.o \
     CookTorranceMaterial.o \
 	CSG.o \
-    DirectAreaLightShader.o \
-    DirectEnvironmentMapShader.o \
-    DirectPointLightShader.o \
+    DirectLightingShaders.o \
 	DistributionSamplers.o \
     Editor.o \
     EditorSceneGraph.o \
 	EnvironmentMap.o \
 	FlatContainer.o \
+    Fresnel.o \
 	GeometryUtils.o \
 	GoochShader.o \
     HDRImage.o \
@@ -34,8 +33,10 @@ OBJ = \
     Logger.o \
 	Material.o \
 	Matrix.o \
+    Microfacet.o \
     OmniCamera.o \
     OpenGLUtil.o \
+    OpenGLWindow.o \
 	Plot2D.o \
 	PreviewWindow.o \
 	Quaternion.o \
@@ -83,6 +84,7 @@ INC = -I.
 INC += -I/usr/local/include
 INC += -I/usr/include/ImageMagick
 INC += -I/usr/local/include/ImageMagick-6
+INC += -Iexternal/stb
 CXXFLAGS = -std=c++11
 CXXFLAGS += -Wno-deprecated
 #CXXFLAGS += -O2

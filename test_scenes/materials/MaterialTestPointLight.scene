@@ -1,6 +1,8 @@
 BEGIN_DERIVED_SCENE(MaterialTestPointLight, MaterialTestBase)
 SETUP_SCENE(
     MaterialTestBase::setup();
+    tracer->shader = new BasicDiffuseSpecularShader();
+    //tracer->shader = new DirectPointLightShader();
     tracer->rays_per_pixel = 30;
 );
 BUILD_SCENE(
@@ -16,7 +18,6 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(MaterialTestDiffuseWhitePointLight, MaterialTestPointLight)
 SETUP_SCENE(
     MaterialTestPointLight::setup();
-    tracer->shader = new BasicDiffuseSpecularShader();
 );
 BUILD_SCENE(
     MaterialTestPointLight::buildScene();
@@ -28,7 +29,6 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(MaterialTestMirrorPointLight, MaterialTestPointLight)
 SETUP_SCENE(
     MaterialTestPointLight::setup();
-    tracer->shader = new BasicDiffuseSpecularShader();
 );
 BUILD_SCENE(
     MaterialTestPointLight::buildScene();
@@ -40,7 +40,6 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(MaterialTestRefractPointLight, MaterialTestPointLight)
 SETUP_SCENE(
     MaterialTestPointLight::setup();
-    tracer->shader = new BasicDiffuseSpecularShader();
 );
 BUILD_SCENE(
     MaterialTestPointLight::buildScene();
@@ -52,7 +51,6 @@ END_SCENE()
 BEGIN_DERIVED_SCENE(MaterialTestRefractPointLightSweepIOR, MaterialTestMontageBase)
 SETUP_SCENE(
     MaterialTestMontageBase::setup();
-    tracer->shader = new BasicDiffuseSpecularShader();
     tracer->rays_per_pixel = 10;
 );
 BUILD_SCENE(

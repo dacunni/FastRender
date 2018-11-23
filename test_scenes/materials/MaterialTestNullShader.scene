@@ -1,0 +1,40 @@
+
+BEGIN_DERIVED_SCENE(MaterialTestNullShader, MaterialTestBase)
+SETUP_SCENE(
+    MaterialTestBase::setup();
+    tracer->shader = new NullShader();
+);
+BUILD_SCENE(
+    MaterialTestBase::buildScene();
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestNullShader30SPP, MaterialTestNullShader)
+SETUP_SCENE(
+    MaterialTestNullShader::setup();
+    tracer->rays_per_pixel = 30;
+);
+BUILD_SCENE(
+    MaterialTestNullShader::buildScene();
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestNullShader100SPP, MaterialTestNullShader)
+SETUP_SCENE(
+    MaterialTestNullShader::setup();
+    tracer->rays_per_pixel = 100;
+);
+BUILD_SCENE(
+    MaterialTestNullShader::buildScene();
+);
+END_SCENE()
+
+BEGIN_DERIVED_SCENE(MaterialTestNullShader1000SPP, MaterialTestNullShader)
+SETUP_SCENE(
+    MaterialTestNullShader::setup();
+    tracer->rays_per_pixel = 1000;
+);
+BUILD_SCENE(
+    MaterialTestNullShader::buildScene();
+);
+END_SCENE()

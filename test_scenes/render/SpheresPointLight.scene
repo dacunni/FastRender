@@ -13,9 +13,11 @@ BUILD_SCENE(
     container->add( std::make_shared<Sphere>( +1, 1.00, 0, 1.00 ) );
 
     scene->addPointLight( PointLight( Vector4( -5.0, 5.0, 5.0 ),
-        RGBColor( 1.0, 1.0, 1.0 ).scaled(20.0) ) );
+        RGBColor( 1.0, 1.0, 1.0 ).scaled(100.0) ) );
 
     tracer->shader = new BasicDiffuseSpecularShader();
+    //tracer->shader = new DirectPointLightShader();
+    //tracer->shader = new DirectAreaLightShader();
 
     // Camera back and rotated a bit around x so we're looking slightly down
     Transform rotation = makeRotation( -M_PI / 8, Vector4(1, 0, 0) );
