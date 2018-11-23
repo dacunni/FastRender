@@ -82,7 +82,11 @@ Material::sampleBxDF( RandomNumberGenerator & rng,
 float
 DiffuseMaterial::BxDF( const Vector4 & normal, const Vector4 & wi, const Vector4 & wo ) const
 {
+#ifdef USE_COSINE_SAMPLING
     return 1.0f / M_PI; // Perfectly diffuse
+#else
+    return 1.0f / (2.0f * M_PI);
+#endif
 }
 
 DistributionSample

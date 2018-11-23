@@ -49,7 +49,7 @@ class DistributionSample
         //         when we're changing IORs by entering or leaving
         //         an object's interior, and handle intersecting objects
         //         in a sane manner.
-        float new_index_of_refraction;
+        float new_index_of_refraction = 1.0f;
 };
 
 // TODO: Implement BxDF in all materials

@@ -16,12 +16,14 @@
 class BasicDiffuseSpecularShader : public Shader
 {
     public:
-        BasicDiffuseSpecularShader() {}
-        virtual ~BasicDiffuseSpecularShader() {}
+        BasicDiffuseSpecularShader() = default;
+        virtual ~BasicDiffuseSpecularShader() = default;
 
         // Shade an intersection point
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
 
+        const bool sample_area_lights = true;
+        const bool sample_env_maps = true;
 };
 
 

@@ -21,16 +21,10 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     new_ray.origin = add( intersection.position, offset );
     new_ray.depth = intersection.ray.depth + 1;
     const unsigned char max_depth = 5;
-    //const unsigned char max_depth = 4;
-    //const unsigned char max_depth = 3;
-    //const unsigned char max_depth = 2;
 
     // Asserts
     intersection.normal.assertIsUnity();
     intersection.normal.assertIsDirection();
-
-    const bool sample_area_lights = true;
-    const bool sample_env_maps = true;
 
     // Direct lighting
     
@@ -47,62 +41,51 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
         direct_contrib += sampleEnvironmentMap( scene, intersection, rng );
     }
 
-    // TODO: Generalize environment map intersection / sampling to generic BRDF
+    auto & material = *intersection.material;
+    const bool is_perfect = material.perfect_reflector || material.perfect_refractor;
+    RGBColor Li, Lo;
 
     if( intersection.ray.depth < max_depth ) {
-        if( intersection.material->perfect_reflector
-            || intersection.material->perfect_refractor ) {
-            auto sample = intersection.material->sampleBxDF( rng, intersection );
-            new_ray.direction = sample.direction;
-            new_ray.index_of_refraction = sample.new_index_of_refraction;
+        auto sample = material.sampleBxDF( rng, intersection );
+        new_ray.direction = sample.direction;
 
-            if( scene.intersect( new_ray, new_intersection ) ) {
-                if( new_intersection.distance != FLT_MAX ) {
-                    shade( scene, rng, new_intersection );
-                }
-                reflected_contrib += new_intersection.sample.color;
+        if( is_perfect ) { new_ray.index_of_refraction = sample.new_index_of_refraction; }
+        else             { new_ray.index_of_refraction = intersection.ray.index_of_refraction; }
+
+        if( scene.intersect( new_ray, new_intersection ) ) {
+            if( new_intersection.distance != FLT_MAX
+                && !(sample_area_lights && new_intersection.traceable->isAreaLight()) ) {
+                shade( scene, rng, new_intersection );
             }
-            else if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
-                reflected_contrib += new_intersection.sample.color;
+            Li = new_intersection.sample.color;
+            if( sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE
+                || is_perfect ) {
+                Lo = Li;
             }
+            else {
+                //Lo = reflectedRadiance( intersection, Li, sample.direction );
+                // account for projected area of the surface
+                float projection_cos = clampedDot( new_intersection.normal, new_ray.direction.negated() );
+                Lo = projection_cos * reflectedRadiance( intersection, Li, sample.direction );
+                Lo.scale( 2.0 * M_PI / sample.pdf_sample );
+            }
+            reflected_contrib += Lo;
         }
-        else { // General BxDF
-            auto sample = intersection.material->sampleBxDF( rng, intersection );
-            new_ray.direction = sample.direction;
-            new_ray.index_of_refraction = intersection.ray.index_of_refraction;
-
-            if( scene.intersect( new_ray, new_intersection ) ) {
-                if( new_intersection.distance != FLT_MAX
-                    && !(sample_area_lights && new_intersection.traceable->isAreaLight()) )
-                {
-                    shade( scene, rng, new_intersection );
-                }
-                RGBColor Li = new_intersection.sample.color;
-                RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
-                if(sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE) {
+        else if( !sample_env_maps
+                 || (scene.env_map && !scene.env_map->canImportanceSample())
+                 || sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE
+                 || is_perfect ) {
+            if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
+                Li = new_intersection.sample.color;
+                if( sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE
+                    || is_perfect ) {
                     Lo = Li;
                 }
                 else {
-                    Lo.scale(2.0 * M_PI / sample.pdf_sample);
+                    Lo = reflectedRadiance( intersection, Li, sample.direction );
+                    Lo.scale( 2.0 * M_PI / sample.pdf_sample );
                 }
                 reflected_contrib += Lo;
-            }
-            else if( !sample_env_maps
-                     || (scene.env_map && !scene.env_map->canImportanceSample())
-                     || sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE )
-            {
-                if( scene.intersectEnvMap( new_ray, new_intersection ) ) {
-                    RGBColor Li = new_intersection.sample.color;
-                    RGBColor Lo = reflectedRadiance( intersection, Li, sample.direction );
-                    if(sample.pdf_sample == DistributionSample::DIRAC_PDF_SAMPLE) {
-                        Lo = Li;
-                    }
-                    else {
-                        Lo.scale(2.0 * M_PI / sample.pdf_sample);
-                    }
-                    reflected_contrib += Lo;
-                    //printf("Li %f Lo %f pdf %f\n", Li.r, Lo.r, sample.pdf_sample); // TEMP
-                }
             }
         }
     }

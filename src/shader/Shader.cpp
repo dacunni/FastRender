@@ -159,13 +159,14 @@ RGBColor Shader::reflectedRadiance( const RayIntersection & intersection,
                                     const RGBColor & Li,
                                     const Vector4 & lightDirection )
 {
+    auto & material = *intersection.material;
     float cos_r_n = clampedDot(lightDirection, intersection.normal); 
 
     // TODO: should kd be based on fresnel?
-    float ks = intersection.material->specularity();
+    float ks = material.specularity();
     float kd = 1.0f - ks;
-    float bxdf = intersection.material->BxDF(intersection.normal, intersection.fromDirection(), lightDirection);
-    RGBColor diffuse = intersection.material->diffuse(intersection).scaled(kd / M_PI);
+    float bxdf = material.BxDF(intersection.normal, intersection.fromDirection(), lightDirection);
+    RGBColor diffuse = material.diffuse(intersection).scaled(kd / M_PI);
     RGBColor specular = RGBColor(ks * bxdf);
     RGBColor Lo = (diffuse + specular) * Li * cos_r_n;
 
