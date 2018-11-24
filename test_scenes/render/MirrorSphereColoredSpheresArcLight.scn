@@ -1,0 +1,45 @@
+
+axisalignedslab
+    min -10, +0, +10
+    max +10, -1, -10
+
+sphere
+    center -2 0.25 0.5
+    radius 0.25
+    material Diffuse
+        albedo 1.0 0.5 0.5
+sphere
+    center 0 0.5 1.5 0.5
+    radius 0.50
+    material Diffuse
+        albedo 0.5 1.0 0.5
+sphere
+    center -1 0.75 0
+    radius 0.75
+    material Mirror
+sphere
+    center +1 1 0
+    radius 1.0
+    material Diffuse
+        albedo 0.5 0.5 1.0
+
+camera
+    transform
+        rotate -0.2 1 0 0
+        translate 0 0 18
+
+pointlight
+    power 100 100 100
+    position -5 5 5
+
+tracer
+    shader BasicDiffuseSpecular
+
+raysperpixel 40
+animframes 1
+imagesize 200 200
+
+outputpath testoutput
+testname MirrorSphereColoredSpheresArcLight
+
+

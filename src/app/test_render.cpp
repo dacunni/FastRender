@@ -792,7 +792,8 @@ int main (int argc, char * const argv[])
     //std::string testName("SimpleCube");
     //std::string testName("SpheresPointLight");
     //std::string testName("SpheresColoredPointLights");
-    std::string testName("SanMiguel");
+    //std::string testName("SanMiguel");
+    std::string testName("MirrorSphereColoredSpheresArcLight");
 
     //bool ok = loadTestSceneFromFile("test_scenes/render/SpheresColoredPointLights.scn", testScene);
     bool ok = loadTestSceneFromFile(sceneRoot + testName + ext, testScene);

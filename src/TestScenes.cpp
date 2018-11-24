@@ -588,6 +588,9 @@ std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
         std::vector<float> albedoValues = getFloatArgs(albedoEl, 3);
         return std::make_shared<DiffuseMaterial>(albedoValues[0], albedoValues[1], albedoValues[2]);
     }
+    else if(name == "Mirror") {
+        return std::make_shared<MirrorMaterial>();
+    }
     // TODO - all materials
     else {
         throw UnknownMaterialException(name);
