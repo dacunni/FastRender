@@ -9,16 +9,13 @@
 // TEMP
 std::string output_path = "testoutput";
 const std::string modelBasePath = "models";
-#include "test_scenes/render/SanMiguel.scene"
 #include "test_scenes/render/DabrovicSponza.scene"
-#include "test_scenes/render/SimpleCube.scene"
 #include "test_scenes/render/BunnyEtcDiffusePointLights.scene"
 #include "test_scenes/render/RefractiveSpheresAndCubes.scene"
 #include "test_scenes/render/RefractiveSpheresVaryingIOR.scene"
 #include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
 #include "test_scenes/render/MirrorSphereColoredSpheresArcLight.scene"
-#include "test_scenes/render/UVMesh.scene"
 #include "test_scenes/render/Hairball.scene"
 
 #include "test_scenes/materials/MaterialTestBase.scene"
@@ -36,7 +33,6 @@ int main (int argc, char * const argv[])
     //BunnyEtcDiffusePointLights test(output_path);
     //RefractiveSpheresVaryingIOR test(output_path);
     //DabrovicSponza test(output_path);
-    //SanMiguel test(output_path);
     //GridRoomSceneWithBunny test(output_path);
     //MaterialTestCookTorranceRoughness01WhiteAreaLight test(output_path);
     //MaterialTestCookTorranceRoughness05WhiteAreaLight test(output_path);
@@ -46,8 +42,6 @@ int main (int argc, char * const argv[])
     //GridRoomSceneWithLunarLander test(output_path);
     //GridRoomSceneWithTieFighter test(output_path);
     //MirrorSphereColoredSpheresArcLight test(output_path);
-    //UVMesh test(output_path);
-    //TexturedMesh test(output_path);
     //Hairball test(output_path);
     RoomSceneWithSpheres test(output_path);
 

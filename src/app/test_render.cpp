@@ -19,17 +19,12 @@ const std::string modelBasePath = "models";
 #include "test_scenes/render/AmbientOcclusion.scene"
 #include "test_scenes/render/Logical.scene"
 #include "test_scenes/render/CSGLogicalANDLens.scene"
-#include "test_scenes/render/SanMiguel.scene"
 #include "test_scenes/render/DabrovicSponza.scene"
 #include "test_scenes/render/Hairball.scene"
-#include "test_scenes/render/UVMesh.scene"
-#include "test_scenes/render/SimpleCube.scene"
 #include "test_scenes/render/Gooch.scene"
 #include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
 #include "test_scenes/render/RefractProfile.scene"
-#include "test_scenes/render/SpheresPointLight.scene"
-#include "test_scenes/render/SpheresColoredPointLights.scene"
 #include "test_scenes/render/BunnyEtcDiffusePointLights.scene"
 #include "test_scenes/render/BunnyEtcVariousMaterialsPointLights.scene"
 #include "test_scenes/render/EmissiveSphereLight.scene"
@@ -796,7 +791,8 @@ int main (int argc, char * const argv[])
     //std::string testName("TexturedMesh");
     //std::string testName("SimpleCube");
     //std::string testName("SpheresPointLight");
-    std::string testName("SpheresColoredPointLights");
+    //std::string testName("SpheresColoredPointLights");
+    std::string testName("SanMiguel");
 
     //bool ok = loadTestSceneFromFile("test_scenes/render/SpheresColoredPointLights.scn", testScene);
     bool ok = loadTestSceneFromFile(sceneRoot + testName + ext, testScene);

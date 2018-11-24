@@ -36,6 +36,6 @@ animframes 1
 imagesize 200 200
 
 outputpath testoutput
-testname SimpleCube
+testname SpheresColoredPointLights
 
 

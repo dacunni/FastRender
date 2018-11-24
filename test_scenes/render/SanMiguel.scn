@@ -1,0 +1,39 @@
+
+axisalignedslab
+    min -10.0, +0.0, +10.0
+    max +10.0, -1.0, -10.0
+
+mesh
+    path models/san-miguel/san-miguel.obj
+    multipart
+    transform
+        scale 1 1 1
+        rotate 1.5718 0 1 0
+
+camera
+    transform
+        translate 1.8 -2 -40
+        rotate -0.4071 1 0 0
+        translate 0 0 40
+
+pointlight
+    power 150 150 150
+    position 20 20 -15
+pointlight
+    power 1300 1300 1300
+    position 20 20 10
+pointlight
+    power 500 500 500
+    position 0 20 5
+
+tracer
+    shader Gooch
+
+raysperpixel 20
+animframes 1
+imagesize 200 200
+
+outputpath testoutput
+testname SanMiguel
+
+

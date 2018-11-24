@@ -22,6 +22,7 @@
 #include "EnvironmentMap.h"
 #include "FlatContainer.h"
 #include "BasicDiffuseSpecularShader.h"
+#include "GoochShader.h"
 #include "TestScenes.h"
 #include "Logger.h"
 
@@ -537,6 +538,15 @@ struct SceneFileElement
         throw ParamNotFoundException(key);
     }
 
+    bool optionalFlag(const std::string & key) {
+        try {
+            auto keyEl = param(key);
+            return true;
+        }
+        catch (ParamNotFoundException &) {}
+        return false;
+    }
+
     std::string & operator[](int i) { return tokens[i]; }
 
     void print(int indent = 0) {
@@ -695,6 +705,9 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         if(shaderType == "BasicDiffuseSpecular") {
             testScene.tracer->shader = new BasicDiffuseSpecularShader();
         }
+        else if(shaderType == "Gooch") {
+            testScene.tracer->shader = new GoochShader();
+        }
         else {
             throw UnknownShaderException(shaderType);
         }
@@ -712,12 +725,19 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
     }
     else if(keyword == "mesh") {
         AssetLoader loader;
+        bool multipart = element.optionalFlag("multipart");
         auto pathEl = element.param("path");
         auto & path = pathEl[1];
-        auto mesh = loader.load(path);
-        buildTraceable(element, *mesh);
-        mesh->print(); // TEMP
-        container.add(mesh);
+        if(multipart) {
+            auto mesh = loader.loadMultiPart(path);
+            buildTraceable(element, *mesh);
+            container.add(mesh);
+        }
+        else {
+            auto mesh = loader.load(path);
+            buildTraceable(element, *mesh);
+            container.add(mesh);
+        }
     }
     else if(keyword == "sphere") {
         auto radiusEl = element.param("radius");
