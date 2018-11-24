@@ -1,0 +1,42 @@
+
+axisalignedslab
+    min -10.0, +0.0, +10.0
+    max +10.0, -1.0, -10.0
+
+mesh
+    path models/stanford/bunny/reconstruction/bun_zipper_res2.ply
+    transform
+        scale 2 2 2
+        translate 0 0.5 1
+
+axisalignedslab
+    min 1.2 0.0 2.0
+    max 1.7 0.5 2.5
+    material Diffuse
+        albedo 1.0 0.2 0.2
+
+pointlight
+    power 1000 1000 1000
+    position -15 15 15
+pointlight
+    power 1000 400 400
+    position 13 15 20
+pointlight
+    power 400 400 1000
+    position 0 20 15
+
+camera
+    transform
+        rotate -0.3914 1 0 0
+        translate 0 0 18
+
+tracer
+    shader BasicDiffuseSpecular
+
+raysperpixel 40
+animframes 1
+imagesize 200 200
+
+outputpath testoutput
+testname BunnyEtcDiffusePointLights
+

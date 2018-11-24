@@ -25,10 +25,8 @@ const std::string modelBasePath = "models";
 #include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
 #include "test_scenes/render/RefractProfile.scene"
-#include "test_scenes/render/BunnyEtcDiffusePointLights.scene"
 #include "test_scenes/render/BunnyEtcVariousMaterialsPointLights.scene"
 #include "test_scenes/render/EmissiveSphereLight.scene"
-#include "test_scenes/render/MirrorSphereColoredSpheresArcLight.scene"
 #include "test_scenes/render/RefractiveSpheresAndCubes.scene"
 #include "test_scenes/render/RefractiveBunniesVaryingIOR.scene"
 #include "test_scenes/render/RefractiveSpheresVaryingIOR.scene"
@@ -793,7 +791,8 @@ int main (int argc, char * const argv[])
     //std::string testName("SpheresPointLight");
     //std::string testName("SpheresColoredPointLights");
     //std::string testName("SanMiguel");
-    std::string testName("MirrorSphereColoredSpheresArcLight");
+    //std::string testName("MirrorSphereColoredSpheresArcLight");
+    std::string testName("BunnyEtcDiffusePointLights");
 
     //bool ok = loadTestSceneFromFile("test_scenes/render/SpheresColoredPointLights.scn", testScene);
     bool ok = loadTestSceneFromFile(sceneRoot + testName + ext, testScene);

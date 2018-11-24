@@ -19,6 +19,8 @@ set(SRCS
     src/material/CookTorranceMaterial.cpp
     src/traceable/AxisAlignedSlab.cpp
     src/traceable/Boolean.cpp
+    src/traceable/BoundingVolume.cpp
+    src/traceable/BoundingVolumeHierarchy.cpp
     src/traceable/CSG.cpp
     src/traceable/Container.cpp
     src/traceable/FlatContainer.cpp
@@ -35,8 +37,6 @@ set(SRCS
     src/camera/SimpleCamera.cpp
     src/Artifacts.cpp
     src/AssetLoader.cpp
-    src/BoundingVolume.cpp
-    src/BoundingVolumeHierarchy.cpp
     src/Color.cpp
     src/Config.cpp
     src/DistributionSamplers.cpp

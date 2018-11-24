@@ -572,6 +572,18 @@ std::vector<float> getFloatArgs(SceneFileElement & element, unsigned int numArgs
     return getFloats(element.tokens.begin() + 1, element.tokens.begin() + 1 + numArgs);
 }
 
+Vector4 getVectorArgs(SceneFileElement & element)
+{
+    auto args = getFloatArgs(element, 3);
+    return Vector4(args[0], args[1], args[2]);
+}
+
+RGBColor getRGBArgs(SceneFileElement & element)
+{
+    auto args = getFloatArgs(element, 3);
+    return RGBColor(args[0], args[1], args[2]);
+}
+
 std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
 {
     auto & name = element[1];
@@ -716,12 +728,9 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         }
     }
     else if(keyword == "axisalignedslab") {
-        auto minEl = element.param("min");
-        auto maxEl = element.param("max");
-        std::vector<float> minCoord = getFloatArgs(minEl, 3);
-        std::vector<float> maxCoord = getFloatArgs(maxEl, 3);
-        auto obj = std::make_shared<AxisAlignedSlab>(minCoord[0], minCoord[1], minCoord[2],
-                                                     maxCoord[0], maxCoord[1], maxCoord[2]);
+        auto minCoord = getVectorArgs(element.param("min"));
+        auto maxCoord = getVectorArgs(element.param("max"));
+        auto obj = std::make_shared<AxisAlignedSlab>(minCoord, maxCoord);
         buildTraceable(element, *obj);
         obj->print();// TEMP
         container.add(obj);
@@ -745,9 +754,8 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
     else if(keyword == "sphere") {
         auto radiusEl = element.param("radius");
         float radius = std::stof(radiusEl[1]);
-        auto centerEl = element.param("center");
-        std::vector<float> centerFloats = getFloatArgs(centerEl, 3);
-        auto obj = std::make_shared<Sphere>(centerFloats[0], centerFloats[1], centerFloats[2], radius);
+        auto center = getVectorArgs(element.param("center"));
+        auto obj = std::make_shared<Sphere>(center, radius);
         buildTraceable(element, *obj);
         obj->print();// TEMP
         container.add(obj);
@@ -755,22 +763,16 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
     else if(keyword == "circlearealight") {
         auto radiusEl = element.param("radius");
         float radius = std::stof(radiusEl[1]);
-        auto powerEl = element.param("power");
-        std::vector<float> powerFloats = getFloatArgs(powerEl, 3);
-        RGBColor power(powerFloats[0], powerFloats[1], powerFloats[2]);
+        auto power = getRGBArgs(element.param("power"));
         auto obj = std::make_shared<CircleAreaLight>(radius, power);
         buildTraceable(element, *obj);
         obj->print(); // TEMP
         container.add(obj);
     }
     else if(keyword == "pointlight") {
-        auto positionEl = element.param("position");
-        std::vector<float> positionFloats = getFloatArgs(positionEl, 3);
-        Vector4 position(positionFloats[0], positionFloats[1], positionFloats[2]);
-        auto powerEl = element.param("power");
-        std::vector<float> powerFloats = getFloatArgs(powerEl, 3);
-        RGBColor bandPower(powerFloats[0], powerFloats[1], powerFloats[2]);
-        PointLight light(position, bandPower);
+        auto position = getVectorArgs(element.param("position"));
+        auto power = getRGBArgs(element.param("power"));
+        PointLight light(position, power);
         testScene.scene->addPointLight(light);
     }
     else {

@@ -19,6 +19,7 @@ public:
                      float xmax_default, float ymax_default, float zmax_default );
     AxisAlignedSlab( float xmin_default, float ymin_default, float zmin_default,
                      float cube_size );
+    AxisAlignedSlab( const Vector4 & minCoord, const Vector4 & maxCoord );
     virtual ~AxisAlignedSlab() {}
     
     void correctMinMax( void );

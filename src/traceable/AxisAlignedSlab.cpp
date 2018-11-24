@@ -48,6 +48,13 @@ AxisAlignedSlab::AxisAlignedSlab( float xmin_default, float ymin_default, float 
 
 }
 
+AxisAlignedSlab::AxisAlignedSlab( const Vector4 & minCoord, const Vector4 & maxCoord )
+    : AxisAlignedSlab( minCoord[0], minCoord[1], minCoord[2],
+                       maxCoord[0], maxCoord[1], maxCoord[2] )
+{
+
+}
+
 void AxisAlignedSlab::correctMinMax( void )
 {
     if( xmin > xmax ) { std::swap( xmin, xmax ); }

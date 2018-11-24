@@ -10,12 +10,10 @@
 std::string output_path = "testoutput";
 const std::string modelBasePath = "models";
 #include "test_scenes/render/DabrovicSponza.scene"
-#include "test_scenes/render/BunnyEtcDiffusePointLights.scene"
 #include "test_scenes/render/RefractiveSpheresAndCubes.scene"
 #include "test_scenes/render/RefractiveSpheresVaryingIOR.scene"
 #include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
-#include "test_scenes/render/MirrorSphereColoredSpheresArcLight.scene"
 #include "test_scenes/render/Hairball.scene"
 
 #include "test_scenes/materials/MaterialTestBase.scene"
@@ -30,7 +28,6 @@ int main (int argc, char * const argv[])
 
     editor.init("Editor");
 
-    //BunnyEtcDiffusePointLights test(output_path);
     //RefractiveSpheresVaryingIOR test(output_path);
     //DabrovicSponza test(output_path);
     //GridRoomSceneWithBunny test(output_path);
@@ -41,7 +38,6 @@ int main (int argc, char * const argv[])
     //MaterialTestCookTorranceAreaLightSweepRoughnessLowVaryingColors test(output_path);
     //GridRoomSceneWithLunarLander test(output_path);
     //GridRoomSceneWithTieFighter test(output_path);
-    //MirrorSphereColoredSpheresArcLight test(output_path);
     //Hairball test(output_path);
     RoomSceneWithSpheres test(output_path);
 
