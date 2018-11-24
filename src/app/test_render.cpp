@@ -790,9 +790,9 @@ int main (int argc, char * const argv[])
 #elif 1
     // NEW scene file format
     TestScene testScene("testoutput", "testname");
-    //bool ok = loadTestSceneFromFile("test_scenes/render/UVMesh.scn", testScene);
+    bool ok = loadTestSceneFromFile("test_scenes/render/UVMesh.scn", testScene);
     //bool ok = loadTestSceneFromFile("test_scenes/render/TexturedMesh.scn", testScene);
-    bool ok = loadTestSceneFromFile("test_scenes/render/SimpleCube.scn", testScene);
+    //bool ok = loadTestSceneFromFile("test_scenes/render/SimpleCube.scn", testScene);
     std::cout << "loadTestSceneFromFile -> " << ok << std::endl;
     if(!ok) { exit(EXIT_FAILURE); }
     testScene.render();

@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <sys/stat.h>
+#include <set>
 
 #include "Container.h"
 #include "AxisAlignedSlab.h"
@@ -532,7 +533,7 @@ struct SceneFileElement
             if(child.tokens[0] == key)
                 return child;
         }
-        getLogger().error() << "Unable to find param '" << key << "' to element '" << tokens[0] << "'";
+        //getLogger().error() << "Unable to find param '" << key << "' to element '" << tokens[0] << "'";
         throw ParamNotFoundException(key);
     }
 
@@ -556,6 +557,11 @@ std::vector<float> getFloats(std::vector<std::string>::iterator first,
     return values;
 }
 
+std::vector<float> getFloatArgs(SceneFileElement & element, unsigned int numArgs)
+{
+    return getFloats(element.tokens.begin() + 1, element.tokens.begin() + 1 + numArgs);
+}
+
 std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
 {
     auto & name = element[1];
@@ -569,7 +575,7 @@ std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
     }
     else if(name == "Diffuse") {
         auto & albedoEl = element.param("albedo");
-        std::vector<float> albedoValues = getFloats(albedoEl.tokens.begin() + 1, albedoEl.tokens.begin() + 4);
+        std::vector<float> albedoValues = getFloatArgs(albedoEl, 3);
         return std::make_shared<DiffuseMaterial>(albedoValues[0], albedoValues[1], albedoValues[2]);
     }
     // TODO - all materials
@@ -628,17 +634,38 @@ std::shared_ptr<Transform> makeCompositeTransform(SceneFileElement & element)
     return transform;
 }
 
+void buildTraceable(SceneFileElement & element, Traceable & traceable)
+{
+    // optional: material
+    try {
+        auto materialEl = element.param("material");
+        traceable.material = makeMaterial(materialEl);
+    }
+    catch (ParamNotFoundException &) {}
+
+    // optional: transform
+    try {
+        auto transformEl = element.param("transform");
+        traceable.transform = makeCompositeTransform(transformEl);
+    }
+    catch (ParamNotFoundException &) {}
+}
+
 void buildSceneElement(SceneFileElement & element, TestScene & testScene, Container & container)
 {
     const auto & keyword = element.tokens[0];
+
+    std::set<std::string> rootIgnore{ "outputpath", "testname", "raysperpixel", "animframes", "imagesize" };
+
+    // Ignore keywords consumed by the root element
+    if(rootIgnore.find(keyword) != rootIgnore.end()) {
+        return;
+    }
 
     if(keyword == "root") {
         std::string outputPath = element.param("outputpath")[1];
         std::string testName = element.param("testname")[1];
 
-        // TODO - move these and tracer creation into tracer element
-        //        if possible
-        // TODO - reasonable defaults
         auto sizeEl = element.param("imagesize");
         unsigned int imageWidth = std::stoi(sizeEl[1]);
         unsigned int imageHeight = std::stoi(sizeEl[2]);
@@ -647,34 +674,14 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         auto rppEl = element.param("raysperpixel");
         unsigned int raysPerPixel = std::stoi(rppEl[1]);
 
-        // TODO - move this until after scene is read
         testScene.tracer = new ImageTracer(imageWidth, imageHeight,
                                            numAnimFrames, raysPerPixel);
         testScene.tracer->artifacts.output_path = outputPath;
         testScene.tracer->artifacts.file_prefix = testName + "_";
 
-        // HERE >>>
-        //testScene.image_width = imageWidth;
-        //testScene.image_height = imageHeight;
-        //testScene.rays_per_pixel = raysPerPixel;
-        //testScene.anim_frames = numAnimFrames;
-        //testScene.name = testName;
-        //testScene.output_dir = outputPath;
-        // HERE <<<
-
         for(auto & child : element.children) {
             buildSceneElement(child, testScene, container);
         }
-    }
-    else if(keyword == "raysperpixel") {
-        testScene.rays_per_pixel = std::stoi(element[1]);
-    }
-    else if(keyword == "animframes") {
-        testScene.anim_frames = std::stoi(element[1]);
-    }
-    else if(keyword == "imagesize") {
-        testScene.image_width = std::stoi(element[1]);
-        testScene.image_height = std::stoi(element[2]);
     }
     else if(keyword == "camera") {
         auto transformEl = element.param("transform");
@@ -695,10 +702,11 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
     else if(keyword == "axisalignedslab") {
         auto minEl = element.param("min");
         auto maxEl = element.param("max");
-        std::vector<float> minCoord = getFloats(minEl.tokens.begin() + 1, minEl.tokens.begin() + 4);
-        std::vector<float> maxCoord = getFloats(maxEl.tokens.begin() + 1, maxEl.tokens.begin() + 4);
+        std::vector<float> minCoord = getFloatArgs(minEl, 3);
+        std::vector<float> maxCoord = getFloatArgs(maxEl, 3);
         auto obj = std::make_shared<AxisAlignedSlab>(minCoord[0], minCoord[1], minCoord[2],
                                                      maxCoord[0], maxCoord[1], maxCoord[2]);
+        buildTraceable(element, *obj);
         obj->print();// TEMP
         container.add(obj);
     }
@@ -707,15 +715,7 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         auto pathEl = element.param("path");
         auto & path = pathEl[1];
         auto mesh = loader.load(path);
-
-        auto materialEl = element.param("material");
-        mesh->material = makeMaterial(materialEl);
-        // TODO - handle no material present
-
-        auto transformEl = element.param("transform");
-        mesh->transform = makeCompositeTransform(transformEl);
-        // TODO - handle no transform present
-
+        buildTraceable(element, *mesh);
         mesh->print(); // TEMP
         container.add(mesh);
     }
@@ -723,14 +723,11 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         auto radiusEl = element.param("radius");
         float radius = std::stof(radiusEl[1]);
         auto powerEl = element.param("power");
-        std::vector<float> powerFloats = getFloats(powerEl.tokens.begin() + 1, powerEl.tokens.begin() + 4);
+        std::vector<float> powerFloats = getFloatArgs(powerEl, 3);
         RGBColor power(powerFloats[0], powerFloats[1], powerFloats[2]);
         auto obj = std::make_shared<CircleAreaLight>(radius, power);
-
-        auto transformEl = element.param("transform");
-        obj->transform = makeCompositeTransform(transformEl);
-        // TODO - handle no transform present
-
+        buildTraceable(element, *obj);
+        obj->print(); // TEMP
         container.add(obj);
     }
     else {

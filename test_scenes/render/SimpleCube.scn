@@ -1,14 +1,15 @@
 
 axisalignedslab
-    min -0.5, +0.0, -10.0
-    max +0.5,  1.0, +10.0
+    min -0.5, +0.0, -0.5
+    max +0.5, +1.0, +0.5
     material Diffuse
         albedo 0.5 0.5 1.0
 
 camera
     transform
-        rotate -0.157 1 0 0
-        translate 0 0.2 10
+        translate 0 0.5 0
+        rotate -0.2 1 0 0
+        translate 0 0 10
 
 circlearealight
     radius 2.0
