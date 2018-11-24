@@ -1,0 +1,41 @@
+
+axisalignedslab
+    min -10, +0, +10
+    max +10, -1, -10
+
+sphere
+    center -2, 0.25, 0
+    radius 0.25
+sphere
+    center -1, 0.50, 0
+    radius 0.50
+sphere
+    center +1, 1.00, 0
+    radius 1.00
+
+camera
+    transform
+        rotate -0.3927 1 0 0
+        translate 0 0 18
+
+pointlight
+    power 40 40 40
+    position -5 5 5
+pointlight
+    power 40 16 16
+    position 3 5 10
+pointlight
+    power 16 16 40
+    position 0 10 5
+
+tracer
+    shader BasicDiffuseSpecular
+
+raysperpixel 20
+animframes 1
+imagesize 200 200
+
+outputpath testoutput
+testname SimpleCube
+
+

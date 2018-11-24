@@ -719,6 +719,16 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         mesh->print(); // TEMP
         container.add(mesh);
     }
+    else if(keyword == "sphere") {
+        auto radiusEl = element.param("radius");
+        float radius = std::stof(radiusEl[1]);
+        auto centerEl = element.param("center");
+        std::vector<float> centerFloats = getFloatArgs(centerEl, 3);
+        auto obj = std::make_shared<Sphere>(centerFloats[0], centerFloats[1], centerFloats[2], radius);
+        buildTraceable(element, *obj);
+        obj->print();// TEMP
+        container.add(obj);
+    }
     else if(keyword == "circlearealight") {
         auto radiusEl = element.param("radius");
         float radius = std::stof(radiusEl[1]);
@@ -729,6 +739,16 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         buildTraceable(element, *obj);
         obj->print(); // TEMP
         container.add(obj);
+    }
+    else if(keyword == "pointlight") {
+        auto positionEl = element.param("position");
+        std::vector<float> positionFloats = getFloatArgs(positionEl, 3);
+        Vector4 position(positionFloats[0], positionFloats[1], positionFloats[2]);
+        auto powerEl = element.param("power");
+        std::vector<float> powerFloats = getFloatArgs(powerEl, 3);
+        RGBColor bandPower(powerFloats[0], powerFloats[1], powerFloats[2]);
+        PointLight light(position, bandPower);
+        testScene.scene->addPointLight(light);
     }
     else {
         throw UnknownKeywordException(keyword);
