@@ -54,7 +54,8 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
 
         if( scene.intersect( new_ray, new_intersection ) ) {
             if( new_intersection.distance != FLT_MAX
-                && !(sample_area_lights && new_intersection.traceable->isAreaLight()) ) {
+                && (is_perfect
+                    || !(sample_area_lights && new_intersection.traceable->isAreaLight())) ) {
                 shade( scene, rng, new_intersection );
             }
             Li = new_intersection.sample.color;

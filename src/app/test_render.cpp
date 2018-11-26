@@ -780,7 +780,7 @@ int main (int argc, char * const argv[])
     testCircleAreaLight1();   // Cube with circular area light
     testCircleAreaLight2();   // Area light proximity test
     testRectangleAreaLight1();   // Cube with rectangle area light
-#elif 1
+#elif 0
     // NEW scene file format
     TestScene testScene("testoutput", "testname");
     std::string sceneRoot("test_scenes/render/");
