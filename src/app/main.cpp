@@ -8,6 +8,13 @@
 
 RandomNumberGenerator rng;
 
+#if 1 // TODO - deprecated old functionality - make this take an input scene file
+int main (int argc, char * const argv[]) 
+{
+    printf("FastRender - IMPLEMENT ME\n");
+    return EXIT_FAILURE;
+}
+#else
 Scene * buildScene()
 {
     Scene * scene = new Scene();
@@ -171,4 +178,4 @@ int main (int argc, char * const argv[])
     fflush(stdout);
     return 0;
 }
-
+#endif

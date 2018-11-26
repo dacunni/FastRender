@@ -23,7 +23,7 @@ class Scene
 {
 public:
 	Scene();
-	~Scene();
+	~Scene() = default;
 
     // Update the scene state for a given point in time
     void updateAnim( float t );
@@ -55,8 +55,8 @@ public:
     // Lights are just traceables that have a non-zero emittance. They are part
     // of the scene, but we keep pointers to them in a light list so we can easily
     // iterate over them for lighting calculations.
-    std::vector<std::shared_ptr<Traceable> > lights;
-    std::vector<std::shared_ptr<AreaLight> > area_lights;
+    std::vector<std::shared_ptr<Traceable>> lights;
+    std::vector<std::shared_ptr<AreaLight>> area_lights;
     // Point lights are special because they are infinitesimal and thus can't be
     // found by randomly shooting rays. We keep track of them separately so we
     // can consider them explicitely.

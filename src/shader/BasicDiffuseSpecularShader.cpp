@@ -11,6 +11,7 @@
 
 void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection )
 {
+    auto & material = *intersection.material;
     RGBColor reflected_contrib( 0.0, 0.0, 0.0 );
     RGBColor direct_contrib( 0.0, 0.0, 0.0 );
     Ray new_ray;
@@ -18,7 +19,7 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     new_intersection.min_distance = EPSILON;
     Vector4 offset( 0.0, 0.0, 0.0 );
     //offset = scale( intersection.normal, EPSILON ); // NOTE - Seems to help 
-    new_ray.origin = add( intersection.position, offset );
+    new_ray.origin = intersection.position + offset;
     new_ray.depth = intersection.ray.depth + 1;
     const unsigned char max_depth = 5;
 
@@ -27,21 +28,13 @@ void BasicDiffuseSpecularShader::shade( Scene & scene, RandomNumberGenerator & r
     intersection.normal.assertIsDirection();
 
     // Direct lighting
-    
-    // Area lights
-    if( sample_area_lights ) {
-        direct_contrib += sampleAreaLights( scene, intersection, rng );
-    }
-
-    // Point lights
+    //   Area lights
+    if( sample_area_lights ) { direct_contrib += sampleAreaLights( scene, intersection, rng ); }
+    //   Point lights
     direct_contrib += samplePointLights( scene, intersection );
+    //   Environment map
+    if( sample_env_maps ) { direct_contrib += sampleEnvironmentMap( scene, intersection, rng ); }
 
-    // Environment map
-    if( sample_env_maps ) {
-        direct_contrib += sampleEnvironmentMap( scene, intersection, rng );
-    }
-
-    auto & material = *intersection.material;
     const bool is_perfect = material.perfect_reflector || material.perfect_refractor;
     RGBColor Li, Lo;
 

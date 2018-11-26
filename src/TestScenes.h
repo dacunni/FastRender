@@ -8,28 +8,6 @@ class Container;
 class FlatContainer;
 class Logger;
 
-void addSlabGrid( std::shared_ptr<Container> container );
-void addRandomSpheres( std::shared_ptr<Container> container, RandomNumberGenerator & rng, int numSpheres );
-void addRandomCubes( std::shared_ptr<Container> container, RandomNumberGenerator & rng, int numCubes );
-void addOffsetCubes( std::shared_ptr<Container> container );
-void addBunny( std::shared_ptr<Container> container );
-void addLitBunny( std::shared_ptr<Container> container );
-void addSphereLight( std::shared_ptr<Container> container,
-                     const Vector4 & center, float r,
-                     const RGBColor & color,
-                     float power );
-
-void addGroundPlane( std::shared_ptr<Container> container );
-
-void addTransformedCubes( std::shared_ptr<Container> container );
-
-void addLightingTest1( std::shared_ptr<Container> container );
-void addLightingTest2( std::shared_ptr<Container> container );
-void addLightingTest3( std::shared_ptr<Container> container );
-void addLightingTest4( std::shared_ptr<Container> container );
-
-void addMirrors( std::shared_ptr<Container> container );
-
 std::shared_ptr<TriangleMesh> loadMaterialTestModel( AssetLoader & loader );
 
 std::shared_ptr<HDRImageEnvironmentMap> loadStPetersEnvironmentMap();

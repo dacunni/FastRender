@@ -24,11 +24,6 @@ Scene::Scene()
 
 }
 
-Scene::~Scene()
-{
-
-}
-
 void Scene::updateAnim( float t )
 {
     root->updateAnim(t);

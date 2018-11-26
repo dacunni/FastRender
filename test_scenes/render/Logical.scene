@@ -66,6 +66,17 @@ BEGIN_DERIVED_SCENE(LogicalANDLensFocusLight, LogicalBase)
 SETUP_SCENE(
     LogicalBase::setup();
 );
+void addSphereLight( std::shared_ptr<Container> container,
+                     const Vector4 & center, float r,
+                     const RGBColor & color,
+                     float power )
+{
+    auto emitter = std::make_shared<Sphere>( center, r );
+    emitter->material = std::make_shared<Material>();
+    emitter->material->emittance = color;
+    emitter->material->emittance.scale( power );
+    container->add( emitter );
+}
 BUILD_SCENE(
     LogicalBase::buildScene();
 

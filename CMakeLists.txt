@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 
 PROJECT (fastrender)
 
+set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated -O2")
+
 find_package(ImageMagick COMPONENTS Magick++)
 find_package(Assimp REQUIRED)
 find_package(GLUT REQUIRED)
@@ -77,8 +79,6 @@ ADD_EXECUTABLE (test_render    src/app/test_render.cpp)
 ADD_EXECUTABLE (test_ray_trace src/app/test_ray_trace.cpp)
 ADD_EXECUTABLE (test_samplers  src/app/test_samplers.cpp)
 ADD_EXECUTABLE (test_random    src/app/test_random.cpp)
-
-SET(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated -O2")
 
 include_directories(.)
 include_directories(src)

@@ -4,6 +4,17 @@ SETUP_SCENE(
     TestScene::setup();
     tracer->rays_per_pixel = 40;
 );
+void addSphereLight( std::shared_ptr<Container> container,
+                     const Vector4 & center, float r,
+                     const RGBColor & color,
+                     float power )
+{
+    auto emitter = std::make_shared<Sphere>( center, r );
+    emitter->material = std::make_shared<Material>();
+    emitter->material->emittance = color;
+    emitter->material->emittance.scale( power );
+    container->add( emitter );
+}
 BUILD_SCENE(
     auto floor = std::make_shared<AxisAlignedSlab>( -10.0, +0.0, +10.0,
                                                    +10.0, -1.0, -10.0 );
