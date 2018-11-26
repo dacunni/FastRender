@@ -10,6 +10,7 @@
 #define _OPENGL_UTIL_H_
 
 #ifdef __APPLE__
+#define GL_DO_NOT_WARN_IF_MULTI_GL_VERSION_HEADERS_INCLUDED
 #include <OpenGL/gl3.h>     // Core OpenGL 3.x+
 #include <GLUT/glut.h>      // GLUT + OpenGL
 #else
