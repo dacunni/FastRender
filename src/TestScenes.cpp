@@ -16,6 +16,7 @@
 #include "RandomNumberGenerator.h"
 #include "Sphere.h"
 #include "Material.h"
+#include "CookTorranceMaterial.h"
 #include "AssetLoader.h"
 #include "TMOctreeAccelerator.h"
 #include "BoundingVolume.h"
@@ -217,6 +218,11 @@ struct SceneBuildException : std::exception {
     }
     std::string msg;
 };
+struct FileReadException : SceneBuildException {
+    FileReadException(const std::string & name) {
+        msg = "Error reading file: " + name;
+    }
+};
 struct ParamNotFoundException : SceneBuildException {
     ParamNotFoundException(const std::string & p) {
         msg = "Parameter not found: " + p;
@@ -247,9 +253,14 @@ struct SceneFileElement
     std::vector<SceneFileElement> children;
 
     SceneFileElement & param(const std::string & key) {
-        for(auto & child : children) {
-            if(child.tokens[0] == key)
-                return child;
+        // We iterate until we find the last match so files using 'include'
+        // can override values specified in their includes.
+        auto predicate = [&key](const SceneFileElement & child) {
+            return child.tokens[0] == key;
+        };
+        auto it = std::find_if(children.rbegin(), children.rend(), predicate);
+        if(it != children.rend()) {
+            return *it;
         }
         //getLogger().error() << "Unable to find param '" << key << "' to element '" << tokens[0] << "'";
         throw ParamNotFoundException(key);
@@ -323,6 +334,13 @@ std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
     else if(name == "Refractive") {
         float ior = std::stof(element.param("index")[1]);
         return std::make_shared<RefractiveMaterial>(ior);
+    }
+    else if(name == "CookTorrance") {
+        auto & albedoEl = element.param("albedo");
+        std::vector<float> albedoValues = getFloatArgs(albedoEl, 3);
+        float roughness = std::stof(element.param("roughness")[1]);
+        return std::make_shared<CookTorranceMaterial>(albedoValues[0], albedoValues[1], albedoValues[2],
+                                                      roughness);
     }
     // TODO - all materials
     else {
@@ -519,40 +537,22 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
     }
 }
 
-bool buildScene(SceneFileElement & root, TestScene & testScene)
+void buildScene(SceneFileElement & root, TestScene & testScene)
 {
     auto container = std::make_shared<FlatContainer>();
-    testScene.scene = new Scene(); new Scene(); new Scene(); new Scene(); 
+    testScene.scene = new Scene();
     testScene.scene->root = container;
 
-    try {
-        buildSceneElement(root, testScene, *container);
-    }
-    catch(std::exception & e) {
-        std::cout << "Exception: " << e.what() << std::endl;
-        return false;
-    }
-    catch(...) {
-        std::cout << "Caught generic exception" << std::endl;
-        return false;
-    }
-
-    return true;
+    buildSceneElement(root, testScene, *container);
 }
 
-bool loadTestSceneFromFile(const std::string & sceneFile, TestScene & testScene)
+void loadSceneFileElementsFromFile(const std::string & sceneFile, SceneFileElement & rootElement)
 {
-    auto & logger = getLogger();
-    
+    std::cout << "Loading scene elements from " << sceneFile << '\n';
     std::ifstream ifs(sceneFile, std::ios::in);
-    if(!ifs.good()) {
-        logger.error() << "Unable to open " << sceneFile;
-        return false;
-    }
+    if(!ifs.good()) { throw FileReadException(sceneFile); }
 
     std::vector<int> indentStack{0};
-    SceneFileElement rootElement;
-    rootElement.tokens.push_back("root");
     std::vector<SceneFileElement*> elementStack;
     SceneFileElement * element = &rootElement;
 
@@ -588,16 +588,43 @@ bool loadTestSceneFromFile(const std::string & sceneFile, TestScene & testScene)
 
         SceneFileElement child;
         child.tokens = tokens;
-        element->children.push_back(child);
+
+        if(tokens[0] == "include") {
+            auto includeFile = tokens[1];
+            auto dirEnd = sceneFile.find_last_of("/");
+            std::string prefix;
+            if(dirEnd != std::string::npos) {
+                prefix = sceneFile.substr(0, dirEnd + 1);
+            }
+            loadSceneFileElementsFromFile(prefix + includeFile, *element);
+        }
+        else {
+            element->children.push_back(child);
+        }
 
         //auto & keyword = tokens[0];
         //std::cout << "KEYWORD " << keyword << "\n";
-
     }
+}
 
-    rootElement.print();
+bool loadTestSceneFromFile(const std::string & sceneFile, TestScene & testScene)
+{
+    auto & logger = getLogger();
+    SceneFileElement rootElement;
+    rootElement.tokens.push_back("root");
 
-    if(!buildScene(rootElement, testScene)) {
+    try {
+        loadSceneFileElementsFromFile(sceneFile, rootElement);
+        rootElement.print();
+        buildScene(rootElement, testScene);
+    }
+    catch(std::exception & e) {
+        std::cout << "Exception: " << e.what() << std::endl;
+        logger.error() << "Unable to build scene from scene description";
+        return false;
+    }
+    catch(...) {
+        std::cout << "Caught generic exception" << std::endl;
         logger.error() << "Unable to build scene from scene description";
         return false;
     }

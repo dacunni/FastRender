@@ -67,7 +67,9 @@ int main (int argc, char * const argv[])
     //std::string testName("BunnyEtcDiffusePointLights");
     //std::string testName("BunnyEtcVariousMaterialsPointLights");
     //std::string testName("RefractiveSpheresVaryingIOR");
-    std::string testName("RefractiveBunniesVaryingIOR");
+    //std::string testName("RefractiveBunniesVaryingIOR");
+    //std::string testName("Room");
+    std::string testName("RoomWithSpheresCookTorrance");
 
     bool ok = loadTestSceneFromFile(sceneRoot + testName + ext, testScene);
     std::cout << "loadTestSceneFromFile -> " << ok << std::endl;

@@ -1,0 +1,52 @@
+# Cornell Box
+
+# bottom
+axisalignedslab
+    min -0.5 -0.5 -0.5
+    max +0.5 -0.6 +0.5
+# top
+axisalignedslab
+    min -0.5 +0.5 -0.5
+    max +0.5 +0.6 +0.5
+# left - red
+axisalignedslab
+    min -0.5 -0.5 -0.5
+    max -0.6 +0.5 +0.5
+    material Diffuse
+        albedo 1.0 0.5 0.5
+# right - blue
+axisalignedslab
+    min +0.5 -0.5 -0.5
+    max +0.6 +0.5 +0.5
+    material Diffuse
+        albedo 0.5 0.5 1.0
+# back
+axisalignedslab
+    min -0.5 -0.5 -0.5
+    max +0.5 +0.5 -0.6
+
+# lights
+#pointlight
+#    power 0.3 0.3 0.3
+#    position 0 0 0
+circlearealight
+    radius 0.2
+    power 3 3 3
+    transform
+        translate 0 0.45 0
+
+camera
+    dimensions 1.0 1.0
+    transform
+        translate 0 0 1.5
+
+tracer
+    shader BasicDiffuseSpecular
+
+raysperpixel 30
+animframes 1
+imagesize 200 200
+
+outputpath testoutput
+testname Room
+

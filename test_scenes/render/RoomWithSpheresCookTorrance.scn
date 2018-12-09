@@ -1,0 +1,18 @@
+
+include Room.scn
+
+sphere
+    center -0.3 -0.3 -0.3
+    radius 0.2
+    material CookTorrance
+        albedo 1 1 1
+        roughness 0.05
+sphere
+    center +0.3 -0.3 -0.3
+    radius 0.2
+    material CookTorrance
+        albedo 1 1 1
+        roughness 0.95
+
+raysperpixel 100
+
