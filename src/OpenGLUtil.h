@@ -13,8 +13,11 @@
 #include <OpenGL/gl3.h>     // Core OpenGL 3.x+
 #include <GLUT/glut.h>      // GLUT + OpenGL
 #else
+#define GL_GLEXT_PROTOTYPES
 #include <GL/glut.h>
 #include <GL/gl.h>
+#include <GL/glcorearb.h>
+#include <GL/glext.h>
 #endif
 
 #define GL_WARN_IF_ERROR() warnIfError( __FUNCTION__, __LINE__ )

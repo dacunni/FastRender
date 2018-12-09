@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 PROJECT (fastrender)
 
-find_package(ImageMagick COMPONENTS Magick++)
+find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 find_package(Assimp REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLU REQUIRED)
@@ -101,6 +101,7 @@ set(LIBS
     ${GLU_LIBRARY}
     ${OpenGL_LIBRARY}
     ${ImageMagick_LIBRARIES}
+    pthread
     m
     c)
 

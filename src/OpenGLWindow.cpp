@@ -2,6 +2,7 @@
 #include <iostream>
 #include <map>
 #include <typeinfo>
+#include <mutex>
 
 #include "OpenGLWindow.h"
 #include "AmbientOcclusionShader.h"
@@ -45,7 +46,9 @@ void OpenGLWindow::init( const std::string & title )
     glutInit( &argc, const_cast<char **>(argv) );
     glutInitDisplayMode(GLUT_DOUBLE              // Double buffered
                         | GLUT_RGBA | GLUT_DEPTH
+#ifdef __APPLE__
                         | GLUT_3_2_CORE_PROFILE  // Core profile context
+#endif
                        );
     glutInitWindowSize(windowWidth, windowHeight);
     glutInitWindowPosition(0, 0);

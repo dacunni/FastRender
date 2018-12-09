@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <cstdarg>
 #include <unistd.h>
 #include <memory>
 #include "Logger.h"

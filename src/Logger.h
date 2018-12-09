@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <mutex>
+#include <memory>
 
 class Logger
 {
