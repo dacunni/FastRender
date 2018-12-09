@@ -1,0 +1,100 @@
+
+mesh
+    path models/stanford/bunny/reconstruction/bun_zipper_res2.ply
+    transform
+        translate -5.0 0.4 2
+        scale 3 3 3
+        rotate 0.783 0 1 0
+        translate 0 0.5 0
+    material Refractive
+        index 1.3
+mesh
+    path models/stanford/bunny/reconstruction/bun_zipper_res2.ply
+    transform
+        translate -2.5 0.4 2
+        scale 3 3 3
+        rotate 0.783 0 1 0
+        translate 0 0.5 0
+    material Refractive
+        index 1.49
+mesh
+    path models/stanford/bunny/reconstruction/bun_zipper_res2.ply
+    transform
+        translate 0 0.4 2
+        scale 3 3 3
+        rotate 0.783 0 1 0
+        translate 0 0.5 0
+    material Refractive
+        index 1.6
+mesh
+    path models/stanford/bunny/reconstruction/bun_zipper_res2.ply
+    transform
+        translate +2.5 0.4 2
+        scale 3 3 3
+        rotate 0.783 0 1 0
+        translate 0 0.5 0
+    material Refractive
+        index 2.1
+mesh
+    path models/stanford/bunny/reconstruction/bun_zipper_res2.ply
+    transform
+        translate +5.0 0.4 2
+        scale 3 3 3
+        rotate 0.783 0 1 0
+        translate 0 0.5 0
+    material Refractive
+        index 2.5
+
+# floor
+axisalignedslab
+    min -10, +0, +10
+    max +10, -1, -10
+    material Diffuse
+        albedo 1 1 1
+
+# back wall
+axisalignedslab
+    min -10  +0 -11
+    max +10 +10 -10
+    material Diffuse
+        albedo 0.8 0.8 1.0
+
+# colored strips to show refraction from background objects
+axisalignedslab
+    min -10 +0.0  -2
+    max +10 +0.15 -2.15
+    material Diffuse
+        albedo 0.5 0.5 1.0
+axisalignedslab
+    min -10 +0.5  -2
+    max +10 +0.65 -2.15
+    material Diffuse
+        albedo 1.0 0.5 0.0
+axisalignedslab
+    min -10 +1.0  -2
+    max +10 +1.15 -2.15
+    material Diffuse
+        albedo 0.0 1.0 0.5
+
+camera
+    dimensions 1.2 0.3
+    transform
+        rotate -0.2 1 0 0
+        translate 0 1 15
+
+arclightenvmap
+    direction 0 1 0
+    radius 0.3142
+    power 0.8
+
+tracer
+    shader BasicDiffuseSpecular
+
+raysperpixel 40
+animframes 1
+imagesize 600 150
+
+outputpath testoutput
+testname RefractiveBunniesVaryingIOR
+
+

@@ -25,11 +25,8 @@ const std::string modelBasePath = "models";
 #include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
 #include "test_scenes/render/RefractProfile.scene"
-#include "test_scenes/render/BunnyEtcVariousMaterialsPointLights.scene"
 #include "test_scenes/render/EmissiveSphereLight.scene"
 #include "test_scenes/render/RefractiveSpheresAndCubes.scene"
-#include "test_scenes/render/RefractiveBunniesVaryingIOR.scene"
-#include "test_scenes/render/RefractiveSpheresVaryingIOR.scene"
 #include "test_scenes/render/RefractiveSphereEmissiveObjectCaustic.scene"
 
 
@@ -55,7 +52,7 @@ int main (int argc, char * const argv[])
     mkdir(output_path.c_str(), 0777);
 
     // Tests
-#if 0
+#if 1
     // NEW scene file format
     TestScene testScene("testoutput", "testname");
     std::string sceneRoot("test_scenes/render/");
@@ -67,9 +64,11 @@ int main (int argc, char * const argv[])
     //std::string testName("SpheresColoredPointLights");
     //std::string testName("SanMiguel");
     //std::string testName("MirrorSphereColoredSpheresArcLight");
-    std::string testName("BunnyEtcDiffusePointLights");
+    //std::string testName("BunnyEtcDiffusePointLights");
+    //std::string testName("BunnyEtcVariousMaterialsPointLights");
+    //std::string testName("RefractiveSpheresVaryingIOR");
+    std::string testName("RefractiveBunniesVaryingIOR");
 
-    //bool ok = loadTestSceneFromFile("test_scenes/render/SpheresColoredPointLights.scn", testScene);
     bool ok = loadTestSceneFromFile(sceneRoot + testName + ext, testScene);
     std::cout << "loadTestSceneFromFile -> " << ok << std::endl;
     if(!ok) { exit(EXIT_FAILURE); }

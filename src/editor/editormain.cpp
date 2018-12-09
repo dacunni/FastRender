@@ -10,8 +10,6 @@
 std::string output_path = "testoutput";
 const std::string modelBasePath = "models";
 #include "test_scenes/render/DabrovicSponza.scene"
-#include "test_scenes/render/RefractiveSpheresAndCubes.scene"
-#include "test_scenes/render/RefractiveSpheresVaryingIOR.scene"
 #include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
 #include "test_scenes/render/Hairball.scene"

@@ -320,6 +320,10 @@ std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
     else if(name == "Mirror") {
         return std::make_shared<MirrorMaterial>();
     }
+    else if(name == "Refractive") {
+        float ior = std::stof(element.param("index")[1]);
+        return std::make_shared<RefractiveMaterial>(ior);
+    }
     // TODO - all materials
     else {
         throw UnknownMaterialException(name);
@@ -426,10 +430,19 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         }
     }
     else if(keyword == "camera") {
-        auto transformEl = element.param("transform");
-        auto transform = makeCompositeTransform(transformEl);
-        testScene.tracer->setCameraTransform(*transform);
-        // TODO - handle no transform present
+        // optional: transform
+        try {
+            auto transformEl = element.param("transform");
+            auto transform = makeCompositeTransform(transformEl);
+            testScene.tracer->setCameraTransform(*transform);
+        }
+        catch (ParamNotFoundException &) {}
+        // optional: dimensions
+        try {
+            auto dims = getFloatArgs(element.param("dimensions"), 2);
+            testScene.tracer->camera->setFocalPlaneDimensions(dims[0], dims[1]);
+        }
+        catch (ParamNotFoundException &) {}
     }
     else if(keyword == "tracer") {
         auto shaderEl = element.param("shader");
@@ -492,6 +505,15 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         PointLight light(position, power);
         testScene.scene->addPointLight(light);
     }
+    else if(keyword == "arclightenvmap") {
+        auto direction = getVectorArgs(element.param("direction"));
+        direction.makeDirection();
+        float radius = std::stof(element.param("radius")[1]);
+        float power = std::stof(element.param("power")[1]);
+        auto env_map = std::make_shared<ArcLightEnvironmentMap>(direction, radius);
+        env_map->setPower(power);
+        testScene.scene->env_map = env_map;
+    }
     else {
         throw UnknownKeywordException(keyword);
     }
@@ -535,6 +557,11 @@ bool loadTestSceneFromFile(const std::string & sceneFile, TestScene & testScene)
     SceneFileElement * element = &rootElement;
 
     for(std::string line; std::getline(ifs, line); ) {
+        // Trim comments
+        auto commentStart = line.find("#");
+        if(commentStart != std::string::npos) {
+            line = line.substr(0, commentStart);
+        }
         // Track indentation
         auto indent = line.find_first_not_of(" ");
         if(indent == std::string::npos)

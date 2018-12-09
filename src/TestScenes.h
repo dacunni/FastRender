@@ -5,7 +5,6 @@
 #include "ImageTracer.h"
 
 class Container;
-class FlatContainer;
 class Logger;
 
 std::shared_ptr<TriangleMesh> loadMaterialTestModel( AssetLoader & loader );
