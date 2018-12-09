@@ -17,13 +17,11 @@
 class AmbientOcclusionShader : public Shader
 {
     public:
-        AmbientOcclusionShader() {}
-        virtual ~AmbientOcclusionShader() {}
+        AmbientOcclusionShader() = default;
+        virtual ~AmbientOcclusionShader() = default;
 
         // Shade an intersection point
         virtual void shade( Scene & scene, RandomNumberGenerator & rng, RayIntersection & intersection );
-    
 };
-
 
 #endif

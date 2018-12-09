@@ -1,0 +1,26 @@
+
+axisalignedslab
+    min -10.0, +0.0, +10.0
+    max +10.0, -1.0, -10.0
+
+mesh
+    path models/hairball.obj
+    transform
+        scale 2 2 2
+        translate 0 0.5 1
+
+camera
+    transform
+        rotate -0.2 1 0 0
+        translate 0 1 10
+
+tracer
+    shader AmbientOcclusion
+
+raysperpixel 40
+animframes 1
+imagesize 200 200
+
+outputpath testoutput
+testname Hairball
+

@@ -12,7 +12,6 @@ const std::string modelBasePath = "models";
 #include "test_scenes/render/DabrovicSponza.scene"
 #include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
-#include "test_scenes/render/Hairball.scene"
 
 #include "test_scenes/materials/MaterialTestBase.scene"
 #include "test_scenes/materials/MaterialTestMontageBase.scene"

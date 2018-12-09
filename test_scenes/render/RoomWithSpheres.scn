@@ -1,0 +1,16 @@
+
+include Room.scn
+
+sphere
+    center -0.3 -0.3 -0.3
+    radius 0.2
+    material Mirror
+sphere
+    center +0.3 -0.3 -0.3
+    radius 0.2
+    material Refractive
+        index 1.49
+
+raysperpixel 100
+testname RoomWithSpheres
+

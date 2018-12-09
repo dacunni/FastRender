@@ -1,0 +1,29 @@
+
+axisalignedslab
+    min -0.5 0.0 -0.5
+    max +0.5 1.0 +0.5
+    transform
+        translate -1.5 0 0
+mesh
+    path models/stanford/happy/reconstruction/happy_vrip_res4.ply
+    transform
+        scale 3 3 3
+sphere
+    center 1.5 0.5 0.0
+    radius 0.5
+
+camera
+    transform
+        rotate -0.3914 1 0 0
+        translate 0 0 18
+
+tracer
+    shader Gooch
+
+raysperpixel 4
+animframes 1
+imagesize 300 300
+
+outputpath testoutput
+testname BunnyEtcDiffusePointLights
+

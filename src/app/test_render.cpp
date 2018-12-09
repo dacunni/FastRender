@@ -20,15 +20,14 @@ const std::string modelBasePath = "models";
 #include "test_scenes/render/Logical.scene"
 #include "test_scenes/render/CSGLogicalANDLens.scene"
 #include "test_scenes/render/DabrovicSponza.scene"
-#include "test_scenes/render/Hairball.scene"
-#include "test_scenes/render/Gooch.scene"
-#include "test_scenes/render/Room.scene"
 #include "test_scenes/render/GridRoom.scene"
 #include "test_scenes/render/RefractProfile.scene"
 #include "test_scenes/render/EmissiveSphereLight.scene"
-#include "test_scenes/render/RefractiveSpheresAndCubes.scene"
 #include "test_scenes/render/RefractiveSphereEmissiveObjectCaustic.scene"
 
+// TODO: Implement time varying transforms before removing these scenes
+#include "test_scenes/render/Room.scene"
+#include "test_scenes/render/RefractiveSpheresAndCubes.scene"
 
 // ------------------------------------------------------------ 
 // Test runner
@@ -69,7 +68,10 @@ int main (int argc, char * const argv[])
     //std::string testName("RefractiveSpheresVaryingIOR");
     //std::string testName("RefractiveBunniesVaryingIOR");
     //std::string testName("Room");
-    std::string testName("RoomWithSpheresCookTorrance");
+    std::string testName("RoomWithSpheres");
+    //std::string testName("RoomWithSpheresCookTorrance");
+    //std::string testName("Gooch");
+    //std::string testName("Hairball");
 
     bool ok = loadTestSceneFromFile(sceneRoot + testName + ext, testScene);
     std::cout << "loadTestSceneFromFile -> " << ok << std::endl;

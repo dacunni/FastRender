@@ -24,6 +24,7 @@
 #include "FlatContainer.h"
 #include "BasicDiffuseSpecularShader.h"
 #include "GoochShader.h"
+#include "AmbientOcclusionShader.h"
 #include "TestScenes.h"
 #include "Logger.h"
 
@@ -470,6 +471,9 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         }
         else if(shaderType == "Gooch") {
             testScene.tracer->shader = new GoochShader();
+        }
+        else if(shaderType == "AmbientOcclusion") {
+            testScene.tracer->shader = new AmbientOcclusionShader();
         }
         else {
             throw UnknownShaderException(shaderType);

@@ -15,4 +15,5 @@ sphere
         roughness 0.95
 
 raysperpixel 100
+testname RoomWithSpheresCookTorrance
 
