@@ -296,9 +296,22 @@ std::vector<float> getFloats(std::vector<std::string>::iterator first,
     return values;
 }
 
+std::vector<unsigned int> getUInts(std::vector<std::string>::iterator first,
+                                   std::vector<std::string>::iterator last)
+{
+    std::vector<unsigned int> values;
+    std::transform(first, last, back_inserter(values), [](std::string & s) { return std::stoi(s); } );
+    return values;
+}
+
 std::vector<float> getFloatArgs(SceneFileElement & element, unsigned int numArgs)
 {
     return getFloats(element.tokens.begin() + 1, element.tokens.begin() + 1 + numArgs);
+}
+
+std::vector<unsigned int> getUIntArgs(SceneFileElement & element, unsigned int numArgs)
+{
+    return getUInts(element.tokens.begin() + 1, element.tokens.begin() + 1 + numArgs);
 }
 
 Vector4 getVectorArgs(SceneFileElement & element)
@@ -344,9 +357,7 @@ std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
                                                       roughness);
     }
     // TODO - all materials
-    else {
-        throw UnknownMaterialException(name);
-    }
+    else { throw UnknownMaterialException(name); }
 }
 
 Transform makeSingleTransform(SceneFileElement & element)
@@ -361,18 +372,14 @@ Transform makeSingleTransform(SceneFileElement & element)
             std::vector<float> params = getFloats(tokens.begin() + 1, tokens.begin() + 4);
             return makeScaling(params[0], params[1], params[2]);
         }
-        else {
-            throw InvalidArgumentListException();
-        }
+        else { throw InvalidArgumentListException(); }
     }
     else if(xfType == "translate") {
         if(tokens.size() == 4) { // dx dy dz
             std::vector<float> params = getFloats(tokens.begin() + 1, tokens.begin() + 4);
             return makeTranslation(params[0], params[1], params[2]);
         }
-        else {
-            throw InvalidArgumentListException();
-        }
+        else { throw InvalidArgumentListException(); }
     }
     else if(xfType == "rotate") {
         if(tokens.size() == 5) { // angle x y z
@@ -380,9 +387,7 @@ Transform makeSingleTransform(SceneFileElement & element)
             const Vector4 axis(params[1], params[2], params[3]);
             return makeRotation(params[0], axis);
         }
-        else {
-            throw InvalidArgumentListException();
-        }
+        else { throw InvalidArgumentListException(); }
     }
     throw UnknownKeywordException(xfType);
 }
@@ -431,15 +436,11 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         std::string outputPath = element.param("outputpath")[1];
         std::string testName = element.param("testname")[1];
 
-        auto sizeEl = element.param("imagesize");
-        unsigned int imageWidth = std::stoi(sizeEl[1]);
-        unsigned int imageHeight = std::stoi(sizeEl[2]);
-        auto animEl = element.param("animframes");
-        unsigned int numAnimFrames = std::stoi(animEl[1]);
-        auto rppEl = element.param("raysperpixel");
-        unsigned int raysPerPixel = std::stoi(rppEl[1]);
+        auto imageSize     = getUIntArgs(element.param("imagesize"), 2);
+        auto numAnimFrames = getUIntArgs(element.param("animframes"), 1)[0];
+        auto raysPerPixel  = getUIntArgs(element.param("raysperpixel"), 1)[0];
 
-        testScene.tracer = new ImageTracer(imageWidth, imageHeight,
+        testScene.tracer = new ImageTracer(imageSize[0], imageSize[1],
                                            numAnimFrames, raysPerPixel);
         testScene.tracer->artifacts.output_path = outputPath;
         testScene.tracer->artifacts.file_prefix = testName + "_";
@@ -451,8 +452,7 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
     else if(keyword == "camera") {
         // optional: transform
         try {
-            auto transformEl = element.param("transform");
-            auto transform = makeCompositeTransform(transformEl);
+            auto transform = makeCompositeTransform(element.param("transform"));
             testScene.tracer->setCameraTransform(*transform);
         }
         catch (ParamNotFoundException &) {}
@@ -464,8 +464,7 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         catch (ParamNotFoundException &) {}
     }
     else if(keyword == "tracer") {
-        auto shaderEl = element.param("shader");
-        auto shaderType = shaderEl[1];
+        auto shaderType = element.param("shader")[1];
         if(shaderType == "BasicDiffuseSpecular") {
             testScene.tracer->shader = new BasicDiffuseSpecularShader();
         }
@@ -490,8 +489,7 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
     else if(keyword == "mesh") {
         AssetLoader loader;
         bool multipart = element.optionalFlag("multipart");
-        auto pathEl = element.param("path");
-        auto & path = pathEl[1];
+        auto path = element.param("path")[1];
         if(multipart) {
             auto mesh = loader.loadMultiPart(path);
             buildTraceable(element, *mesh);
@@ -504,8 +502,7 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         }
     }
     else if(keyword == "sphere") {
-        auto radiusEl = element.param("radius");
-        float radius = std::stof(radiusEl[1]);
+        float radius = getFloatArgs(element.param("radius"), 1)[0];
         auto center = getVectorArgs(element.param("center"));
         auto obj = std::make_shared<Sphere>(center, radius);
         buildTraceable(element, *obj);
@@ -513,8 +510,7 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         container.add(obj);
     }
     else if(keyword == "circlearealight") {
-        auto radiusEl = element.param("radius");
-        float radius = std::stof(radiusEl[1]);
+        float radius = getFloatArgs(element.param("radius"), 1)[0];
         auto power = getRGBArgs(element.param("power"));
         auto obj = std::make_shared<CircleAreaLight>(radius, power);
         buildTraceable(element, *obj);
@@ -530,8 +526,8 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
     else if(keyword == "arclightenvmap") {
         auto direction = getVectorArgs(element.param("direction"));
         direction.makeDirection();
-        float radius = std::stof(element.param("radius")[1]);
-        float power = std::stof(element.param("power")[1]);
+        float radius = getFloatArgs(element.param("radius"), 1)[0];
+        float power = getFloatArgs(element.param("power"), 1)[0];
         auto env_map = std::make_shared<ArcLightEnvironmentMap>(direction, radius);
         env_map->setPower(power);
         testScene.scene->env_map = env_map;
