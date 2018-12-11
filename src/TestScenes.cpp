@@ -20,6 +20,7 @@
 #include "AssetLoader.h"
 #include "TMOctreeAccelerator.h"
 #include "BoundingVolume.h"
+#include "BoundingVolumeHierarchy.h"
 #include "EnvironmentMap.h"
 #include "FlatContainer.h"
 #include "BasicDiffuseSpecularShader.h"
@@ -353,8 +354,14 @@ std::shared_ptr<Material> makeMaterial(SceneFileElement & element)
         auto & albedoEl = element.param("albedo");
         std::vector<float> albedoValues = getFloatArgs(albedoEl, 3);
         float roughness = std::stof(element.param("roughness")[1]);
-        return std::make_shared<CookTorranceMaterial>(albedoValues[0], albedoValues[1], albedoValues[2],
-                                                      roughness);
+        auto material = std::make_shared<CookTorranceMaterial>(albedoValues[0], albedoValues[1], albedoValues[2],
+                                                               roughness);
+        try {
+            float f0 = std::stof(element.param("f0")[1]);
+            material->setFresnelAtNormal(f0);
+        }
+        catch (ParamNotFoundException &) {}
+        return material;
     }
     // TODO - all materials
     else { throw UnknownMaterialException(name); }
@@ -399,7 +406,6 @@ std::shared_ptr<Transform> makeCompositeTransform(SceneFileElement & element)
     for(auto & child : element.children) {
         *transform = compose(*transform, makeSingleTransform(child));
     }
-    transform->print(); // TEMP
 
     return transform;
 }
@@ -421,7 +427,9 @@ void buildTraceable(SceneFileElement & element, Traceable & traceable)
     catch (ParamNotFoundException &) {}
 }
 
-void buildSceneElement(SceneFileElement & element, TestScene & testScene, Container & container)
+std::map<std::string, std::vector<std::string>> macros;
+
+void buildSceneElement(SceneFileElement & element, TestScene & testScene, Container & container, AssetLoader & loader)
 {
     const auto & keyword = element.tokens[0];
 
@@ -446,7 +454,7 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         testScene.tracer->artifacts.file_prefix = testName + "_";
 
         for(auto & child : element.children) {
-            buildSceneElement(child, testScene, container);
+            buildSceneElement(child, testScene, container, loader);
         }
     }
     else if(keyword == "camera") {
@@ -487,7 +495,6 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         container.add(obj);
     }
     else if(keyword == "mesh") {
-        AssetLoader loader;
         bool multipart = element.optionalFlag("multipart");
         auto path = element.param("path")[1];
         if(multipart) {
@@ -532,6 +539,12 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
         env_map->setPower(power);
         testScene.scene->env_map = env_map;
     }
+    else if(keyword == "hdrenvmap") {
+        auto path = element.param("path")[1];
+        auto imageSize = getUIntArgs(element.param("imagesize"), 2);
+        auto env_map = std::make_shared<HDRImageEnvironmentMap>(path, imageSize[0], imageSize[1]);
+        testScene.scene->env_map = env_map;
+    }
     else {
         throw UnknownKeywordException(keyword);
     }
@@ -539,11 +552,21 @@ void buildSceneElement(SceneFileElement & element, TestScene & testScene, Contai
 
 void buildScene(SceneFileElement & root, TestScene & testScene)
 {
+    AssetLoader loader;
     auto container = std::make_shared<FlatContainer>();
     testScene.scene = new Scene();
+
+#if 0
+    buildSceneElement(root, testScene, *container, loader);
+
+    auto bvh = std::make_shared<BoundingVolumeHierarchy>();
+    bvh->build(container);
+    testScene.scene->root = bvh;
+#else
     testScene.scene->root = container;
 
-    buildSceneElement(root, testScene, *container);
+    buildSceneElement(root, testScene, *container, loader);
+#endif
 }
 
 void loadSceneFileElementsFromFile(const std::string & sceneFile, SceneFileElement & rootElement)
@@ -586,6 +609,22 @@ void loadSceneFileElementsFromFile(const std::string & sceneFile, SceneFileEleme
         if(tokens.size() == 0)
             continue;
 
+        // Replace macros with their expansions
+        std::vector<std::string> expandedTokens;
+        for(auto ti = tokens.begin(); ti != tokens.end(); ++ti) {
+            auto & token = *ti;
+            if(token.find("$") == 0) {
+                auto key = token.substr(1);
+                for(auto & macroToken : macros[key]) {
+                    expandedTokens.push_back(macroToken);
+                }
+            }
+            else {
+                expandedTokens.push_back(token);
+            }
+        }
+        tokens = std::move(expandedTokens);
+
         SceneFileElement child;
         child.tokens = tokens;
 
@@ -597,6 +636,12 @@ void loadSceneFileElementsFromFile(const std::string & sceneFile, SceneFileEleme
                 prefix = sceneFile.substr(0, dirEnd + 1);
             }
             loadSceneFileElementsFromFile(prefix + includeFile, *element);
+        }
+        else if(tokens[0] == "macro") {
+            auto key = tokens[1];
+            std::vector<std::string> args;
+            std::copy(tokens.begin() + 2, tokens.end(), std::back_inserter(args));
+            macros[key] = std::move(args);
         }
         else {
             element->children.push_back(child);
@@ -616,6 +661,7 @@ bool loadTestSceneFromFile(const std::string & sceneFile, TestScene & testScene)
     try {
         loadSceneFileElementsFromFile(sceneFile, rootElement);
         rootElement.print();
+        std::cout << macros.size() << " macros\n";
         buildScene(rootElement, testScene);
     }
     catch(std::exception & e) {

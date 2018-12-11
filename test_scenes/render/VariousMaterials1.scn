@@ -1,0 +1,165 @@
+
+# Floor
+#axisalignedslab
+#    min -10.0, +0.0, +2.0
+#    max +10.0, -1.0, -2.0
+
+# Diffuse row
+mesh
+    path models/uvmonkey.ply
+    material Diffuse
+        albedo 1 1 1
+    transform
+        rotate 0.0 0 1 0
+        translate -4 0.5 -4
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material Diffuse
+        albedo 1 0.5 0.5
+    transform
+        rotate 0.0 0 1 0
+        translate -2 0.5 -4
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material Diffuse
+        albedo 0.5 1 0.5
+    transform
+        rotate 0.0 0 1 0
+        translate 0 0.5 -4
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material Diffuse
+        albedo 0.5 0.5 1
+    transform
+        rotate 0.0 0 1 0
+        translate 2 0.5 -4
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material Diffuse
+        albedo 0.5 0.5 0.5
+    transform
+        rotate 0.0 0 1 0
+        translate 4 0.5 -4
+        scale 1.8 1.8 1.8
+
+# Cook-Torrance row
+mesh
+    path models/uvmonkey.ply
+    material CookTorrance
+        albedo 1 1 1
+        roughness 0.0
+    transform
+        rotate 0.0 0 1 0
+        translate -4 0.5 -2
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material CookTorrance
+        albedo 1 1 1
+        roughness 0.05
+    transform
+        rotate 0.0 0 1 0
+        translate -2 0.5 -2
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material CookTorrance
+        albedo 1 1 1
+        roughness 0.2
+    transform
+        rotate 0.0 0 1 0
+        translate 0 0.5 -2
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material CookTorrance
+        albedo 1 1 1
+        roughness 0.6
+    transform
+        rotate 0.0 0 1 0
+        translate 2 0.5 -2
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material CookTorrance
+        albedo 1 1 1
+        roughness 1.0
+    transform
+        rotate 0.0 0 1 0
+        translate 4 0.5 -2
+        scale 1.8 1.8 1.8
+
+# Various
+mesh
+    path models/uvmonkey.ply
+    material DiffuseTexture
+        texture textures/Rust_Paint_03_UV_H_CM_1.jpg
+    transform
+        rotate 0.0 0 1 0
+        translate -4 0.5 0
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material DiffuseUV
+    transform
+        rotate 0.0 0 1 0
+        translate -2 0.5 0
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material Mirror
+    transform
+        rotate 0.0 0 1 0
+        translate 0 0.5 0
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material Refractive
+        index 1.6
+    transform
+        rotate 0.0 0 1 0
+        translate 2 0.5 0
+        scale 1.8 1.8 1.8
+mesh
+    path models/uvmonkey.ply
+    material CookTorrance
+        albedo 1 1 1
+        roughness 0.25
+#        f0 0.91
+        f0 0.049
+    transform
+        rotate 0.0 0 1 0
+        translate 4 0.5 0
+        scale 1.8 1.8 1.8
+
+#arclightenvmap
+#    direction 1 1 1
+#    radius 0.3
+#    power 1.0
+
+hdrenvmap
+    path light_probes/debevec/stpeters_probe.float
+    imagesize 1500 1500
+#    path light_probes/debevec/grace_probe.float
+#    imagesize 1000 1000
+
+camera
+    dimensions 1.0 0.5
+    transform
+        rotate -0.5 1 0 0
+        translate 0 1 10
+
+tracer
+    shader BasicDiffuseSpecular
+
+raysperpixel 40
+animframes 1
+imagesize 800 400
+
+outputpath testoutput
+testname VariousMaterials1
+

@@ -1,0 +1,134 @@
+
+macro meshfile models/uvmonkey.ply
+
+# derived scenes should define these
+#macro albedo 1 1 1
+#macro fresnel0 0.04
+
+mesh
+    path $meshfile
+    material CookTorrance
+        albedo $albedo
+        roughness 0.0
+        f0 $fresnel0
+    transform
+        translate -4 0.5 -2
+        scale 1.8 1.8 1.8
+sphere
+    center 0 -0.25 1.5
+    radius 0.25
+    material CookTorrance
+        albedo $albedo
+        roughness 0.0
+        f0 $fresnel0
+    transform
+        translate -4 0.5 -2
+
+mesh
+    path $meshfile
+    material CookTorrance
+        albedo $albedo
+        roughness 0.05
+        f0 $fresnel0
+    transform
+        translate -2 0.5 -2
+        scale 1.8 1.8 1.8
+sphere
+    center 0 -0.25 1.5
+    radius 0.25
+    material CookTorrance
+        albedo $albedo
+        roughness 0.05
+        f0 $fresnel0
+    transform
+        translate -2 0.5 -2
+
+mesh
+    path $meshfile
+    material CookTorrance
+        albedo $albedo
+        roughness 0.2
+        f0 $fresnel0
+    transform
+        translate 0 0.5 -2
+        scale 1.8 1.8 1.8
+sphere
+    center 0 -0.25 1.5
+    radius 0.25
+    material CookTorrance
+        albedo $albedo
+        roughness 0.2
+        f0 $fresnel0
+    transform
+        translate 0 0.5 -2
+
+mesh
+    path $meshfile
+    material CookTorrance
+        albedo $albedo
+        roughness 0.6
+        f0 $fresnel0
+    transform
+        translate 2 0.5 -2
+        scale 1.8 1.8 1.8
+sphere
+    center 0 -0.25 1.5
+    radius 0.25
+    material CookTorrance
+        albedo $albedo
+        roughness 0.6
+        f0 $fresnel0
+    transform
+        translate 2 0.5 -2
+
+mesh
+    path $meshfile
+    material CookTorrance
+        albedo $albedo
+        roughness 1.0
+        f0 $fresnel0
+    transform
+        translate 4 0.5 -2
+        scale 1.8 1.8 1.8
+sphere
+    center 0 -0.25 1.5
+    radius 0.25
+    material CookTorrance
+        albedo $albedo
+        roughness 1.0
+        f0 $fresnel0
+    transform
+        translate 4 0.5 -2
+
+# Floor
+axisalignedslab
+    min -10.0, +0.0, +2.0
+    max +10.0, -1.0, -2.0
+
+#arclightenvmap
+#    direction 1 1 1
+#    radius 0.3
+#    power 1.0
+
+hdrenvmap
+    path light_probes/debevec/stpeters_probe.float
+    imagesize 1500 1500
+#    path light_probes/debevec/grace_probe.float
+#    imagesize 1000 1000
+
+camera
+    dimensions 0.5 0.125
+    transform
+        rotate -0.5 1 0 0
+        translate 0 1 18
+
+tracer
+    shader BasicDiffuseSpecular
+
+raysperpixel 30
+animframes 1
+imagesize 800 200
+
+outputpath testoutput
+testname CookTorranceAluminum
+

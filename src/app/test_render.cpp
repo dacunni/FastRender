@@ -52,28 +52,15 @@ int main (int argc, char * const argv[])
 
     // Tests
 #if 1
-    // NEW scene file format
-    TestScene testScene("testoutput", "testname");
-    std::string sceneRoot("test_scenes/render/");
-    std::string ext(".scn");
-    //std::string testName("UVMesh");
-    //std::string testName("TexturedMesh");
-    //std::string testName("SimpleCube");
-    //std::string testName("SpheresPointLight");
-    //std::string testName("SpheresColoredPointLights");
-    //std::string testName("SanMiguel");
-    //std::string testName("MirrorSphereColoredSpheresArcLight");
-    //std::string testName("BunnyEtcDiffusePointLights");
-    //std::string testName("BunnyEtcVariousMaterialsPointLights");
-    //std::string testName("RefractiveSpheresVaryingIOR");
-    //std::string testName("RefractiveBunniesVaryingIOR");
-    //std::string testName("Room");
-    std::string testName("RoomWithSpheres");
-    //std::string testName("RoomWithSpheresCookTorrance");
-    //std::string testName("Gooch");
-    //std::string testName("Hairball");
+    if(argc < 2) {
+        logger->fatal() << "No scene file provided";
+        return EXIT_FAILURE;
+    }
 
-    bool ok = loadTestSceneFromFile(sceneRoot + testName + ext, testScene);
+    TestScene testScene("testoutput", "testname");
+    std::string sceneFile = argv[1];
+
+    bool ok = loadTestSceneFromFile(sceneFile, testScene);
     std::cout << "loadTestSceneFromFile -> " << ok << std::endl;
     if(!ok) { exit(EXIT_FAILURE); }
     testScene.render();
