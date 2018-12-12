@@ -1,0 +1,8 @@
+
+macro albedo 0.4 0 0
+macro fresnel0 0.017109
+
+include CookTorranceBase.scn
+
+testname CookTorranceBlood
+

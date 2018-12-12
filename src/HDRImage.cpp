@@ -91,6 +91,23 @@ void HDRImage::applyScalingUV( const std::function<float(float,float)> & scale )
     }
 }
 
+RGBRadianceSample HDRImage::at( unsigned int r, unsigned int c ) const
+{
+    unsigned int ri = std::min( (unsigned int) r, height - 1 );
+    unsigned int ci = std::min( (unsigned int) c, width - 1 );
+
+    unsigned int offset = (ri * width + ci) * 3;
+
+    // TODO[DAC]: Make the radiometry correct
+    float scale_factor = 1.0;
+
+    RGBRadianceSample s;
+    s.color.r = data[ offset + 0 ] * scale_factor;
+    s.color.g = data[ offset + 1 ] * scale_factor;
+    s.color.b = data[ offset + 2 ] * scale_factor;
+    return s;
+}
+
 RGBRadianceSample HDRImage::sampleRGB( float u, float v ) const
 {
     RGBRadianceSample s;
@@ -99,9 +116,21 @@ RGBRadianceSample HDRImage::sampleRGB( float u, float v ) const
         return s;
     }
 
-    float row = v * height;
-    float col = u * width;
+    float row = std::floor(v * height);
+    float col = std::floor(u * width);
 
+#if 1
+    // Interpolate pixels
+    float rw = v * height - row;
+    float cw = u * width - col;
+    float omrw = 1.0f - rw;
+    float omcw = 1.0f - cw;
+    s = RGBRadianceSample((omrw * omcw * at(row,   col).color +
+                           rw   * omcw * at(row+1, col).color +
+                           rw   *   cw * at(row+1, col+1).color +
+                           omrw *   cw * at(row,   col+1).color));
+    return s;
+#else
     unsigned int ri = std::min( (unsigned int) row, height );
     unsigned int ci = std::min( (unsigned int) col, width );
 
@@ -118,6 +147,7 @@ RGBRadianceSample HDRImage::sampleRGB( float u, float v ) const
     s.color.b = data[ offset + 2 ] * scale_factor;
 
     return s;
+#endif
 }
 
 

@@ -4,5 +4,5 @@ macro fresnel0 0.051182
 
 include CookTorranceBase.scn
 
-testname CookTorranceAluminum
+testname CookTorrancePolycarbonate
 

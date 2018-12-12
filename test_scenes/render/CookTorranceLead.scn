@@ -1,0 +1,8 @@
+
+macro albedo 1 1 1
+macro fresnel0 0.91643
+
+include CookTorranceBase.scn
+
+testname CookTorranceLead
+
