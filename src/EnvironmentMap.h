@@ -107,6 +107,9 @@ class HDRImageEnvironmentMap : public EnvironmentMap {
 
         void updateStateFromImage();
         void maskInscribedCircle();
+
+        void uvToDirection(float u, float v, Vector4 & d) const;
+        void directionToUV(const Vector4 & d, float & u, float & v) const;
 };
 
 // Even illumination in all directions

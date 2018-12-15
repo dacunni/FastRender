@@ -112,22 +112,45 @@ HDRImageEnvironmentMap::HDRImageEnvironmentMap( const std::string & filename,
     updateStateFromImage();
 }
 
+void HDRImageEnvironmentMap::uvToDirection(float u, float v, Vector4 & d) const
+{
+    // Map u,v in [0, 1] to [-1, 1]
+    float nu = u * 2.0f - 1.0f;
+    float nv = v * 2.0f - 1.0f;
+    // u,v to direction - must be the inverse of sample()!
+    float theta = atan2f(nv, nu);
+    float phi = M_PI * sqrtf(nu * nu + nv * nv);
+    //printf("t %7.5f p %7.5f\n", theta, phi); // TEMP
+    d.x = sinf(phi) * cosf(theta);
+    d.y = sinf(phi) * sinf(theta);
+    d.z = cosf(phi);
+    d.makeDirection();
+}
+
+void HDRImageEnvironmentMap::directionToUV(const Vector4 & d, float & u, float & v) const
+{
+    // u,v in [-1, 1]
+    float r = (1.0f / M_PI) * acos(d.z) / sqrt( sq(d.x) + sq(d.y) );
+    u = d.x * r;
+    v = d.y * r;
+
+    // Map u,v in [-1, 1] to [0, 1]
+    u = (u + 1.0f) * 0.5f;
+    v = (v + 1.0f) * 0.5f;
+    assert(u >= 0.0f);
+    assert(u <= 1.0f);
+    assert(v >= 0.0f);
+    assert(v <= 1.0f);
+}
+
 RGBRadianceSample HDRImageEnvironmentMap::sample( const Ray & ray ) const
 {
     // FIXME[DAC]: Why do we have to negate this? Does this work properly from all angles?
     const Vector4 & d = ray.direction;
     //const Vector4 d = ray.direction.negated();
 
-    // u,v in [-1, 1]
-    float r = (1.0f / M_PI) * acos(d.z) / sqrt( sq(d.x) + sq(d.y) );
-    float u = d.x * r;
-    float v = d.y * r;
-
-    // Map u,v in [-1, 1] to [0, 1]
-    u = (u + 1.0f) * 0.5f;
-    v = (v + 1.0f) * 0.5f;
-
-    //printf("S: u %f v %f\n", u, v); // TEMP
+    float u, v;
+    directionToUV(d, u, v);
 
     return image.sampleRGB(u, v);
 }
@@ -136,22 +159,16 @@ EnvironmentMap::ImportanceSample
 HDRImageEnvironmentMap::importanceSample( RandomNumberGenerator & rng,
                                           const RayIntersection & intersection )
 {
+    // FIXME - This appears to be broken
+
     DistributionSampler2D::Sample distSample;
     distSample = sampler->sample();
 
     ImportanceSample mapSample;
     mapSample.pdf = distSample.pdf;
     mapSample.ray.origin = intersection.position;
-    // Map u,v in [0, 1] to [-1, 1]
-    float u = distSample.u * 2.0f - 1.0f;
-    float v = distSample.v * 2.0f - 1.0f;
-    // u,v to direction - must be the inverse of sample()!
-    float theta = atan2f(v, u);
-    float phi = M_PI * sqrtf(u * u + v * v);
-    mapSample.ray.direction.x = sinf(phi) * cosf(theta);
-    mapSample.ray.direction.y = sinf(phi) * sinf(theta);
-    mapSample.ray.direction.z = cosf(phi);
-    mapSample.ray.direction.makeDirection();
+
+    uvToDirection(distSample.u, distSample.v, mapSample.ray.direction);
 
     // TODO: Handle sample pointing away from normal
     //       Currently the caller handles this
