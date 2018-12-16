@@ -23,18 +23,18 @@ RGBImage::RGBImage()
 
 }
 
-RGBImage::RGBImage( unsigned int w, unsigned int h )
+RGBImage::RGBImage(unsigned int w, unsigned int h)
     : Image(w, h, 3)
 {
 
 }
 
-RGBImage::RGBImage( const std::string & filename, unsigned int w, unsigned int h )
+RGBImage::RGBImage(const std::string & filename, unsigned int w, unsigned int h)
 {
     loadDataFromRawFile(filename, w, h);
 }
 
-RGBImage::RGBImage( const std::string & filename )
+RGBImage::RGBImage(const std::string & filename)
 {
     loadDataFromImageFile(filename);
 }
@@ -44,17 +44,17 @@ RGBImage::~RGBImage()
 
 }
 
-void RGBImage::loadDataFromRawFile( const std::string & filename,
+void RGBImage::loadDataFromRawFile(const std::string & filename,
                                     unsigned int w, unsigned int h)
 {
     std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
-    if( file.is_open() )
+    if(file.is_open())
     {
         std::streampos size = file.tellg();
-        assert( size == w * h * 3 * sizeof(float) );
-        data.resize( size );
-        file.seekg( 0, std::ios::beg );
-        file.read( reinterpret_cast<char*>(&data[0]), size );
+        assert(size == w * h * 3 * sizeof(float));
+        data.resize(size);
+        file.seekg(0, std::ios::beg);
+        file.read(reinterpret_cast<char*>(&data[0]), size);
         file.close();
         width = w;
         height = h;
@@ -68,7 +68,7 @@ void RGBImage::loadDataFromRawFile( const std::string & filename,
     }
 }
 
-void RGBImage::loadDataFromImageFile( const std::string & filename )
+void RGBImage::loadDataFromImageFile(const std::string & filename)
 {
     int w = 0, h = 0, numComponents = 3;
 
@@ -94,19 +94,19 @@ void RGBImage::loadDataFromImageFile( const std::string & filename )
     height = h;
 }
 
-RGBColor RGBImage::sampleRGB( float u, float v ) const
+RGBColor RGBImage::sampleRGB(float u, float v) const
 {
     RGBColor s;
 
-    if( width == 0 || height == 0 ) {
+    if(width == 0 || height == 0) {
         return s;
     }
 
     float row = v * height;
     float col = u * width;
 
-    unsigned int ri = std::min( (unsigned int) row, height );
-    unsigned int ci = std::min( (unsigned int) col, width );
+    unsigned int ri = std::min((unsigned int) row, height);
+    unsigned int ci = std::min((unsigned int) col, width);
 
     unsigned int offset = (ri * width + ci) * 3;
 
